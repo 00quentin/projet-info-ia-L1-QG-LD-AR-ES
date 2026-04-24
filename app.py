@@ -626,7 +626,7 @@ if lancer:
 # 8. FONCTIONS D'AFFICHAGE (DASHBOARD, PORTEFEUILLE)
 # ==========================================
 
-def afficher_dashboard(res, params, titre_prefix=""):
+def afficher_dashboard(res, params, titre_prefix="", key_prefix="main"):
     """Affiche le dashboard complet d'une simulation."""
     chocs = res["chocs_ia"]
     df = res["df"]
@@ -706,9 +706,7 @@ def afficher_dashboard(res, params, titre_prefix=""):
                     legend=dict(orientation="h", yanchor="bottom", y=-0.45, xanchor="center", x=0.5),
                     font=dict(color="#2d3748")
                 )
-                st.plotly_chart(fig, use_container_width=True)
-
-    # Heatmap
+                st.plotly_chart(fig, use_container_width=True, key=f"{key_prefix}_cat_{titre_cat}")
     st.markdown('<hr class="qt-divider">', unsafe_allow_html=True)
     fig_bar = px.bar(res["perf_df"], x='Performance (%)', y='Actif', orientation='h',
                      color='Performance (%)', color_continuous_scale=['#c53030', '#f7fafc', '#2f855a'],
@@ -719,10 +717,10 @@ def afficher_dashboard(res, params, titre_prefix=""):
                           margin=dict(l=10, r=10, t=50, b=10),
                           title_font=dict(color="#1a365d"),
                           font=dict(color="#2d3748"))
-    st.plotly_chart(fig_bar, use_container_width=True)
+    st.plotly_chart(fig_bar, use_container_width=True, key=f"{key_prefix}_heatmap")
 
 
-def afficher_portefeuille(res, params, titre_prefix=""):
+def afficher_portefeuille(res, params, titre_prefix="", key_prefix="main"):
     cap = params["capital"]
     profil = params["profil"]
     actifs_sim = params["actifs_sim"]
@@ -760,7 +758,7 @@ def afficher_portefeuille(res, params, titre_prefix=""):
                                   margin=dict(l=10, r=10, t=50, b=10),
                                   legend=dict(orientation="v", x=1.0, y=0.5),
                                   title_font=dict(color="#1a365d"))
-            st.plotly_chart(fig_pie, use_container_width=True)
+            st.plotly_chart(fig_pie, use_container_width=True, key=f"{key_prefix}_pie")
 
         with col_bilan:
             st.markdown("<br><br>", unsafe_allow_html=True)
@@ -784,12 +782,12 @@ with tab_dashboard:
             sub_A, sub_B = st.tabs(["Scénario A", "Scénario B"])
             with sub_A:
                 st.markdown(f'<div class="qt-callout"><strong>Scénario A :</strong> {st.session_state.simu_A["scenario"]}</div>', unsafe_allow_html=True)
-                afficher_dashboard(st.session_state.simu_A, st.session_state.params_sim)
+                afficher_dashboard(st.session_state.simu_A, st.session_state.params_sim, key_prefix="dash_A")
             with sub_B:
                 st.markdown(f'<div class="qt-callout"><strong>Scénario B :</strong> {st.session_state.simu_B["scenario"]}</div>', unsafe_allow_html=True)
-                afficher_dashboard(st.session_state.simu_B, st.session_state.params_sim)
+                afficher_dashboard(st.session_state.simu_B, st.session_state.params_sim, key_prefix="dash_B")
         else:
-            afficher_dashboard(st.session_state.simu_A, st.session_state.params_sim)
+            afficher_dashboard(st.session_state.simu_A, st.session_state.params_sim, key_prefix="dash_main")
 
 
 # ==========================================
@@ -803,11 +801,11 @@ with tab_portefeuille:
         if mode_comparaison and st.session_state.simu_B:
             sub_A, sub_B = st.tabs(["Scénario A", "Scénario B"])
             with sub_A:
-                afficher_portefeuille(st.session_state.simu_A, st.session_state.params_sim)
+                afficher_portefeuille(st.session_state.simu_A, st.session_state.params_sim, key_prefix="port_A")
             with sub_B:
-                afficher_portefeuille(st.session_state.simu_B, st.session_state.params_sim)
+                afficher_portefeuille(st.session_state.simu_B, st.session_state.params_sim, key_prefix="port_B")
         else:
-            afficher_portefeuille(st.session_state.simu_A, st.session_state.params_sim)
+            afficher_portefeuille(st.session_state.simu_A, st.session_state.params_sim, key_prefix="port_main")
 
 
 # ==========================================
@@ -894,9 +892,7 @@ if tab_compare is not None:
                               yaxis_title="Valeur du portefeuille (€)",
                               legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="center", x=0.5),
                               font=dict(color="#2d3748"))
-            st.plotly_chart(fig, use_container_width=True)
-
-            # Comparatif métriques de risque
+            st.plotly_chart(fig, use_container_width=True, key="compare_port_chart")
             st.markdown('<div class="qt-section-title">Comparatif des métriques de risque</div>', unsafe_allow_html=True)
             m_A = calculer_metriques_risque(s_A)
             m_B = calculer_metriques_risque(s_B)
