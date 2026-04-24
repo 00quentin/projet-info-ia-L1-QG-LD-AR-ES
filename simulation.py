@@ -3,36 +3,25 @@ import numpy as np
 
 # --- PARAMÉTRAGE DES CLASSES D'ACTIFS ---
 ACTIFS_PRO = {
-    # Actions & Indices
     "S&P 500":              {"prix": 5200,   "volatilite": 0.012},
     "NASDAQ":               {"prix": 18200,  "volatilite": 0.016},
     "CAC 40":               {"prix": 8100,   "volatilite": 0.014},
     "MSCI_World":           {"prix": 3500,   "volatilite": 0.011},
     "Emerging_Markets":     {"prix": 1100,   "volatilite": 0.018},
-
-    # Obligations d'État 10Y
     "Bons_Tresor_US_10Y":   {"prix": 100,    "volatilite": 0.003},
     "Bund_10Y":             {"prix": 100,    "volatilite": 0.002},
     "OAT_10Y":              {"prix": 100,    "volatilite": 0.0025},
     "JGB_10Y":              {"prix": 100,    "volatilite": 0.0015},
     "Gilt_10Y":             {"prix": 100,    "volatilite": 0.003},
-
-    # Devises & Volatilité
     "EUR_USD":              {"prix": 1.08,   "volatilite": 0.004},
     "Dollar_Index":         {"prix": 104,    "volatilite": 0.004},
     "VIX":                  {"prix": 18,     "volatilite": 0.06},
-
-    # Matières premières
     "Or":                   {"prix": 2350,   "volatilite": 0.008},
     "Argent":               {"prix": 28,     "volatilite": 0.022},
     "Petrole":              {"prix": 85,     "volatilite": 0.025},
     "Cuivre":               {"prix": 4.5,    "volatilite": 0.020},
     "ETF_Terres_Rares":     {"prix": 55,     "volatilite": 0.030},
-
-    # Sectoriels
     "ETF_Defense":          {"prix": 42,     "volatilite": 0.015},
-
-    # Cryptomonnaies
     "Bitcoin":              {"prix": 65000,  "volatilite": 0.045},
     "Ethereum":             {"prix": 3300,   "volatilite": 0.055},
     "XRP":                  {"prix": 0.55,   "volatilite": 0.065},
@@ -41,17 +30,9 @@ ACTIFS_PRO = {
 
 
 def simuler_marche_dynamique(chocs_ia, jours=100, modele="Probabiliste (Réaliste)", actifs=None):
-    """
-    Génère les trajectoires des prix selon 3 comportements stochastiques.
-
-    - chocs_ia : dict retourné par analyser_evenement_macro()
-    - jours    : horizon de simulation
-    - modele   : Probabiliste / Historique / Machine Learning
-    - actifs   : liste des sim_keys à simuler (None = tous)
-    """
+    """UNE trajectoire stochastique des prix selon 3 comportements."""
     impacts = chocs_ia.get("actifs", {})
 
-    # Filtre selon la sélection utilisateur
     if actifs is not None:
         actifs_a_simuler = {k: v for k, v in ACTIFS_PRO.items() if k in actifs}
     else:
@@ -62,11 +43,9 @@ def simuler_marche_dynamique(chocs_ia, jours=100, modele="Probabiliste (Réalist
 
     historique = pd.DataFrame(index=range(jours), columns=actifs_a_simuler.keys())
 
-    # Initialisation jour 0
     for actif, params in actifs_a_simuler.items():
         historique.loc[0, actif] = params["prix"]
 
-    # Simulation stochastique quotidienne
     for jour in range(1, jours):
         for actif in actifs_a_simuler.keys():
             vol = actifs_a_simuler[actif]["volatilite"]
@@ -76,14 +55,12 @@ def simuler_marche_dynamique(chocs_ia, jours=100, modele="Probabiliste (Réalist
             if "Probabiliste" in modele:
                 variation = np.random.normal(0, vol)
                 nouveau_prix = ancien_prix * (1 + tendance_globale + variation)
-
             elif "Historique" in modele:
                 variation = np.random.normal(0, vol * 0.8)
                 if np.random.rand() < 0.02:
                     variation += np.random.choice([-1, 1]) * (vol * 5)
                 nouveau_prix = ancien_prix * (1 + tendance_globale + variation)
-
-            else:  # Machine Learning / Momentum
+            else:
                 variation = np.random.normal(0, vol * 0.5)
                 momentum = tendance_globale * (1 + (jour / jours))
                 nouveau_prix = ancien_prix * (1 + momentum + variation)
@@ -91,3 +68,23 @@ def simuler_marche_dynamique(chocs_ia, jours=100, modele="Probabiliste (Réalist
             historique.loc[jour, actif] = nouveau_prix
 
     return historique.astype(float)
+
+
+def simuler_monte_carlo(chocs_ia, jours=100, modele="Probabiliste (Réaliste)", actifs=None, nb_simulations=50):
+    """Lance plusieurs simulations et calcule les percentiles 5/50/95."""
+    toutes_simus = []
+    for _ in range(nb_simulations):
+        df = simuler_marche_dynamique(chocs_ia, jours=jours, modele=modele, actifs=actifs)
+        toutes_simus.append(df)
+
+    stack = np.stack([df.values for df in toutes_simus], axis=-1)
+    colonnes = toutes_simus[0].columns
+    mediane = pd.DataFrame(np.median(stack, axis=-1), columns=colonnes)
+    percentile_bas = pd.DataFrame(np.percentile(stack, 5, axis=-1), columns=colonnes)
+    percentile_haut = pd.DataFrame(np.percentile(stack, 95, axis=-1), columns=colonnes)
+
+    return {
+        "mediane": mediane.astype(float),
+        "bas": percentile_bas.astype(float),
+        "haut": percentile_haut.astype(float),
+    }
