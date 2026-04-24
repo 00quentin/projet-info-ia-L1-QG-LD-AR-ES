@@ -1,11 +1,12 @@
 import os
 import json
+import streamlit as st
 from openai import OpenAI
 from dotenv import load_dotenv
 
-# Chargement des variables d'environnement (clé API)
+# Fonctionne en local avec .env, et sur Streamlit Cloud avec les secrets
 load_dotenv()
-api_key = os.getenv("OPENAI_API_KEY")
+api_key = os.getenv("OPENAI_API_KEY") or st.secrets.get("OPENAI_API_KEY", None)
 client = OpenAI(api_key=api_key)
 
 def analyser_evenement_macro(evenement_utilisateur):
