@@ -89,235 +89,300 @@ EVENEMENTS_PRESETS = {
 
 st.set_page_config(page_title="Quant Terminal", page_icon="◆", layout="wide")
 
-st.markdown("""
+# Initialise le mode sombre
+if "dark_mode" not in st.session_state:
+    st.session_state.dark_mode = False
+
+# Initialise l'onboarding (1ère visite)
+if "show_onboarding" not in st.session_state:
+    st.session_state.show_onboarding = True
+
+# Variables CSS selon le mode
+if st.session_state.dark_mode:
+    css_vars = """
+        --primary:   #63b3ed;
+        --secondary: #4299e1;
+        --accent:    #4fd1c5;
+        --bg:        #1a202c;
+        --bg-2:      #2d3748;
+        --card:      #2d3748;
+        --border:    #4a5568;
+        --border-strong: #718096;
+        --text:      #e2e8f0;
+        --text-muted:#cbd5e0;
+        --muted:     #a0aec0;
+        --success:   #48bb78;
+        --danger:    #fc8181;
+    """
+else:
+    css_vars = """
+        --primary:   #1a365d;
+        --secondary: #2c5282;
+        --accent:    #319795;
+        --bg:        #f7fafc;
+        --bg-2:      #ffffff;
+        --card:      #ffffff;
+        --border:    #cbd5e0;
+        --border-strong: #a0aec0;
+        --text:      #2d3748;
+        --text-muted:#4a5568;
+        --muted:     #718096;
+        --success:   #2f855a;
+        --danger:    #c53030;
+    """
+
+st.markdown(f"""
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root {
-    --primary:   #1a365d;
-    --secondary: #2c5282;
-    --accent:    #319795;
-    --bg:        #f7fafc;
-    --card:      #ffffff;
-    --border:    #cbd5e0;       /* ⬅ plus foncé pour mieux voir les cadres */
-    --border-strong: #a0aec0;   /* ⬅ pour les bords plus marqués */
-    --text:      #2d3748;
-    --muted:     #718096;
-    --success:   #2f855a;
-    --danger:    #c53030;
-}
+:root {{
+    {css_vars}
+}}
 
-.stApp { background-color: var(--bg) !important; }
-.stMarkdown, .stText, p, li, label, span, div { color: var(--text); }
-h1, h2, h3, h4, h5, h6 { color: var(--primary) !important; font-weight: 700; }
+/* ============ POLICE CUSTOM ============ */
+html, body, [class*="css"], .stApp, .stMarkdown, p, span, div, h1, h2, h3, h4, h5, h6, label, button, input, textarea, select {{
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+}}
 
-[data-testid="stSidebar"] {
-    background-color: var(--card) !important;
+/* ============ ANIMATIONS GLOBALES ============ */
+@keyframes fadeInUp {{
+    from {{ opacity: 0; transform: translateY(15px); }}
+    to {{ opacity: 1; transform: translateY(0); }}
+}}
+@keyframes fadeIn {{
+    from {{ opacity: 0; }}
+    to {{ opacity: 1; }}
+}}
+@keyframes pulseSoft {{
+    0%, 100% {{ opacity: 1; }}
+    50% {{ opacity: 0.7; }}
+}}
+@keyframes slideInRight {{
+    from {{ transform: translateX(100%); opacity: 0; }}
+    to {{ transform: translateX(0); opacity: 1; }}
+}}
+@keyframes shimmer {{
+    0% {{ background-position: -1000px 0; }}
+    100% {{ background-position: 1000px 0; }}
+}}
+
+/* Apparition séquentielle des cartes */
+div[data-testid="metric-container"] {{
+    animation: fadeInUp 0.4s ease-out;
+}}
+.qt-card, .qt-card-intro, .qt-callout, .qt-callout-warn {{
+    animation: fadeInUp 0.5s ease-out;
+}}
+.stPlotlyChart {{
+    animation: fadeIn 0.6s ease-out;
+}}
+
+/* ============ APPLICATION COULEURS ============ */
+.stApp {{ background-color: var(--bg) !important; }}
+.stMarkdown, .stText, p, li, label, span, div {{ color: var(--text); }}
+h1, h2, h3, h4, h5, h6 {{ color: var(--primary) !important; font-weight: 700; }}
+
+/* Sidebar */
+[data-testid="stSidebar"] {{
+    background-color: var(--bg-2) !important;
     border-right: 1px solid var(--border);
-}
-[data-testid="stSidebar"] * { color: var(--text) !important; }
-[data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 {
+}}
+[data-testid="stSidebar"] * {{ color: var(--text) !important; }}
+[data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 {{
     color: var(--primary) !important;
-}
+}}
 
-[data-testid="stMetricValue"] { color: var(--primary) !important; font-weight: 700; }
-[data-testid="stMetricLabel"] * { color: var(--muted) !important; font-weight: 500; }
-[data-testid="stMetricDelta"] { font-weight: 600; }
+/* Métriques */
+[data-testid="stMetricValue"] {{ color: var(--primary) !important; font-weight: 700; }}
+[data-testid="stMetricLabel"] * {{ color: var(--muted) !important; font-weight: 500; }}
+[data-testid="stMetricDelta"] {{ font-weight: 600; }}
 
-div[data-testid="metric-container"] {
+div[data-testid="metric-container"] {{
     background-color: var(--card) !important;
-    border: 1px solid var(--border-strong) !important;   /* ⬅ bordure plus visible */
+    border: 1px solid var(--border-strong) !important;
     padding: 16px 18px;
-    border-radius: 10px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.06);              /* ⬅ ombre plus marquée */
-    transition: all 0.2s ease;
-}
-div[data-testid="metric-container"]:hover {
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}}
+div[data-testid="metric-container"]:hover {{
     border-color: var(--accent) !important;
-    box-shadow: 0 4px 14px rgba(49,151,149,0.15);
-}
+    box-shadow: 0 8px 20px rgba(49,151,149,0.15);
+    transform: translateY(-3px);
+}}
 
-.block-container {
+/* Layout */
+.block-container {{
     padding-top: 1.2rem;
     padding-bottom: 2rem;
     padding-left: 3rem;
     padding-right: 3rem;
     max-width: 1600px;
-}
-#MainMenu, footer { visibility: hidden; }
+}}
+#MainMenu, footer {{ visibility: hidden; }}
 
-.stTabs [data-baseweb="tab-list"] {
+/* Tabs */
+.stTabs [data-baseweb="tab-list"] {{
     background-color: var(--card) !important;
-    border-radius: 10px;
+    border-radius: 12px;
     padding: 6px;
     box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     margin-bottom: 24px;
     border: 1px solid var(--border-strong);
     gap: 4px;
-}
-.stTabs [data-baseweb="tab"] {
+}}
+.stTabs [data-baseweb="tab"] {{
     flex-grow: 1;
     text-align: center;
     font-weight: 600;
     color: var(--muted) !important;
-    border-radius: 6px;
-    transition: all 0.2s;
-}
-.stTabs [aria-selected="true"] {
+    border-radius: 8px;
+    transition: all 0.25s;
+}}
+.stTabs [data-baseweb="tab"]:hover {{
+    background-color: rgba(49,151,149,0.08);
+}}
+.stTabs [aria-selected="true"] {{
     background-color: var(--primary) !important;
     color: white !important;
-}
-.stTabs [aria-selected="true"] p { color: white !important; }
+}}
+.stTabs [aria-selected="true"] p {{ color: white !important; }}
 
-.stButton > button {
-    border-radius: 8px;
+/* Boutons */
+.stButton > button {{
+    border-radius: 10px;
     font-weight: 500;
-    transition: all 0.2s;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     border: 1px solid var(--border-strong);
-}
-.stButton > button[kind="primary"] {
-    background: var(--primary) !important;
+    font-family: 'Inter', sans-serif !important;
+}}
+.stButton > button[kind="primary"] {{
+    background: linear-gradient(135deg, var(--primary), var(--secondary)) !important;
     border: none !important;
     color: white !important;
-}
-.stButton > button[kind="primary"]:hover {
-    background: var(--secondary) !important;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(26,54,93,0.25);
-}
+    box-shadow: 0 4px 12px rgba(26,54,93,0.2);
+}}
+.stButton > button[kind="primary"]:hover {{
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(26,54,93,0.35);
+}}
+.stButton > button[kind="primary"]:active {{
+    transform: translateY(0);
+}}
 
-.streamlit-expanderHeader {
+/* Expanders */
+.streamlit-expanderHeader, [data-testid="stExpander"] summary {{
     font-weight: 600;
-    color: #1a365d !important;          /* ⬅ titres bleu primaire bien visible */
-    background-color: #f7fafc !important;
-    border: 1px solid #a0aec0 !important;
-    border-radius: 8px !important;
-}
-.streamlit-expanderHeader:hover {
-    background-color: #ebf8ff !important;
-    border-color: #319795 !important;
-}
-.streamlit-expanderHeader p {
-    color: #1a365d !important;
-    font-weight: 600 !important;
-}
-[data-testid="stExpander"] summary {
-    color: #1a365d !important;
-    font-weight: 600 !important;
-    background-color: #f7fafc !important;
-    border: 1px solid #a0aec0 !important;
-    border-radius: 8px !important;
-    padding: 8px 12px !important;
-}
-[data-testid="stExpander"] summary:hover {
-    background-color: #ebf8ff !important;
-    border-color: #319795 !important;
-}
-[data-testid="stExpander"] summary p {
-    color: #1a365d !important;
-    font-weight: 600 !important;
-}
-
-/* Inputs avec contraste correct + CURSEUR VISIBLE */
-.stTextArea textarea, .stTextInput input, .stNumberInput input {
-    border-radius: 8px;
-    border: 1px solid var(--border-strong) !important;
-    color: var(--text) !important;
-    background-color: #ffffff !important;
-    caret-color: var(--primary) !important;       /* ⬅ curseur bleu visible */
-    caret-shape: bar;
-}
-.stTextArea textarea:focus, .stTextInput input:focus, .stNumberInput input:focus {
-    border-color: var(--accent) !important;
-    box-shadow: 0 0 0 3px rgba(49,151,149,0.15) !important;
-    outline: none !important;
-}
-.stTextArea textarea::placeholder, .stTextInput input::placeholder {
-    color: #a0aec0 !important;
-}
-.stSelectbox > div > div {
-    border-radius: 8px !important;
-    border: 1px solid var(--border-strong) !important;
-    background-color: #ffffff !important;
-    color: var(--text) !important;
-}
-.stSelectbox > div > div * { color: var(--text) !important; }
-
-[data-baseweb="popover"] li,
-[data-baseweb="popover"] div {
-    color: var(--text) !important;
-}
-[data-baseweb="popover"] [aria-selected="true"] {
-    background-color: #ebf8ff !important;
     color: var(--primary) !important;
-}
+    background-color: var(--bg) !important;
+    border: 1px solid var(--border-strong) !important;
+    border-radius: 10px !important;
+    padding: 10px 14px !important;
+    transition: all 0.2s;
+}}
+.streamlit-expanderHeader:hover, [data-testid="stExpander"] summary:hover {{
+    background-color: rgba(49,151,149,0.08) !important;
+    border-color: var(--accent) !important;
+}}
+.streamlit-expanderHeader p, [data-testid="stExpander"] summary p {{
+    color: var(--primary) !important;
+    font-weight: 600 !important;
+}}
 
-.stSlider [data-baseweb="slider"] { color: var(--text) !important; }
-.stSlider label, .stSlider span { color: var(--text) !important; }
-
-.stCheckbox label, .stCheckbox label p { color: var(--text) !important; }
-
-/* CHAT INPUT — fix curseur visible */
-[data-testid="stChatInput"] textarea,
-[data-testid="stChatInput"] input,
-.stChatInput textarea,
-.stChatInputContainer textarea {
+/* Inputs */
+.stTextArea textarea, .stTextInput input, .stNumberInput input {{
+    border-radius: 10px;
+    border: 1px solid var(--border-strong) !important;
     color: var(--text) !important;
-    background-color: #ffffff !important;
-    caret-color: var(--primary) !important;       /* ⬅ curseur visible */
-    border: 2px solid var(--accent) !important;   /* ⬅ bordure colorée pour repérer */
-    border-radius: 8px !important;
-}
-[data-testid="stChatInput"] textarea:focus,
-.stChatInput textarea:focus {
-    border-color: var(--primary) !important;
-    box-shadow: 0 0 0 3px rgba(49,151,149,0.15) !important;
+    background-color: var(--card) !important;
+    caret-color: var(--accent) !important;
+    font-family: 'Inter', sans-serif !important;
+    transition: all 0.2s;
+}}
+.stTextArea textarea:focus, .stTextInput input:focus, .stNumberInput input:focus {{
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 3px rgba(49,151,149,0.18) !important;
     outline: none !important;
-}
-[data-testid="stChatInput"] textarea::placeholder,
-.stChatInput textarea::placeholder {
-    color: #718096 !important;
-    font-weight: 500 !important;
-}
-
-[data-testid="stSidebar"] .stTextArea textarea,
-[data-testid="stSidebar"] .stTextInput input,
-[data-testid="stSidebar"] .stNumberInput input,
-[data-testid="stSidebar"] .stSelectbox > div > div {
+}}
+.stTextArea textarea::placeholder, .stTextInput input::placeholder {{
+    color: var(--muted) !important;
+}}
+.stSelectbox > div > div {{
+    border-radius: 10px !important;
+    border: 1px solid var(--border-strong) !important;
+    background-color: var(--card) !important;
     color: var(--text) !important;
-    background-color: #ffffff !important;
-}
+}}
+.stSelectbox > div > div * {{ color: var(--text) !important; }}
 
-/* Cards — bordures plus visibles */
-.qt-card {
+[data-baseweb="popover"] li, [data-baseweb="popover"] div {{
+    color: var(--text) !important;
+}}
+[data-baseweb="popover"] [aria-selected="true"] {{
+    background-color: rgba(49,151,149,0.15) !important;
+    color: var(--primary) !important;
+}}
+
+.stSlider [data-baseweb="slider"] {{ color: var(--text) !important; }}
+.stSlider label, .stSlider span {{ color: var(--text) !important; }}
+.stCheckbox label, .stCheckbox label p {{ color: var(--text) !important; }}
+
+/* Chat */
+[data-testid="stChatInput"] textarea {{
+    color: var(--text) !important;
+    background-color: var(--card) !important;
+    caret-color: var(--accent) !important;
+    border: 2px solid var(--accent) !important;
+    border-radius: 10px !important;
+    font-family: 'Inter', sans-serif !important;
+}}
+[data-testid="stChatInput"] textarea:focus {{
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 3px rgba(49,151,149,0.18) !important;
+    outline: none !important;
+}}
+[data-testid="stChatInput"] textarea::placeholder {{
+    color: var(--muted) !important;
+    font-weight: 500 !important;
+}}
+
+/* Cards */
+.qt-card {{
     background: var(--card);
     border: 1px solid var(--border-strong);
-    border-radius: 12px;
+    border-radius: 14px;
     padding: 24px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     margin-bottom: 20px;
-}
-.qt-card-intro {
-    background: linear-gradient(135deg, #ffffff 0%, #f7fafc 100%);
+    transition: all 0.3s;
+}}
+.qt-card:hover {{
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    transform: translateY(-2px);
+}}
+.qt-card-intro {{
+    background: var(--card);
     border-left: 4px solid var(--accent);
     border-top: 1px solid var(--border-strong);
     border-right: 1px solid var(--border-strong);
     border-bottom: 1px solid var(--border-strong);
     padding: 28px 32px;
-    border-radius: 12px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     margin-bottom: 24px;
     color: var(--text);
     line-height: 1.7;
-}
-.qt-card-intro p { color: var(--text); }
-.qt-tag {
+}}
+.qt-card-intro p {{ color: var(--text); }}
+.qt-tag {{
     font-size: 0.75em;
     color: var(--muted);
     text-transform: uppercase;
     letter-spacing: 1.5px;
     font-weight: 600;
     margin-bottom: 12px;
-}
-.qt-section-title {
+}}
+.qt-section-title {{
     color: var(--primary) !important;
     font-weight: 700;
     font-size: 1.25em;
@@ -325,108 +390,342 @@ div[data-testid="metric-container"]:hover {
     margin-bottom: 4px;
     padding-bottom: 8px;
     border-bottom: 2px solid var(--border-strong);
-}
-.qt-divider {
+}}
+.qt-divider {{
     border: none;
     border-top: 1px solid var(--border-strong);
     margin: 28px 0;
-}
-.qt-callout {
-    background: #ebf8ff;
-    border: 1px solid #90cdf4;
+}}
+.qt-callout {{
+    background: rgba(49,151,149,0.08);
+    border: 1px solid rgba(49,151,149,0.3);
     border-left: 4px solid var(--accent);
-    padding: 14px 18px;
-    border-radius: 8px;
-    margin: 12px 0;
+    padding: 16px 20px;
+    border-radius: 10px;
+    margin: 14px 0;
     color: var(--text);
-}
-.qt-callout-warn {
-    background: #fffaf0;
-    border: 1px solid #f6ad55;
+}}
+.qt-callout-warn {{
+    background: rgba(214,158,46,0.08);
+    border: 1px solid rgba(214,158,46,0.3);
     border-left: 4px solid #d69e2e;
-    padding: 14px 18px;
-    border-radius: 8px;
-    margin: 12px 0;
+    padding: 16px 20px;
+    border-radius: 10px;
+    margin: 14px 0;
     color: var(--text);
-}
-.qt-pill {
+}}
+.qt-pill {{
     display: inline-block;
-    padding: 3px 10px;
-    border-radius: 12px;
+    padding: 4px 12px;
+    border-radius: 14px;
     font-size: 0.78em;
     font-weight: 600;
-    background: #edf2f7;
+    background: rgba(49,151,149,0.12);
     color: var(--primary);
     margin-right: 6px;
-}
-.qt-live-badge {
+    margin-bottom: 4px;
+}}
+.qt-live-badge {{
     display: inline-block;
-    background: #2f855a;
+    background: var(--success);
     color: white;
-    padding: 4px 10px;
-    border-radius: 12px;
+    padding: 4px 12px;
+    border-radius: 14px;
     font-size: 0.75em;
     font-weight: 700;
     letter-spacing: 0.5px;
     margin-left: 8px;
-}
+    animation: pulseSoft 2.5s ease-in-out infinite;
+}}
 
-/* Bande santé du marché */
-.market-strip {
-    background: linear-gradient(90deg, #1a365d 0%, #2c5282 100%);
-    border-radius: 10px;
-    padding: 10px 20px;
+/* Bande live marché */
+.market-strip {{
+    background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+    border-radius: 12px;
+    padding: 12px 22px;
     margin-bottom: 16px;
-    box-shadow: 0 2px 8px rgba(26,54,93,0.2);
+    box-shadow: 0 4px 14px rgba(26,54,93,0.25);
     display: flex;
     align-items: center;
     gap: 24px;
     flex-wrap: wrap;
     color: white !important;
     font-size: 0.9em;
-}
-.market-strip * { color: white !important; }
-.market-strip-item {
+    animation: fadeInUp 0.5s ease-out;
+}}
+.market-strip * {{ color: white !important; }}
+.market-strip-item {{
     display: flex;
     flex-direction: column;
     gap: 0px;
     min-width: 95px;
     padding: 2px 0;
-}
-.market-strip-label {
+}}
+.market-strip-label {{
     font-size: 0.68em;
     opacity: 0.85;
     text-transform: uppercase;
     letter-spacing: 1px;
     font-weight: 600;
     color: #ffffff !important;
-}
-.market-strip-value {
-    font-size: 1.05em;
+}}
+.market-strip-value {{
+    font-size: 1.1em;
     font-weight: 700;
     color: #ffffff !important;
     line-height: 1.2;
-}
-.market-strip-tag {
+}}
+.market-strip-tag {{
     background: rgba(255,255,255,0.18);
-    padding: 4px 10px;
-    border-radius: 12px;
+    padding: 5px 12px;
+    border-radius: 14px;
     font-size: 0.7em;
     font-weight: 700;
     letter-spacing: 1px;
     color: #ffffff !important;
-}
+    animation: pulseSoft 2s ease-in-out infinite;
+}}
 
-/* Boutons sidebar (presets, recharger) en blanc sur fond foncé */
-[data-testid="stSidebar"] .stButton > button[kind="primary"] {
+/* === HERO SECTION (page d'accueil) === */
+.qt-hero {{
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+    border-radius: 20px;
+    padding: 48px 36px;
+    margin-bottom: 32px;
     color: white !important;
-}
-[data-testid="stSidebar"] .stButton > button[kind="primary"] * {
+    text-align: center;
+    box-shadow: 0 12px 40px rgba(26,54,93,0.3);
+    animation: fadeInUp 0.6s ease-out;
+    position: relative;
+    overflow: hidden;
+}}
+.qt-hero * {{ color: white !important; }}
+.qt-hero h1 {{
     color: white !important;
-}
+    font-size: 2.6em !important;
+    font-weight: 800 !important;
+    margin: 0 0 14px 0 !important;
+    letter-spacing: -1px;
+}}
+.qt-hero p {{
+    color: rgba(255,255,255,0.95) !important;
+    font-size: 1.15em;
+    max-width: 720px;
+    margin: 0 auto 24px auto;
+    line-height: 1.6;
+}}
+.qt-hero-stats {{
+    display: flex;
+    gap: 40px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 28px;
+}}
+.qt-hero-stat {{
+    text-align: center;
+}}
+.qt-hero-stat-value {{
+    font-size: 1.8em;
+    font-weight: 800;
+    color: white !important;
+    line-height: 1;
+}}
+.qt-hero-stat-label {{
+    font-size: 0.78em;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    opacity: 0.85;
+    margin-top: 6px;
+}}
+
+/* Feature cards */
+.qt-feature {{
+    background: var(--card);
+    border: 1px solid var(--border-strong);
+    border-radius: 14px;
+    padding: 24px;
+    text-align: center;
+    transition: all 0.3s;
+    height: 100%;
+}}
+.qt-feature:hover {{
+    transform: translateY(-4px);
+    border-color: var(--accent);
+    box-shadow: 0 10px 26px rgba(49,151,149,0.15);
+}}
+.qt-feature-icon {{
+    font-size: 2.4em;
+    margin-bottom: 14px;
+    display: block;
+}}
+.qt-feature h4 {{
+    color: var(--primary) !important;
+    font-size: 1.1em;
+    margin-bottom: 8px;
+}}
+.qt-feature p {{
+    color: var(--text-muted);
+    font-size: 0.9em;
+    line-height: 1.5;
+    margin: 0;
+}}
+
+/* === ONBOARDING POPUP === */
+.qt-onboarding {{
+    background: var(--card);
+    border: 2px solid var(--accent);
+    border-radius: 16px;
+    padding: 28px 32px;
+    margin-bottom: 24px;
+    box-shadow: 0 8px 32px rgba(49,151,149,0.18);
+    animation: fadeInUp 0.5s ease-out;
+}}
+.qt-onboarding h3 {{
+    color: var(--primary) !important;
+    margin-top: 0 !important;
+}}
+.qt-onboarding-steps {{
+    display: flex;
+    gap: 20px;
+    margin-top: 18px;
+    flex-wrap: wrap;
+}}
+.qt-onboarding-step {{
+    flex: 1;
+    min-width: 200px;
+    background: var(--bg);
+    padding: 18px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+}}
+.qt-onboarding-step-num {{
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: white !important;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    font-size: 0.9em;
+}}
+
+/* === FOOTER === */
+.qt-footer {{
+    margin-top: 60px;
+    padding: 32px 24px 24px 24px;
+    background: var(--card);
+    border-top: 2px solid var(--border-strong);
+    border-radius: 14px 14px 0 0;
+    color: var(--text-muted);
+}}
+.qt-footer-cols {{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 28px;
+    margin-bottom: 24px;
+}}
+.qt-footer h5 {{
+    color: var(--primary) !important;
+    font-size: 0.85em;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+}}
+.qt-footer ul {{
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}}
+.qt-footer li {{
+    padding: 4px 0;
+    font-size: 0.88em;
+    color: var(--text-muted);
+}}
+.qt-footer-bottom {{
+    border-top: 1px solid var(--border);
+    padding-top: 18px;
+    text-align: center;
+    font-size: 0.82em;
+    color: var(--muted);
+}}
+
+/* === DARK MODE TOGGLE === */
+.qt-dark-toggle {{
+    position: fixed;
+    top: 10px;
+    right: 16px;
+    z-index: 9999;
+}}
+
+/* === RESPONSIVE MOBILE === */
+@media (max-width: 768px) {{
+    .block-container {{
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }}
+    .qt-hero {{
+        padding: 28px 20px;
+    }}
+    .qt-hero h1 {{
+        font-size: 1.7em !important;
+    }}
+    .qt-hero p {{
+        font-size: 0.95em;
+    }}
+    .qt-hero-stats {{
+        gap: 18px;
+    }}
+    .qt-hero-stat-value {{
+        font-size: 1.4em;
+    }}
+    .market-strip {{
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }}
+    .stTabs [data-baseweb="tab"] {{
+        font-size: 0.8em;
+        padding: 6px 8px;
+    }}
+    .qt-onboarding-step {{
+        min-width: 100%;
+    }}
+    .qt-footer-cols {{
+        grid-template-columns: 1fr;
+    }}
+    h1 {{ font-size: 1.6em !important; }}
+    h2 {{ font-size: 1.3em !important; }}
+}}
+
+/* === TOOLTIP HELP ICONS === */
+[data-testid="stTooltipIcon"] {{
+    color: var(--accent) !important;
+    opacity: 0.8;
+}}
+[data-testid="stTooltipIcon"]:hover {{
+    opacity: 1;
+}}
+
+/* === SCROLLBAR === */
+::-webkit-scrollbar {{
+    width: 10px;
+    height: 10px;
+}}
+::-webkit-scrollbar-track {{
+    background: var(--bg);
+}}
+::-webkit-scrollbar-thumb {{
+    background: var(--border-strong);
+    border-radius: 5px;
+}}
+::-webkit-scrollbar-thumb:hover {{
+    background: var(--accent);
+}}
 </style>
 """, unsafe_allow_html=True)
-
 
 # ==========================================
 # 2. ÉTAT DE SESSION
@@ -457,20 +756,87 @@ def set_event_B(t): st.session_state.event_text_B = t
 
 
 # ==========================================
-# 3. EN-TÊTE + BANDE SANTÉ MARCHÉ
+# 3. EN-TÊTE + BANDE SANTÉ MARCHÉ + ONBOARDING
 # ==========================================
 
-st.markdown("""
-<div style="display: flex; justify-content: center; align-items: center; gap: 20px; margin-bottom: 14px;">
-    <div style="width: 52px; height: 52px; background: linear-gradient(135deg, #1a365d, #319795); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 22px; font-weight: 800; box-shadow: 0 4px 14px rgba(26,54,93,0.2);">
-        QT
+# --- Toggle Mode sombre (en haut à droite) ---
+col_h1, col_h2, col_h3 = st.columns([10, 1, 1])
+with col_h2:
+    if st.button("☀️" if st.session_state.dark_mode else "🌙",
+                 help="Basculer en mode " + ("clair" if st.session_state.dark_mode else "sombre"),
+                 key="toggle_dark"):
+        st.session_state.dark_mode = not st.session_state.dark_mode
+        st.rerun()
+with col_h3:
+    if st.button("❓", help="Afficher le guide d'utilisation", key="show_help"):
+        st.session_state.show_onboarding = True
+        st.rerun()
+
+# --- HERO SECTION (page d'accueil) ---
+icone_dark = "🌙" if st.session_state.dark_mode else "☀️"
+st.markdown(f"""
+<div class="qt-hero">
+    <div style="display:flex; justify-content:center; align-items:center; gap:18px; margin-bottom:14px;">
+        <div style="width:60px; height:60px; background:rgba(255,255,255,0.15); border-radius:14px; display:flex; align-items:center; justify-content:center; color:white !important; font-size:26px; font-weight:800;">QT</div>
+        <h1 style="margin:0;">Quant Terminal</h1>
     </div>
-    <h1 style="margin: 0; padding: 0; font-size: 2.4em; color: #1a365d !important; font-weight: 800; letter-spacing: -0.5px;">Quant Terminal</h1>
+    <p>Simulez l'impact d'un événement économique ou géopolitique sur votre portefeuille — 
+    avec les vrais prix de marché et une IA calibrée sur les grandes crises historiques.</p>
+    <div class="qt-hero-stats">
+        <div class="qt-hero-stat">
+            <div class="qt-hero-stat-value">23</div>
+            <div class="qt-hero-stat-label">Actifs analysés</div>
+        </div>
+        <div class="qt-hero-stat">
+            <div class="qt-hero-stat-value">6</div>
+            <div class="qt-hero-stat-label">Crises backtestables</div>
+        </div>
+        <div class="qt-hero-stat">
+            <div class="qt-hero-stat-value">4</div>
+            <div class="qt-hero-stat-label">Métriques de risque</div>
+        </div>
+        <div class="qt-hero-stat">
+            <div class="qt-hero-stat-value">∞</div>
+            <div class="qt-hero-stat-label">Scénarios possibles</div>
+        </div>
+    </div>
 </div>
-<p style="text-align:center; color:#718096; font-size:0.95em; margin-bottom:20px; letter-spacing:0.5px;">
-    Simulation de marché pilotée par IA · Connecté aux marchés en direct
-</p>
 """, unsafe_allow_html=True)
+
+# --- ONBOARDING (1ère visite ou si demandé) ---
+if st.session_state.show_onboarding:
+    st.markdown("""
+    <div class="qt-onboarding">
+        <h3 style="margin-top:0;">👋 Bienvenue sur Quant Terminal !</h3>
+        <p style="margin-bottom:0; color:var(--text-muted);">Voici comment utiliser le terminal en 3 étapes simples :</p>
+        <div class="qt-onboarding-steps">
+            <div class="qt-onboarding-step">
+                <div class="qt-onboarding-step-num">1</div>
+                <strong style="color:var(--primary);">Choisissez un scénario</strong>
+                <p style="font-size:0.88em; color:var(--text-muted); margin:8px 0 0 0;">
+                    Cliquez sur un bouton de scénario rapide (à gauche) ou écrivez le vôtre.
+                </p>
+            </div>
+            <div class="qt-onboarding-step">
+                <div class="qt-onboarding-step-num">2</div>
+                <strong style="color:var(--primary);">Définissez votre portefeuille</strong>
+                <p style="font-size:0.88em; color:var(--text-muted); margin:8px 0 0 0;">
+                    Choisissez les actifs à inclure et votre profil d'investisseur (Prudent, Équilibré, Agressif…).
+                </p>
+            </div>
+            <div class="qt-onboarding-step">
+                <div class="qt-onboarding-step-num">3</div>
+                <strong style="color:var(--primary);">Lancez et explorez</strong>
+                <p style="font-size:0.88em; color:var(--text-muted); margin:8px 0 0 0;">
+                    Cliquez sur "Lancer la simulation" puis explorez les onglets Dashboard, Portefeuille, Académie…
+                </p>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    if st.button("✓ J'ai compris, masquer ce guide", key="hide_onboarding", use_container_width=True):
+        st.session_state.show_onboarding = False
+        st.rerun()
 
 
 # Bande santé du marché (live tickers)
@@ -912,6 +1278,7 @@ if lancer and mode_app == "Simulation prospective":
                             "type": "Simulation",
                         })
                     st.session_state.historique_simus = st.session_state.historique_simus[:10]
+                    st.session_state["_just_simulated"] = True
 
             except Exception as e:
                 st.error(f"Erreur technique : {e}")
@@ -984,6 +1351,7 @@ if lancer and mode_app == "Backtest historique":
                         "type": "Backtest",
                     })
                     st.session_state.historique_simus = st.session_state.historique_simus[:10]
+                    st.session_state["_just_backtested"] = True
             except Exception as e:
                 st.error(f"Erreur backtest : {e}")
 
@@ -2429,3 +2797,82 @@ with tab_apropos:
                 'border-top: 1px solid #cbd5e0; font-size:0.85em;">'
                 '© 2026 · Quant Terminal · Université Paris Nanterre · MIASHS'
                 '</div>', unsafe_allow_html=True)
+
+
+# ==========================================
+# 18. FOOTER GLOBAL (toutes pages)
+# ==========================================
+
+st.markdown(f"""
+<div class="qt-footer">
+    <div class="qt-footer-cols">
+        <div>
+            <h5>Quant Terminal</h5>
+            <ul>
+                <li>Simulation prospective</li>
+                <li>Backtest historique</li>
+                <li>Académie financière</li>
+                <li>Analyste IA</li>
+            </ul>
+        </div>
+        <div>
+            <h5>Données & Sources</h5>
+            <ul>
+                <li>Yahoo Finance (prix temps réel)</li>
+                <li>OpenAI GPT (analyse IA)</li>
+                <li>Volatilités historiques 12 mois</li>
+                <li>23 actifs · 6 catégories</li>
+            </ul>
+        </div>
+        <div>
+            <h5>Méthodologie</h5>
+            <ul>
+                <li>Mouvement brownien géométrique</li>
+                <li>Méthode Monte-Carlo (50 sims)</li>
+                <li>Métriques institutionnelles</li>
+                <li>Calibration historique IA</li>
+            </ul>
+        </div>
+        <div>
+            <h5>Équipe</h5>
+            <ul>
+                <li>Quentin Geldreich</li>
+                <li>Lukha Doazan</li>
+                <li>Evan Saadi</li>
+                <li>Alex Ruimy</li>
+            </ul>
+        </div>
+        <div>
+            <h5>Mentions</h5>
+            <ul>
+                <li>Outil pédagogique</li>
+                <li>Université Paris Nanterre</li>
+                <li>Licence MIASHS · L1 S2</li>
+                <li>Projet 2026</li>
+            </ul>
+        </div>
+    </div>
+    <div class="qt-footer-bottom">
+        © 2026 Quant Terminal · Tous droits réservés ·
+        <span style="opacity:0.7;">Outil non destiné à un usage financier professionnel</span>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+
+# ==========================================
+# 19. TOASTS DE NOTIFICATION (si simulation vient d'aboutir)
+# ==========================================
+
+# On utilise un flag pour éviter de re-déclencher le toast à chaque rerun
+if st.session_state.get("_just_simulated", False):
+    st.toast("✅ Simulation terminée avec succès !", icon="🎉")
+    st.session_state["_just_simulated"] = False
+
+if st.session_state.get("_just_backtested", False):
+    st.toast("✅ Backtest terminé !", icon="📊")
+    st.session_state["_just_backtested"] = False
+
+if st.session_state.get("_just_pdf", False):
+    st.toast("📄 Rapport PDF prêt !", icon="✅")
+    st.session_state["_just_pdf"] = False
