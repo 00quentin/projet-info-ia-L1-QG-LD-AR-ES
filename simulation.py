@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-# --- PARAMÉTRAGE DES CLASSES D'ACTIFS ---
+# --- PARAMÉTRAGE DES CLASSES D'ACTIFS (prix par défaut + volatilité) ---
 ACTIFS_PRO = {
     "S&P 500":              {"prix": 5200,   "volatilite": 0.012},
     "NASDAQ":               {"prix": 18200,  "volatilite": 0.016},
@@ -29,17 +29,40 @@ ACTIFS_PRO = {
 }
 
 
-def simuler_marche_dynamique(chocs_ia, jours=100, modele="Probabiliste (Réaliste)", actifs=None):
-    """UNE trajectoire stochastique des prix selon 3 comportements."""
+def simuler_marche_dynamique(chocs_ia, jours=100, modele="Probabiliste (Réaliste)",
+                              actifs=None, prix_reels=None, vols_reelles=None):
+    """
+    UNE trajectoire stochastique des prix selon 3 comportements.
+
+    Paramètres :
+    - chocs_ia    : dict avec clé 'actifs' contenant les chocs IA
+    - jours       : horizon de simulation
+    - modele      : 'Probabiliste', 'Historique', 'Machine Learning'
+    - actifs      : liste des sim_keys à simuler (None = tous)
+    - prix_reels  : dict {sim_key: prix} venant de Yahoo Finance (None = prix par défaut)
+    - vols_reelles: dict {sim_key: vol} volatilités historiques calculées (None = vols par défaut)
+    """
     impacts = chocs_ia.get("actifs", {})
 
     if actifs is not None:
-        actifs_a_simuler = {k: v for k, v in ACTIFS_PRO.items() if k in actifs}
+        actifs_a_simuler = {k: v.copy() for k, v in ACTIFS_PRO.items() if k in actifs}
     else:
-        actifs_a_simuler = ACTIFS_PRO
+        actifs_a_simuler = {k: v.copy() for k, v in ACTIFS_PRO.items()}
 
     if not actifs_a_simuler:
-        actifs_a_simuler = ACTIFS_PRO
+        actifs_a_simuler = {k: v.copy() for k, v in ACTIFS_PRO.items()}
+
+    # Override avec les prix réels si fournis
+    if prix_reels:
+        for sim_key in actifs_a_simuler:
+            if sim_key in prix_reels and prix_reels[sim_key] > 0:
+                actifs_a_simuler[sim_key]["prix"] = prix_reels[sim_key]
+
+    # Override avec les volatilités réelles si fournies
+    if vols_reelles:
+        for sim_key in actifs_a_simuler:
+            if sim_key in vols_reelles and vols_reelles[sim_key] > 0:
+                actifs_a_simuler[sim_key]["volatilite"] = vols_reelles[sim_key]
 
     historique = pd.DataFrame(index=range(jours), columns=actifs_a_simuler.keys())
 
@@ -70,11 +93,14 @@ def simuler_marche_dynamique(chocs_ia, jours=100, modele="Probabiliste (Réalist
     return historique.astype(float)
 
 
-def simuler_monte_carlo(chocs_ia, jours=100, modele="Probabiliste (Réaliste)", actifs=None, nb_simulations=50):
+def simuler_monte_carlo(chocs_ia, jours=100, modele="Probabiliste (Réaliste)",
+                         actifs=None, nb_simulations=50, prix_reels=None, vols_reelles=None):
     """Lance plusieurs simulations et calcule les percentiles 5/50/95."""
     toutes_simus = []
     for _ in range(nb_simulations):
-        df = simuler_marche_dynamique(chocs_ia, jours=jours, modele=modele, actifs=actifs)
+        df = simuler_marche_dynamique(chocs_ia, jours=jours, modele=modele,
+                                       actifs=actifs, prix_reels=prix_reels,
+                                       vols_reelles=vols_reelles)
         toutes_simus.append(df)
 
     stack = np.stack([df.values for df in toutes_simus], axis=-1)

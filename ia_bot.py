@@ -9,16 +9,44 @@ api_key = os.getenv("OPENAI_API_KEY") or st.secrets.get("OPENAI_API_KEY", None)
 client = OpenAI(api_key=api_key)
 
 
-def analyser_evenement_macro(evenement_utilisateur):
+def analyser_evenement_macro(evenement_utilisateur, calibration_historique=False):
+    """
+    Analyse un scénario macro et retourne les chocs sur les actifs.
+    
+    - calibration_historique : si True, l'IA s'inspire de crises historiques connues
+      (2008, COVID, 1973, etc.) pour calibrer ses chocs avec des amplitudes réalistes.
+    """
+    
+    instruction_calibration = ""
+    if calibration_historique:
+        instruction_calibration = """
+    
+    CALIBRATION HISTORIQUE (IMPORTANT) :
+    Avant d'estimer les chocs, identifie l'événement historique le plus PROCHE du scénario décrit.
+    Utilise les amplitudes RÉELLES observées lors de cet événement comme référence.
+    Exemples de calibration :
+    - Krach 2008 (Lehman) : S&P 500 -57%, Or +25%, Bons Trésor US +15%, VIX +400%, Pétrole -75%
+    - COVID mars 2020 : S&P 500 -34% en 23 jours, Or +12%, Pétrole -65%, VIX +500%, Bitcoin -50%
+    - Choc pétrolier 1973 : S&P 500 -48%, Or +400%, Pétrole +400%, Inflation +15%
+    - Bulle internet 2000-2002 : Nasdaq -78%, S&P 500 -49%, Or +20%, Obligations +20%
+    - Hausse FED 2022 : S&P 500 -25%, Bonds -15%, Or +0%, Crypto -75%, Dollar +15%
+    - Brexit 2016 : Livre -10% en 1 jour, FTSE -10% puis rebond, Or +5%
+    - Guerre Russie-Ukraine 2022 : Pétrole +60%, Gaz +400%, Cuivre +20%, Émergents -25%
+    
+    Inclus dans 'explication_courte' la mention de l'événement de référence utilisé.
+    Adapte les chocs à la SÉVÉRITÉ du scénario : un mini-conflit régional ne fait pas COVID.
+    """
+    
     prompt = f"""Tu es un analyste quantitatif institutionnel travaillant pour Quant Terminal.
     Ton rôle est d'évaluer l'impact macro-économique du scénario suivant : "{evenement_utilisateur}".
 
     CRITÈRE DE VALIDATION :
     - L'événement doit avoir un impact plausible sur : la production, la consommation, la confiance des investisseurs, les ressources naturelles, la monnaie ou la stabilité politique.
-    - Si le scénario est totalement absurde, magique ou sans aucun lien logique avec le monde réel (ex: "Il pleut des bonbons"), renvoie un dictionnaire avec une erreur.
+    - Si le scénario est totalement absurde, magique ou sans aucun lien logique avec le monde réel, renvoie un dictionnaire avec une erreur.
 
     TOLÉRANCE :
-    - Accepte les scénarios prospectifs sérieux (ex: "Fusion nucléaire maîtrisée", "Guerre civile dans un pays producteur de pétrole", "IA remplaçant 50% des emplois").
+    - Accepte les scénarios prospectifs sérieux (fusion nucléaire, AGI, guerre, crise sanitaire, etc.).
+{instruction_calibration}
 
     Format erreur :
     {{
@@ -27,7 +55,7 @@ def analyser_evenement_macro(evenement_utilisateur):
 
     Si le scénario est valide, fournis ta réponse UNIQUEMENT au format JSON valide :
     {{
-        "macro": {{"inflation": <VRAI CHIFFRE>, "taux_directeurs": <VRAI CHIFFRE>}},
+        "macro": {{"inflation": <CHIFFRE>, "taux_directeurs": <CHIFFRE>}},
         "actifs": {{
             "S&P 500": 0.0, "NASDAQ": 0.0, "CAC 40": 0.0, "MSCI_World": 0.0, "Emerging_Markets": 0.0,
             "Bons_Tresor_US_10Y": 0.0, "Bund_10Y": 0.0, "OAT_10Y": 0.0, "JGB_10Y": 0.0, "Gilt_10Y": 0.0,
@@ -36,7 +64,8 @@ def analyser_evenement_macro(evenement_utilisateur):
             "ETF_Defense": 0.0,
             "Bitcoin": 0.0, "Ethereum": 0.0, "XRP": 0.0, "Solana": 0.0
         }},
-        "explication_courte": "Explication technique et précise d'une ligne."
+        "explication_courte": "Explication d'une phrase, mentionnant l'événement historique de référence si calibration activée.",
+        "evenement_reference": "Nom de l'événement historique utilisé pour calibrer (ex: 'Krach 2008'), ou null si pas de calibration."
     }}
 
     IMPORTANT :
@@ -76,7 +105,9 @@ def discuter_avec_ia(historique_messages):
             "Tu couvres toutes les classes d'actifs de Quant Terminal : actions (S&P 500, NASDAQ, CAC 40, "
             "MSCI World, Marchés Émergents), obligations (Bons du Trésor US, Bund, OAT, JGB, Gilt), "
             "matières premières (Or, Argent, Pétrole, Cuivre, Terres Rares), devises et volatilité (EUR/USD, "
-            "Dollar Index, VIX), sectoriels (ETF Défense), et cryptomonnaies (Bitcoin, Ethereum, XRP, Solana)."
+            "Dollar Index, VIX), sectoriels (ETF Défense), et cryptomonnaies (Bitcoin, Ethereum, XRP, Solana). "
+            "Tu connais bien les crises historiques (1929, 1987, 2000, 2008, 2020) et tu peux les utiliser "
+            "comme références pour répondre aux questions."
         )
     }]
     messages.extend(historique_messages)
