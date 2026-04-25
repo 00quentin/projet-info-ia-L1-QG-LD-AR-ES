@@ -4,7 +4,6 @@ import streamlit as st
 from openai import OpenAI
 from dotenv import load_dotenv
 
-# Chargement de la clé : en local via .env, en ligne via les secrets Streamlit Cloud
 load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY") or st.secrets.get("OPENAI_API_KEY", None)
 client = OpenAI(api_key=api_key)
@@ -30,29 +29,12 @@ def analyser_evenement_macro(evenement_utilisateur):
     {{
         "macro": {{"inflation": <VRAI CHIFFRE>, "taux_directeurs": <VRAI CHIFFRE>}},
         "actifs": {{
-            "S&P 500": 0.0,
-            "NASDAQ": 0.0,
-            "CAC 40": 0.0,
-            "MSCI_World": 0.0,
-            "Emerging_Markets": 0.0,
-            "Bons_Tresor_US_10Y": 0.0,
-            "Bund_10Y": 0.0,
-            "OAT_10Y": 0.0,
-            "JGB_10Y": 0.0,
-            "Gilt_10Y": 0.0,
-            "EUR_USD": 0.0,
-            "Dollar_Index": 0.0,
-            "VIX": 0.0,
-            "Or": 0.0,
-            "Argent": 0.0,
-            "Petrole": 0.0,
-            "Cuivre": 0.0,
-            "ETF_Terres_Rares": 0.0,
+            "S&P 500": 0.0, "NASDAQ": 0.0, "CAC 40": 0.0, "MSCI_World": 0.0, "Emerging_Markets": 0.0,
+            "Bons_Tresor_US_10Y": 0.0, "Bund_10Y": 0.0, "OAT_10Y": 0.0, "JGB_10Y": 0.0, "Gilt_10Y": 0.0,
+            "EUR_USD": 0.0, "Dollar_Index": 0.0, "VIX": 0.0,
+            "Or": 0.0, "Argent": 0.0, "Petrole": 0.0, "Cuivre": 0.0, "ETF_Terres_Rares": 0.0,
             "ETF_Defense": 0.0,
-            "Bitcoin": 0.0,
-            "Ethereum": 0.0,
-            "XRP": 0.0,
-            "Solana": 0.0
+            "Bitcoin": 0.0, "Ethereum": 0.0, "XRP": 0.0, "Solana": 0.0
         }},
         "explication_courte": "Explication technique et précise d'une ligne."
     }}
