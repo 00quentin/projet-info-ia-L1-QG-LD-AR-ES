@@ -1,11 +1,7 @@
 """
 market_data.py
 ==============
-Module de connexion aux données réelles de marché via Yahoo Finance.
-Fournit :
-  - les prix actuels de tous les actifs du terminal
-  - les données historiques pour le mode Backtest
-  - une carte de correspondance sim_key → ticker Yahoo
+Connexion aux données réelles via Yahoo Finance.
 """
 
 import pandas as pd
@@ -14,40 +10,26 @@ import streamlit as st
 from datetime import datetime, timedelta
 
 
-# ==========================================
-# Mapping sim_key → ticker Yahoo Finance
-# ==========================================
 TICKERS_YAHOO = {
-    # Actions & Indices
     "S&P 500":              "^GSPC",
     "NASDAQ":               "^NDX",
     "CAC 40":               "^FCHI",
-    "MSCI_World":           "URTH",       # ETF iShares MSCI World
-    "Emerging_Markets":     "EEM",        # ETF iShares MSCI Emerging Markets
-
-    # Obligations 10Y (rendements, on prend les ETF de prix correspondants)
-    "Bons_Tresor_US_10Y":   "IEF",        # ETF iShares 7-10 Year Treasury
-    "Bund_10Y":             "IBGM.DE",    # ETF iShares Eurozone Govt Bond
-    "OAT_10Y":              "OAT.PA",     # OAT 10 ans (peut être indisponible)
-    "JGB_10Y":              "1482.T",     # ETF Japan Govt Bonds
-    "Gilt_10Y":             "IGLT.L",     # ETF iShares Core UK Gilts
-
-    # Devises & Volatilité
+    "MSCI_World":           "URTH",
+    "Emerging_Markets":     "EEM",
+    "Bons_Tresor_US_10Y":   "IEF",
+    "Bund_10Y":             "IBGM.DE",
+    "OAT_10Y":              "OAT.PA",
+    "JGB_10Y":              "1482.T",
+    "Gilt_10Y":             "IGLT.L",
     "EUR_USD":              "EURUSD=X",
     "Dollar_Index":         "DX-Y.NYB",
     "VIX":                  "^VIX",
-
-    # Matières premières
-    "Or":                   "GC=F",       # Gold futures
-    "Argent":               "SI=F",       # Silver futures
-    "Petrole":              "CL=F",       # WTI Crude Oil futures
-    "Cuivre":               "HG=F",       # Copper futures
-    "ETF_Terres_Rares":     "REMX",       # ETF VanEck Rare Earth/Strategic Metals
-
-    # Sectoriels
-    "ETF_Defense":          "ITA",        # ETF iShares U.S. Aerospace & Defense
-
-    # Cryptomonnaies
+    "Or":                   "GC=F",
+    "Argent":               "SI=F",
+    "Petrole":              "CL=F",
+    "Cuivre":               "HG=F",
+    "ETF_Terres_Rares":     "REMX",
+    "ETF_Defense":          "ITA",
     "Bitcoin":              "BTC-USD",
     "Ethereum":             "ETH-USD",
     "XRP":                  "XRP-USD",
@@ -55,7 +37,6 @@ TICKERS_YAHOO = {
 }
 
 
-# Prix de fallback (si Yahoo échoue, on garde les prix par défaut du terminal)
 PRIX_FALLBACK = {
     "S&P 500": 5200, "NASDAQ": 18200, "CAC 40": 8100, "MSCI_World": 3500, "Emerging_Markets": 1100,
     "Bons_Tresor_US_10Y": 100, "Bund_10Y": 100, "OAT_10Y": 100, "JGB_10Y": 100, "Gilt_10Y": 100,
@@ -66,17 +47,8 @@ PRIX_FALLBACK = {
 }
 
 
-# ==========================================
-# Récupération des prix actuels (cache 1h)
-# ==========================================
 @st.cache_data(ttl=3600, show_spinner=False)
 def get_prix_actuels(actifs_keys=None):
-    """
-    Récupère les prix de clôture les plus récents pour les actifs demandés.
-    Retourne un dict {sim_key: prix}.
-    En cas d'échec sur un actif, utilise PRIX_FALLBACK.
-    Cache : 1 heure.
-    """
     if actifs_keys is None:
         actifs_keys = list(TICKERS_YAHOO.keys())
 
@@ -88,7 +60,6 @@ def get_prix_actuels(actifs_keys=None):
         if ticker is None:
             prix[sim_key] = PRIX_FALLBACK.get(sim_key, 100)
             continue
-
         try:
             data = yf.Ticker(ticker).history(period="5d", interval="1d")
             if not data.empty:
@@ -103,23 +74,13 @@ def get_prix_actuels(actifs_keys=None):
     return prix, erreurs
 
 
-# ==========================================
-# Données historiques pour Backtest (cache 6h)
-# ==========================================
 @st.cache_data(ttl=21600, show_spinner=False)
 def get_historique(actifs_keys, date_debut, date_fin):
-    """
-    Récupère les prix de clôture journaliers entre date_debut et date_fin.
-    Retourne un DataFrame (index = dates, colonnes = sim_keys).
-    Les actifs dont les données sont indisponibles sont exclus.
-    """
     df_global = pd.DataFrame()
-
     for sim_key in actifs_keys:
         ticker = TICKERS_YAHOO.get(sim_key)
         if ticker is None:
             continue
-
         try:
             data = yf.Ticker(ticker).history(start=date_debut, end=date_fin, interval="1d")
             if not data.empty:
@@ -130,24 +91,15 @@ def get_historique(actifs_keys, date_debut, date_fin):
     if df_global.empty:
         return df_global
 
-    # Forward-fill et drop des lignes restantes vides
     df_global = df_global.ffill().dropna(how="all")
-    # Index réinitialisé en numérique pour rester compatible avec le reste du code
     df_global = df_global.reset_index(drop=True)
     return df_global
 
 
-# ==========================================
-# Volatilités historiques (cache 24h)
-# ==========================================
 @st.cache_data(ttl=86400, show_spinner=False)
 def get_volatilites_historiques(actifs_keys, jours=252):
-    """
-    Calcule la volatilité quotidienne historique sur N jours.
-    Retourne un dict {sim_key: vol_quotidienne}.
-    """
     fin = datetime.now()
-    debut = fin - timedelta(days=jours * 2)  # marge pour le weekend/jours fériés
+    debut = fin - timedelta(days=jours * 2)
 
     vols = {}
     for sim_key in actifs_keys:
@@ -161,13 +113,9 @@ def get_volatilites_historiques(actifs_keys, jours=252):
                 vols[sim_key] = float(rendements.std())
         except Exception:
             continue
-
     return vols
 
 
-# ==========================================
-# Événements historiques de référence (pour calibration)
-# ==========================================
 EVENEMENTS_HISTORIQUES = {
     "COVID-19 (mars 2020)": {
         "debut": "2020-02-15", "fin": "2020-04-15",

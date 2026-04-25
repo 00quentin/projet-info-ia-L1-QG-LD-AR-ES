@@ -10,6 +10,7 @@ from market_data import (
     get_prix_actuels, get_historique, get_volatilites_historiques,
     EVENEMENTS_HISTORIQUES, TICKERS_YAHOO
 )
+from pdf_generator import generer_rapport_pdf
 
 
 # ==========================================
@@ -83,7 +84,7 @@ EVENEMENTS_PRESETS = {
 
 
 # ==========================================
-# 1. CONFIG & CSS
+# 1. CONFIG & CSS (avec corrections contraste)
 # ==========================================
 
 st.set_page_config(page_title="Quant Terminal", page_icon="◆", layout="wide")
@@ -96,7 +97,8 @@ st.markdown("""
     --accent:    #319795;
     --bg:        #f7fafc;
     --card:      #ffffff;
-    --border:    #e2e8f0;
+    --border:    #cbd5e0;       /* ⬅ plus foncé pour mieux voir les cadres */
+    --border-strong: #a0aec0;   /* ⬅ pour les bords plus marqués */
     --text:      #2d3748;
     --muted:     #718096;
     --success:   #2f855a;
@@ -122,19 +124,19 @@ h1, h2, h3, h4, h5, h6 { color: var(--primary) !important; font-weight: 700; }
 
 div[data-testid="metric-container"] {
     background-color: var(--card) !important;
-    border: 1px solid var(--border) !important;
+    border: 1px solid var(--border-strong) !important;   /* ⬅ bordure plus visible */
     padding: 16px 18px;
     border-radius: 10px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);              /* ⬅ ombre plus marquée */
     transition: all 0.2s ease;
 }
 div[data-testid="metric-container"]:hover {
     border-color: var(--accent) !important;
-    box-shadow: 0 4px 12px rgba(49,151,149,0.08);
+    box-shadow: 0 4px 14px rgba(49,151,149,0.15);
 }
 
 .block-container {
-    padding-top: 1.8rem;
+    padding-top: 1.2rem;
     padding-bottom: 2rem;
     padding-left: 3rem;
     padding-right: 3rem;
@@ -146,9 +148,9 @@ div[data-testid="metric-container"]:hover {
     background-color: var(--card) !important;
     border-radius: 10px;
     padding: 6px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     margin-bottom: 24px;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-strong);
     gap: 4px;
 }
 .stTabs [data-baseweb="tab"] {
@@ -169,7 +171,7 @@ div[data-testid="metric-container"]:hover {
     border-radius: 8px;
     font-weight: 500;
     transition: all 0.2s;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-strong);
 }
 .stButton > button[kind="primary"] {
     background: var(--primary) !important;
@@ -179,18 +181,21 @@ div[data-testid="metric-container"]:hover {
 .stButton > button[kind="primary"]:hover {
     background: var(--secondary) !important;
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(26,54,93,0.2);
+    box-shadow: 0 4px 12px rgba(26,54,93,0.25);
 }
 
 .streamlit-expanderHeader {
     font-weight: 600;
     color: var(--text) !important;
+    background-color: white !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 8px !important;
 }
 
 /* Inputs avec contraste correct */
 .stTextArea textarea, .stTextInput input, .stNumberInput input {
     border-radius: 8px;
-    border: 1px solid var(--border) !important;
+    border: 1px solid var(--border-strong) !important;
     color: var(--text) !important;
     background-color: #ffffff !important;
 }
@@ -199,7 +204,7 @@ div[data-testid="metric-container"]:hover {
 }
 .stSelectbox > div > div {
     border-radius: 8px !important;
-    border: 1px solid var(--border) !important;
+    border: 1px solid var(--border-strong) !important;
     background-color: #ffffff !important;
     color: var(--text) !important;
 }
@@ -219,9 +224,27 @@ div[data-testid="metric-container"]:hover {
 
 .stCheckbox label, .stCheckbox label p { color: var(--text) !important; }
 
-.stChatInput textarea, .stChatInputContainer textarea {
+/* CHAT INPUT — fix curseur visible */
+[data-testid="stChatInput"] textarea,
+[data-testid="stChatInput"] input,
+.stChatInput textarea,
+.stChatInputContainer textarea {
     color: var(--text) !important;
     background-color: #ffffff !important;
+    caret-color: var(--primary) !important;       /* ⬅ curseur visible */
+    border: 2px solid var(--accent) !important;   /* ⬅ bordure colorée pour repérer */
+    border-radius: 8px !important;
+}
+[data-testid="stChatInput"] textarea:focus,
+.stChatInput textarea:focus {
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 3px rgba(49,151,149,0.15) !important;
+    outline: none !important;
+}
+[data-testid="stChatInput"] textarea::placeholder,
+.stChatInput textarea::placeholder {
+    color: #718096 !important;
+    font-weight: 500 !important;
 }
 
 [data-testid="stSidebar"] .stTextArea textarea,
@@ -232,21 +255,25 @@ div[data-testid="metric-container"]:hover {
     background-color: #ffffff !important;
 }
 
+/* Cards — bordures plus visibles */
 .qt-card {
     background: var(--card);
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-strong);
     border-radius: 12px;
     padding: 24px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     margin-bottom: 20px;
 }
 .qt-card-intro {
     background: linear-gradient(135deg, #ffffff 0%, #f7fafc 100%);
     border-left: 4px solid var(--accent);
+    border-top: 1px solid var(--border-strong);
+    border-right: 1px solid var(--border-strong);
+    border-bottom: 1px solid var(--border-strong);
     padding: 28px 32px;
     border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-    margin-bottom: 32px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    margin-bottom: 24px;
     color: var(--text);
     line-height: 1.7;
 }
@@ -266,26 +293,28 @@ div[data-testid="metric-container"]:hover {
     margin-top: 8px;
     margin-bottom: 4px;
     padding-bottom: 8px;
-    border-bottom: 2px solid var(--border);
+    border-bottom: 2px solid var(--border-strong);
 }
 .qt-divider {
     border: none;
-    border-top: 1px solid var(--border);
+    border-top: 1px solid var(--border-strong);
     margin: 28px 0;
 }
 .qt-callout {
     background: #ebf8ff;
-    border-left: 3px solid var(--accent);
+    border: 1px solid #90cdf4;
+    border-left: 4px solid var(--accent);
     padding: 14px 18px;
-    border-radius: 6px;
+    border-radius: 8px;
     margin: 12px 0;
     color: var(--text);
 }
 .qt-callout-warn {
     background: #fffaf0;
-    border-left: 3px solid #d69e2e;
+    border: 1px solid #f6ad55;
+    border-left: 4px solid #d69e2e;
     padding: 14px 18px;
-    border-radius: 6px;
+    border-radius: 8px;
     margin: 12px 0;
     color: var(--text);
 }
@@ -309,6 +338,47 @@ div[data-testid="metric-container"]:hover {
     font-weight: 700;
     letter-spacing: 0.5px;
     margin-left: 8px;
+}
+
+/* Bande santé du marché */
+.market-strip {
+    background: linear-gradient(90deg, #1a365d 0%, #2c5282 100%);
+    border-radius: 10px;
+    padding: 12px 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(26,54,93,0.2);
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+    color: white;
+    font-size: 0.9em;
+}
+.market-strip-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 110px;
+}
+.market-strip-label {
+    font-size: 0.7em;
+    opacity: 0.75;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 500;
+}
+.market-strip-value {
+    font-size: 1.05em;
+    font-weight: 700;
+    color: white;
+}
+.market-strip-tag {
+    background: rgba(255,255,255,0.15);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.7em;
+    font-weight: 700;
+    letter-spacing: 1px;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -343,7 +413,7 @@ def set_event_B(t): st.session_state.event_text_B = t
 
 
 # ==========================================
-# 3. EN-TÊTE
+# 3. EN-TÊTE + BANDE SANTÉ MARCHÉ
 # ==========================================
 
 st.markdown("""
@@ -353,14 +423,56 @@ st.markdown("""
     </div>
     <h1 style="margin: 0; padding: 0; font-size: 2.4em; color: #1a365d !important; font-weight: 800; letter-spacing: -0.5px;">Quant Terminal</h1>
 </div>
-<p style="text-align:center; color:#718096; font-size:0.95em; margin-bottom:28px; letter-spacing:0.5px;">
+<p style="text-align:center; color:#718096; font-size:0.95em; margin-bottom:20px; letter-spacing:0.5px;">
     Simulation de marché pilotée par IA · Connecté aux marchés en direct
 </p>
 """, unsafe_allow_html=True)
 
+
+# Bande santé du marché (live tickers)
+def afficher_bande_marche():
+    """Affiche une bande horizontale avec les principaux indicateurs live."""
+    try:
+        actifs_strip = ["S&P 500", "VIX", "Or", "Petrole", "Bitcoin", "EUR_USD"]
+        prix, _ = get_prix_actuels(actifs_strip)
+
+        items_html = '<div class="market-strip-tag">⬤ LIVE</div>'
+        labels_courts = {
+            "S&P 500": "S&P 500",
+            "VIX": "VIX",
+            "Or": "OR ($/oz)",
+            "Petrole": "PÉTROLE ($)",
+            "Bitcoin": "BTC ($)",
+            "EUR_USD": "EUR/USD",
+        }
+        formats = {
+            "S&P 500": "{:,.0f}",
+            "VIX": "{:.2f}",
+            "Or": "{:,.0f}",
+            "Petrole": "{:.2f}",
+            "Bitcoin": "{:,.0f}",
+            "EUR_USD": "{:.4f}",
+        }
+        for actif in actifs_strip:
+            if actif in prix:
+                val = formats[actif].format(prix[actif]).replace(",", " ")
+                items_html += (
+                    f'<div class="market-strip-item">'
+                    f'<span class="market-strip-label">{labels_courts[actif]}</span>'
+                    f'<span class="market-strip-value">{val}</span>'
+                    f'</div>'
+                )
+
+        st.markdown(f'<div class="market-strip">{items_html}</div>', unsafe_allow_html=True)
+    except Exception:
+        pass
+
+afficher_bande_marche()
+
+
 st.markdown("""
 <div class="qt-card-intro">
-    <div class="qt-tag">Projet 2026 · Q. Geldreich, L. Doazan, E. Saadi</div>
+    <div class="qt-tag">Projet 2026 · Q. Geldreich, L. Doazan, E. Saadi, A. Ruimy · Université Paris Nanterre</div>
     <p style="font-size: 1.05em; margin-bottom: 0;">
         <strong>Quant Terminal</strong> permet de tester comment un événement économique ou géopolitique impacte un portefeuille — 
         à partir des <strong>vrais prix de marché</strong> récupérés en direct via Yahoo Finance. 
@@ -377,9 +489,16 @@ st.markdown("""
 
 with st.sidebar:
     st.markdown("### Paramètres")
+
+    # Bouton recharger les prix
+    if st.button("🔄 Recharger les prix Yahoo", use_container_width=True,
+                 help="Force un rafraîchissement des prix de marché (cache 1h sinon)."):
+        get_prix_actuels.clear()
+        get_volatilites_historiques.clear()
+        st.rerun()
+
     st.markdown("---")
 
-    # Mode (Simulation / Backtest)
     mode_app = st.radio(
         "Mode du terminal",
         ["Simulation prospective", "Backtest historique"],
@@ -388,19 +507,17 @@ with st.sidebar:
     st.markdown("---")
 
     if mode_app == "Simulation prospective":
-        # Mode comparaison
         mode_comparaison = st.toggle(
             "Mode Comparaison (2 scénarios)",
             value=st.session_state.mode_comparaison
         )
         st.session_state.mode_comparaison = mode_comparaison
 
-        # Saisie scénario(s)
         if mode_comparaison:
             st.markdown("**Scénario A**")
-            st.text_area("", height=100, key="event_text_A", label_visibility="collapsed")
+            st.text_area("Scénario A", height=100, key="event_text_A", label_visibility="collapsed")
             st.markdown("**Scénario B**")
-            st.text_area("", height=100, key="event_text_B", label_visibility="collapsed")
+            st.text_area("Scénario B", height=100, key="event_text_B", label_visibility="collapsed")
         else:
             st.markdown("**Scénarios rapides**")
             preset_keys = list(EVENEMENTS_PRESETS.keys())
@@ -419,7 +536,7 @@ with st.sidebar:
                                   args=(EVENEMENTS_PRESETS[preset_keys[i + 1]],),
                                   use_container_width=True)
             st.markdown("**Événement à simuler**")
-            st.text_area("", height=120, key="event_text_A", label_visibility="collapsed")
+            st.text_area("Événement", height=120, key="event_text_A", label_visibility="collapsed")
 
         st.markdown("---")
         modele_simu = st.selectbox(
@@ -428,38 +545,27 @@ with st.sidebar:
         )
         duree = st.slider("Horizon (jours de cotation)", 30, 250, 100, 10)
         mode_monte_carlo = st.checkbox("Mode Monte-Carlo (50 simulations)", value=False)
-
-        # NOUVEAU : utiliser les vrais prix
         utiliser_prix_reels = st.checkbox(
-            "Utiliser les prix de marché actuels",
-            value=True,
+            "Utiliser les prix de marché actuels", value=True,
             help="Récupère les prix réels via Yahoo Finance comme point de départ."
         )
-        # NOUVEAU : calibration historique
         calibration_historique = st.checkbox(
-            "Calibration historique (IA)",
-            value=True,
-            help="L'IA s'inspire des amplitudes réelles observées en 2008, COVID, etc."
+            "Calibration historique (IA)", value=True,
+            help="L'IA s'inspire des amplitudes réelles de 2008, COVID, etc."
         )
 
-    else:  # Mode Backtest
+    else:  # Backtest
         st.markdown("**Sélectionnez un événement historique**")
-        event_choisi = st.selectbox(
-            "Événement",
-            list(EVENEMENTS_HISTORIQUES.keys()),
-            help="Rejoue les VRAIES données de marché de cette période."
-        )
+        event_choisi = st.selectbox("Événement", list(EVENEMENTS_HISTORIQUES.keys()))
         info_event = EVENEMENTS_HISTORIQUES[event_choisi]
         st.markdown(f'<div class="qt-callout"><strong>{event_choisi}</strong><br>'
                     f'<span style="font-size:0.9em;">{info_event["description"]}</span></div>',
                     unsafe_allow_html=True)
-
         st.markdown("---")
         st.markdown("**Période personnalisée (optionnel)**")
         date_debut_custom = st.date_input("Date début", value=datetime.strptime(info_event["debut"], "%Y-%m-%d"))
         date_fin_custom = st.date_input("Date fin", value=datetime.strptime(info_event["fin"], "%Y-%m-%d"))
 
-    # ---- ACTIFS (commun aux 2 modes) ----
     st.markdown("---")
     st.markdown("### Actifs à analyser")
     st.caption("Cochez les actifs à inclure.")
@@ -474,13 +580,11 @@ with st.sidebar:
     if not actifs_selectionnes:
         st.warning("Sélectionnez au moins un actif.")
 
-    # ---- PORTEFEUILLE ----
     st.markdown("---")
     st.markdown("### Portefeuille")
 
     capital_initial = st.number_input(
-        "Capital de départ (€)",
-        min_value=100, max_value=10000000, value=10000, step=500
+        "Capital de départ (€)", min_value=100, max_value=10000000, value=10000, step=500
     )
     profil_risque = st.selectbox(
         "Profil d'investisseur",
@@ -498,8 +602,7 @@ with st.sidebar:
             for sim_key in actifs_selectionnes:
                 val = st.number_input(
                     NOM_AFFICHAGE.get(sim_key, sim_key),
-                    min_value=0, max_value=100,
-                    value=defaut_pct, step=1,
+                    min_value=0, max_value=100, value=defaut_pct, step=1,
                     key=f"alloc_{sim_key}"
                 )
                 allocations_custom[sim_key] = val
@@ -516,7 +619,6 @@ with st.sidebar:
             st.info("Sélectionnez d'abord des actifs.")
 
     st.markdown("<br>", unsafe_allow_html=True)
-
     bouton_label = "Lancer la simulation" if mode_app == "Simulation prospective" else "Lancer le backtest"
     lancer = st.button(bouton_label, use_container_width=True, type="primary")
 
@@ -527,25 +629,25 @@ with st.sidebar:
 
 if mode_app == "Simulation prospective":
     if st.session_state.mode_comparaison:
-        tab_dashboard, tab_portefeuille, tab_compare, tab_hist, tab_academie, tab_chat = st.tabs([
-            "Dashboard", "Portefeuille", "Comparaison A vs B", "Historique", "Académie", "Analyste IA"
+        tab_dashboard, tab_portefeuille, tab_compare, tab_hist, tab_academie, tab_chat, tab_apropos = st.tabs([
+            "Dashboard", "Portefeuille", "Comparaison A vs B", "Historique", "Académie", "Analyste IA", "À propos"
         ])
     else:
-        tab_dashboard, tab_portefeuille, tab_hist, tab_academie, tab_chat = st.tabs([
-            "Dashboard", "Portefeuille", "Historique", "Académie", "Analyste IA"
+        tab_dashboard, tab_portefeuille, tab_hist, tab_academie, tab_chat, tab_apropos = st.tabs([
+            "Dashboard", "Portefeuille", "Historique", "Académie", "Analyste IA", "À propos"
         ])
         tab_compare = None
     tab_backtest = None
 else:
-    tab_dashboard, tab_backtest, tab_hist, tab_academie, tab_chat = st.tabs([
-        "Dashboard", "Backtest", "Historique", "Académie", "Analyste IA"
+    tab_dashboard, tab_backtest, tab_hist, tab_academie, tab_chat, tab_apropos = st.tabs([
+        "Dashboard", "Backtest", "Historique", "Académie", "Analyste IA", "À propos"
     ])
     tab_portefeuille = None
     tab_compare = None
 
 
 # ==========================================
-# 6. HELPERS (métriques, poids)
+# 6. HELPERS
 # ==========================================
 
 def calculer_metriques_risque(valeur_portefeuille):
@@ -626,8 +728,27 @@ def lancer_une_simulation(scenario, actifs_sel, duree_j, modele, mc, prix_reels,
     }, None
 
 
+def construire_allocations_finales(res, params):
+    """Construit la liste pour le PDF."""
+    cap = params["capital"]
+    poids = calculer_poids(params["profil"], params["actifs_sim"], params["allocations"])
+    allocations_finales = []
+    valeur_finale = 0
+    for sk, pct in poids.items():
+        nom = NOM_AFFICHAGE.get(sk, sk.replace("_", " ").replace("EUR USD", "EUR/USD"))
+        rend = res["perf"].get(sk, 0) / 100
+        invest = cap * pct
+        final = invest * (1 + rend)
+        valeur_finale += final
+        allocations_finales.append({
+            "nom": nom, "poids": pct, "investi": invest,
+            "final": final, "rendement": rend
+        })
+    return allocations_finales, valeur_finale
+
+
 # ==========================================
-# 7. LANCEMENT — MODE SIMULATION
+# 7. LANCEMENT — SIMULATION
 # ==========================================
 
 if lancer and mode_app == "Simulation prospective":
@@ -638,13 +759,12 @@ if lancer and mode_app == "Simulation prospective":
     scenario_B = st.session_state.event_text_B if st.session_state.mode_comparaison else None
 
     if len(scenario_A.strip()) < 10 or (st.session_state.mode_comparaison and len(scenario_B.strip()) < 10):
-        st.warning("Scénario trop court. Décrivez un événement plus détaillé.")
+        st.warning("Scénario trop court.")
     elif not actifs_selectionnes:
-        st.warning("Sélectionnez au moins un actif à analyser.")
+        st.warning("Sélectionnez au moins un actif.")
     elif profil_risque == "Personnalisé" and sum(allocations_custom.values()) != 100:
-        st.warning(f"L'allocation doit totaliser 100% (actuellement {sum(allocations_custom.values())}%).")
+        st.warning(f"Allocation = 100% requis (actuellement {sum(allocations_custom.values())}%).")
     else:
-        # Récupération données réelles
         prix_reels = None
         vols_reelles = None
         erreurs_yahoo = []
@@ -654,13 +774,13 @@ if lancer and mode_app == "Simulation prospective":
                 prix_reels, erreurs_yahoo = get_prix_actuels(actifs_selectionnes)
                 vols_reelles = get_volatilites_historiques(actifs_selectionnes)
             if erreurs_yahoo:
-                st.warning(f"Données indisponibles pour : {', '.join([NOM_AFFICHAGE.get(e, e) for e in erreurs_yahoo])}. Prix par défaut utilisés.")
+                st.warning(f"Indisponibles : {', '.join([NOM_AFFICHAGE.get(e, e) for e in erreurs_yahoo])}.")
 
         msg = "L'analyste IA étudie votre scénario..."
         if calibration_historique:
             msg = "L'IA recherche des analogies historiques..."
         if mode_monte_carlo:
-            msg = "Monte-Carlo : 50 simulations en cours..."
+            msg = "Monte-Carlo : 50 simulations..."
 
         with st.spinner(msg):
             try:
@@ -695,7 +815,6 @@ if lancer and mode_app == "Simulation prospective":
                     "calib":        calibration_historique,
                 }
 
-                # Historique
                 if st.session_state.simu_A:
                     poids_h = calculer_poids(profil_risque, actifs_selectionnes, allocations_custom)
                     for label, res in [("A", st.session_state.simu_A),
@@ -726,14 +845,14 @@ if lancer and mode_app == "Simulation prospective":
 
 
 # ==========================================
-# 8. LANCEMENT — MODE BACKTEST
+# 8. LANCEMENT — BACKTEST
 # ==========================================
 
 if lancer and mode_app == "Backtest historique":
     if not actifs_selectionnes:
-        st.warning("Sélectionnez au moins un actif à analyser.")
+        st.warning("Sélectionnez au moins un actif.")
     elif profil_risque == "Personnalisé" and sum(allocations_custom.values()) != 100:
-        st.warning(f"L'allocation doit totaliser 100% (actuellement {sum(allocations_custom.values())}%).")
+        st.warning(f"Allocation = 100% requis (actuellement {sum(allocations_custom.values())}%).")
     else:
         with st.spinner(f"Récupération des données historiques pour {event_choisi}..."):
             try:
@@ -744,9 +863,8 @@ if lancer and mode_app == "Backtest historique":
                 )
 
                 if df_histo.empty:
-                    st.error("Aucune donnée disponible pour cette période. Essayez une période plus récente ou un autre actif.")
+                    st.error("Aucune donnée disponible pour cette période.")
                 else:
-                    # Calcul performance
                     perf = ((df_histo.iloc[-1] - df_histo.iloc[0]) / df_histo.iloc[0]) * 100
                     perf_df = perf.reset_index()
                     perf_df.columns = ['Actif', 'Performance (%)']
@@ -774,7 +892,6 @@ if lancer and mode_app == "Backtest historique":
                         "capital":      capital_initial,
                     }
 
-                    # Historique
                     poids_h = calculer_poids(profil_risque, list(df_histo.columns), allocations_custom)
                     valeur_finale = 0
                     for sk, pct in poids_h.items():
@@ -794,21 +911,29 @@ if lancer and mode_app == "Backtest historique":
                         "type": "Backtest",
                     })
                     st.session_state.historique_simus = st.session_state.historique_simus[:10]
-
             except Exception as e:
-                st.error(f"Erreur lors du backtest : {e}")
+                st.error(f"Erreur backtest : {e}")
 
 
 # ==========================================
 # 9. AFFICHAGE — DASHBOARD & PORTEFEUILLE
 # ==========================================
 
+def hauteur_graphique(nb_actifs):
+    """Retourne une hauteur adaptée selon le nombre d'actifs (pour la légende)."""
+    if nb_actifs <= 1:
+        return 320
+    elif nb_actifs <= 3:
+        return 360
+    else:
+        return 400
+
+
 def afficher_dashboard(res, params, key_prefix="main"):
     chocs = res["chocs_ia"]
     df = res["df"]
     mc = res["mc_data"]
 
-    # Badge "calibration" si activée
     badges = ""
     if params.get("prix_reels"):
         badges += '<span class="qt-live-badge">PRIX RÉELS</span>'
@@ -822,7 +947,6 @@ def afficher_dashboard(res, params, key_prefix="main"):
     col2.metric("Taux Directeurs (Estimé)", f"{chocs.get('macro', {}).get('taux_directeurs', 0):+.2f} %")
     col3.info(f"**Analyse IA :** {chocs.get('explication_courte', '—')}")
 
-    # Métriques de risque
     poids = calculer_poids(params["profil"], params["actifs_sim"], params["allocations"])
     valeur_port = pd.Series(0.0, index=df.index)
     for sk, pct in poids.items():
@@ -845,6 +969,7 @@ def afficher_dashboard(res, params, key_prefix="main"):
               help="Perte max probable en 1 jour avec 95% de confiance.")
 
     st.markdown('<hr class="qt-divider">', unsafe_allow_html=True)
+
     df_norm = (df / df.iloc[0]) * 100
     df_norm.columns = [NOM_AFFICHAGE.get(c, c.replace("_", " ").replace("EUR USD", "EUR/USD")) for c in df_norm.columns]
 
@@ -881,13 +1006,22 @@ def afficher_dashboard(res, params, key_prefix="main"):
                     fig.add_trace(go.Scatter(x=df_norm.index, y=df_norm[actif],
                                              mode='lines', name=actif,
                                              line=dict(color=col_c, width=2.2)))
+
+                # Hauteur adaptée + plus de marge basse pour la légende
+                nb = len(actifs_dispo)
+                hauteur = hauteur_graphique(nb)
                 fig.update_layout(
                     title=dict(text=titre_cat + (" · Monte-Carlo" if mc_bas_norm is not None else ""),
                                font=dict(color="#1a365d", size=15)),
                     template="plotly_white",
                     xaxis_title="Jours de cotation", yaxis_title="Évolution (Base 100)",
-                    height=340, margin=dict(l=10, r=10, t=45, b=10),
-                    legend=dict(orientation="h", yanchor="bottom", y=-0.45, xanchor="center", x=0.5),
+                    height=hauteur,
+                    margin=dict(l=10, r=10, t=45, b=90),  # ⬅ b=90 pour aérer
+                    legend=dict(
+                        orientation="h",
+                        yanchor="top", y=-0.25,            # ⬅ légende plus loin de l'axe
+                        xanchor="center", x=0.5
+                    ),
                     font=dict(color="#2d3748")
                 )
                 st.plotly_chart(fig, use_container_width=True, key=f"{key_prefix}_cat_{titre_cat}")
@@ -903,6 +1037,27 @@ def afficher_dashboard(res, params, key_prefix="main"):
                           title_font=dict(color="#1a365d"),
                           font=dict(color="#2d3748"))
     st.plotly_chart(fig_bar, use_container_width=True, key=f"{key_prefix}_heatmap")
+
+    # ---- BOUTON PDF (NOUVEAU) ----
+    st.markdown('<hr class="qt-divider">', unsafe_allow_html=True)
+    st.markdown('<div class="qt-section-title">Exporter le rapport</div>', unsafe_allow_html=True)
+    allocs, valeur_fin = construire_allocations_finales(res, params)
+    try:
+        pdf_bytes = generer_rapport_pdf(
+            simu=res, params=params, metriques=metriques,
+            allocations_finales=allocs, valeur_finale=valeur_fin,
+            type_rapport="Simulation"
+        )
+        st.download_button(
+            label="📄 Télécharger le rapport PDF",
+            data=pdf_bytes,
+            file_name=f"quant_terminal_rapport_{datetime.now().strftime('%Y%m%d_%H%M')}.pdf",
+            mime="application/pdf",
+            use_container_width=True,
+            key=f"{key_prefix}_pdf"
+        )
+    except Exception as e:
+        st.error(f"Génération PDF impossible : {e}")
 
 
 def afficher_portefeuille(res, params, key_prefix="main"):
@@ -973,7 +1128,7 @@ with tab_dashboard:
                     afficher_dashboard(st.session_state.simu_B, st.session_state.params_sim, key_prefix="dash_B")
             else:
                 afficher_dashboard(st.session_state.simu_A, st.session_state.params_sim, key_prefix="dash_main")
-    else:  # Backtest
+    else:
         if st.session_state.backtest_data is None:
             st.info("Sélectionnez un événement historique à gauche et cliquez sur 'Lancer le backtest'.")
         else:
@@ -984,13 +1139,11 @@ with tab_dashboard:
                         unsafe_allow_html=True)
             if bt["actifs_indisponibles"]:
                 noms_indispo = [NOM_AFFICHAGE.get(a, a) for a in bt["actifs_indisponibles"]]
-                st.warning(f"Données indisponibles à cette époque : {', '.join(noms_indispo)}")
+                st.warning(f"Indisponibles à cette époque : {', '.join(noms_indispo)}")
 
-            # Affichage backtest (similaire au dashboard mais sans les chocs IA)
             df = bt["df"]
             params = st.session_state.params_sim
 
-            # Métriques portefeuille
             poids = calculer_poids(params["profil"], params["actifs_sim"], params["allocations"])
             valeur_port = pd.Series(0.0, index=df.index)
             for sk, pct in poids.items():
@@ -1007,7 +1160,6 @@ with tab_dashboard:
 
             st.markdown('<hr class="qt-divider">', unsafe_allow_html=True)
 
-            # Graphiques par catégorie (vraies données)
             df_norm = (df / df.iloc[0]) * 100
             df_norm.columns = [NOM_AFFICHAGE.get(c, c) for c in df_norm.columns]
 
@@ -1028,17 +1180,18 @@ with tab_dashboard:
                             fig.add_trace(go.Scatter(x=df_norm.index, y=df_norm[actif],
                                                      mode='lines', name=actif,
                                                      line=dict(color=couleurs[idx % len(couleurs)], width=2.2)))
+                        nb = len(actifs_dispo)
+                        hauteur = hauteur_graphique(nb)
                         fig.update_layout(
                             title=dict(text=titre_cat + " · Données réelles", font=dict(color="#1a365d", size=15)),
                             template="plotly_white",
                             xaxis_title="Jours de cotation", yaxis_title="Évolution (Base 100)",
-                            height=340, margin=dict(l=10, r=10, t=45, b=10),
-                            legend=dict(orientation="h", yanchor="bottom", y=-0.45, xanchor="center", x=0.5),
+                            height=hauteur, margin=dict(l=10, r=10, t=45, b=90),
+                            legend=dict(orientation="h", yanchor="top", y=-0.25, xanchor="center", x=0.5),
                             font=dict(color="#2d3748")
                         )
                         st.plotly_chart(fig, use_container_width=True, key=f"bt_cat_{titre_cat}")
 
-            # Heatmap
             st.markdown('<hr class="qt-divider">', unsafe_allow_html=True)
             fig_bar = px.bar(bt["perf_df"], x='Performance (%)', y='Actif', orientation='h',
                              color='Performance (%)', color_continuous_scale=['#c53030', '#f7fafc', '#2f855a'],
@@ -1051,9 +1204,40 @@ with tab_dashboard:
                                   font=dict(color="#2d3748"))
             st.plotly_chart(fig_bar, use_container_width=True, key="bt_heatmap")
 
+            # PDF backtest
+            st.markdown('<hr class="qt-divider">', unsafe_allow_html=True)
+            st.markdown('<div class="qt-section-title">Exporter le rapport</div>', unsafe_allow_html=True)
+            try:
+                # construire un res factice pour le PDF
+                res_bt = {
+                    "scenario": f"Backtest : {bt['evenement']} — {bt['description']}",
+                    "chocs_ia": {"explication_courte": f"Période réelle : {bt['date_debut']} → {bt['date_fin']}",
+                                 "macro": {"inflation": 0, "taux_directeurs": 0},
+                                 "evenement_reference": bt["evenement"]},
+                    "perf_df": bt["perf_df"],
+                    "perf": bt["perf"],
+                }
+                params_bt = {**params, "duree": len(bt["df"]), "mc": False, "prix_reels": True, "calib": True}
+                allocs_bt, valeur_fin_bt = construire_allocations_finales(res_bt, params_bt)
+                pdf_bytes = generer_rapport_pdf(
+                    simu=res_bt, params=params_bt, metriques=metriques,
+                    allocations_finales=allocs_bt, valeur_finale=valeur_fin_bt,
+                    type_rapport="Backtest"
+                )
+                st.download_button(
+                    label="📄 Télécharger le rapport PDF",
+                    data=pdf_bytes,
+                    file_name=f"quant_terminal_backtest_{datetime.now().strftime('%Y%m%d_%H%M')}.pdf",
+                    mime="application/pdf",
+                    use_container_width=True,
+                    key="bt_pdf"
+                )
+            except Exception as e:
+                st.error(f"Génération PDF impossible : {e}")
+
 
 # ==========================================
-# 11. ONGLET — Portefeuille (Simulation seulement)
+# 11. ONGLET — Portefeuille
 # ==========================================
 
 if tab_portefeuille is not None:
@@ -1078,7 +1262,7 @@ if tab_portefeuille is not None:
 if tab_backtest is not None:
     with tab_backtest:
         if st.session_state.backtest_data is None:
-            st.info("Lancez un backtest pour voir le détail du portefeuille.")
+            st.info("Lancez un backtest pour voir le détail.")
         else:
             bt = st.session_state.backtest_data
             params = st.session_state.params_sim
@@ -1090,13 +1274,11 @@ if tab_backtest is not None:
                         unsafe_allow_html=True)
             st.caption("Comment votre portefeuille aurait réellement évolué pendant cette crise.")
 
-            # Calcul de la valeur du portefeuille jour par jour
             valeur_port = pd.Series(0.0, index=df.index)
             for sk, pct in poids.items():
                 if sk in df.columns:
                     valeur_port += pct * (df[sk] / df[sk].iloc[0]) * cap
 
-            # Comparaison vs S&P 500 (benchmark)
             benchmark = None
             if "S&P 500" in df.columns:
                 benchmark = (df["S&P 500"] / df["S&P 500"].iloc[0]) * cap
@@ -1120,7 +1302,6 @@ if tab_backtest is not None:
                               font=dict(color="#2d3748"))
             st.plotly_chart(fig, use_container_width=True, key="bt_evolution")
 
-            # Bilan
             valeur_finale = float(valeur_port.iloc[-1])
             gains = valeur_finale - cap
             perf_g = (gains / cap) * 100 if cap > 0 else 0
@@ -1131,7 +1312,6 @@ if tab_backtest is not None:
             c2.metric("Valeur finale", f"{valeur_finale:,.2f} €", f"{gains:,.0f} €")
             c3.metric("Performance globale", f"{perf_g:+.2f} %")
 
-            # Comparaison avec benchmark
             if benchmark is not None:
                 perf_bench = (float(benchmark.iloc[-1]) - cap) / cap * 100
                 alpha = perf_g - perf_bench
@@ -1144,9 +1324,7 @@ if tab_backtest is not None:
                     unsafe_allow_html=True
                 )
 
-            # Détail par actif
-            st.markdown('<div class="qt-section-title">Performance par actif dans votre portefeuille</div>',
-                        unsafe_allow_html=True)
+            st.markdown('<div class="qt-section-title">Performance par actif</div>', unsafe_allow_html=True)
             cols_port = st.columns(4)
             i = 0
             for sk, pct in poids.items():
@@ -1262,7 +1440,7 @@ if tab_compare is not None:
 
 with tab_hist:
     st.markdown('<div class="qt-section-title">Historique des simulations</div>', unsafe_allow_html=True)
-    st.caption("Vos 10 dernières simulations (prospectives ou backtests).")
+    st.caption("Vos 10 dernières simulations.")
 
     if not st.session_state.historique_simus:
         st.info("Aucune simulation. Lancez votre première simulation pour commencer.")
@@ -1298,139 +1476,91 @@ with tab_hist:
 
 
 # ==========================================
-# 15. ACADÉMIE (gardée intacte)
+# 15. ACADÉMIE
 # ==========================================
 
 with tab_academie:
     st.markdown('<div class="qt-section-title">Académie Quant Terminal</div>', unsafe_allow_html=True)
     st.markdown("""
     Bienvenue dans l'Académie. Ici, on ne récite pas des définitions : on cherche à **comprendre** 
-    pourquoi les marchés se comportent comme ils le font. L'Académie est conçue pour être lue 
-    dans l'ordre — chaque partie s'appuie sur la précédente.
+    pourquoi les marchés se comportent comme ils le font.
     """)
 
     st_outils, st_modeles, st_macro, st_cas, st_strat, st_lex, st_methodo = st.tabs([
-        "1. Lire les données",
-        "2. Modèles & maths",
-        "3. Macro-économie",
-        "4. Cas historiques",
-        "5. Stratégies d'investissement",
-        "6. Lexique",
-        "7. Méthodologie",
+        "1. Lire les données", "2. Modèles & maths", "3. Macro-économie",
+        "4. Cas historiques", "5. Stratégies", "6. Lexique", "7. Méthodologie",
     ])
 
     with st_outils:
         st.markdown("### Apprendre à lire un graphique de marché")
-        st.write("""
-        Un graphique financier n'est pas un simple dessin : c'est le résultat de millions d'ordres 
-        d'achat et de vente, de décisions humaines et algorithmiques, de nouvelles macro-économiques 
-        et d'émotions collectives. Savoir lire un graphique, c'est savoir lire la psychologie du marché.
-        """)
+        st.write("Un graphique financier est le résultat de millions d'ordres et de décisions. Savoir le lire, c'est savoir lire la psychologie du marché.")
         st.markdown("#### 1.1 — L'illusion des prix absolus")
-        st.write("""
-        Un piège courant chez les débutants : comparer les prix bruts. Si l'action Apple vaut 170$ 
-        et qu'une petite biotech vaut 3$, laquelle performe le mieux sur un an ? Impossible à dire 
-        avec les prix absolus.
-        """)
-        st.markdown('<div class="qt-callout"><strong>La règle :</strong> les prix bruts ne disent rien. '
-                    'Seules les <strong>variations relatives</strong> comptent.</div>', unsafe_allow_html=True)
+        st.write("Comparer Apple à 170$ et une biotech à 3$ ne dit rien sur leur performance. Seules les variations relatives comptent.")
+        st.markdown('<div class="qt-callout"><strong>La règle :</strong> les prix bruts ne disent rien. Seules les <strong>variations relatives</strong> comptent.</div>', unsafe_allow_html=True)
         st.markdown("#### 1.2 — La base 100")
-        st.write("""
-        On divise chaque prix par celui du jour 0, puis on multiplie par 100. Tous les actifs 
-        démarrent à 100, et on lit directement les pourcentages : 120 = +20%, 85 = -15%, 250 = +150%.
-        """)
+        st.write("On divise chaque prix par celui du jour 0, puis on multiplie par 100. Tous les actifs partent de 100, et on lit directement les pourcentages.")
         st.markdown("#### 1.3 — La heatmap de performance")
-        st.write("""
-        Vert foncé = gros gain, rouge foncé = grosse perte. Permet de visualiser le **flight to quality** : 
-        quand les actions s'effondrent, l'argent migre vers l'or et les obligations.
-        """)
+        st.write("Vert foncé = gros gain, rouge foncé = grosse perte. Permet de voir le **flight to quality** : en crise, l'argent migre des actions vers l'or et les obligations.")
 
     with st_modeles:
         st.markdown("### Comment simuler l'avenir avec des mathématiques")
         st.markdown("#### Bachelier et le mouvement brownien")
-        st.write("""
-        En 1900, Louis Bachelier propose à la Sorbonne que les cours suivent un mouvement brownien. 
-        Einstein (1905), Itō (1940), puis Black-Scholes (Nobel 1997) formaliseront ce modèle.
-        """)
+        st.write("En 1900, Louis Bachelier propose à la Sorbonne que les cours suivent un mouvement brownien. Einstein (1905), Itō (1940), puis Black-Scholes (Nobel 1997).")
         st.latex(r"S_{t+1} = S_t \times (1 + \mu \, \Delta t + \sigma \, \sqrt{\Delta t} \, Z)")
         st.markdown("#### Mandelbrot et les queues épaisses")
-        st.write("""
-        Le brownien sous-estime les krachs. Mandelbrot a montré que les vrais marchés ont des 
-        **queues épaisses** : événements extrêmes plus fréquents que prévu. C'est ce qui a fait 
-        couler LTCM en 1998 (deux Nobel parmi les fondateurs).
-        """)
+        st.write("Le brownien sous-estime les krachs. Mandelbrot a montré que les vrais marchés ont des **queues épaisses** : événements extrêmes plus fréquents que prévu.")
         st.markdown("#### Monte-Carlo")
-        st.write("""
-        Inventée à Los Alamos en 1944 pour simuler la diffusion de neutrons dans la bombe atomique. 
-        On lance N simulations aléatoires et on regarde la distribution des résultats. 
-        Quant Terminal utilise N=50 ; les banques utilisent jusqu'à 1 million.
-        """)
+        st.write("Inventée à Los Alamos en 1944. On lance N simulations aléatoires et on regarde la distribution. Quant Terminal utilise N=50.")
 
     with st_macro:
         st.markdown("### Les 3 forces qui contrôlent les marchés")
         st.markdown("#### 3.1 — Banques centrales")
-        st.write("""
-        FED, BCE, BoJ, PBoC. Leur outil : le **taux directeur**.
-        - **Taux bas** = argent gratuit → les actions explosent (2009-2021).
-        - **Taux hauts** = obligations attractives → les actions chutent (1979-1982, 2022-2024).
-        """)
+        st.write("FED, BCE, BoJ, PBoC. Outil principal : le taux directeur. Taux bas = euphorie. Taux hauts = chute.")
         st.markdown("#### 3.2 — Inflation")
-        st.write("""
-        Avec 5% d'inflation, vos 100€ perdent 40% de pouvoir d'achat sur 10 ans. 
-        Protection : Or (multiplié par 20 dans les années 70), pétrole, immobilier, actions à pricing power.
-        """)
+        st.write("Avec 5% d'inflation, vos 100€ perdent 40% de pouvoir d'achat sur 10 ans. Protection : Or, matières premières, immobilier, actions à pricing power.")
         st.markdown("#### 3.3 — Courbe des taux")
-        st.write("""
-        **Indicateur 100% précis** depuis 1960 : chaque récession US a été précédée par une inversion 
-        de la courbe (taux courts > taux longs). 2000, 2006, 2019, mi-2022. À chaque fois, récession 6-18 mois plus tard.
-        """)
+        st.write("**Indicateur 100% précis depuis 1960** : chaque récession US a été précédée par une inversion de la courbe des taux.")
         st.markdown("#### 3.4 — VIX")
-        st.write("""
-        VIX < 15 : complaisance. VIX > 40 : panique. Records : 82 en 2020 (COVID), 80 en 2008 (Lehman).
-        """)
+        st.write("VIX < 15 : complaisance. VIX > 40 : panique. Records : 82 en 2020 (COVID), 80 en 2008 (Lehman).")
 
     with st_cas:
         st.markdown("### Les grandes crises expliquées")
         st.write("""
         - **1929** : Krach après spéculation sur marge. -89% sur 3 ans. Récupéré en 1954.
-        - **1987 (Black Monday)** : -22.6% en 1 jour. Algorithmes en cause. Naissance des coupe-circuits.
-        - **2000-2002 (dot-com)** : Nasdaq -78%. Sociétés sans CA valorisées en milliards (Pets.com).
-        - **2008 (subprimes)** : Faillite Lehman. S&P -57%. Or +25% (flight to quality).
-        - **2020 (COVID)** : -34% en 23 jours, plus rapide krach de l'histoire. Récupéré en 6 mois grâce aux 10 trillions $ injectés.
+        - **1987 (Black Monday)** : -22.6% en 1 jour. Algorithmes en cause.
+        - **2000-2002 (dot-com)** : Nasdaq -78%.
+        - **2008 (subprimes)** : S&P -57%. Or +25%.
+        - **2020 (COVID)** : -34% en 23 jours, plus rapide krach historique. Récupéré en 6 mois.
         """)
-        st.markdown('<div class="qt-callout"><strong>Leçon :</strong> les krachs arrivent tous les 8-12 ans. '
-                    '"Cette fois c\'est différent" ne l\'est jamais vraiment.</div>', unsafe_allow_html=True)
 
     with st_strat:
         st.markdown("### Les grandes stratégies d'allocation")
-        st.markdown("#### Le 60/40 classique")
-        st.write("60% actions, 40% obligations. ~8%/an sur 50 ans, drawdown max ~25%. Sa pire année : -17% en 2022.")
-        st.markdown("#### All Weather (Ray Dalio, Bridgewater)")
-        st.write("Conçu pour 4 régimes économiques (Goldilocks/Stagflation/Reflation/Déflation). 30% actions, 40% obligations longues, 15% obligations moyennes, 7.5% or, 7.5% matières premières.")
+        st.markdown("#### 60/40 classique")
+        st.write("60% actions, 40% obligations. ~8%/an sur 50 ans, drawdown ~25%. Pire année : -17% en 2022.")
+        st.markdown("#### All Weather (Ray Dalio)")
+        st.write("Conçu pour 4 régimes économiques. 30% actions, 40% obligations longues, 15% obligations moyennes, 7.5% or, 7.5% matières premières.")
         st.markdown("#### Value investing (Buffett, Graham)")
-        st.write("Acheter des entreprises sous leur valeur intrinsèque. Critères Buffett : douve économique, management, faible dette, profits stables, P/E raisonnable.")
+        st.write("Acheter sous la valeur intrinsèque. Critères : douve économique, management, faible dette, P/E raisonnable.")
         st.markdown("#### Momentum (Renaissance, AQR)")
-        st.write('"The trend is your friend." Acheter ce qui monte, vendre ce qui baisse. Effet documenté par Jegadeesh & Titman (1993).')
+        st.write('"The trend is your friend." Effet documenté par Jegadeesh & Titman (1993).')
 
     with st_lex:
         st.markdown("### Lexique professionnel")
         st.markdown("""
-        - **Bull/Bear Market** — Marché haussier/baissier (taureau qui charge / ours qui frappe).
-        - **Hawkish/Dovish** — Banquier central agressif (hausse) / accommodant (baisse).
-        - **Sharpe Ratio** — Rendement par unité de risque. >1 = bon, >2 = excellent.
+        - **Bull/Bear Market** — Marché haussier/baissier.
+        - **Hawkish/Dovish** — Banquier central agressif/accommodant.
+        - **Sharpe Ratio** — Rendement par unité de risque. >1 bon, >2 excellent.
         - **Drawdown** — Pire chute depuis un plus-haut.
-        - **VaR** — Perte max probable avec un niveau de confiance donné.
-        - **Beta (β)** — Sensibilité au marché. β=1 = bouge comme le marché.
-        - **Alpha (α)** — Surperformance vs benchmark. L'alpha pur = talent.
+        - **VaR** — Perte max probable avec un niveau de confiance.
+        - **Beta (β)** — Sensibilité au marché.
+        - **Alpha (α)** — Surperformance vs benchmark.
         - **Long/Short** — Position acheteuse/vendeuse.
-        - **Hedge** — Couverture pour réduire le risque.
-        - **Carry trade** — Emprunter à taux bas, investir à taux haut.
-        - **Flight to quality** — Fuite vers les actifs sûrs (or, bons du Trésor) en crise.
-        - **DXY** — Dollar Index : force du dollar vs panier de 6 devises.
-        - **VIX** — Indice de la peur, volatilité attendue du S&P 500.
-        - **EBITDA** — Bénéfice avant intérêts/impôts/amortissements. Mesure opérationnelle.
-        - **P/E** — Cours / Bénéfice par action. Mesure de valorisation.
-        - **Duration** — Sensibilité d'une obligation aux taux. Duration 10 = -10% si taux +1%.
+        - **Hedge** — Couverture.
+        - **DXY** — Dollar Index.
+        - **VIX** — Indice de la peur.
+        - **EBITDA** — Bénéfice avant intérêts/impôts/amortissements.
+        - **P/E** — Cours / Bénéfice par action.
+        - **Duration** — Sensibilité d'une obligation aux taux.
         """)
 
     with st_methodo:
@@ -1439,20 +1569,13 @@ with tab_academie:
         st.latex(r"\sigma_{annuel} = \sigma_{quotidien} \times \sqrt{252}")
         st.markdown("#### Sharpe Ratio")
         st.latex(r"Sharpe = \frac{R_p - R_f}{\sigma_p}")
-        st.write("Sharpe créé en 1966 par William Sharpe (Nobel 1990). $R_f$ = 2% (Bons du Trésor).")
         st.markdown("#### Max Drawdown")
         st.latex(r"DD_{max} = \max_t \left( \frac{Peak_t - V_t}{Peak_t} \right)")
         st.markdown("#### VaR 95%")
         st.latex(r"VaR_{95\%} = \text{Percentile}_{5\%}(\text{rendements})")
         st.markdown("#### Mouvement Brownien Géométrique")
         st.latex(r"\frac{dS_t}{S_t} = \mu \, dt + \sigma \, dW_t")
-        st.markdown("#### Méthode Monte-Carlo")
-        st.write("Convergence en $O(1/\\sqrt{N})$ : doubler la précision = quadrupler N.")
-        st.markdown('<div class="qt-callout-warn">'
-                    '<strong>Limites :</strong> volatilités constantes, actifs indépendants, '
-                    'distributions gaussiennes (sauf mode Historique), pas de coûts de transaction. '
-                    'Outil pédagogique, non un terminal Bloomberg.'
-                    '</div>', unsafe_allow_html=True)
+        st.markdown('<div class="qt-callout-warn"><strong>Limites :</strong> volatilités constantes, actifs indépendants, distributions gaussiennes (sauf mode Historique), pas de coûts de transaction. Outil pédagogique.</div>', unsafe_allow_html=True)
 
 
 # ==========================================
@@ -1462,12 +1585,13 @@ with tab_academie:
 with tab_chat:
     st.markdown('<div class="qt-section-title">Bureau de votre analyste financier IA</div>', unsafe_allow_html=True)
     st.caption("Posez vos questions sur le marché, la macro-économie, ou l'impact de votre scénario.")
+    st.markdown('<div class="qt-callout">💬 <strong>Tapez votre question dans la barre en bas de cette page</strong> — l\'analyste IA vous répondra avec un vocabulaire professionnel et pédagogue.</div>', unsafe_allow_html=True)
 
     for message in st.session_state.messages_chat:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
 
-    question = st.chat_input("Ex: Pourquoi l'Or a réagi comme cela face à la hausse des taux ?")
+    question = st.chat_input("✍️ Tapez votre question ici (ex : Pourquoi l'Or a-t-il monté pendant la crise de 2008 ?)")
     if question:
         st.chat_message("user").markdown(question)
         st.session_state.messages_chat.append({"role": "user", "content": question})
@@ -1476,3 +1600,107 @@ with tab_chat:
                 reponse_ia = discuter_avec_ia(st.session_state.messages_chat)
                 st.markdown(reponse_ia)
         st.session_state.messages_chat.append({"role": "assistant", "content": reponse_ia})
+
+
+# ==========================================
+# 17. À PROPOS (NOUVEAU)
+# ==========================================
+
+with tab_apropos:
+    st.markdown('<div class="qt-section-title">À propos de Quant Terminal</div>', unsafe_allow_html=True)
+
+    st.markdown("""
+    <div class="qt-card-intro">
+        <div class="qt-tag">Université Paris Nanterre · Licence 1 · Semestre 2</div>
+        <p style="font-size: 1.05em; margin-bottom: 0;">
+            Quant Terminal est un projet réalisé dans le cadre de notre cours d'<strong>informatique de L1, semestre 2</strong>, 
+            au sein de la licence <strong>MIASHS</strong> (Mathématiques et Informatique Appliquées aux Sciences Humaines et Sociales), 
+            que nous suivons en <strong>double licence avec Économie et Gestion</strong> à l'Université Paris Nanterre.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown('<div class="qt-section-title">L\'équipe</div>', unsafe_allow_html=True)
+    cols = st.columns(4)
+    membres = [
+        ("Quentin Geldreich", "Étudiant en MIASHS et Économie & Gestion"),
+        ("Lucas Doazan",      "Étudiant en MIASHS et Économie & Gestion"),
+        ("Evan Saadi",        "Étudiant en MIASHS et Économie & Gestion"),
+        ("Alex Ruimy",        "Étudiant en MIASHS et Économie & Gestion"),
+    ]
+    for col, (nom, desc) in zip(cols, membres):
+        with col:
+            st.markdown(f"""
+            <div class="qt-card" style="text-align:center; height:180px; display:flex; flex-direction:column; justify-content:center;">
+                <div style="width:60px; height:60px; background:linear-gradient(135deg, #1a365d, #319795); border-radius:50%; margin:0 auto 12px auto; display:flex; align-items:center; justify-content:center; color:white; font-weight:800; font-size:18px;">
+                    {nom.split()[0][0]}{nom.split()[1][0]}
+                </div>
+                <strong style="color:#1a365d; font-size:1.05em;">{nom}</strong>
+                <span style="font-size:0.85em; color:#718096; margin-top:6px; line-height:1.4;">{desc}</span>
+            </div>
+            """, unsafe_allow_html=True)
+
+    st.markdown('<div class="qt-section-title">Genèse du projet</div>', unsafe_allow_html=True)
+    st.write("""
+    Nous avons choisi de développer un projet centré sur la **finance**, un domaine qui nous intéresse particulièrement, 
+    tout comme les **mathématiques**. L'objectif était de combiner ces deux disciplines à travers un outil informatique, 
+    afin de créer un projet cohérent et enrichissant.
+    
+    Ce projet a également une dimension **pédagogique** importante. Il vise à rendre certains concepts financiers plus 
+    accessibles et compréhensibles pour un public large, notamment dans un cadre académique. Bien qu'il ne soit pas 
+    destiné à être utilisé en l'état par des professionnels de la finance, nous avons cherché à nous rapprocher au 
+    maximum d'un outil **réaliste et pertinent**.
+    """)
+
+    st.markdown('<div class="qt-section-title">Ambitions</div>', unsafe_allow_html=True)
+    st.write("""
+    Au-delà de l'aspect scolaire, notre ambition est de **poursuivre le développement** de cette application afin d'en 
+    faire un outil réellement utilisable, avec une utilité concrète pour les utilisateurs. L'idée est donc de faire 
+    évoluer ce projet vers quelque chose de plus abouti et potentiellement utile à un public plus large.
+    """)
+
+    st.markdown('<div class="qt-section-title">Stack technique</div>', unsafe_allow_html=True)
+    c1, c2, c3 = st.columns(3)
+    with c1:
+        st.markdown('<div class="qt-card"><strong>Frontend & Backend</strong><br><br>'
+                    '<span class="qt-pill">Python</span><span class="qt-pill">Streamlit</span>'
+                    '<span class="qt-pill">Plotly</span><span class="qt-pill">Pandas</span></div>',
+                    unsafe_allow_html=True)
+    with c2:
+        st.markdown('<div class="qt-card"><strong>IA & Données</strong><br><br>'
+                    '<span class="qt-pill">OpenAI GPT</span><span class="qt-pill">Yahoo Finance</span>'
+                    '<span class="qt-pill">NumPy</span></div>',
+                    unsafe_allow_html=True)
+    with c3:
+        st.markdown('<div class="qt-card"><strong>Hébergement</strong><br><br>'
+                    '<span class="qt-pill">Streamlit Cloud</span><span class="qt-pill">GitHub</span>'
+                    '<span class="qt-pill">ReportLab (PDF)</span></div>',
+                    unsafe_allow_html=True)
+
+    st.markdown('<div class="qt-section-title">Fonctionnalités principales</div>', unsafe_allow_html=True)
+    st.markdown("""
+    - **Simulation prospective** : tester l'impact d'un scénario fictif sur un portefeuille
+    - **Backtest historique** : rejouer les vraies données de crises passées (COVID, Lehman, dot-com…)
+    - **Mode comparaison** : opposer deux scénarios sur le même portefeuille
+    - **Mode Monte-Carlo** : 50 simulations pour une vision statistiquement robuste
+    - **Calibration historique IA** : amplitudes calibrées sur les vraies crises
+    - **Connexion Yahoo Finance** : prix actuels + volatilités historiques en direct
+    - **Métriques institutionnelles** : Volatilité annualisée, Sharpe Ratio, Max Drawdown, VaR 95%
+    - **Génération de rapport PDF** professionnel
+    - **Analyste IA conversationnel** pour poser toutes vos questions
+    - **Académie pédagogique** : 7 modules pour comprendre la finance de marché
+    """)
+
+    st.markdown('<div class="qt-section-title">Sources & limites assumées</div>', unsafe_allow_html=True)
+    st.markdown('<div class="qt-callout-warn">'
+                '<strong>Quant Terminal est un outil pédagogique.</strong> Les simulations utilisent un mouvement brownien '
+                'géométrique standard, calibré par une IA. Les volatilités sont calculées sur 12 mois Yahoo Finance. '
+                'Limites : volatilités supposées constantes, actifs indépendants, pas de coûts de transaction. '
+                'Pour un usage professionnel, il faudrait calibrer le modèle sur des données institutionnelles '
+                'et ajouter la modélisation des corrélations et des queues épaisses.'
+                '</div>', unsafe_allow_html=True)
+
+    st.markdown('<div style="text-align:center; color:#718096; margin-top:30px; padding:20px; '
+                'border-top: 1px solid #cbd5e0; font-size:0.85em;">'
+                '© 2026 · Quant Terminal · Université Paris Nanterre · MIASHS'
+                '</div>', unsafe_allow_html=True)
