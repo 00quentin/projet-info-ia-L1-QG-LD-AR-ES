@@ -238,7 +238,7 @@ def _bilan_box(capital, valeur_finale):
 
 
 def generer_rapport_pdf(simu, params, metriques, allocations_finales,
-                         valeur_finale, type_rapport="Simulation"):
+                         valeur_finale, type_rapport="Simulation", analyse_senior=None):
     """
     Génère un rapport PDF complet et retourne les bytes.
 
@@ -249,6 +249,7 @@ def generer_rapport_pdf(simu, params, metriques, allocations_finales,
     - allocations_finales : liste de dicts {nom, poids, investi, final, rendement}
     - valeur_finale : float
     - type_rapport : "Simulation" ou "Backtest"
+    - analyse_senior : str optionnelle, analyse approfondie générée par l'IA
     """
     buffer = BytesIO()
     doc = SimpleDocTemplate(
@@ -291,12 +292,12 @@ def generer_rapport_pdf(simu, params, metriques, allocations_finales,
         params_text += f"<b>Calibration historique IA :</b> {simu['chocs_ia']['evenement_reference']}<br/>"
     story.append(Paragraph(params_text, styles["body"]))
 
-    # ---- Analyse IA ----
+    # ---- Synthèse macro IA ----
     chocs = simu.get("chocs_ia", {})
     if chocs.get("explication_courte"):
-        story.append(Paragraph("Analyse de l'IA", styles["h2"]))
+        story.append(Paragraph("Synthèse macro de l'IA", styles["h2"]))
         story.append(Paragraph(
-            f'<i>"{chocs["explication_courte"]}"</i>',
+            f'<i>{chocs["explication_courte"]}</i>',
             styles["body"]
         ))
 
@@ -320,18 +321,60 @@ def generer_rapport_pdf(simu, params, metriques, allocations_finales,
     story.append(_table_metriques(metriques))
     story.append(Spacer(1, 12))
 
-    # ---- Détail du portefeuille ----
+    # ---- Composition complète du portefeuille (NOUVEAU - PAGE DÉDIÉE) ----
     story.append(PageBreak())
-    story.append(Paragraph("Composition du portefeuille", styles["h1"]))
+    story.append(Paragraph("Composition détaillée du portefeuille", styles["h1"]))
+    story.append(Paragraph(
+        f"Décomposition de votre portefeuille de {params['capital']:,.0f} € selon le profil "
+        f"<b>{params['profil']}</b>. Chaque ligne montre l'allocation, le montant investi initialement, "
+        f"la valeur finale et la performance individuelle de l'actif sur la période simulée.".replace(",", " "),
+        styles["body"]
+    ))
+    story.append(Spacer(1, 8))
     story.append(_table_portefeuille(allocations_finales, params["capital"], valeur_finale))
     story.append(Spacer(1, 14))
 
     # ---- Performance par actif ----
-    story.append(Paragraph("Performance par actif", styles["h2"]))
+    story.append(Paragraph("Performance par actif (tous les actifs analysés)", styles["h2"]))
+    story.append(Paragraph(
+        "Performance brute de chaque actif simulé indépendamment du portefeuille. "
+        "Permet d'identifier quelles classes d'actifs ont le mieux ou le moins bien réagi au scénario.",
+        styles["body"]
+    ))
+    story.append(Spacer(1, 6))
     story.append(_table_perfs(simu["perf_df"]))
     story.append(Spacer(1, 14))
 
+    # ---- ANALYSE SENIOR (NOUVEAU) ----
+    if analyse_senior:
+        story.append(PageBreak())
+        story.append(Paragraph("Analyse approfondie de l'analyste senior", styles["h1"]))
+        story.append(Paragraph(
+            "<i>Rapport rédigé par l'analyste financier IA, dans le style d'un professionnel "
+            "institutionnel d'une banque d'investissement.</i>",
+            styles["body"]
+        ))
+        story.append(Spacer(1, 10))
+
+        # Convertir le markdown simple en HTML pour reportlab
+        analyse_html = analyse_senior.replace("**", "@@@")
+        # Alternance @@@ pour <b></b>
+        parts = analyse_html.split("@@@")
+        analyse_formatted = ""
+        for i, part in enumerate(parts):
+            if i % 2 == 1:
+                analyse_formatted += f"<b>{part}</b>"
+            else:
+                analyse_formatted += part
+        # Sauts de ligne en doubles paragraphes
+        for paragraphe in analyse_formatted.split("\n\n"):
+            paragraphe = paragraphe.strip().replace("\n", "<br/>")
+            if paragraphe:
+                story.append(Paragraph(paragraphe, styles["body"]))
+                story.append(Spacer(1, 6))
+
     # ---- Note méthodologique ----
+    story.append(Spacer(1, 14))
     story.append(Paragraph("Note méthodologique", styles["h2"]))
     note = (
         "Quant Terminal est un outil pédagogique. Les simulations utilisent un mouvement brownien "
@@ -357,3 +400,4 @@ def generer_rapport_pdf(simu, params, metriques, allocations_finales,
     doc.build(story)
     buffer.seek(0)
     return buffer.getvalue()
+

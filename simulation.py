@@ -61,16 +61,22 @@ def simuler_marche_dynamique(chocs_ia, jours=100, modele="Probabiliste (Réalist
             tendance_globale = impacts.get(actif, 0) / jours
             ancien_prix = historique.loc[jour - 1, actif]
 
+            # Multiplicateur de volatilité pour rendre les courbes plus réalistes
+            # (les courbes ne sont JAMAIS lisses sur un vrai marché)
+            vol_multiplier = 1.5
+
             if "Probabiliste" in modele:
-                variation = np.random.normal(0, vol)
+                variation = np.random.normal(0, vol * vol_multiplier)
                 nouveau_prix = ancien_prix * (1 + tendance_globale + variation)
             elif "Historique" in modele:
-                variation = np.random.normal(0, vol * 0.8)
-                if np.random.rand() < 0.02:
-                    variation += np.random.choice([-1, 1]) * (vol * 5)
+                variation = np.random.normal(0, vol * 1.3)
+                # Événement queue épaisse plus fréquent et plus violent
+                if np.random.rand() < 0.03:
+                    variation += np.random.choice([-1, 1]) * (vol * 6)
                 nouveau_prix = ancien_prix * (1 + tendance_globale + variation)
             else:
-                variation = np.random.normal(0, vol * 0.5)
+                # Mode ML : moins lisse aussi, plus réaliste
+                variation = np.random.normal(0, vol * 0.9)
                 momentum = tendance_globale * (1 + (jour / jours))
                 nouveau_prix = ancien_prix * (1 + momentum + variation)
 

@@ -5,7 +5,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from datetime import datetime, timedelta
 from simulation import simuler_marche_dynamique, simuler_monte_carlo
-from ia_bot import analyser_evenement_macro, discuter_avec_ia
+from ia_bot import analyser_evenement_macro, discuter_avec_ia, generer_rapport_complet_ia
 from market_data import (
     get_prix_actuels, get_historique, get_volatilites_historiques,
     EVENEMENTS_HISTORIQUES, TICKERS_YAHOO
@@ -19,39 +19,39 @@ from pdf_generator import generer_rapport_pdf
 
 ACTIFS_DISPONIBLES = {
     "Actions & Indices": {
-        "S&P 500":               "S&P 500",
-        "NASDAQ 100":            "NASDAQ",
-        "CAC 40":                "CAC 40",
-        "MSCI World":            "MSCI_World",
-        "Marchés Émergents":     "Emerging_Markets",
+        "S&P 500 (USA)":                            "S&P 500",
+        "NASDAQ 100 (Tech US)":                     "NASDAQ",
+        "CAC 40 (France)":                          "CAC 40",
+        "MSCI World (Global)":                      "MSCI_World",
+        "MSCI Emerging Markets":                    "Emerging_Markets",
     },
-    "Obligations d'État": {
-        "Bons Trésor US 10Y":    "Bons_Tresor_US_10Y",
-        "Bund Allemagne 10Y":    "Bund_10Y",
-        "OAT France 10Y":        "OAT_10Y",
-        "JGB Japon 10Y":         "JGB_10Y",
-        "Gilt UK 10Y":           "Gilt_10Y",
+    "Obligations d'État (10 ans)": {
+        "U.S. Treasury 10Y":                        "Bons_Tresor_US_10Y",
+        "Bund Allemagne 10Y":                       "Bund_10Y",
+        "OAT France 10Y":                           "OAT_10Y",
+        "JGB Japon 10Y":                            "JGB_10Y",
+        "Gilt Royaume-Uni 10Y":                     "Gilt_10Y",
     },
     "Devises & Volatilité": {
-        "EUR/USD":               "EUR_USD",
-        "Dollar Index (DXY)":    "Dollar_Index",
-        "VIX (Indice de Peur)":  "VIX",
+        "EUR/USD (Euro-Dollar)":                    "EUR_USD",
+        "DXY (US Dollar Index)":                    "Dollar_Index",
+        "VIX (CBOE Volatility Index)":              "VIX",
     },
     "Matières Premières": {
-        "Or":                    "Or",
-        "Argent":                "Argent",
-        "Pétrole (WTI)":         "Petrole",
-        "Cuivre":                "Cuivre",
-        "ETF Terres Rares":      "ETF_Terres_Rares",
+        "Or (Gold Spot, $/oz)":                     "Or",
+        "Argent (Silver Spot, $/oz)":               "Argent",
+        "Pétrole WTI (Crude Oil)":                  "Petrole",
+        "Cuivre (Copper Futures)":                  "Cuivre",
+        "ETF Terres Rares (REMX)":                  "ETF_Terres_Rares",
     },
     "Sectoriels": {
-        "ETF Défense":           "ETF_Defense",
+        "ETF Aérospatiale & Défense (ITA)":         "ETF_Defense",
     },
     "Cryptomonnaies": {
-        "Bitcoin":               "Bitcoin",
-        "Ethereum":              "Ethereum",
-        "XRP":                   "XRP",
-        "Solana":                "Solana",
+        "Bitcoin (BTC)":                            "Bitcoin",
+        "Ethereum (ETH)":                           "Ethereum",
+        "XRP (Ripple)":                             "XRP",
+        "Solana (SOL)":                             "Solana",
     },
 }
 
@@ -186,18 +186,49 @@ div[data-testid="metric-container"]:hover {
 
 .streamlit-expanderHeader {
     font-weight: 600;
-    color: var(--text) !important;
-    background-color: white !important;
-    border: 1px solid var(--border) !important;
+    color: #1a365d !important;          /* ⬅ titres bleu primaire bien visible */
+    background-color: #f7fafc !important;
+    border: 1px solid #a0aec0 !important;
     border-radius: 8px !important;
 }
+.streamlit-expanderHeader:hover {
+    background-color: #ebf8ff !important;
+    border-color: #319795 !important;
+}
+.streamlit-expanderHeader p {
+    color: #1a365d !important;
+    font-weight: 600 !important;
+}
+[data-testid="stExpander"] summary {
+    color: #1a365d !important;
+    font-weight: 600 !important;
+    background-color: #f7fafc !important;
+    border: 1px solid #a0aec0 !important;
+    border-radius: 8px !important;
+    padding: 8px 12px !important;
+}
+[data-testid="stExpander"] summary:hover {
+    background-color: #ebf8ff !important;
+    border-color: #319795 !important;
+}
+[data-testid="stExpander"] summary p {
+    color: #1a365d !important;
+    font-weight: 600 !important;
+}
 
-/* Inputs avec contraste correct */
+/* Inputs avec contraste correct + CURSEUR VISIBLE */
 .stTextArea textarea, .stTextInput input, .stNumberInput input {
     border-radius: 8px;
     border: 1px solid var(--border-strong) !important;
     color: var(--text) !important;
     background-color: #ffffff !important;
+    caret-color: var(--primary) !important;       /* ⬅ curseur bleu visible */
+    caret-shape: bar;
+}
+.stTextArea textarea:focus, .stTextInput input:focus, .stNumberInput input:focus {
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 3px rgba(49,151,149,0.15) !important;
+    outline: none !important;
 }
 .stTextArea textarea::placeholder, .stTextInput input::placeholder {
     color: #a0aec0 !important;
@@ -503,7 +534,31 @@ st.markdown("""
 with st.sidebar:
     st.markdown("### Paramètres")
 
-    # Bouton recharger les prix
+    # Bouton recharger les prix - style amélioré
+    st.markdown(
+        '<style>'
+        '[data-testid="stSidebar"] .stButton > button:not([kind="primary"]) {'
+        '    background-color: #ebf8ff !important;'
+        '    color: #1a365d !important;'
+        '    border: 1px solid #319795 !important;'
+        '    font-weight: 600 !important;'
+        '}'
+        '[data-testid="stSidebar"] .stButton > button:not([kind="primary"]):hover {'
+        '    background-color: #319795 !important;'
+        '    color: white !important;'
+        '    border-color: #319795 !important;'
+        '}'
+        '[data-testid="stSidebar"] .stButton > button:not([kind="primary"]) p {'
+        '    color: #1a365d !important;'
+        '    font-weight: 600 !important;'
+        '}'
+        '[data-testid="stSidebar"] .stButton > button:not([kind="primary"]):hover p {'
+        '    color: white !important;'
+        '}'
+        '</style>',
+        unsafe_allow_html=True
+    )
+
     if st.button("🔄 Recharger les prix Yahoo", use_container_width=True,
                  help="Force un rafraîchissement des prix de marché (cache 1h sinon)."):
         get_prix_actuels.clear()
@@ -527,6 +582,7 @@ with st.sidebar:
         st.session_state.mode_comparaison = mode_comparaison
 
         if mode_comparaison:
+            st.caption("💡 Conseil : soyez précis et détaillé. Mentionnez le pays, le secteur, l'ampleur.")
             st.markdown("**Scénario A**")
             st.text_area("Scénario A", height=100, key="event_text_A", label_visibility="collapsed")
             st.markdown("**Scénario B**")
@@ -549,6 +605,8 @@ with st.sidebar:
                                   args=(EVENEMENTS_PRESETS[preset_keys[i + 1]],),
                                   use_container_width=True)
             st.markdown("**Événement à simuler**")
+            st.caption("💡 Conseil : soyez précis et détaillé pour que l'analyste IA soit performant. "
+                       "Mentionnez le pays, le secteur, l'ampleur, la durée si possible.")
             st.text_area("Événement", height=120, key="event_text_A", label_visibility="collapsed")
 
         st.markdown("---")
@@ -789,11 +847,13 @@ if lancer and mode_app == "Simulation prospective":
             if erreurs_yahoo:
                 st.warning(f"Indisponibles : {', '.join([NOM_AFFICHAGE.get(e, e) for e in erreurs_yahoo])}.")
 
-        msg = "L'analyste IA étudie votre scénario..."
+        msg = "L'analyste IA étudie votre scénario... (cela peut prendre quelques secondes)"
         if calibration_historique:
-            msg = "L'IA recherche des analogies historiques..."
+            msg = "L'IA recherche des analogies historiques... (cela peut prendre quelques secondes)"
         if mode_monte_carlo:
-            msg = "Monte-Carlo : 50 simulations..."
+            msg = "Mode Monte-Carlo : 50 simulations en cours... (cela peut prendre 15-30 secondes)"
+        if st.session_state.mode_comparaison:
+            msg = "Analyse comparative de 2 scénarios en cours... (cela peut prendre 30-60 secondes)"
 
         with st.spinner(msg):
             try:
@@ -933,13 +993,8 @@ if lancer and mode_app == "Backtest historique":
 # ==========================================
 
 def hauteur_graphique(nb_actifs):
-    """Retourne une hauteur adaptée selon le nombre d'actifs (pour la légende)."""
-    if nb_actifs <= 1:
-        return 320
-    elif nb_actifs <= 3:
-        return 360
-    else:
-        return 400
+    """Retourne une hauteur FIXE identique pour tous les graphiques (cohérence visuelle)."""
+    return 380
 
 
 def afficher_dashboard(res, params, key_prefix="main"):
@@ -955,10 +1010,19 @@ def afficher_dashboard(res, params, key_prefix="main"):
     if badges:
         st.markdown(f'<div style="margin-bottom:14px;">{badges}</div>', unsafe_allow_html=True)
 
-    col1, col2, col3 = st.columns(3)
+    col1, col2 = st.columns(2)
     col1.metric("Impact Inflation (Estimé)", f"{chocs.get('macro', {}).get('inflation', 0):+.2f} %")
     col2.metric("Taux Directeurs (Estimé)", f"{chocs.get('macro', {}).get('taux_directeurs', 0):+.2f} %")
-    col3.info(f"**Analyse IA :** {chocs.get('explication_courte', '—')}")
+
+    # Analyse IA — bloc dédié, beaucoup plus visible
+    explication = chocs.get('explication_courte', 'Analyse non disponible.')
+    st.markdown(
+        f'<div class="qt-callout" style="margin-top:18px; line-height:1.6;">'
+        f'<strong style="color:#1a365d; font-size:1.05em;">📊 Analyse de l\'IA</strong><br><br>'
+        f'<span style="font-size:0.97em;">{explication}</span>'
+        f'</div>',
+        unsafe_allow_html=True
+    )
 
     poids = calculer_poids(params["profil"], params["actifs_sim"], params["allocations"])
     valeur_port = pd.Series(0.0, index=df.index)
@@ -1054,23 +1118,46 @@ def afficher_dashboard(res, params, key_prefix="main"):
     # ---- BOUTON PDF (NOUVEAU) ----
     st.markdown('<hr class="qt-divider">', unsafe_allow_html=True)
     st.markdown('<div class="qt-section-title">Exporter le rapport</div>', unsafe_allow_html=True)
+    st.caption("Le rapport PDF inclut une analyse approfondie rédigée par l'analyste IA dans le style d'un professionnel institutionnel. Cliquez sur le bouton ci-dessous pour le télécharger (génération en quelques secondes).")
     allocs, valeur_fin = construire_allocations_finales(res, params)
-    try:
-        pdf_bytes = generer_rapport_pdf(
-            simu=res, params=params, metriques=metriques,
-            allocations_finales=allocs, valeur_finale=valeur_fin,
-            type_rapport="Simulation"
-        )
+
+    # Bouton qui déclenche la génération
+    if st.button(f"🔬 Préparer le rapport PDF complet", key=f"{key_prefix}_prep_pdf",
+                 use_container_width=True):
+        st.session_state[f"{key_prefix}_pdf_ready"] = False
+        with st.spinner("L'analyste IA rédige son rapport approfondi... (15-30 secondes)"):
+            try:
+                analyse_senior = generer_rapport_complet_ia(
+                    scenario=res["scenario"],
+                    chocs_ia=res["chocs_ia"],
+                    perf_par_actif=res["perf_df"],
+                    metriques=metriques,
+                    valeur_initiale=params["capital"],
+                    valeur_finale=valeur_fin,
+                    profil=params["profil"]
+                )
+                pdf_bytes = generer_rapport_pdf(
+                    simu=res, params=params, metriques=metriques,
+                    allocations_finales=allocs, valeur_finale=valeur_fin,
+                    type_rapport="Simulation",
+                    analyse_senior=analyse_senior
+                )
+                st.session_state[f"{key_prefix}_pdf_bytes"] = pdf_bytes
+                st.session_state[f"{key_prefix}_pdf_ready"] = True
+            except Exception as e:
+                st.error(f"Génération PDF impossible : {e}")
+
+    # Si le PDF est prêt, afficher le bouton de téléchargement
+    if st.session_state.get(f"{key_prefix}_pdf_ready", False):
+        st.success("✅ Rapport prêt !")
         st.download_button(
             label="📄 Télécharger le rapport PDF",
-            data=pdf_bytes,
+            data=st.session_state[f"{key_prefix}_pdf_bytes"],
             file_name=f"quant_terminal_rapport_{datetime.now().strftime('%Y%m%d_%H%M')}.pdf",
             mime="application/pdf",
             use_container_width=True,
-            key=f"{key_prefix}_pdf"
+            key=f"{key_prefix}_pdf_dl"
         )
-    except Exception as e:
-        st.error(f"Génération PDF impossible : {e}")
 
 
 def afficher_portefeuille(res, params, key_prefix="main"):
@@ -1220,33 +1307,54 @@ with tab_dashboard:
             # PDF backtest
             st.markdown('<hr class="qt-divider">', unsafe_allow_html=True)
             st.markdown('<div class="qt-section-title">Exporter le rapport</div>', unsafe_allow_html=True)
-            try:
-                # construire un res factice pour le PDF
-                res_bt = {
-                    "scenario": f"Backtest : {bt['evenement']} — {bt['description']}",
-                    "chocs_ia": {"explication_courte": f"Période réelle : {bt['date_debut']} → {bt['date_fin']}",
-                                 "macro": {"inflation": 0, "taux_directeurs": 0},
-                                 "evenement_reference": bt["evenement"]},
-                    "perf_df": bt["perf_df"],
-                    "perf": bt["perf"],
-                }
-                params_bt = {**params, "duree": len(bt["df"]), "mc": False, "prix_reels": True, "calib": True}
-                allocs_bt, valeur_fin_bt = construire_allocations_finales(res_bt, params_bt)
-                pdf_bytes = generer_rapport_pdf(
-                    simu=res_bt, params=params_bt, metriques=metriques,
-                    allocations_finales=allocs_bt, valeur_finale=valeur_fin_bt,
-                    type_rapport="Backtest"
-                )
+            st.caption("Le rapport PDF inclut une analyse approfondie rédigée par l'analyste IA.")
+
+            res_bt = {
+                "scenario": f"Backtest : {bt['evenement']} — {bt['description']}",
+                "chocs_ia": {"explication_courte": f"Période réelle : {bt['date_debut']} → {bt['date_fin']}",
+                             "macro": {"inflation": 0, "taux_directeurs": 0},
+                             "evenement_reference": bt["evenement"]},
+                "perf_df": bt["perf_df"],
+                "perf": bt["perf"],
+            }
+            params_bt = {**params, "duree": len(bt["df"]), "mc": False, "prix_reels": True, "calib": True}
+            allocs_bt, valeur_fin_bt = construire_allocations_finales(res_bt, params_bt)
+
+            if st.button("🔬 Préparer le rapport PDF complet", key="bt_prep_pdf",
+                         use_container_width=True):
+                st.session_state["bt_pdf_ready"] = False
+                with st.spinner("L'analyste IA rédige son rapport approfondi... (15-30 secondes)"):
+                    try:
+                        analyse_senior = generer_rapport_complet_ia(
+                            scenario=res_bt["scenario"],
+                            chocs_ia=res_bt["chocs_ia"],
+                            perf_par_actif=bt["perf_df"],
+                            metriques=metriques,
+                            valeur_initiale=params["capital"],
+                            valeur_finale=valeur_fin_bt,
+                            profil=params["profil"]
+                        )
+                        pdf_bytes = generer_rapport_pdf(
+                            simu=res_bt, params=params_bt, metriques=metriques,
+                            allocations_finales=allocs_bt, valeur_finale=valeur_fin_bt,
+                            type_rapport="Backtest",
+                            analyse_senior=analyse_senior
+                        )
+                        st.session_state["bt_pdf_bytes"] = pdf_bytes
+                        st.session_state["bt_pdf_ready"] = True
+                    except Exception as e:
+                        st.error(f"Génération PDF impossible : {e}")
+
+            if st.session_state.get("bt_pdf_ready", False):
+                st.success("✅ Rapport prêt !")
                 st.download_button(
                     label="📄 Télécharger le rapport PDF",
-                    data=pdf_bytes,
+                    data=st.session_state["bt_pdf_bytes"],
                     file_name=f"quant_terminal_backtest_{datetime.now().strftime('%Y%m%d_%H%M')}.pdf",
                     mime="application/pdf",
                     use_container_width=True,
-                    key="bt_pdf"
+                    key="bt_pdf_dl"
                 )
-            except Exception as e:
-                st.error(f"Génération PDF impossible : {e}")
 
 
 # ==========================================
@@ -2239,7 +2347,7 @@ with tab_apropos:
     cols = st.columns(4)
     membres = [
         ("Quentin Geldreich", "Étudiant en MIASHS et Économie & Gestion"),
-        ("Lucas Doazan",      "Étudiant en MIASHS et Économie & Gestion"),
+        ("Lukha Doazan",      "Étudiant en MIASHS et Économie & Gestion"),
         ("Evan Saadi",        "Étudiant en MIASHS et Économie & Gestion"),
         ("Alex Ruimy",        "Étudiant en MIASHS et Économie & Gestion"),
     ]

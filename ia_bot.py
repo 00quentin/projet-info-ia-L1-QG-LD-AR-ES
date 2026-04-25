@@ -57,13 +57,14 @@ def analyser_evenement_macro(evenement_utilisateur, calibration_historique=False
             "ETF_Defense": 0.0,
             "Bitcoin": 0.0, "Ethereum": 0.0, "XRP": 0.0, "Solana": 0.0
         }},
-        "explication_courte": "Explication d'une phrase, mentionnant l'événement historique de référence si calibration activée.",
+        "explication_courte": "Analyse détaillée et précise en 3-4 phrases minimum. Doit expliquer : (1) le mécanisme économique principal du scénario, (2) les classes d'actifs gagnantes et leur raison, (3) les classes d'actifs perdantes et leur raison, (4) la durée probable de l'impact. Mentionne l'événement historique de référence si calibration activée. Sois concret et institutionnel.",
         "evenement_reference": "Nom de l'événement historique utilisé, ou null."
     }}
 
     IMPORTANT :
     - "inflation" et "taux_directeurs" en pourcentage (ex: 2.5 pour +2.5%).
     - Actifs en décimal (ex: -0.15 pour -15%).
+    - "explication_courte" DOIT faire au minimum 3-4 phrases. Une seule phrase est INSUFFISANTE.
     - Corrélations à respecter :
         * Hausse taux → obligations baissent, actions baissent, VIX monte, Dollar_Index monte
         * Inflation forte → Or/Argent/Cuivre montent, obligations baissent
@@ -109,3 +110,74 @@ def discuter_avec_ia(historique_messages):
         return reponse.choices[0].message.content
     except Exception as e:
         return f"❌ Erreur de communication avec l'analyste : {str(e)}"
+
+
+def generer_rapport_complet_ia(scenario, chocs_ia, perf_par_actif, metriques,
+                                 valeur_initiale, valeur_finale, profil):
+    """
+    Génère une analyse complète et détaillée pour le rapport PDF,
+    rédigée comme un vrai analyste financier senior.
+    """
+    perf_globale = (valeur_finale - valeur_initiale) / valeur_initiale * 100
+
+    # Construire le résumé de performance par actif
+    perfs_text = "\n".join([
+        f"- {row['Actif']} : {row['Performance (%)']:+.2f}%"
+        for _, row in perf_par_actif.iterrows()
+    ])
+
+    prompt = f"""Tu es un Analyste Financier Senior d'une grande banque d'investissement.
+Tu rédiges un rapport d'analyse pour un client institutionnel suite à une simulation Quant Terminal.
+
+CONTEXTE DE LA SIMULATION :
+- Scénario testé : "{scenario}"
+- Profil d'investisseur : {profil}
+- Capital initial : {valeur_initiale:,.0f} €
+- Valeur finale du portefeuille : {valeur_finale:,.0f} €
+- Performance globale : {perf_globale:+.2f}%
+
+ANALYSE MACRO IA (synthèse) :
+{chocs_ia.get('explication_courte', 'Non disponible')}
+
+PERFORMANCE PAR ACTIF :
+{perfs_text}
+
+MÉTRIQUES DE RISQUE :
+- Volatilité annualisée : {metriques['vol_ann']:.2f}%
+- Sharpe Ratio : {metriques['sharpe']:.2f}
+- Max Drawdown : -{metriques['max_dd']:.2f}%
+- VaR 95% (1 jour) : {metriques['var_95']:.2f}%
+
+TA MISSION :
+Rédige un rapport d'analyse professionnel, structuré et détaillé, en 4 sections numérotées :
+
+**1. Synthèse exécutive (3-4 phrases)** — Bilan global du portefeuille face à ce scénario, performance vs profil de risque, jugement professionnel sur la solidité.
+
+**2. Mécanique économique (4-5 phrases)** — Explique en détail POURQUOI ce scénario produit ces résultats. Quels canaux de transmission économiques sont à l'œuvre ? Inflation, taux, confiance, liquidité, géopolitique ? Cite des références historiques pertinentes (2008, COVID, 1973, etc.).
+
+**3. Décomposition par classe d'actifs (5-6 phrases)** — Analyse les actifs qui ont le mieux et le moins bien performé. Pourquoi ces écarts ? Quelle logique de marché (flight to quality, rotation sectorielle, prime de risque, etc.) ? Mentionne 2-3 actifs spécifiques avec des chiffres.
+
+**4. Recommandations & implications (3-4 phrases)** — Que devrait faire un investisseur dans cette configuration ? Quelles classes d'actifs renforcer ou alléger ? Quels risques surveiller ? Limites de cette simulation ?
+
+CONTRAINTES :
+- Ton institutionnel, professoral, précis.
+- Utilise du vocabulaire financier (volatilité réalisée, spread, beta, drawdown, momentum, etc.).
+- Mais vulgarise les concepts pour qu'un client comprenne.
+- Pas de listes à puces, du texte en paragraphes coulés.
+- Utilise du **gras** sur les points clés (avec des étoiles markdown ** **).
+- Longueur totale : entre 400 et 600 mots.
+"""
+
+    try:
+        reponse = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "Tu es un analyste financier senior expert."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.5,
+            max_tokens=1200,
+        )
+        return reponse.choices[0].message.content
+    except Exception as e:
+        return f"Analyse non disponible (erreur IA : {str(e)})"
