@@ -149,7 +149,9 @@ try:
     # Injection via <style> en concaténant un texte non-markdown
     st.markdown(
         "<style>\n" + css_content + "\n</style>"
-        + "\n<link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap\" rel=\"stylesheet\">",
+        + "\n<link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap\" rel=\"stylesheet\">"
+        + "\n<link href=\"https://fonts.googleapis.com/icon?family=Material+Icons\" rel=\"stylesheet\">"
+        + "\n<link href=\"https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0&display=block\" rel=\"stylesheet\">",
         unsafe_allow_html=True
     )
 except FileNotFoundError:
