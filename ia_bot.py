@@ -57,22 +57,52 @@ def analyser_evenement_macro(evenement_utilisateur, calibration_historique=False
             "ETF_Defense": 0.0,
             "Bitcoin": 0.0, "Ethereum": 0.0, "XRP": 0.0, "Solana": 0.0
         }},
-        "explication_courte": "Analyse détaillée et précise en 3-4 phrases minimum. Doit expliquer : (1) le mécanisme économique principal du scénario, (2) les classes d'actifs gagnantes et leur raison, (3) les classes d'actifs perdantes et leur raison, (4) la durée probable de l'impact. Mentionne l'événement historique de référence si calibration activée. Sois concret et institutionnel.",
+        "explication_courte": "Analyse détaillée et précise en 3-4 phrases minimum.",
         "evenement_reference": "Nom de l'événement historique utilisé, ou null."
     }}
 
-    IMPORTANT :
-    - "inflation" et "taux_directeurs" en pourcentage (ex: 2.5 pour +2.5%).
-    - Actifs en décimal (ex: -0.15 pour -15%).
-    - "explication_courte" DOIT faire au minimum 3-4 phrases. Une seule phrase est INSUFFISANTE.
-    - Corrélations à respecter :
-        * Hausse taux → obligations baissent, actions baissent, VIX monte, Dollar_Index monte
-        * Inflation forte → Or/Argent/Cuivre montent, obligations baissent
-        * Crise géopolitique → VIX monte, ETF_Defense monte, Or monte, Émergents baissent
-        * Dollar fort → Émergents baissent, Or baisse, EUR_USD baisse
-        * Récession → Cuivre/Pétrole/S&P 500 baissent, obligations montent
-        * Boom tech → NASDAQ monte plus que S&P 500, cryptos peuvent monter
-        * Tensions géopolitiques → Terres Rares et Défense montent
+    *** RÈGLES STRICTES SUR LES AMPLITUDES (CRUCIAL) ***
+    
+    HORIZON : 100 jours de cotation (~5 mois). Les chocs doivent être proportionnés à cette durée.
+    
+    PLAFONDS ABSOLUS - À RESPECTER IMPÉRATIVEMENT (sauf scénario apocalyptique extrême) :
+    - Actions (S&P 500, NASDAQ, CAC 40, MSCI World, Emerging) : entre -50% et +40%
+    - Obligations 10Y : entre -25% et +20%
+    - EUR/USD, Dollar_Index : entre -15% et +15%
+    - VIX : entre -50% et +200% (le VIX peut beaucoup bouger mais rarement +500%)
+    - Or : entre -20% et +50% (en 5 mois, +50% c'est ÉNORME)
+    - Argent : entre -25% et +60%
+    - Pétrole : entre -60% et +80%
+    - Cuivre : entre -30% et +40%
+    - Terres Rares : entre -30% et +60%
+    - ETF Défense : entre -25% et +40%
+    - Cryptos (BTC, ETH, XRP, SOL) : entre -75% et +200% (très volatiles mais pas illimités)
+    
+    INTERDICTIONS FORMELLES :
+    - JAMAIS de chocs supérieurs à +500% pour quel que soit l'actif (l'or NE PEUT PAS faire +3000%)
+    - JAMAIS -100% (faillite totale - c'est inatteignable même en krach)
+    - Une "impression massive de monnaie" → Or maximum +30 à +50%, PAS +3000%
+    - Une crise inflation → cryptos peuvent chuter mais pas -100%, max -75%
+    
+    PLAUSIBILITÉ :
+    - Inflation : entre -2% et +20% (au-delà = hyper-inflation, scénario extrême uniquement)
+    - Taux directeurs : entre -2% et +5%
+    
+    *** CALIBRER L'AMPLITUDE SUR LA SÉVÉRITÉ DU SCÉNARIO ***
+    - Scénario léger (annonce, ajustement) : variations de 1-5%
+    - Scénario moyen (récession, conflit régional) : variations de 5-20%
+    - Scénario fort (crise majeure type 2008) : variations de 20-50%
+    - Scénario extrême (apocalyptique) : variations max selon plafonds ci-dessus
+    
+    *** CORRÉLATIONS À RESPECTER ***
+    - Hausse taux → obligations baissent, actions baissent, VIX monte, Dollar_Index monte
+    - Inflation forte → Or/Argent/Cuivre montent (modérément), obligations baissent
+    - Crise géopolitique → VIX monte, Défense monte, Or monte, Émergents baissent
+    - Récession → Cuivre/Pétrole/S&P 500 baissent, obligations montent
+    - Boom tech → NASDAQ monte plus que S&P 500, cryptos peuvent monter
+    - "Impression de monnaie" massive (helicopter money) : USD baisse, Or monte modérément
+      (+15 à +35%), actions montent (effet inflation des actifs), cryptos montent modérément (+30 à +80%),
+      MAIS PAS d'effondrement crypto (cryptos sont vues comme un hedge anti-monnaie fiat)
     """
 
     try:

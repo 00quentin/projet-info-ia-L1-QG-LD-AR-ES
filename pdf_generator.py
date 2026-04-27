@@ -321,8 +321,8 @@ def generer_rapport_pdf(simu, params, metriques, allocations_finales,
     story.append(_table_metriques(metriques))
     story.append(Spacer(1, 12))
 
-    # ---- Composition complète du portefeuille (NOUVEAU - PAGE DÉDIÉE) ----
-    story.append(PageBreak())
+    # ---- Composition complète du portefeuille ----
+    story.append(Spacer(1, 16))
     story.append(Paragraph("Composition détaillée du portefeuille", styles["h1"]))
     story.append(Paragraph(
         f"Décomposition de votre portefeuille de {params['capital']:,.0f} € selon le profil "
@@ -347,7 +347,7 @@ def generer_rapport_pdf(simu, params, metriques, allocations_finales,
 
     # ---- ANALYSE SENIOR (NOUVEAU) ----
     if analyse_senior:
-        story.append(PageBreak())
+        story.append(Spacer(1, 18))
         story.append(Paragraph("Analyse approfondie de l'analyste senior", styles["h1"]))
         story.append(Paragraph(
             "<i>Rapport rédigé par l'analyste financier IA, dans le style d'un professionnel "
@@ -400,4 +400,3 @@ def generer_rapport_pdf(simu, params, metriques, allocations_finales,
     doc.build(story)
     buffer.seek(0)
     return buffer.getvalue()
-

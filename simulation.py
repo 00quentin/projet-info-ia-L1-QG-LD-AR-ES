@@ -32,6 +32,29 @@ def simuler_marche_dynamique(chocs_ia, jours=100, modele="Probabiliste (Réalist
                               actifs=None, prix_reels=None, vols_reelles=None):
     impacts = chocs_ia.get("actifs", {})
 
+    # GARDE-FOU : borner les chocs irréalistes que l'IA pourrait produire
+    PLAFONDS = {
+        "S&P 500": (-0.50, 0.40), "NASDAQ": (-0.55, 0.50), "CAC 40": (-0.50, 0.40),
+        "MSCI_World": (-0.45, 0.40), "Emerging_Markets": (-0.55, 0.50),
+        "Bons_Tresor_US_10Y": (-0.25, 0.20), "Bund_10Y": (-0.20, 0.20),
+        "OAT_10Y": (-0.20, 0.20), "JGB_10Y": (-0.15, 0.15), "Gilt_10Y": (-0.20, 0.20),
+        "EUR_USD": (-0.15, 0.15), "Dollar_Index": (-0.15, 0.15),
+        "VIX": (-0.50, 2.00),
+        "Or": (-0.20, 0.50), "Argent": (-0.25, 0.60),
+        "Petrole": (-0.60, 0.80), "Cuivre": (-0.30, 0.40),
+        "ETF_Terres_Rares": (-0.30, 0.60), "ETF_Defense": (-0.25, 0.40),
+        "Bitcoin": (-0.75, 2.00), "Ethereum": (-0.75, 2.50),
+        "XRP": (-0.80, 3.00), "Solana": (-0.80, 3.00),
+    }
+    impacts_clean = {}
+    for actif, choc in impacts.items():
+        if actif in PLAFONDS:
+            mn, mx = PLAFONDS[actif]
+            impacts_clean[actif] = max(mn, min(mx, choc))
+        else:
+            impacts_clean[actif] = max(-0.5, min(0.5, choc))
+    impacts = impacts_clean
+
     if actifs is not None:
         actifs_a_simuler = {k: v.copy() for k, v in ACTIFS_PRO.items() if k in actifs}
     else:

@@ -1,20 +1,21 @@
 /* ============ POLICE CUSTOM ============ */
-html, body, .stApp, .stMarkdown, p, span, div, h1, h2, h3, h4, h5, h6, label, button, input, textarea, select {
+/* On évite button et select pour ne pas casser les icônes Streamlit */
+html, body, .stApp, .stMarkdown, p, span, div, h1, h2, h3, h4, h5, h6, label, input, textarea {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
 }
 
-/* Exception : NE PAS écraser la police des icônes Material Symbols */
-[data-testid="stExpander"] svg,
-[data-testid="stExpander"] [class*="material"],
+/* Cacher les noms d'icônes Material qui s'affichent en texte brut */
+[data-testid="stExpander"] summary > span:first-child,
+[data-testid="stIconMaterial"],
 .material-icons,
-.material-symbols-rounded,
-.material-symbols-outlined,
-[class*="material-symbols"],
-[class*="material-icons"],
-button[kind="header"] span[class*="material"],
-[data-testid="baseButton-secondary"] span[class*="material"] {
-    font-family: 'Material Symbols Rounded', 'Material Symbols Outlined', 'Material Icons' !important;
+[class*="material-symbols"] {
+    font-family: 'Material Symbols Rounded', 'Material Icons' !important;
+    font-feature-settings: 'liga' !important;
+    font-style: normal !important;
+    font-weight: normal !important;
+    text-rendering: optimizeLegibility !important;
+    -webkit-font-smoothing: antialiased !important;
 }
 
 /* ============ ANIMATIONS GLOBALES ============ */
