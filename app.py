@@ -148,7 +148,7 @@ st.markdown("""
 <style>
 
 /* ============ POLICE CUSTOM ============ */
-html, body, [class*="css"], .stApp, .stMarkdown, p, span, div, h1, h2, h3, h4, h5, h6, label, button, input, textarea, select {
+html, body, .stApp, .stMarkdown, p, span, div, h1, h2, h3, h4, h5, h6, label, button, input, textarea, select {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
 }
