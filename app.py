@@ -186,14 +186,14 @@ h1, h2, h3, h4, h5, h6 { color: var(--primary) !important; font-weight: 700; }
     background-color: var(--bg-2) !important;
     border-right: 1px solid var(--border);
 }
-[data-testid="stSidebar"] * { color: var(--text) !important; }
+[data-testid="stSidebar"] p, [data-testid="stSidebar"] span, [data-testid="stSidebar"] div, [data-testid="stSidebar"] label, [data-testid="stSidebar"] li { color: var(--text) !important; }
 [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 {
     color: var(--primary) !important;
 }
 
 /* Métriques */
 [data-testid="stMetricValue"] { color: var(--primary) !important; font-weight: 700; }
-[data-testid="stMetricLabel"] * { color: var(--muted) !important; font-weight: 500; }
+[data-testid="stMetricLabel"] p, [data-testid="stMetricLabel"] span, [data-testid="stMetricLabel"] div { color: var(--muted) !important; font-weight: 500; }
 [data-testid="stMetricDelta"] { font-weight: 600; }
 
 div[data-testid="metric-container"] {
@@ -305,7 +305,7 @@ div[data-testid="metric-container"]:hover {
     background-color: var(--card) !important;
     color: var(--text) !important;
 }
-.stSelectbox > div > div * { color: var(--text) !important; }
+.stSelectbox > div > div p, .stSelectbox > div > div span { color: var(--text) !important; }
 
 [data-baseweb="popover"] li, [data-baseweb="popover"] div { color: var(--text) !important; }
 [data-baseweb="popover"] [aria-selected="true"] {
@@ -443,7 +443,7 @@ div[data-testid="metric-container"]:hover {
     font-size: 0.9em;
     animation: fadeInUp 0.5s ease-out;
 }
-.market-strip * { color: white !important; }
+.market-strip span, .market-strip div, .market-strip p { color: white !important; }
 .market-strip-item {
     display: flex;
     flex-direction: column;
@@ -489,7 +489,7 @@ div[data-testid="metric-container"]:hover {
     position: relative;
     overflow: hidden;
 }
-.qt-hero * { color: white !important; }
+.qt-hero h1, .qt-hero p, .qt-hero span, .qt-hero div { color: white !important; }
 .qt-hero h1 {
     color: white !important;
     font-size: 2.6em !important;
