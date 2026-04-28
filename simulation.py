@@ -30,7 +30,23 @@ ACTIFS_PRO = {
 
 def simuler_marche_dynamique(chocs_ia, jours=100, modele="Probabiliste (Réaliste)",
                               actifs=None, prix_reels=None, vols_reelles=None):
-    impacts = chocs_ia.get("actifs", {})
+    impacts_brut = chocs_ia.get("actifs", {})
+
+    # NORMALISATION : si l'IA renvoie en pourcentage au lieu de décimal,
+    # on convertit. Une valeur > 3 ou < -3 est forcément un pourcentage mal formé.
+    impacts = {}
+    for actif, valeur in impacts_brut.items():
+        try:
+            v = float(valeur)
+        except (TypeError, ValueError):
+            v = 0.0
+        # Si la valeur est en pourcentage (ex: 25 au lieu de 0.25), on divise
+        if abs(v) > 3:
+            v = v / 100.0
+        # Sécurité ultime : on borne à des valeurs extrêmes mais finies
+        # (-95% à +500% maximum, au-delà c'est forcément une erreur)
+        v = max(-0.95, min(5.0, v))
+        impacts[actif] = v
 
     if actifs is not None:
         actifs_a_simuler = {k: v.copy() for k, v in ACTIFS_PRO.items() if k in actifs}
@@ -55,31 +71,40 @@ def simuler_marche_dynamique(chocs_ia, jours=100, modele="Probabiliste (Réalist
     for actif, params in actifs_a_simuler.items():
         historique.loc[0, actif] = params["prix"]
 
+    # Calcul du drift quotidien tel que (1+drift)^jours = (1+choc_total)
+    # Plus stable numériquement : drift = (1+choc)^(1/jours) - 1
+    drifts_quotidiens = {}
+    for actif in actifs_a_simuler.keys():
+        choc_total = impacts.get(actif, 0)
+        # Borne pour éviter racine d'un nombre négatif (si choc < -100%)
+        choc_total = max(-0.95, choc_total)
+        drifts_quotidiens[actif] = (1 + choc_total) ** (1.0 / jours) - 1
+
     for jour in range(1, jours):
         for actif in actifs_a_simuler.keys():
             vol = actifs_a_simuler[actif]["volatilite"]
-            tendance_globale = impacts.get(actif, 0) / jours
+            drift_quotidien = drifts_quotidiens[actif]
             ancien_prix = historique.loc[jour - 1, actif]
 
-            # Multiplicateur de volatilité pour rendre les courbes plus réalistes
-            # (les courbes ne sont JAMAIS lisses sur un vrai marché)
+            # Multiplicateur de volatilité pour des courbes réalistes
             vol_multiplier = 1.5
 
             if "Probabiliste" in modele:
                 variation = np.random.normal(0, vol * vol_multiplier)
-                nouveau_prix = ancien_prix * (1 + tendance_globale + variation)
+                nouveau_prix = ancien_prix * (1 + drift_quotidien + variation)
             elif "Historique" in modele:
                 variation = np.random.normal(0, vol * 1.3)
-                # Événement queue épaisse plus fréquent et plus violent
                 if np.random.rand() < 0.03:
                     variation += np.random.choice([-1, 1]) * (vol * 6)
-                nouveau_prix = ancien_prix * (1 + tendance_globale + variation)
+                nouveau_prix = ancien_prix * (1 + drift_quotidien + variation)
             else:
-                # Mode ML : moins lisse aussi, plus réaliste
+                # Mode ML : momentum croissant avec le temps
                 variation = np.random.normal(0, vol * 0.9)
-                momentum = tendance_globale * (1 + (jour / jours))
-                nouveau_prix = ancien_prix * (1 + momentum + variation)
+                momentum_factor = 1 + (jour / jours) * 0.5
+                nouveau_prix = ancien_prix * (1 + drift_quotidien * momentum_factor + variation)
 
+            # Sécurité : empêcher prix négatifs ou explosions
+            nouveau_prix = max(nouveau_prix, ancien_prix * 0.5)  # max -50% en un jour
             historique.loc[jour, actif] = nouveau_prix
 
     return historique.astype(float)
