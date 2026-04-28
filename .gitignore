@@ -1,3 +1,49 @@
+# ===== Secrets (CRITIQUE - ne jamais commiter) =====
 .env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+
+# ===== Python =====
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ===== Environnements virtuels =====
+venv/
+env/
+ENV/
+.venv/
+
+# ===== IDE =====
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ===== OS / Système =====
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===== Streamlit cache =====
+.streamlit/cache/
+
+# ===== Logs =====
+*.log
+logs/
+
+# ===== Données temporaires =====
+*.tmp
+*.bak
+output/
+temp/

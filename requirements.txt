@@ -6,3 +6,4 @@ openai
 python-dotenv
 yfinance
 reportlab
+pydantic>=2.0

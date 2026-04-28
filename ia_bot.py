@@ -4,9 +4,14 @@ import streamlit as st
 from openai import OpenAI
 from dotenv import load_dotenv
 
+from schemas import valider_reponse_ia
+from logger import get_logger
+
+log = get_logger("ia_bot")
+
 load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY") or st.secrets.get("OPENAI_API_KEY", None)
-client = OpenAI(api_key=api_key)
+client = OpenAI(api_key=api_key, timeout=20.0, max_retries=1)
 
 
 def analyser_evenement_macro(evenement_utilisateur, calibration_historique=False):
@@ -117,15 +122,29 @@ def analyser_evenement_macro(evenement_utilisateur, calibration_historique=False
     """
 
     try:
+        log.info("Appel OpenAI pour analyse macro (calibration=%s)", calibration_historique)
         reponse = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": prompt}],
             temperature=0.3,
             response_format={"type": "json_object"}
         )
-        return json.loads(reponse.choices[0].message.content)
+        contenu_brut = json.loads(reponse.choices[0].message.content)
+
+        # VALIDATION PYDANTIC : normalise, borne, rejette si invalide
+        resultat = valider_reponse_ia(contenu_brut)
+
+        if "erreur" in resultat:
+            log.warning("Validation IA rejetée : %s", resultat["erreur"])
+        else:
+            log.info("Analyse IA validée (event=%s)",
+                     resultat.get("evenement_reference"))
+
+        return resultat
+
     except Exception as e:
-        return {"erreur": f"Erreur de connexion à l'IA : {str(e)}"}
+        log.error("Erreur appel IA : %s", e, exc_info=True)
+        return {"erreur": f"Erreur de connexion à l'IA : {str(e)[:120]}"}
 
 
 def discuter_avec_ia(historique_messages):

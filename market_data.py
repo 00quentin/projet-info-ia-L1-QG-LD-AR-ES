@@ -9,6 +9,10 @@ import yfinance as yf
 import streamlit as st
 from datetime import datetime, timedelta
 
+from logger import get_logger
+
+log = get_logger("market_data")
+
 
 TICKERS_YAHOO = {
     "S&P 500":              "^GSPC",
@@ -52,6 +56,7 @@ def get_prix_actuels(actifs_keys=None):
     if actifs_keys is None:
         actifs_keys = list(TICKERS_YAHOO.keys())
 
+    log.info("Récupération prix Yahoo pour %d actifs", len(actifs_keys))
     prix = {}
     erreurs = []
 
@@ -61,34 +66,41 @@ def get_prix_actuels(actifs_keys=None):
             prix[sim_key] = PRIX_FALLBACK.get(sim_key, 100)
             continue
         try:
-            data = yf.Ticker(ticker).history(period="5d", interval="1d")
+            data = yf.Ticker(ticker).history(period="5d", interval="1d", timeout=5)
             if not data.empty:
                 prix[sim_key] = float(data["Close"].iloc[-1])
             else:
                 prix[sim_key] = PRIX_FALLBACK.get(sim_key, 100)
                 erreurs.append(sim_key)
-        except Exception:
+        except Exception as e:
+            log.warning("Yahoo failed for %s (%s): %s", sim_key, ticker, str(e)[:60])
             prix[sim_key] = PRIX_FALLBACK.get(sim_key, 100)
             erreurs.append(sim_key)
 
+    if erreurs:
+        log.warning("Indispos Yahoo: %s", erreurs)
     return prix, erreurs
 
 
 @st.cache_data(ttl=21600, show_spinner=False)
 def get_historique(actifs_keys, date_debut, date_fin):
+    log.info("Backtest Yahoo: %d actifs, %s → %s", len(actifs_keys), date_debut, date_fin)
     df_global = pd.DataFrame()
     for sim_key in actifs_keys:
         ticker = TICKERS_YAHOO.get(sim_key)
         if ticker is None:
             continue
         try:
-            data = yf.Ticker(ticker).history(start=date_debut, end=date_fin, interval="1d")
+            data = yf.Ticker(ticker).history(start=date_debut, end=date_fin,
+                                              interval="1d", timeout=8)
             if not data.empty:
                 df_global[sim_key] = data["Close"]
-        except Exception:
+        except Exception as e:
+            log.warning("Backtest Yahoo failed for %s: %s", sim_key, str(e)[:60])
             continue
 
     if df_global.empty:
+        log.error("Aucune donnée historique récupérée")
         return df_global
 
     df_global = df_global.ffill().dropna(how="all")
@@ -107,11 +119,13 @@ def get_volatilites_historiques(actifs_keys, jours=252):
         if ticker is None:
             continue
         try:
-            data = yf.Ticker(ticker).history(start=debut, end=fin, interval="1d")
+            data = yf.Ticker(ticker).history(start=debut, end=fin,
+                                              interval="1d", timeout=5)
             if not data.empty and len(data) > 30:
                 rendements = data["Close"].pct_change().dropna()
                 vols[sim_key] = float(rendements.std())
-        except Exception:
+        except Exception as e:
+            log.debug("Vol historique indispo %s: %s", sim_key, str(e)[:60])
             continue
     return vols
 

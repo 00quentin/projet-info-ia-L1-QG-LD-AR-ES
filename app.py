@@ -309,6 +309,15 @@ def afficher_bande_marche():
 
 afficher_bande_marche()
 
+# Mini-disclaimer subtil mais visible (obligation morale + crédibilité fintech)
+st.markdown("""
+<div style="font-size: 0.8em; color: var(--muted); text-align: center; margin: 6px 0 16px 0;">
+    <span style="display: inline-block; padding: 3px 14px; background: rgba(214,158,46,0.1); border-radius: 12px; border: 1px solid rgba(214,158,46,0.25);">
+        ⓘ Outil pédagogique · Ne constitue pas un conseil en investissement
+    </span>
+</div>
+""", unsafe_allow_html=True)
+
 
 st.markdown("""
 <div class="qt-card-intro">
@@ -2283,8 +2292,12 @@ st.markdown(f"""
         </div>
     </div>
     <div class="qt-footer-bottom">
-        © 2026 Quant Terminal · Tous droits réservés ·
-        <span style="opacity:0.7;">Outil non destiné à un usage financier professionnel</span>
+        <div style="background: rgba(214,158,46,0.12); border: 1px solid rgba(214,158,46,0.3); border-radius: 8px; padding: 12px 16px; margin-bottom: 14px; text-align: left; font-size: 0.82em; line-height: 1.6;">
+            <strong style="color: #d69e2e;">⚠ Avertissement</strong> — Quant Terminal est un <strong>outil pédagogique</strong> développé dans un cadre universitaire (Université Paris Nanterre, MIASHS L1).
+            Les simulations et analyses présentées <strong>ne constituent pas un conseil en investissement</strong>, ni une recommandation d'achat ou de vente d'un quelconque actif financier.
+            Les performances passées ne préjugent pas des performances futures. Les utilisateurs sont seuls responsables de leurs décisions d'investissement et sont invités à consulter un conseiller financier agréé avant toute opération.
+        </div>
+        © 2026 Quant Terminal · Tous droits réservés · Université Paris Nanterre
     </div>
 </div>
 """, unsafe_allow_html=True)
