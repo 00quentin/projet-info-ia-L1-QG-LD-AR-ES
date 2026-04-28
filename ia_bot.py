@@ -17,17 +17,19 @@ def analyser_evenement_macro(evenement_utilisateur, calibration_historique=False
     CALIBRATION HISTORIQUE (IMPORTANT) :
     Avant d'estimer les chocs, identifie l'événement historique le plus PROCHE du scénario décrit.
     Utilise les amplitudes RÉELLES observées lors de cet événement comme référence.
-    Exemples :
-    - Krach 2008 (Lehman) : S&P 500 -57%, Or +25%, Bons Trésor US +15%, VIX +400%, Pétrole -75%
-    - COVID mars 2020 : S&P 500 -34% en 23 jours, Or +12%, Pétrole -65%, VIX +500%, Bitcoin -50%
-    - Choc pétrolier 1973 : S&P 500 -48%, Or +400%, Pétrole +400%, Inflation +15%
-    - Bulle internet 2000-2002 : Nasdaq -78%, S&P 500 -49%, Or +20%, Obligations +20%
-    - Hausse FED 2022 : S&P 500 -25%, Bonds -15%, Or +0%, Crypto -75%, Dollar +15%
-    - Brexit 2016 : Livre -10%, FTSE -10% puis rebond, Or +5%
-    - Guerre Russie-Ukraine 2022 : Pétrole +60%, Gaz +400%, Cuivre +20%, Émergents -25%
+    Tableau de référence (sur 100 jours environ) :
+    - Krach 2008 (Lehman) : S&P 500 -40%, Or +15%, Bons Trésor US +12%, VIX +200%, Pétrole -50%
+    - COVID mars 2020 : S&P 500 -34% en 23j, Or +12%, Pétrole -65%, VIX +500%, Bitcoin -50%
+    - Choc pétrolier 1973 : S&P 500 -30% (sur 100j), Or +60%, Pétrole +200%, Inflation +5%
+    - Bulle internet 2000 : Nasdaq -40% (sur 100j), S&P 500 -25%, Or +5%
+    - Hausse FED 2022 (sur 100j) : S&P 500 -15%, Bonds -8%, Crypto -50%, Dollar +8%
+    - Brexit 2016 : Livre -10%, FTSE -5% puis rebond, Or +5%
+    - Russie-Ukraine 2022 (100 premiers jours) : Pétrole +35%, Cuivre +10%, Émergents -15%
+    - Helicopter money / impression massive (cas COVID 2020 + cas années 70) :
+        Or +15 à +30%, Cryptos +40 à +100%, Actions +10 à +25% (inflation actifs),
+        Dollar -8 à -15%, Pétrole +20 à +40%, Obligations -5 à -15%
 
-    Inclus dans 'explication_courte' la mention de l'événement de référence.
-    Adapte les chocs à la SÉVÉRITÉ du scénario.
+    L'événement historique de référence DOIT être mentionné dans 'explication_courte'.
     """
 
     prompt = f"""Tu es un analyste quantitatif institutionnel travaillant pour Quant Terminal.
@@ -46,9 +48,56 @@ def analyser_evenement_macro(evenement_utilisateur, calibration_historique=False
         "erreur": "Ce scénario ne semble pas lié à l'économie ou à la géopolitique."
     }}
 
-    Si valide, réponse en JSON :
+    *** MÉTHODOLOGIE OBLIGATOIRE EN 4 ÉTAPES ***
+
+    ÉTAPE 1 - CLASSIFIER LA SÉVÉRITÉ :
+    Évalue d'abord la sévérité du scénario sur une échelle :
+    - Léger (1) : annonce, ajustement marginal, mini-conflit régional → variations 1-5%
+    - Modéré (2) : récession, crise sectorielle, conflit régional → variations 5-15%
+    - Fort (3) : crise majeure type 2008 ou COVID → variations 15-30%
+    - Extrême (4) : guerre mondiale, effondrement systémique → variations 30-50%
+    - Apocalyptique (5) : extinction, guerre nucléaire totale → variations 50%+
+
+    ÉTAPE 2 - HORIZON :
+    L'horizon est de 100 jours de cotation (~5 mois). Les chocs doivent être
+    proportionnés à cette durée. Sur 5 mois, même la crise de 1929 n'a pas fait -89%
+    (cette baisse s'est étalée sur 3 ans).
+
+    ÉTAPE 3 - APPLIQUER LES CORRÉLATIONS RÉELLES :
+    - Hausse taux → obligations baissent, actions baissent, VIX monte, Dollar monte
+    - Inflation forte → Or/Argent montent (modérément), obligations baissent, actions montent légèrement
+    - Crise géopolitique → VIX monte, Défense monte, Or monte, Émergents baissent
+    - Récession → Cuivre/Pétrole/Actions baissent, obligations montent
+    - Boom tech → NASDAQ monte plus que S&P 500, cryptos peuvent monter fort
+    - "Impression massive de monnaie" (helicopter money) :
+        → Le dollar BAISSE, l'or MONTE modérément (+15 à +35%),
+          les CRYPTOS MONTENT (vues comme hedge anti-fiat, +40 à +100%),
+          les actions montent (inflation des actifs, +10 à +25%),
+          les obligations long terme baissent (-5 à -15%)
+        → Les cryptos NE S'EFFONDRENT PAS, c'est l'inverse de leur thèse fondamentale
+
+    ÉTAPE 4 - AUTO-VÉRIFICATION (CRUCIAL) :
+    Avant de finaliser, vérifie chaque chiffre :
+    a) Est-il cohérent avec un événement historique connu de sévérité comparable ?
+    b) Est-il plausible sur 100 jours (et pas sur 10 ans) ?
+    c) Respecte-t-il les corrélations économiques ?
+    d) Ai-je évité les valeurs aberrantes (>+500% ou <-90%) ?
+    Si une réponse est NON, recalibre AVANT de répondre.
+
+    *** REPÈRES D'AMPLITUDE TYPIQUES ***
+    Pour t'aider à calibrer (ces ranges couvrent 95% des scénarios sérieux) :
+    - Actions : -50% à +40% (au-delà = scénario apocalyptique)
+    - Obligations : -25% à +20%
+    - Or : -20% à +50% (au-delà = hyper-inflation des années 70 inversée)
+    - Pétrole : -65% à +80%
+    - Cryptos : -75% à +200%
+    - VIX : -50% à +500%
+    Ces repères sont des ORDRES DE GRANDEUR. Tu peux dépasser SI le scénario le justifie
+    vraiment (guerre nucléaire totale, extinction, etc.) — mais c'est rare.
+
+    Format JSON de réponse :
     {{
-        "macro": {{"inflation": <CHIFFRE>, "taux_directeurs": <CHIFFRE>}},
+        "macro": {{"inflation": <CHIFFRE %>, "taux_directeurs": <CHIFFRE %>}},
         "actifs": {{
             "S&P 500": 0.0, "NASDAQ": 0.0, "CAC 40": 0.0, "MSCI_World": 0.0, "Emerging_Markets": 0.0,
             "Bons_Tresor_US_10Y": 0.0, "Bund_10Y": 0.0, "OAT_10Y": 0.0, "JGB_10Y": 0.0, "Gilt_10Y": 0.0,
@@ -57,52 +106,14 @@ def analyser_evenement_macro(evenement_utilisateur, calibration_historique=False
             "ETF_Defense": 0.0,
             "Bitcoin": 0.0, "Ethereum": 0.0, "XRP": 0.0, "Solana": 0.0
         }},
-        "explication_courte": "Analyse détaillée et précise en 3-4 phrases minimum.",
-        "evenement_reference": "Nom de l'événement historique utilisé, ou null."
+        "explication_courte": "Analyse en 3-4 phrases minimum : (1) sévérité du scénario et événement historique de référence, (2) mécanisme économique principal, (3) actifs gagnants et raisons, (4) actifs perdants et raisons.",
+        "evenement_reference": "Nom de l'événement historique de référence (ex: 'COVID 2020', 'Crise 2008', 'Helicopter money 2020'), ou null."
     }}
 
-    *** RÈGLES STRICTES SUR LES AMPLITUDES (CRUCIAL) ***
-    
-    HORIZON : 100 jours de cotation (~5 mois). Les chocs doivent être proportionnés à cette durée.
-    
-    PLAFONDS ABSOLUS - À RESPECTER IMPÉRATIVEMENT (sauf scénario apocalyptique extrême) :
-    - Actions (S&P 500, NASDAQ, CAC 40, MSCI World, Emerging) : entre -50% et +40%
-    - Obligations 10Y : entre -25% et +20%
-    - EUR/USD, Dollar_Index : entre -15% et +15%
-    - VIX : entre -50% et +200% (le VIX peut beaucoup bouger mais rarement +500%)
-    - Or : entre -20% et +50% (en 5 mois, +50% c'est ÉNORME)
-    - Argent : entre -25% et +60%
-    - Pétrole : entre -60% et +80%
-    - Cuivre : entre -30% et +40%
-    - Terres Rares : entre -30% et +60%
-    - ETF Défense : entre -25% et +40%
-    - Cryptos (BTC, ETH, XRP, SOL) : entre -75% et +200% (très volatiles mais pas illimités)
-    
-    INTERDICTIONS FORMELLES :
-    - JAMAIS de chocs supérieurs à +500% pour quel que soit l'actif (l'or NE PEUT PAS faire +3000%)
-    - JAMAIS -100% (faillite totale - c'est inatteignable même en krach)
-    - Une "impression massive de monnaie" → Or maximum +30 à +50%, PAS +3000%
-    - Une crise inflation → cryptos peuvent chuter mais pas -100%, max -75%
-    
-    PLAUSIBILITÉ :
-    - Inflation : entre -2% et +20% (au-delà = hyper-inflation, scénario extrême uniquement)
-    - Taux directeurs : entre -2% et +5%
-    
-    *** CALIBRER L'AMPLITUDE SUR LA SÉVÉRITÉ DU SCÉNARIO ***
-    - Scénario léger (annonce, ajustement) : variations de 1-5%
-    - Scénario moyen (récession, conflit régional) : variations de 5-20%
-    - Scénario fort (crise majeure type 2008) : variations de 20-50%
-    - Scénario extrême (apocalyptique) : variations max selon plafonds ci-dessus
-    
-    *** CORRÉLATIONS À RESPECTER ***
-    - Hausse taux → obligations baissent, actions baissent, VIX monte, Dollar_Index monte
-    - Inflation forte → Or/Argent/Cuivre montent (modérément), obligations baissent
-    - Crise géopolitique → VIX monte, Défense monte, Or monte, Émergents baissent
-    - Récession → Cuivre/Pétrole/S&P 500 baissent, obligations montent
-    - Boom tech → NASDAQ monte plus que S&P 500, cryptos peuvent monter
-    - "Impression de monnaie" massive (helicopter money) : USD baisse, Or monte modérément
-      (+15 à +35%), actions montent (effet inflation des actifs), cryptos montent modérément (+30 à +80%),
-      MAIS PAS d'effondrement crypto (cryptos sont vues comme un hedge anti-monnaie fiat)
+    RAPPELS FORMATS :
+    - "inflation" et "taux_directeurs" en pourcentage (ex: 2.5 pour +2.5%, -0.75 pour -0.75%)
+    - Actifs en décimal (ex: -0.15 pour -15%, 0.30 pour +30%)
+    - "explication_courte" DOIT faire au minimum 3-4 phrases
     """
 
     try:
