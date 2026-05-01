@@ -91,21 +91,22 @@ def _render_section_simulation() -> Dict[str, Any]:
         st.text_area("Événement", height=120, key="event_text_A", label_visibility="collapsed")
 
     st.markdown("---")
-    options["modele_simu"] = st.selectbox(
-        "Comportement du marché",
-        ["Probabiliste (Réaliste)", "Historique (Chocs violents)", "Machine Learning (Tendance)"]
-    )
-    options["duree"] = st.slider("Horizon (jours de cotation)",
-                                  HORIZON_MIN, HORIZON_MAX, HORIZON_DEFAUT, HORIZON_STEP)
-    options["mode_monte_carlo"] = st.checkbox("Mode Monte-Carlo (50 simulations)", value=False)
-    options["utiliser_prix_reels"] = st.checkbox(
-        "Utiliser les prix de marché actuels", value=True,
-        help="Récupère les prix réels via Yahoo Finance comme point de départ."
-    )
-    options["calibration_historique"] = st.checkbox(
-        "Calibration historique (IA)", value=True,
-        help="L'IA s'inspire des amplitudes réelles de 2008, COVID, etc."
-    )
+    with st.expander("⚙️ Options avancées", expanded=False):
+        options["modele_simu"] = st.selectbox(
+            "Comportement du marché",
+            ["Probabiliste (Réaliste)", "Historique (Chocs violents)", "Machine Learning (Tendance)"]
+        )
+        options["duree"] = st.slider("Horizon (jours de cotation)",
+                                      HORIZON_MIN, HORIZON_MAX, HORIZON_DEFAUT, HORIZON_STEP)
+        options["mode_monte_carlo"] = st.checkbox("Mode Monte-Carlo (50 simulations)", value=False)
+        options["utiliser_prix_reels"] = st.checkbox(
+            "Utiliser les prix de marché actuels", value=True,
+            help="Récupère les prix réels via Yahoo Finance comme point de départ."
+        )
+        options["calibration_historique"] = st.checkbox(
+            "Calibration historique (IA)", value=True,
+            help="L'IA s'inspire des amplitudes réelles de 2008, COVID, etc."
+        )
     return options
 
 
@@ -132,14 +133,23 @@ def _render_section_backtest() -> Dict[str, Any]:
 
 
 def _render_selection_actifs() -> List[str]:
-    """Cases à cocher des actifs à inclure dans la simulation."""
+    """Cases à cocher des actifs à inclure (regroupées dans un accordéon parent)."""
     st.markdown("---")
-    st.markdown("### Actifs à analyser")
-    st.caption("Cochez les actifs à inclure.")
+
+    # Pré-comptage pour le badge dans le titre de l'expander
+    nb_total = sum(len(c) for c in ACTIFS_DISPONIBLES.values())
+    nb_coches = sum(
+        1 for cat in ACTIFS_DISPONIBLES.values()
+        for sim_key in cat.values()
+        if st.session_state.get(f"chk_{sim_key}", sim_key in ACTIFS_PAR_DEFAUT)
+    )
 
     actifs_selectionnes = []
-    for categorie, actifs_cat in ACTIFS_DISPONIBLES.items():
-        with st.expander(categorie, expanded=False):
+    with st.expander(f"📊 Actifs à analyser  ·  {nb_coches}/{nb_total}", expanded=False):
+        st.caption("Cochez les actifs à inclure.")
+        for categorie, actifs_cat in ACTIFS_DISPONIBLES.items():
+            st.markdown(f'<div class="qt-sidebar-subhead">{categorie}</div>',
+                        unsafe_allow_html=True)
             for nom_affiche, sim_key in actifs_cat.items():
                 if st.checkbox(nom_affiche,
                                 value=(sim_key in ACTIFS_PAR_DEFAUT),
@@ -155,7 +165,8 @@ def _render_selection_actifs() -> List[str]:
 def _render_portefeuille(actifs_selectionnes: List[str]) -> Tuple[float, str, Dict[str, int]]:
     """Section Portefeuille : capital, profil, allocation custom."""
     st.markdown("---")
-    st.markdown("### Portefeuille")
+    st.markdown('<div class="qt-sidebar-section">💼 Portefeuille</div>',
+                unsafe_allow_html=True)
 
     capital_initial = st.number_input(
         "Capital de départ (€)",
