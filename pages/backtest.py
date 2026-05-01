@@ -17,6 +17,7 @@ from components.charts import (
     fig_courbes_categorie, construire_graphiques_par_categorie,
     fig_heatmap_performance, fig_evolution_portefeuille, html_metriques_jauges,
 )
+from components.empty_states import render_empty_backtest
 from ia_bot import generer_rapport_complet_ia
 from pdf_generator import generer_rapport_pdf
 from logger import get_logger
@@ -27,7 +28,7 @@ log = get_logger("page_backtest")
 def render_page_backtest_dashboard():
     """Dashboard pour le mode Backtest (données réelles Yahoo)."""
     if st.session_state.backtest_data is None:
-        st.info("Sélectionnez un événement historique à gauche et cliquez sur 'Lancer le backtest'.")
+        render_empty_backtest()
         return
 
     bt = st.session_state.backtest_data
@@ -138,7 +139,7 @@ def render_page_backtest_dashboard():
 def render_page_backtest_detail():
     """Onglet Backtest : évolution du portefeuille avec benchmark + alpha."""
     if st.session_state.backtest_data is None:
-        st.info("Lancez un backtest pour voir le détail.")
+        render_empty_backtest()
         return
 
     bt = st.session_state.backtest_data

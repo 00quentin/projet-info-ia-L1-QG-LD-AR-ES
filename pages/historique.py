@@ -6,16 +6,18 @@ Onglet Historique : 10 dernières simulations + backtests.
 
 import streamlit as st
 
+from components.empty_states import render_empty_historique
+
 
 def render_page_historique():
     """Affiche l'historique des simulations."""
+    if not st.session_state.historique_simus:
+        render_empty_historique()
+        return
+
     st.markdown('<div class="qt-section-title">Historique des simulations</div>',
                 unsafe_allow_html=True)
     st.caption("Vos 10 dernières simulations.")
-
-    if not st.session_state.historique_simus:
-        st.info("Aucune simulation. Lancez votre première simulation pour commencer.")
-        return
 
     col_b1, _ = st.columns([1, 5])
     with col_b1:

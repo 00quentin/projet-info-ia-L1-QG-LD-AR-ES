@@ -12,12 +12,13 @@ import streamlit as st
 from config import COULEUR_TEXT
 from core.metrics import calculer_metriques_risque
 from core.portfolio import calculer_poids
+from components.empty_states import render_empty_comparaison
 
 
 def render_page_comparaison():
     """Point d'entrée de la page Comparaison."""
     if st.session_state.simu_A is None or st.session_state.simu_B is None:
-        st.info("Lancez une simulation en mode comparaison pour afficher cet onglet.")
+        render_empty_comparaison()
         return
 
     params = st.session_state.params_sim

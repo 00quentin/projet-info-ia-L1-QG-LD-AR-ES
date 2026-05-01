@@ -15,6 +15,7 @@ from components.charts import (
     fig_courbes_categorie, construire_graphiques_par_categorie,
     fig_heatmap_performance, html_metriques_jauges,
 )
+from components.empty_states import render_empty_dashboard
 from ia_bot import generer_rapport_complet_ia
 from pdf_generator import generer_rapport_pdf
 from logger import get_logger
@@ -146,7 +147,7 @@ def afficher_dashboard(res, params, key_prefix="main"):
 def render_page_dashboard():
     """Point d'entrée de la page Dashboard."""
     if st.session_state.simu_A is None:
-        st.info("Configurez votre scénario à gauche et cliquez sur 'Lancer la simulation'.")
+        render_empty_dashboard()
         return
 
     if st.session_state.mode_comparaison and st.session_state.simu_B:

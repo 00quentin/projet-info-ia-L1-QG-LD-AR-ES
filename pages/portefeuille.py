@@ -9,6 +9,7 @@ import streamlit as st
 from config import NOM_AFFICHAGE
 from core.portfolio import calculer_poids
 from components.charts import fig_camembert_repartition
+from components.empty_states import render_empty_portefeuille
 
 
 def afficher_portefeuille(res, params, key_prefix="main"):
@@ -56,7 +57,7 @@ def afficher_portefeuille(res, params, key_prefix="main"):
 def render_page_portefeuille():
     """Point d'entrée de la page Portefeuille."""
     if st.session_state.simu_A is None:
-        st.info("Lancez d'abord une simulation.")
+        render_empty_portefeuille()
         return
 
     if st.session_state.mode_comparaison and st.session_state.simu_B:

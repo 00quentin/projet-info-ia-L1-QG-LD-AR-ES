@@ -80,6 +80,11 @@ render_header_complet()
 
 config = render_sidebar()
 
+# Auto-launch déclenché depuis l'empty state du Dashboard (clic sur preset).
+# On force lancer=True une seule fois puis on consomme le flag.
+if st.session_state.pop("_auto_launch", False) and config["mode_app"] == "Simulation prospective":
+    config["lancer"] = True
+
 
 # ==========================================
 # 4. ONGLETS (dépend du mode)
