@@ -32,13 +32,14 @@ def render_hero():
                 <div class="qt-hero-brand">
                     <div class="qt-hero-logo">QT</div>
                     <div>
-                        <div class="qt-hero-eyebrow">Institutional-Grade Risk Lab</div>
+                        <div class="qt-hero-eyebrow">Simulateur d'investissement</div>
                         <h1 class="qt-hero-title">Quant Terminal</h1>
                     </div>
                 </div>
                 <p class="qt-hero-tagline">
-                    Stress-testez votre portefeuille face à n'importe quel scénario économique ou géopolitique.
-                    Prix de marché en direct, IA calibrée sur les crises historiques, métriques institutionnelles.
+                    Imaginez un événement — krach boursier, guerre, révolution IA — et voyez en direct
+                    son impact sur votre portefeuille. Avec les vrais prix de marché et une IA entraînée
+                    sur les grandes crises de l'histoire.
                 </p>
             </div>
             <div class="qt-hero-right">
