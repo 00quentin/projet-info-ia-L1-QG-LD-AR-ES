@@ -35,6 +35,13 @@ def _hero_empty(icone: str, titre: str, sous_titre: str):
     )
 
 
+def _on_preset_click(texte: str):
+    """Callback exécuté AVANT le rerun, donc avant que le widget event_text_A
+    soit re-instancié dans la sidebar (sinon Streamlit lève StreamlitAPIException)."""
+    st.session_state.event_text_A = texte
+    st.session_state["_auto_launch"] = True
+
+
 def render_empty_dashboard():
     """Empty state du Dashboard : 8 cartes de scénarios cliquables."""
     _hero_empty(
@@ -68,11 +75,13 @@ def render_empty_dashboard():
                     f'</div>',
                     unsafe_allow_html=True
                 )
-                if st.button("Lancer →", key=f"empty_preset_{i}",
-                             use_container_width=True):
-                    st.session_state.event_text_A = texte
-                    st.session_state["_auto_launch"] = True
-                    st.rerun()
+                st.button(
+                    "Lancer →",
+                    key=f"empty_preset_{i}",
+                    use_container_width=True,
+                    on_click=_on_preset_click,
+                    args=(texte,),
+                )
 
 
 def render_empty_backtest():
