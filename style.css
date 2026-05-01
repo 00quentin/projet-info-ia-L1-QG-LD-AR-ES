@@ -615,6 +615,66 @@ div[data-testid="metric-container"]:hover {
     h2 { font-size: 1.3em !important; }
 }
 
+/* === SKELETON LOADERS === */
+@keyframes ccShimmer {
+    0%   { background-position: -800px 0; }
+    100% { background-position: 800px 0; }
+}
+.qt-skeleton-wrap {
+    margin: 18px 0;
+    animation: fadeIn 0.3s ease-out;
+}
+.qt-skel {
+    background: linear-gradient(
+        90deg,
+        var(--border) 0%,
+        var(--bg-2) 50%,
+        var(--border) 100%
+    );
+    background-size: 800px 100%;
+    animation: ccShimmer 1.4s linear infinite;
+    border-radius: 6px;
+}
+.qt-skel-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 26px;
+}
+.qt-skel-card {
+    background: var(--card);
+    border: 1px solid var(--border-strong);
+    border-radius: 14px;
+    padding: 20px 18px 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.qt-skel-line { height: 10px; border-radius: 4px; }
+.qt-skel-num  { height: 32px; width: 70%; border-radius: 6px; }
+.qt-skel-bar  { height: 6px; width: 100%; border-radius: 4px; margin: 4px 0; }
+.qt-skel-charts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 22px;
+}
+.qt-skel-chart {
+    height: 320px;
+    border-radius: 12px;
+    border: 1px solid var(--border-strong);
+}
+.qt-skel-heatmap {
+    height: 280px;
+    border-radius: 12px;
+    border: 1px solid var(--border-strong);
+}
+@media (max-width: 900px) {
+    .qt-skel-row { grid-template-columns: repeat(2, 1fr); }
+    .qt-skel-charts { grid-template-columns: 1fr; }
+}
+
 /* === EMPTY STATES === */
 .qt-empty-state {
     text-align: center;

@@ -26,6 +26,7 @@ from components.styling import appliquer_styles
 from components.header import render_header_complet
 from components.sidebar import render_sidebar
 from components.footer import render_footer, render_toasts
+from components.skeletons import render_skeleton_dashboard
 
 from pages.dashboard import render_page_dashboard
 from pages.portefeuille import render_page_portefeuille
@@ -147,6 +148,7 @@ if config["lancer"] and config["mode_app"] == "Simulation prospective":
         if st.session_state.mode_comparaison:
             msg = "Analyse comparative de 2 scénarios en cours... (cela peut prendre 30-60 secondes)"
 
+        skeleton_ph = render_skeleton_dashboard()
         with st.spinner(msg):
             try:
                 result_A, err_A = lancer_simulation_scenario(
@@ -217,6 +219,8 @@ if config["lancer"] and config["mode_app"] == "Simulation prospective":
             except Exception as e:
                 log.error("Erreur simulation : %s", e, exc_info=True)
                 st.error(f"Erreur technique : {e}")
+            finally:
+                skeleton_ph.empty()
 
 
 # ==========================================
@@ -230,6 +234,7 @@ if config["lancer"] and config["mode_app"] == "Backtest historique":
         total = sum(config["allocations_custom"].values())
         st.warning(f"Allocation = 100% requis (actuellement {total}%).")
     else:
+        skeleton_ph_bt = render_skeleton_dashboard()
         with st.spinner(f"Récupération des données historiques pour {config['event_choisi']}..."):
             try:
                 df_histo = get_historique(
@@ -280,6 +285,8 @@ if config["lancer"] and config["mode_app"] == "Backtest historique":
             except Exception as e:
                 log.error("Erreur backtest : %s", e, exc_info=True)
                 st.error(f"Erreur backtest : {e}")
+            finally:
+                skeleton_ph_bt.empty()
 
 
 # ==========================================
