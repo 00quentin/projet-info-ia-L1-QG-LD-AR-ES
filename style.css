@@ -511,6 +511,66 @@ div[data-testid="metric-container"]:hover {
     h2 { font-size: 1.3em !important; }
 }
 
+/* === METRIC GAUGES === */
+.qt-metrics-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin: 20px 0;
+}
+.qt-metric-gauge {
+    background: var(--card);
+    border: 1px solid var(--border-strong);
+    border-radius: 14px;
+    padding: 20px 20px 16px 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: fadeInUp 0.45s ease-out;
+}
+.qt-metric-gauge:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(0,0,0,0.1);
+}
+.qt-metric-gauge-label {
+    font-size: 0.73em;
+    color: var(--muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.9px;
+    margin-bottom: 10px;
+}
+.qt-metric-gauge-value {
+    font-size: 2em;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 14px;
+    font-variant-numeric: tabular-nums;
+}
+.qt-metric-gauge-track {
+    background: var(--border);
+    border-radius: 4px;
+    height: 6px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+.qt-metric-gauge-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.qt-metric-gauge-verdict {
+    font-size: 0.78em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.9px;
+}
+@media (max-width: 900px) {
+    .qt-metrics-row { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 500px) {
+    .qt-metrics-row { grid-template-columns: 1fr; }
+}
+
 /* === TOOLTIP === */
 [data-testid="stTooltipIcon"] { color: var(--accent) !important; opacity: 0.8; }
 [data-testid="stTooltipIcon"]:hover { opacity: 1; }
