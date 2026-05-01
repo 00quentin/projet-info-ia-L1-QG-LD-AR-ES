@@ -24,31 +24,40 @@ def render_dark_mode_toggle():
 
 
 def render_hero():
-    """Section hero d'accueil avec stats."""
+    """Hero compact orienté business : logo + tagline + stats inline."""
     st.markdown("""
     <div class="qt-hero">
-        <div style="display:flex; justify-content:center; align-items:center; gap:18px; margin-bottom:14px;">
-            <div style="width:60px; height:60px; background:rgba(255,255,255,0.15); border-radius:14px; display:flex; align-items:center; justify-content:center; color:white !important; font-size:26px; font-weight:800;">QT</div>
-            <h1 style="margin:0;">Quant Terminal</h1>
-        </div>
-        <p>Simulez l'impact d'un événement économique ou géopolitique sur votre portefeuille — 
-        avec les vrais prix de marché et une IA calibrée sur les grandes crises historiques.</p>
-        <div class="qt-hero-stats">
-            <div class="qt-hero-stat">
-                <div class="qt-hero-stat-value">23</div>
-                <div class="qt-hero-stat-label">Actifs analysés</div>
+        <div class="qt-hero-grid">
+            <div class="qt-hero-left">
+                <div class="qt-hero-brand">
+                    <div class="qt-hero-logo">QT</div>
+                    <div>
+                        <div class="qt-hero-eyebrow">Institutional-Grade Risk Lab</div>
+                        <h1 class="qt-hero-title">Quant Terminal</h1>
+                    </div>
+                </div>
+                <p class="qt-hero-tagline">
+                    Stress-testez votre portefeuille face à n'importe quel scénario économique ou géopolitique.
+                    Prix de marché en direct, IA calibrée sur les crises historiques, métriques institutionnelles.
+                </p>
             </div>
-            <div class="qt-hero-stat">
-                <div class="qt-hero-stat-value">6</div>
-                <div class="qt-hero-stat-label">Crises backtestables</div>
-            </div>
-            <div class="qt-hero-stat">
-                <div class="qt-hero-stat-value">4</div>
-                <div class="qt-hero-stat-label">Métriques de risque</div>
-            </div>
-            <div class="qt-hero-stat">
-                <div class="qt-hero-stat-value">∞</div>
-                <div class="qt-hero-stat-label">Scénarios possibles</div>
+            <div class="qt-hero-right">
+                <div class="qt-hero-stat-card">
+                    <div class="qt-hero-stat-value">23</div>
+                    <div class="qt-hero-stat-label">Actifs</div>
+                </div>
+                <div class="qt-hero-stat-card">
+                    <div class="qt-hero-stat-value">6</div>
+                    <div class="qt-hero-stat-label">Crises</div>
+                </div>
+                <div class="qt-hero-stat-card">
+                    <div class="qt-hero-stat-value">4</div>
+                    <div class="qt-hero-stat-label">Métriques</div>
+                </div>
+                <div class="qt-hero-stat-card">
+                    <div class="qt-hero-stat-value">∞</div>
+                    <div class="qt-hero-stat-label">Scénarios</div>
+                </div>
             </div>
         </div>
     </div>
