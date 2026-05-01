@@ -35,11 +35,102 @@ html, body, .stApp, .stMarkdown, p, span, div, h1, h2, h3, h4, h5, h6, label, in
     from { transform: translateX(100%); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }
 }
+@keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.92); }
+    to { opacity: 1; transform: scale(1); }
+}
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+}
+@keyframes glow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(49,151,149,0.4); }
+    50% { box-shadow: 0 0 0 8px rgba(49,151,149,0); }
+}
 
-/* Apparition séquentielle des cartes */
-div[data-testid="metric-container"] { animation: fadeInUp 0.4s ease-out; }
-.qt-card, .qt-card-intro, .qt-callout, .qt-callout-warn { animation: fadeInUp 0.5s ease-out; }
-.stPlotlyChart { animation: fadeIn 0.6s ease-out; }
+/* Apparition séquentielle des cartes (stagger automatique) */
+div[data-testid="metric-container"] { animation: fadeInUp 0.45s var(--ease-out) both; }
+.qt-card, .qt-card-intro, .qt-callout, .qt-callout-warn { animation: fadeInUp 0.5s var(--ease-out) both; }
+.stPlotlyChart { animation: fadeIn 0.6s var(--ease-out) both; }
+
+/* Stagger sur les colonnes (cartes apparaissent en cascade) */
+[data-testid="column"]:nth-child(1) > div { animation-delay: 0ms; }
+[data-testid="column"]:nth-child(2) > div { animation-delay: 60ms; }
+[data-testid="column"]:nth-child(3) > div { animation-delay: 120ms; }
+[data-testid="column"]:nth-child(4) > div { animation-delay: 180ms; }
+[data-testid="column"]:nth-child(5) > div { animation-delay: 240ms; }
+
+/* === MICROINTERACTIONS === */
+
+/* Boutons : ripple effect au clic */
+.stButton > button {
+    position: relative;
+    overflow: hidden;
+}
+.stButton > button::after {
+    content: "";
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 0; height: 0;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.5);
+    transform: translate(-50%, -50%);
+    transition: width 0.5s ease-out, height 0.5s ease-out, opacity 0.6s;
+    opacity: 0;
+    pointer-events: none;
+}
+.stButton > button:active::after {
+    width: 240px; height: 240px;
+    opacity: 1;
+    transition: 0s;
+}
+
+/* Boutons primary : glow pulsant subtil quand idle (attire l'œil sur l'action) */
+.stButton > button[kind="primary"] {
+    animation: glow 3s ease-in-out infinite;
+}
+.stButton > button[kind="primary"]:hover {
+    animation: none;
+}
+
+/* Cartes preset : tilt 3D au hover (effet parallaxe léger) */
+.qt-preset-card {
+    perspective: 1000px;
+    transform-style: preserve-3d;
+}
+.qt-preset-card:hover {
+    transform: translateY(-4px) rotateX(2deg);
+}
+
+/* Hover sur les jauges : lueur colorée subtile */
+.qt-metric-gauge {
+    position: relative;
+}
+.qt-metric-gauge::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-lg);
+    background: radial-gradient(400px circle at var(--mx, 50%) var(--my, 50%),
+                                rgba(49,151,149,0.10), transparent 40%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+}
+.qt-metric-gauge:hover::before { opacity: 1; }
+
+/* Liens & focus visibles (accessibilité) */
+.stButton > button:focus-visible,
+.stTextInput input:focus-visible,
+.stTextArea textarea:focus-visible {
+    outline: 2px solid var(--accent) !important;
+    outline-offset: 2px !important;
+}
+
+/* Stat cards du hero : float subtil au hover */
+.qt-hero-stat-card:hover .qt-hero-stat-value {
+    animation: float 1.6s ease-in-out infinite;
+}
 
 /* ============ APPLICATION COULEURS ============ */
 .stApp { background-color: var(--bg) !important; }
