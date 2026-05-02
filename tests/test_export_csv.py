@@ -19,6 +19,7 @@ import pytest
 from core.export_csv import (
     construire_dataframe_export,
     generer_csv_simulation,
+    generer_csv_comparaison,
     _slugify_colonne,
 )
 
@@ -136,3 +137,78 @@ def test_csv_relisible_par_pandas(df_prix, poids_simples):
 ])
 def test_slugify_colonne(entree, attendu):
     assert _slugify_colonne(entree) == attendu
+
+
+# === generer_csv_comparaison ==============================================
+
+
+def _make_simu(df_prix):
+    """Mini factory : minimum requis pour le CSV de comparaison."""
+    return {"df": df_prix}
+
+
+def test_csv_comparaison_2_scenarios(df_prix, poids_simples):
+    """Cas standard 2 scenarios : 2 colonnes valeur_portefeuille_<label>."""
+    df_alt = df_prix * 1.05  # autre evolution de prix
+    simulations = {
+        "A": _make_simu(df_prix),
+        "B": _make_simu(df_alt),
+        "C": None,
+    }
+    csv_bytes = generer_csv_comparaison(simulations, poids_simples, 10_000)
+    relu = pd.read_csv(BytesIO(csv_bytes), sep=";", decimal=",", encoding="utf-8-sig")
+    assert "valeur_portefeuille_A_eur" in relu.columns
+    assert "valeur_portefeuille_B_eur" in relu.columns
+    assert "valeur_portefeuille_C_eur" not in relu.columns
+    assert len(relu) == 5
+    # Jour 0 : les 2 scenarios partent du capital
+    assert relu["valeur_portefeuille_A_eur"].iloc[0] == pytest.approx(10_000.0, abs=0.01)
+    assert relu["valeur_portefeuille_B_eur"].iloc[0] == pytest.approx(10_000.0, abs=0.01)
+
+
+def test_csv_comparaison_3_scenarios(df_prix, poids_simples):
+    """Cas N=3 : 3 colonnes valeur_portefeuille_<label>."""
+    simulations = {
+        "A": _make_simu(df_prix),
+        "B": _make_simu(df_prix * 1.02),
+        "C": _make_simu(df_prix * 0.98),
+    }
+    csv_bytes = generer_csv_comparaison(simulations, poids_simples, 10_000)
+    relu = pd.read_csv(BytesIO(csv_bytes), sep=";", decimal=",", encoding="utf-8-sig")
+    assert {"valeur_portefeuille_A_eur", "valeur_portefeuille_B_eur",
+            "valeur_portefeuille_C_eur"} <= set(relu.columns)
+
+
+def test_csv_comparaison_ignore_simu_none(df_prix, poids_simples):
+    """Les entrees None sont ignorees sans crasher."""
+    simulations = {"A": _make_simu(df_prix), "B": None, "C": None}
+    csv_bytes = generer_csv_comparaison(simulations, poids_simples, 10_000)
+    relu = pd.read_csv(BytesIO(csv_bytes), sep=";", decimal=",", encoding="utf-8-sig")
+    assert list(relu.columns) == ["date", "valeur_portefeuille_A_eur"]
+
+
+def test_csv_comparaison_aucune_simu(poids_simples):
+    """Cas degenere : tout None -> CSV minimal avec header date uniquement."""
+    simulations = {"A": None, "B": None, "C": None}
+    csv_bytes = generer_csv_comparaison(simulations, poids_simples, 10_000)
+    contenu = csv_bytes.decode("utf-8-sig")
+    assert contenu.strip().startswith("date")
+
+
+def test_csv_comparaison_format_europeen(df_prix, poids_simples):
+    """Meme format que generer_csv_simulation : BOM + ; + virgule decimale."""
+    simulations = {"A": _make_simu(df_prix), "B": _make_simu(df_prix * 1.1)}
+    csv_bytes = generer_csv_comparaison(simulations, poids_simples, 10_000)
+    assert csv_bytes.startswith(b"\xef\xbb\xbf")
+    contenu = csv_bytes.decode("utf-8-sig")
+    assert ";" in contenu.split("\n")[0]
+
+
+def test_csv_comparaison_dates_alignees(df_prix, poids_simples):
+    """Toutes les colonnes scenarios partagent le meme index temporel."""
+    simulations = {"A": _make_simu(df_prix), "B": _make_simu(df_prix * 1.5)}
+    csv_bytes = generer_csv_comparaison(simulations, poids_simples, 10_000)
+    relu = pd.read_csv(BytesIO(csv_bytes), sep=";", decimal=",", encoding="utf-8-sig")
+    # Pas de NaN : les 2 series doivent avoir la meme longueur et meme index
+    assert relu["valeur_portefeuille_A_eur"].notna().all()
+    assert relu["valeur_portefeuille_B_eur"].notna().all()

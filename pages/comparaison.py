@@ -8,6 +8,8 @@ classement designe le scenario gagnant en absolu et affiche l'ecart
 avec le second.
 """
 
+from datetime import datetime
+
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
@@ -15,6 +17,7 @@ import streamlit as st
 from config import LABELS_SCENARIOS
 from core.metrics import calculer_metriques_risque
 from core.portfolio import calculer_poids, calculer_valeur_portefeuille
+from core.export_csv import generer_csv_comparaison
 from components.empty_states import render_empty_comparaison
 from components.charts import apply_qt_theme, QT_PALETTE
 
@@ -135,3 +138,18 @@ def render_page_comparaison():
                 f'— performance {perfs[label]:+.2f}%{suffixe}</div>',
                 unsafe_allow_html=True
             )
+
+    # === Export CSV ===
+    st.markdown('<hr class="qt-divider">', unsafe_allow_html=True)
+    st.markdown('<div class="qt-section-title">Exporter</div>', unsafe_allow_html=True)
+    st.caption("Une colonne par scénario : valeur quotidienne du portefeuille en euros, "
+               "alignée sur le même axe temporel pour comparaison directe dans Excel.")
+    csv_bytes = generer_csv_comparaison(simulations, poids, cap)
+    st.download_button(
+        label=f"📊 Télécharger la comparaison ({len(labels_dispo)} scénarios, CSV)",
+        data=csv_bytes,
+        file_name=f"quant_terminal_comparaison_{datetime.now().strftime('%Y%m%d_%H%M')}.csv",
+        mime="text/csv",
+        use_container_width=True,
+        key="compare_csv_dl",
+    )

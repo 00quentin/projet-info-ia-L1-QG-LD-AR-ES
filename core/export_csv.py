@@ -20,11 +20,12 @@ La somme des colonnes actifs egale la valeur du portefeuille a chaque date.
 """
 
 from io import StringIO
-from typing import Dict
+from typing import Dict, Any
 
 import pandas as pd
 
 from config import NOM_AFFICHAGE
+from core.portfolio import calculer_valeur_portefeuille
 
 
 def _slugify_colonne(nom: str) -> str:
@@ -81,6 +82,17 @@ def construire_dataframe_export(
     return valeurs_poches
 
 
+def _formater_csv(export: pd.DataFrame) -> bytes:
+    """Encode un DataFrame en CSV format europeen + BOM Excel."""
+    export = export.round(2)
+    if isinstance(export.index, pd.DatetimeIndex):
+        export.index = export.index.strftime("%Y-%m-%d")
+    export.index.name = "date"
+    buf = StringIO()
+    export.to_csv(buf, sep=";", decimal=",", encoding="utf-8")
+    return b"\xef\xbb\xbf" + buf.getvalue().encode("utf-8")
+
+
 def generer_csv_simulation(
     df: pd.DataFrame,
     poids: Dict[str, float],
@@ -98,15 +110,43 @@ def generer_csv_simulation(
         Contenu CSV encode en UTF-8 avec BOM (pour ouverture directe Excel),
         format europeen : separateur ';' et decimal ','.
     """
-    export = construire_dataframe_export(df, poids, capital)
-    export = export.round(2)
+    return _formater_csv(construire_dataframe_export(df, poids, capital))
 
-    # Index converti en colonne "date" au format ISO
-    if isinstance(export.index, pd.DatetimeIndex):
-        export.index = export.index.strftime("%Y-%m-%d")
-    export.index.name = "date"
 
-    buf = StringIO()
-    export.to_csv(buf, sep=";", decimal=",", encoding="utf-8")
-    # BOM UTF-8 : Excel detecte alors correctement l'encodage et les accents
-    return b"\xef\xbb\xbf" + buf.getvalue().encode("utf-8")
+def generer_csv_comparaison(
+    simulations: Dict[str, Dict[str, Any]],
+    poids: Dict[str, float],
+    capital: float,
+) -> bytes:
+    """
+    Genere un CSV avec une colonne par scenario actif (valeur portefeuille
+    en euros), aligne sur l'index temporel commun.
+
+    Format produit :
+        date;valeur_portefeuille_A_eur;valeur_portefeuille_B_eur;...
+
+    Args:
+        simulations: dict {label: simu_result | None}. Les entrees None
+                     sont ignorees. Chaque simu_result a une cle "df"
+                     (DataFrame des prix).
+        poids: dict {sim_key: poids_normalise} -- meme portefeuille pour
+               tous les scenarios (c'est l'interet de la comparaison).
+        capital: capital initial en euros.
+
+    Returns:
+        Contenu CSV pret pour st.download_button. Si aucun scenario
+        n'est disponible, retourne un CSV vide avec uniquement l'en-tete
+        "date".
+    """
+    series_par_label: Dict[str, pd.Series] = {}
+    for label, simu in simulations.items():
+        if simu is None:
+            continue
+        s = calculer_valeur_portefeuille(simu["df"], poids, capital)
+        series_par_label[f"valeur_portefeuille_{label}_eur"] = s
+
+    if not series_par_label:
+        return _formater_csv(pd.DataFrame(index=pd.Index([], name="date")))
+
+    export = pd.DataFrame(series_par_label)
+    return _formater_csv(export)
