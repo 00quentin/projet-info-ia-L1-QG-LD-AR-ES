@@ -7,6 +7,7 @@ Onglet Historique : 10 dernières simulations + backtests.
 import streamlit as st
 
 from components.empty_states import render_empty_historique
+from core.history_store import effacer_historique
 
 
 def render_page_historique():
@@ -17,12 +18,13 @@ def render_page_historique():
 
     st.markdown('<div class="qt-section-title">Historique des simulations</div>',
                 unsafe_allow_html=True)
-    st.caption("Vos 10 dernières simulations.")
+    st.caption("Vos 10 dernières simulations (conservées entre les sessions).")
 
     col_b1, _ = st.columns([1, 5])
     with col_b1:
         if st.button("Effacer l'historique"):
             st.session_state.historique_simus = []
+            effacer_historique()
             st.rerun()
 
     for simu in st.session_state.historique_simus:

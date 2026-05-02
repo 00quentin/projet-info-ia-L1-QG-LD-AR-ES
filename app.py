@@ -21,6 +21,7 @@ from logger import get_logger
 from market_data import get_prix_actuels, get_volatilites_historiques, get_historique, EVENEMENTS_HISTORIQUES
 from core.runner import lancer_simulation_scenario, lancer_backtest
 from core.portfolio import calculer_poids, construire_allocations_finales
+from core.history_store import charger_historique, ajouter_entree
 
 from components.styling import appliquer_styles
 from components.header import render_header_complet
@@ -51,7 +52,6 @@ def init_session_state():
         "messages_chat": [],
         "event_text_A": SCENARIO_A_DEFAUT,
         "event_text_B": SCENARIO_B_DEFAUT,
-        "historique_simus": [],
         "simu_A": None,
         "simu_B": None,
         "mode_comparaison": False,
@@ -63,6 +63,33 @@ def init_session_state():
     for key, default in defaults.items():
         if key not in st.session_state:
             st.session_state[key] = default
+
+    # Historique : recharge depuis disque uniquement la 1ere fois (cold start)
+    if "historique_simus" not in st.session_state:
+        st.session_state.historique_simus = charger_historique()
+
+
+def enregistrer_historique(scenario: str, profil: str, capital: float,
+                           valeur_finale: float, monte_carlo: bool,
+                           nb_actifs: int, type_op: str,
+                           label_compare: str = None):
+    """Insere une nouvelle entree dans l'historique, tronque, et persiste."""
+    perf = (valeur_finale - capital) / capital * 100 if capital else 0.0
+    entree = {
+        "date": datetime.now().strftime("%d/%m/%Y %H:%M"),
+        "scenario": scenario[:80] + ("..." if len(scenario) > 80 else ""),
+        "profil": profil,
+        "capital": capital,
+        "valeur_finale": valeur_finale,
+        "perf": perf,
+        "monte_carlo": monte_carlo,
+        "nb_actifs": nb_actifs,
+        "label_compare": label_compare,
+        "type": type_op,
+    }
+    st.session_state.historique_simus = ajouter_entree(
+        st.session_state.historique_simus, entree, HISTORIQUE_TAILLE_MAX,
+    )
 
 
 init_session_state()
@@ -200,20 +227,16 @@ if config["lancer"] and config["mode_app"] == "Simulation prospective":
                         _, valeur_finale = construire_allocations_finales(
                             res["perf"], poids_h, config["capital_initial"]
                         )
-                        perf_p = (valeur_finale - config["capital_initial"]) / config["capital_initial"] * 100
-                        st.session_state.historique_simus.insert(0, {
-                            "date": datetime.now().strftime("%d/%m/%Y %H:%M"),
-                            "scenario": res["scenario"][:80] + ("..." if len(res["scenario"]) > 80 else ""),
-                            "profil": config["profil_risque"],
-                            "capital": config["capital_initial"],
-                            "valeur_finale": valeur_finale,
-                            "perf": perf_p,
-                            "monte_carlo": config["mode_monte_carlo"],
-                            "nb_actifs": len(config["actifs_selectionnes"]),
-                            "label_compare": label if st.session_state.mode_comparaison else None,
-                            "type": "Simulation",
-                        })
-                    st.session_state.historique_simus = st.session_state.historique_simus[:HISTORIQUE_TAILLE_MAX]
+                        enregistrer_historique(
+                            scenario=res["scenario"],
+                            profil=config["profil_risque"],
+                            capital=config["capital_initial"],
+                            valeur_finale=valeur_finale,
+                            monte_carlo=config["mode_monte_carlo"],
+                            nb_actifs=len(config["actifs_selectionnes"]),
+                            type_op="Simulation",
+                            label_compare=label if st.session_state.mode_comparaison else None,
+                        )
                     st.session_state["_just_simulated"] = True
 
             except Exception as e:
@@ -265,20 +288,15 @@ if config["lancer"] and config["mode_app"] == "Backtest historique":
                     _, valeur_finale = construire_allocations_finales(
                         bt_result["perf"], poids_h, config["capital_initial"]
                     )
-                    perf_p = (valeur_finale - config["capital_initial"]) / config["capital_initial"] * 100
-                    st.session_state.historique_simus.insert(0, {
-                        "date": datetime.now().strftime("%d/%m/%Y %H:%M"),
-                        "scenario": f"Backtest : {config['event_choisi']}",
-                        "profil": config["profil_risque"],
-                        "capital": config["capital_initial"],
-                        "valeur_finale": valeur_finale,
-                        "perf": perf_p,
-                        "monte_carlo": False,
-                        "nb_actifs": len(df_histo.columns),
-                        "label_compare": None,
-                        "type": "Backtest",
-                    })
-                    st.session_state.historique_simus = st.session_state.historique_simus[:HISTORIQUE_TAILLE_MAX]
+                    enregistrer_historique(
+                        scenario=f"Backtest : {config['event_choisi']}",
+                        profil=config["profil_risque"],
+                        capital=config["capital_initial"],
+                        valeur_finale=valeur_finale,
+                        monte_carlo=False,
+                        nb_actifs=len(df_histo.columns),
+                        type_op="Backtest",
+                    )
                     st.session_state["_just_backtested"] = True
 
             except Exception as e:
