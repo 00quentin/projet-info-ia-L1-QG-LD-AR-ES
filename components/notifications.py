@@ -76,3 +76,21 @@ def toast_done(message: str, kind: Kind = "success", icon: Optional[str] = None)
     confirmations apres action (simulation OK, PDF genere, etc.)."""
     default_icons = {"info": "ℹ️", "success": "✅", "warning": "⚠️", "error": "❌"}
     st.toast(message, icon=icon or default_icons[kind])
+
+
+def render_alerte_risque(severite: Kind, titre: str, message: str) -> None:
+    """Notification riche pour une alerte de risque (titre + message).
+    Utilisee dans le dashboard pour signaler les drawdowns severes,
+    Sharpe negatifs, etc. — sortie de core/risk_alerts.py."""
+    sym, color, bg, border = _KIND_META[severite]
+    role = _ARIA_ROLE[severite]
+    st.markdown(
+        f'<div class="qt-notify qt-notify-{severite} qt-alert-risk" role="{role}" '
+        f'style="background:{bg}; border-color:{border}; color:var(--text);">'
+        f'<span class="material-symbols-rounded qt-notify-icon" aria-hidden="true">{sym}</span>'
+        f'<div class="qt-alert-risk-body">'
+        f'<div class="qt-alert-risk-title" style="color:{color};">{titre}</div>'
+        f'<div class="qt-alert-risk-msg">{message}</div>'
+        f'</div></div>',
+        unsafe_allow_html=True,
+    )

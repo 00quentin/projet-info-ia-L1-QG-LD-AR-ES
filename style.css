@@ -1282,3 +1282,18 @@ div[data-testid="metric-container"]:hover { box-shadow: 0 8px 20px rgba(49,151,1
     .qt-notify { padding: 10px 12px; font-size: 0.88em; }
     .qt-notify-icon { font-size: 18px !important; }
 }
+
+/* Alertes risque : titre + message structures */
+.qt-alert-risk { padding: 14px 18px; }
+.qt-alert-risk-body { flex: 1; line-height: 1.5; }
+.qt-alert-risk-title {
+    font-weight: 700;
+    font-size: 0.95em;
+    margin-bottom: 4px;
+    letter-spacing: -0.005em;
+}
+.qt-alert-risk-msg {
+    font-size: 0.88em;
+    color: var(--text-muted);
+    line-height: 1.55;
+}

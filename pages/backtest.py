@@ -13,12 +13,13 @@ import streamlit as st
 from config import NOM_AFFICHAGE
 from core.metrics import calculer_metriques_risque
 from core.portfolio import calculer_poids, construire_allocations_finales, calculer_valeur_portefeuille
+from core.risk_alerts import evaluer_alertes_risque
 from components.charts import (
     fig_courbes_categorie, construire_graphiques_par_categorie,
     fig_heatmap_performance, fig_evolution_portefeuille, html_metriques_jauges,
 )
 from components.empty_states import render_empty_backtest
-from components.notifications import notify_warn, notify_error, notify_success
+from components.notifications import notify_warn, notify_error, notify_success, render_alerte_risque
 from ia_bot import generer_rapport_complet_ia
 from pdf_generator import generer_rapport_pdf
 from logger import get_logger
@@ -54,6 +55,9 @@ def render_page_backtest_dashboard():
     st.markdown('<div class="qt-section-title">Métriques de risque (données réelles)</div>',
                 unsafe_allow_html=True)
     st.markdown(html_metriques_jauges(metriques), unsafe_allow_html=True)
+
+    for alerte in evaluer_alertes_risque(metriques):
+        render_alerte_risque(alerte.severite, alerte.titre, alerte.message)
 
     st.markdown('<hr class="qt-divider">', unsafe_allow_html=True)
 

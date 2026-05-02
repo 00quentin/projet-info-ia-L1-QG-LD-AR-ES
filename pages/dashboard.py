@@ -11,12 +11,13 @@ import streamlit as st
 from config import NOM_AFFICHAGE, COULEUR_PRIMAIRE
 from core.metrics import calculer_metriques_risque
 from core.portfolio import calculer_poids, construire_allocations_finales, calculer_valeur_portefeuille
+from core.risk_alerts import evaluer_alertes_risque
 from components.charts import (
     fig_courbes_categorie, construire_graphiques_par_categorie,
     fig_heatmap_performance, html_metriques_jauges,
 )
 from components.empty_states import render_empty_dashboard
-from components.notifications import notify_error, notify_success
+from components.notifications import notify_error, notify_success, render_alerte_risque
 from ia_bot import generer_rapport_complet_ia
 from pdf_generator import generer_rapport_pdf
 from logger import get_logger
@@ -66,6 +67,10 @@ def afficher_dashboard(res, params, key_prefix="main"):
     st.caption("Indicateurs utilisés par les gérants de fonds professionnels.")
 
     st.markdown(html_metriques_jauges(metriques), unsafe_allow_html=True)
+
+    # Alertes automatiques sur les metriques (drawdown severe, Sharpe negatif...)
+    for alerte in evaluer_alertes_risque(metriques):
+        render_alerte_risque(alerte.severite, alerte.titre, alerte.message)
 
     # === Graphiques par catégorie ===
     st.markdown('<hr class="qt-divider">', unsafe_allow_html=True)
