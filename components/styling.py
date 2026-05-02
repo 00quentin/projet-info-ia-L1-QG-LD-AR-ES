@@ -80,6 +80,10 @@ CSS_VARS_CLAIR = """
     --success:       var(--success-500);
     --danger:        var(--danger-500);
     --warn:          var(--warn-500);
+    /* Ombres et hovers contextuels (changent en dark) */
+    --shadow-rgb:    0,0,0;
+    --hover-tint:    rgba(49,151,149,0.08);
+    --focus-ring:    rgba(49,151,149,0.45);
 }
 </style>
 """
@@ -96,12 +100,16 @@ CSS_VARS_SOMBRE = """
     --card:          var(--gray-700);
     --border:        var(--gray-600);
     --border-strong: var(--gray-500);
-    --text:          var(--gray-200);
+    --text:          var(--gray-100);          /* +contraste vs gray-200 */
     --text-muted:    var(--gray-300);
     --muted:         var(--gray-400);
-    --success:       #48bb78;
+    --success:       #68d391;                  /* AA sur fond sombre */
     --danger:        #fc8181;
     --warn:          #f6ad55;
+    /* Ombres : en dark on assombrit avec du noir profond */
+    --shadow-rgb:    0,0,0;
+    --hover-tint:    rgba(79,209,197,0.12);
+    --focus-ring:    rgba(79,209,197,0.55);
 }
 </style>
 """
@@ -124,7 +132,10 @@ def appliquer_styles():
             "<style>\n" + css_content + "\n</style>"
             "\n<link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap\" rel=\"stylesheet\">"
             "\n<link href=\"https://fonts.googleapis.com/icon?family=Material+Icons\" rel=\"stylesheet\">"
-            "\n<link href=\"https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0&display=block\" rel=\"stylesheet\">",
+            "\n<link href=\"https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0&display=block\" rel=\"stylesheet\">"
+            # Skip link : invisible jusqu'au focus clavier (Tab dès le chargement)
+            "\n<a href='#main-content' class='qt-skip-link'>Aller au contenu principal</a>"
+            "\n<span id='main-content' class='sr-only' tabindex='-1'>Contenu principal</span>",
             unsafe_allow_html=True
         )
     except FileNotFoundError:
