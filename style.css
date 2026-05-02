@@ -751,25 +751,121 @@ div[data-testid="metric-container"]:hover {
     color: var(--muted);
 }
 
-/* === RESPONSIVE MOBILE === */
+/* ============================================================
+   RESPONSIVE MOBILE — breakpoints : 1024 / 768 / 600 / 420
+   Strategie : la grille Streamlit s'effondre en 1 colonne en
+   dessous de ~640px par defaut, on ajoute le polish autour.
+   ============================================================ */
+
+/* Tablette (1024px) : padding reduit, hero deja gere ailleurs */
+@media (max-width: 1024px) {
+    .block-container {
+        padding-left: 2rem !important;
+        padding-right: 2rem !important;
+    }
+}
+
+/* Mobile large (768px) */
 @media (max-width: 768px) {
     .block-container {
         padding-left: 1rem !important;
         padding-right: 1rem !important;
+        padding-top: 1rem !important;
     }
+
+    /* Bande live -> empilee verticalement */
     .market-strip {
         flex-direction: column;
         align-items: flex-start;
         gap: 12px;
+        padding: 14px 16px;
+    }
+    .market-strip-item { min-width: 0; width: 100%; }
+
+    /* Tabs : plus serres et scrollables si trop nombreux */
+    .stTabs [data-baseweb="tab-list"] {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        padding: 4px;
     }
     .stTabs [data-baseweb="tab"] {
-        font-size: 0.8em;
-        padding: 6px 8px;
+        font-size: 0.82em;
+        padding: 8px 10px;
+        white-space: nowrap;
+        flex-grow: 0;
+        min-width: max-content;
     }
+
+    /* Onboarding & footer */
     .qt-onboarding-step { min-width: 100%; }
+    .qt-onboarding { padding: 20px 18px; }
     .qt-footer-cols { grid-template-columns: 1fr; }
-    h1 { font-size: 1.6em !important; }
-    h2 { font-size: 1.3em !important; }
+
+    /* Typographie redimensionnee */
+    h1 { font-size: 1.7em !important; }
+    h2 { font-size: 1.35em !important; }
+    h3 { font-size: 1.15em !important; }
+
+    /* Cards : moins de padding */
+    .qt-card, .qt-card-intro { padding: 18px; }
+    .qt-callout, .qt-callout-warn { padding: 14px 16px; }
+
+    /* Section title : tailles reduites */
+    .qt-section-title { font-size: 1.15em; padding-bottom: 8px; }
+
+    /* Charts : hauteur min utile sur mobile + scroll horizontal interdit */
+    .stPlotlyChart { min-height: 320px; }
+    .js-plotly-plot, .plot-container { width: 100% !important; }
+
+    /* Boutons pleine largeur quand seuls dans une colonne */
+    .stButton > button, .stDownloadButton > button {
+        width: 100%;
+        padding: 10px 14px;
+        min-height: 44px;  /* zone tactile WCAG 2.5.5 */
+    }
+
+    /* Inputs : taille tactile confortable */
+    .stTextInput input, .stNumberInput input,
+    .stSelectbox > div > div { min-height: 44px; }
+
+    /* Sidebar : largeur auto sur mobile (drawer Streamlit) */
+    [data-testid="stSidebar"] { padding: 0.5rem; }
+    [data-testid="stSidebar"] .stMarkdown h1 { font-size: 1.3em !important; }
+}
+
+/* Mobile (600px) */
+@media (max-width: 600px) {
+    .block-container { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
+
+    /* Hero deja gere lignes 653-657 mais on densifie */
+    .qt-hero-stat-card { padding: 8px 10px; min-width: 0; }
+    .qt-hero-stat-value { font-size: 1.15em; }
+    .qt-hero-stat-label { font-size: 0.6em; letter-spacing: 1px; }
+
+    /* Empty state titles */
+    .qt-empty-state { padding: 24px 12px 16px 12px; }
+    .qt-empty-state-title { font-size: 1.4em !important; }
+    .qt-empty-state-icon { font-size: 2.6em; }
+
+    /* Metric gauges : titre + valeur reduits */
+    .qt-metric-gauge { padding: 16px 14px 14px 14px; }
+    .qt-metric-gauge-value { font-size: 1.65em; }
+    .qt-metric-gauge-label { font-size: 0.68em; }
+
+    /* Preset cards : hauteur auto au lieu de fixe */
+    .qt-preset-card { height: auto; min-height: 180px; }
+}
+
+/* Tres petit (420px - smartphones compacts) */
+@media (max-width: 420px) {
+    h1 { font-size: 1.45em !important; }
+    .qt-hero-title { font-size: 1.3em !important; }
+    .qt-hero-right { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+    .qt-section-title { font-size: 1.05em; }
+
+    /* Pills et tags plus compacts */
+    .qt-pill { font-size: 0.72em; padding: 3px 9px; }
+    .qt-tag { font-size: 0.7em; }
 }
 
 /* === SIDEBAR ACCORDION === */
