@@ -14,6 +14,7 @@ api_key = os.getenv("OPENAI_API_KEY") or st.secrets.get("OPENAI_API_KEY", None)
 client = OpenAI(api_key=api_key, timeout=20.0, max_retries=1)
 
 
+@st.cache_data(ttl=3600, show_spinner=False)
 def analyser_evenement_macro(evenement_utilisateur, calibration_historique=False):
     instruction_calibration = ""
     if calibration_historique:

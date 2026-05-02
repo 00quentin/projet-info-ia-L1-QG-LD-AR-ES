@@ -1,10 +1,13 @@
 """
 core/portfolio.py
 =================
-Calcul des poids d'allocation selon le profil d'investisseur.
+Calcul des poids d'allocation selon le profil d'investisseur, et
+construction de la serie temporelle de valeur du portefeuille.
 """
 
 from typing import Dict, List, Tuple
+
+import pandas as pd
 
 from config import PROFILS, NOM_AFFICHAGE
 
@@ -81,3 +84,35 @@ def construire_allocations_finales(
         })
 
     return allocations, valeur_finale
+
+
+def calculer_valeur_portefeuille(
+    df: pd.DataFrame,
+    poids: Dict[str, float],
+    capital: float,
+) -> pd.Series:
+    """
+    Construit la serie temporelle de la valeur du portefeuille en euros.
+
+    Logique vectorisee : evite la boucle for + accumulation qui etait
+    dupliquee dans dashboard.py / comparaison.py / backtest.py.
+
+    Args:
+        df: DataFrame des prix par actif (colonnes = sim_keys)
+        poids: dict {sim_key: poids_normalise} dont la somme = 1.0
+        capital: capital initial en euros
+
+    Returns:
+        pd.Series indexee comme df, donnant la valeur du portefeuille
+        a chaque pas de temps.
+    """
+    # Filtre les actifs presents a la fois dans df et dans poids
+    actifs_presents = [sk for sk in poids if sk in df.columns]
+    if not actifs_presents:
+        return pd.Series(capital, index=df.index, dtype=float)
+
+    # Normalisation Base 100, multiplication vectorisee par poids puis somme
+    sub = df[actifs_presents]
+    base = sub.iloc[0]
+    poids_serie = pd.Series({sk: poids[sk] for sk in actifs_presents})
+    return ((sub / base) * poids_serie * capital).sum(axis=1)

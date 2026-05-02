@@ -7,9 +7,13 @@ sont coherents avec les chocs.
 """
 
 import math
+import numpy as np
+import pandas as pd
 import pytest
 
-from core.portfolio import calculer_poids, construire_allocations_finales
+from core.portfolio import (
+    calculer_poids, construire_allocations_finales, calculer_valeur_portefeuille,
+)
 
 
 # === calculer_poids =======================================================
@@ -121,3 +125,51 @@ def test_allocations_finales_capital_negatif_impossible():
     poids = {"S&P 500": 0.5, "Or": 0.5}
     _, valeur_finale = construire_allocations_finales(perfs, poids, 10000)
     assert valeur_finale > 0
+
+
+# === calculer_valeur_portefeuille =========================================
+
+def test_valeur_portefeuille_jour_zero_egale_capital():
+    """A t=0 la valeur du portefeuille = capital initial (par construction)."""
+    df = pd.DataFrame({"S&P 500": [100, 105, 110], "Or": [50, 51, 52]})
+    poids = {"S&P 500": 0.6, "Or": 0.4}
+    serie = calculer_valeur_portefeuille(df, poids, 10000)
+    assert math.isclose(serie.iloc[0], 10000.0, abs_tol=1e-6)
+
+
+def test_valeur_portefeuille_progression_correcte():
+    """Si S&P fait +10% et Or +20%, portefeuille 50/50 fait +15%."""
+    df = pd.DataFrame({"S&P 500": [100, 110], "Or": [50, 60]})
+    poids = {"S&P 500": 0.5, "Or": 0.5}
+    serie = calculer_valeur_portefeuille(df, poids, 10000)
+    # 5000*1.10 + 5000*1.20 = 11500
+    assert math.isclose(serie.iloc[-1], 11500.0, abs_tol=1e-6)
+
+
+def test_valeur_portefeuille_actif_absent_ignore():
+    """Si poids contient un actif absent du df, il est ignore."""
+    df = pd.DataFrame({"S&P 500": [100, 110]})
+    poids = {"S&P 500": 0.5, "Or": 0.5}  # Or absent
+    serie = calculer_valeur_portefeuille(df, poids, 10000)
+    # Comportement attendu : on calcule sur les actifs presents seulement.
+    # Avec poids 0.5 sur S&P et 0.5 sur un actif absent, on accepte que
+    # le portefeuille progresse selon S&P seul mais avec un poids 0.5.
+    assert serie.iloc[0] == 5000.0  # 0.5 * 10000 (Or absent ne contribue pas)
+    assert serie.iloc[-1] == pytest.approx(5500.0, abs=1e-6)
+
+
+def test_valeur_portefeuille_aucun_actif_present():
+    """Si aucun actif des poids n'est dans df, retour = capital constant."""
+    df = pd.DataFrame({"X": [1, 2], "Y": [3, 4]})
+    poids = {"S&P 500": 1.0}
+    serie = calculer_valeur_portefeuille(df, poids, 10000)
+    assert (serie == 10000.0).all()
+
+
+def test_valeur_portefeuille_index_preserve():
+    """L'index du DataFrame est preserve dans la serie de sortie."""
+    idx = pd.date_range("2024-01-01", periods=5)
+    df = pd.DataFrame({"S&P 500": [100, 101, 102, 103, 104]}, index=idx)
+    poids = {"S&P 500": 1.0}
+    serie = calculer_valeur_portefeuille(df, poids, 10000)
+    assert (serie.index == idx).all()

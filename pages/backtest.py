@@ -12,7 +12,7 @@ import streamlit as st
 
 from config import NOM_AFFICHAGE
 from core.metrics import calculer_metriques_risque
-from core.portfolio import calculer_poids, construire_allocations_finales
+from core.portfolio import calculer_poids, construire_allocations_finales, calculer_valeur_portefeuille
 from components.charts import (
     fig_courbes_categorie, construire_graphiques_par_categorie,
     fig_heatmap_performance, fig_evolution_portefeuille, html_metriques_jauges,
@@ -48,10 +48,7 @@ def render_page_backtest_dashboard():
 
     # === Métriques de risque ===
     poids = calculer_poids(params["profil"], params["actifs_sim"], params["allocations"])
-    valeur_port = pd.Series(0.0, index=df.index)
-    for sk, pct in poids.items():
-        if sk in df.columns:
-            valeur_port += pct * (df[sk] / df[sk].iloc[0]) * params["capital"]
+    valeur_port = calculer_valeur_portefeuille(df, poids, params["capital"])
     metriques = calculer_metriques_risque(valeur_port)
 
     st.markdown('<div class="qt-section-title">Métriques de risque (données réelles)</div>',
@@ -154,10 +151,7 @@ def render_page_backtest_detail():
     st.caption("Comment votre portefeuille aurait réellement évolué pendant cette crise.")
 
     # Calcul de la valeur jour par jour
-    valeur_port = pd.Series(0.0, index=df.index)
-    for sk, pct in poids.items():
-        if sk in df.columns:
-            valeur_port += pct * (df[sk] / df[sk].iloc[0]) * cap
+    valeur_port = calculer_valeur_portefeuille(df, poids, cap)
 
     benchmark = None
     if "S&P 500" in df.columns:

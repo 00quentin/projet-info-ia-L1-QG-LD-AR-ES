@@ -10,7 +10,7 @@ import streamlit as st
 
 from config import NOM_AFFICHAGE, COULEUR_PRIMAIRE
 from core.metrics import calculer_metriques_risque
-from core.portfolio import calculer_poids, construire_allocations_finales
+from core.portfolio import calculer_poids, construire_allocations_finales, calculer_valeur_portefeuille
 from components.charts import (
     fig_courbes_categorie, construire_graphiques_par_categorie,
     fig_heatmap_performance, html_metriques_jauges,
@@ -57,10 +57,7 @@ def afficher_dashboard(res, params, key_prefix="main"):
 
     # === Métriques de risque ===
     poids = calculer_poids(params["profil"], params["actifs_sim"], params["allocations"])
-    valeur_port = pd.Series(0.0, index=df.index)
-    for sk, pct in poids.items():
-        if sk in df.columns:
-            valeur_port += pct * (df[sk] / df[sk].iloc[0]) * params["capital"]
+    valeur_port = calculer_valeur_portefeuille(df, poids, params["capital"])
     metriques = calculer_metriques_risque(valeur_port)
 
     st.markdown('<hr class="qt-divider">', unsafe_allow_html=True)

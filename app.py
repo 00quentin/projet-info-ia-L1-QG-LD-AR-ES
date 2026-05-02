@@ -20,7 +20,7 @@ from logger import get_logger
 
 from market_data import get_prix_actuels, get_volatilites_historiques, get_historique, EVENEMENTS_HISTORIQUES
 from core.runner import lancer_simulation_scenario, lancer_backtest
-from core.portfolio import calculer_poids
+from core.portfolio import calculer_poids, construire_allocations_finales
 
 from components.styling import appliquer_styles
 from components.header import render_header_complet
@@ -197,10 +197,9 @@ if config["lancer"] and config["mode_app"] == "Simulation prospective":
                     for label, res in pairs:
                         if res is None:
                             continue
-                        valeur_finale = 0
-                        for sk, pct in poids_h.items():
-                            rend = res["perf"].get(sk, 0) / 100
-                            valeur_finale += config["capital_initial"] * pct * (1 + rend)
+                        _, valeur_finale = construire_allocations_finales(
+                            res["perf"], poids_h, config["capital_initial"]
+                        )
                         perf_p = (valeur_finale - config["capital_initial"]) / config["capital_initial"] * 100
                         st.session_state.historique_simus.insert(0, {
                             "date": datetime.now().strftime("%d/%m/%Y %H:%M"),
@@ -263,10 +262,9 @@ if config["lancer"] and config["mode_app"] == "Backtest historique":
 
                     poids_h = calculer_poids(config["profil_risque"], list(df_histo.columns),
                                               config["allocations_custom"])
-                    valeur_finale = 0
-                    for sk, pct in poids_h.items():
-                        rend = bt_result["perf"].get(sk, 0) / 100
-                        valeur_finale += config["capital_initial"] * pct * (1 + rend)
+                    _, valeur_finale = construire_allocations_finales(
+                        bt_result["perf"], poids_h, config["capital_initial"]
+                    )
                     perf_p = (valeur_finale - config["capital_initial"]) / config["capital_initial"] * 100
                     st.session_state.historique_simus.insert(0, {
                         "date": datetime.now().strftime("%d/%m/%Y %H:%M"),

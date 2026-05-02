@@ -10,7 +10,7 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from core.metrics import calculer_metriques_risque
-from core.portfolio import calculer_poids
+from core.portfolio import calculer_poids, calculer_valeur_portefeuille
 from components.empty_states import render_empty_comparaison
 from components.charts import apply_qt_theme, QT_PALETTE
 
@@ -70,16 +70,8 @@ def render_page_comparaison():
     st.markdown('<div class="qt-section-title">Évolution comparée du portefeuille</div>',
                 unsafe_allow_html=True)
 
-    def _serie_portefeuille(res):
-        df = res["df"]
-        v = pd.Series(0.0, index=df.index)
-        for sk, pct in poids.items():
-            if sk in df.columns:
-                v += pct * (df[sk] / df[sk].iloc[0]) * cap
-        return v
-
-    s_A = _serie_portefeuille(st.session_state.simu_A)
-    s_B = _serie_portefeuille(st.session_state.simu_B)
+    s_A = calculer_valeur_portefeuille(st.session_state.simu_A["df"], poids, cap)
+    s_B = calculer_valeur_portefeuille(st.session_state.simu_B["df"], poids, cap)
 
     fig = go.Figure()
     fig.add_trace(go.Scatter(
