@@ -113,13 +113,14 @@ def render_empty_portefeuille():
 
 
 def render_empty_comparaison():
-    """Empty state de la Comparaison A vs B."""
+    """Empty state de la Comparaison multi-scenarios."""
     _hero_empty(
         "⚖️",
-        "Comparez deux scénarios côte à côte",
-        "Activez le <strong>Mode Comparaison</strong> dans la barre latérale, "
-        "rédigez deux scénarios A et B, puis lancez la simulation. "
-        "Vous verrez ici un duel détaillé avec verdict du gagnant."
+        "Comparez 2 ou 3 scénarios côte à côte",
+        "Réglez le curseur <strong>Nombre de scénarios à comparer</strong> "
+        "dans la barre latérale (2 ou 3), rédigez vos scénarios, puis lancez "
+        "la simulation. Vous verrez ici les courbes superposées, un comparatif "
+        "des métriques de risque et le classement."
     )
 
 

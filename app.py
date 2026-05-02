@@ -14,7 +14,7 @@ import streamlit as st
 st.set_page_config(page_title="Quant Terminal", page_icon="◆", layout="wide")
 
 # --- Imports locaux ---
-from config import SCENARIO_A_DEFAUT, SCENARIO_B_DEFAUT
+from config import SCENARIO_A_DEFAUT, SCENARIO_B_DEFAUT, SCENARIO_C_DEFAUT, LABELS_SCENARIOS
 from logger import get_logger
 
 from core.history_store import charger_historique
@@ -47,9 +47,9 @@ def init_session_state():
         "messages_chat": [],
         "event_text_A": SCENARIO_A_DEFAUT,
         "event_text_B": SCENARIO_B_DEFAUT,
-        "simu_A": None,
-        "simu_B": None,
-        "mode_comparaison": False,
+        "event_text_C": SCENARIO_C_DEFAUT,
+        "simulations": {label: None for label in LABELS_SCENARIOS},
+        "nb_scenarios": 1,
         "params_sim": {},
         "backtest_data": None,
         "dark_mode": False,
@@ -85,9 +85,11 @@ if st.session_state.pop("_auto_launch", False) and config["mode_app"] == "Simula
 # ==========================================
 
 if config["mode_app"] == "Simulation prospective":
-    if st.session_state.mode_comparaison:
+    nb_sc = st.session_state.nb_scenarios
+    if nb_sc > 1:
+        nom_compare = f"Comparaison {nb_sc} scénarios"
         tab_dashboard, tab_portefeuille, tab_compare, tab_hist, tab_academie, tab_chat, tab_apropos = st.tabs([
-            "Dashboard", "Portefeuille", "Comparaison A vs B", "Historique", "Académie", "Analyste IA", "À propos"
+            "Dashboard", "Portefeuille", nom_compare, "Historique", "Académie", "Analyste IA", "À propos"
         ])
     else:
         tab_dashboard, tab_portefeuille, tab_hist, tab_academie, tab_chat, tab_apropos = st.tabs([

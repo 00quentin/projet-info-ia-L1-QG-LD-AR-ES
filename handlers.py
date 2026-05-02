@@ -14,7 +14,7 @@ from typing import Dict, Any
 
 import streamlit as st
 
-from config import HISTORIQUE_TAILLE_MAX, NOM_AFFICHAGE
+from config import HISTORIQUE_TAILLE_MAX, NOM_AFFICHAGE, LABELS_SCENARIOS
 from logger import get_logger
 from market_data import (
     get_prix_actuels, get_volatilites_historiques, get_historique,
@@ -77,8 +77,9 @@ def _valider_actifs_et_allocation(config: Dict[str, Any]) -> bool:
 
 def _message_attente_simulation(config: Dict[str, Any]) -> str:
     """Choisit le message de spinner adapte au mode (MC, calibration, comparaison)."""
-    if st.session_state.mode_comparaison:
-        return "Analyse comparative de 2 scénarios en cours... (cela peut prendre 30-60 secondes)"
+    nb = st.session_state.nb_scenarios
+    if nb > 1:
+        return f"Analyse comparative de {nb} scénarios en cours... (cela peut prendre {30*nb}-{60*nb} secondes)"
     if config["mode_monte_carlo"]:
         return "Mode Monte-Carlo : 50 simulations en cours... (cela peut prendre 15-30 secondes)"
     if config["calibration_historique"]:
@@ -92,18 +93,24 @@ def _message_attente_simulation(config: Dict[str, Any]) -> str:
 def handler_simulation(config: Dict[str, Any]) -> None:
     """
     Execute le flot de Simulation prospective : validation, fetch prix
-    Yahoo si demande, simulation A (et B si comparaison), enregistrement
+    Yahoo si demande, simulation pour chaque label actif, enregistrement
     dans l'historique. Les erreurs sont notifiees, jamais propagees.
     """
-    st.session_state.simu_A = None
-    st.session_state.simu_B = None
+    nb = st.session_state.nb_scenarios
+    labels_actifs = LABELS_SCENARIOS[:nb]
 
-    scenario_A = st.session_state.event_text_A
-    scenario_B = st.session_state.event_text_B if st.session_state.mode_comparaison else None
+    # Reset toutes les simulations en cours
+    st.session_state.simulations = {label: None for label in LABELS_SCENARIOS}
 
-    if len(scenario_A.strip()) < 10 or (st.session_state.mode_comparaison and len(scenario_B.strip()) < 10):
-        notify_warn("Scénario trop court (au moins 10 caractères).")
-        return
+    # Recupere les textes de scenario par label
+    textes = {label: st.session_state[f"event_text_{label}"] for label in labels_actifs}
+
+    # Validation : chaque scenario doit faire >= 10 caracteres
+    for label, txt in textes.items():
+        if len(txt.strip()) < 10:
+            notify_warn(f"Scénario {label} trop court (au moins 10 caractères).")
+            return
+
     if not _valider_actifs_et_allocation(config):
         return
 
@@ -119,26 +126,16 @@ def handler_simulation(config: Dict[str, Any]) -> None:
     skeleton_ph = render_skeleton_dashboard()
     with st.spinner(_message_attente_simulation(config)):
         try:
-            result_A, err_A = lancer_simulation_scenario(
-                scenario_A, config["actifs_selectionnes"], config["duree"],
-                config["modele_simu"], config["mode_monte_carlo"],
-                prix_reels, vols_reelles, config["calibration_historique"],
-            )
-            if err_A:
-                notify_error(f"Scénario A : {err_A}")
-            else:
-                st.session_state.simu_A = result_A
-
-            if st.session_state.mode_comparaison:
-                result_B, err_B = lancer_simulation_scenario(
-                    scenario_B, config["actifs_selectionnes"], config["duree"],
+            for label, scenario_txt in textes.items():
+                result, err = lancer_simulation_scenario(
+                    scenario_txt, config["actifs_selectionnes"], config["duree"],
                     config["modele_simu"], config["mode_monte_carlo"],
                     prix_reels, vols_reelles, config["calibration_historique"],
                 )
-                if err_B:
-                    notify_error(f"Scénario B : {err_B}")
+                if err:
+                    notify_error(f"Scénario {label} : {err}")
                 else:
-                    st.session_state.simu_B = result_B
+                    st.session_state.simulations[label] = result
 
             st.session_state.params_sim = {
                 "actifs_sim":   config["actifs_selectionnes"].copy(),
@@ -147,36 +144,33 @@ def handler_simulation(config: Dict[str, Any]) -> None:
                 "capital":      config["capital_initial"],
                 "duree":        config["duree"],
                 "mc":           config["mode_monte_carlo"],
-                "comparaison":  st.session_state.mode_comparaison,
+                "nb_scenarios": nb,
                 "prix_reels":   config["utiliser_prix_reels"],
                 "calib":        config["calibration_historique"],
             }
 
-            if st.session_state.simu_A:
-                poids_h = calculer_poids(
-                    config["profil_risque"], config["actifs_selectionnes"],
-                    config["allocations_custom"],
+            poids_h = calculer_poids(
+                config["profil_risque"], config["actifs_selectionnes"],
+                config["allocations_custom"],
+            )
+            for label in labels_actifs:
+                res = st.session_state.simulations[label]
+                if res is None:
+                    continue
+                _, valeur_finale = construire_allocations_finales(
+                    res["perf"], poids_h, config["capital_initial"],
                 )
-                pairs = [("A", st.session_state.simu_A)]
-                if st.session_state.mode_comparaison:
-                    pairs.append(("B", st.session_state.simu_B))
-
-                for label, res in pairs:
-                    if res is None:
-                        continue
-                    _, valeur_finale = construire_allocations_finales(
-                        res["perf"], poids_h, config["capital_initial"],
-                    )
-                    _enregistrer_historique(
-                        scenario=res["scenario"],
-                        profil=config["profil_risque"],
-                        capital=config["capital_initial"],
-                        valeur_finale=valeur_finale,
-                        monte_carlo=config["mode_monte_carlo"],
-                        nb_actifs=len(config["actifs_selectionnes"]),
-                        type_op="Simulation",
-                        label_compare=label if st.session_state.mode_comparaison else None,
-                    )
+                _enregistrer_historique(
+                    scenario=res["scenario"],
+                    profil=config["profil_risque"],
+                    capital=config["capital_initial"],
+                    valeur_finale=valeur_finale,
+                    monte_carlo=config["mode_monte_carlo"],
+                    nb_actifs=len(config["actifs_selectionnes"]),
+                    type_op="Simulation",
+                    label_compare=label if nb > 1 else None,
+                )
+            if any(st.session_state.simulations[lab] for lab in labels_actifs):
                 st.session_state["_just_simulated"] = True
 
         except Exception as e:

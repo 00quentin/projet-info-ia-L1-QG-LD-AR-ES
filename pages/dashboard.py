@@ -8,7 +8,7 @@ from datetime import datetime
 import pandas as pd
 import streamlit as st
 
-from config import NOM_AFFICHAGE, COULEUR_PRIMAIRE
+from config import NOM_AFFICHAGE, COULEUR_PRIMAIRE, LABELS_SCENARIOS
 from core.metrics import calculer_metriques_risque
 from core.portfolio import calculer_poids, construire_allocations_finales, calculer_valeur_portefeuille
 from core.export_csv import generer_csv_simulation
@@ -160,19 +160,26 @@ def afficher_dashboard(res, params, key_prefix="main"):
 
 def render_page_dashboard():
     """Point d'entrée de la page Dashboard."""
-    if st.session_state.simu_A is None:
+    simulations = st.session_state.simulations
+    labels_disponibles = [lab for lab in LABELS_SCENARIOS if simulations.get(lab) is not None]
+
+    if not labels_disponibles:
         render_empty_dashboard()
         return
 
-    if st.session_state.mode_comparaison and st.session_state.simu_B:
-        sub_A, sub_B = st.tabs(["Scénario A", "Scénario B"])
-        with sub_A:
-            st.markdown(f'<div class="qt-callout"><strong>Scénario A :</strong> {st.session_state.simu_A["scenario"]}</div>',
-                        unsafe_allow_html=True)
-            afficher_dashboard(st.session_state.simu_A, st.session_state.params_sim, key_prefix="dash_A")
-        with sub_B:
-            st.markdown(f'<div class="qt-callout"><strong>Scénario B :</strong> {st.session_state.simu_B["scenario"]}</div>',
-                        unsafe_allow_html=True)
-            afficher_dashboard(st.session_state.simu_B, st.session_state.params_sim, key_prefix="dash_B")
-    else:
-        afficher_dashboard(st.session_state.simu_A, st.session_state.params_sim, key_prefix="dash_main")
+    if len(labels_disponibles) == 1:
+        afficher_dashboard(simulations[labels_disponibles[0]],
+                           st.session_state.params_sim, key_prefix="dash_main")
+        return
+
+    # Multi-scenarios : un sous-onglet par label
+    sub_tabs = st.tabs([f"Scénario {lab}" for lab in labels_disponibles])
+    for tab, label in zip(sub_tabs, labels_disponibles):
+        with tab:
+            res = simulations[label]
+            st.markdown(
+                f'<div class="qt-callout"><strong>Scénario {label} :</strong> {res["scenario"]}</div>',
+                unsafe_allow_html=True
+            )
+            afficher_dashboard(res, st.session_state.params_sim,
+                               key_prefix=f"dash_{label}")

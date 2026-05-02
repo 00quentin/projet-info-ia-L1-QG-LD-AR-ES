@@ -6,7 +6,7 @@ Onglet Portefeuille : détail composition + bilan.
 
 import streamlit as st
 
-from config import NOM_AFFICHAGE
+from config import NOM_AFFICHAGE, LABELS_SCENARIOS
 from core.portfolio import calculer_poids
 from components.charts import fig_camembert_repartition
 from components.empty_states import render_empty_portefeuille
@@ -56,18 +56,21 @@ def afficher_portefeuille(res, params, key_prefix="main"):
 
 def render_page_portefeuille():
     """Point d'entrée de la page Portefeuille."""
-    if st.session_state.simu_A is None:
+    simulations = st.session_state.simulations
+    labels_disponibles = [lab for lab in LABELS_SCENARIOS if simulations.get(lab) is not None]
+
+    if not labels_disponibles:
         render_empty_portefeuille()
         return
 
-    if st.session_state.mode_comparaison and st.session_state.simu_B:
-        sub_A, sub_B = st.tabs(["Scénario A", "Scénario B"])
-        with sub_A:
-            afficher_portefeuille(st.session_state.simu_A,
-                                   st.session_state.params_sim, key_prefix="port_A")
-        with sub_B:
-            afficher_portefeuille(st.session_state.simu_B,
-                                   st.session_state.params_sim, key_prefix="port_B")
-    else:
-        afficher_portefeuille(st.session_state.simu_A,
+    if len(labels_disponibles) == 1:
+        afficher_portefeuille(simulations[labels_disponibles[0]],
                                st.session_state.params_sim, key_prefix="port_main")
+        return
+
+    sub_tabs = st.tabs([f"Scénario {lab}" for lab in labels_disponibles])
+    for tab, label in zip(sub_tabs, labels_disponibles):
+        with tab:
+            afficher_portefeuille(simulations[label],
+                                   st.session_state.params_sim,
+                                   key_prefix=f"port_{label}")

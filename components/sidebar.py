@@ -13,6 +13,7 @@ from config import (
     ACTIFS_DISPONIBLES, ACTIFS_PAR_DEFAUT, EVENEMENTS_PRESETS, NOM_AFFICHAGE,
     HORIZON_MIN, HORIZON_MAX, HORIZON_DEFAUT, HORIZON_STEP,
     CAPITAL_MIN, CAPITAL_MAX, CAPITAL_DEFAUT, CAPITAL_STEP,
+    LABELS_SCENARIOS, NB_SCENARIOS_MAX,
 )
 from components.notifications import notify_warn, notify_info
 
@@ -57,18 +58,21 @@ def _render_section_simulation() -> Dict[str, Any]:
     """Section Simulation prospective : scénarios, modèle, options."""
     options = {}
 
-    options["mode_comparaison"] = st.toggle(
-        "Mode Comparaison (2 scénarios)",
-        value=st.session_state.mode_comparaison
+    nb_scenarios = st.select_slider(
+        "Nombre de scénarios à comparer",
+        options=list(range(1, NB_SCENARIOS_MAX + 1)),
+        value=st.session_state.nb_scenarios,
+        help="Comparez jusqu'à 3 scénarios cote à cote sur le meme portefeuille.",
     )
-    st.session_state.mode_comparaison = options["mode_comparaison"]
+    st.session_state.nb_scenarios = nb_scenarios
+    options["nb_scenarios"] = nb_scenarios
 
-    if options["mode_comparaison"]:
+    if nb_scenarios > 1:
         st.caption("💡 Conseil : soyez précis et détaillé. Mentionnez le pays, le secteur, l'ampleur.")
-        st.markdown("**Scénario A**")
-        st.text_area("Scénario A", height=100, key="event_text_A", label_visibility="collapsed")
-        st.markdown("**Scénario B**")
-        st.text_area("Scénario B", height=100, key="event_text_B", label_visibility="collapsed")
+        for label in LABELS_SCENARIOS[:nb_scenarios]:
+            st.markdown(f"**Scénario {label}**")
+            st.text_area(f"Scénario {label}", height=100,
+                         key=f"event_text_{label}", label_visibility="collapsed")
     else:
         st.markdown("**Scénarios rapides**")
         preset_keys = list(EVENEMENTS_PRESETS.keys())

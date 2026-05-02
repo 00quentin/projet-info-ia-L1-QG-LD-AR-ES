@@ -87,6 +87,11 @@ EVENEMENTS_PRESETS = {
 # ==========================================
 SCENARIO_A_DEFAUT = "Les États-Unis annoncent une impression massive de monnaie face à une crise soudaine."
 SCENARIO_B_DEFAUT = "Une percée majeure dans l'intelligence artificielle dope la productivité mondiale."
+SCENARIO_C_DEFAUT = "Un choc geopolitique majeur (tensions Taiwan, conflit énergétique) déstabilise les marchés."
+
+# Comparaison multi-scenarios : labels ordonnes utilisables pour 1, 2 ou 3 simulations
+LABELS_SCENARIOS = ["A", "B", "C"]
+NB_SCENARIOS_MAX = len(LABELS_SCENARIOS)
 
 
 # ==========================================
