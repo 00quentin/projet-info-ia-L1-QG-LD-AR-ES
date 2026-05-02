@@ -11,6 +11,7 @@ import streamlit as st
 from config import NOM_AFFICHAGE, COULEUR_PRIMAIRE
 from core.metrics import calculer_metriques_risque
 from core.portfolio import calculer_poids, construire_allocations_finales, calculer_valeur_portefeuille
+from core.export_csv import generer_csv_simulation
 from core.risk_alerts import evaluer_alertes_risque
 from components.charts import (
     fig_courbes_categorie, construire_graphiques_par_categorie,
@@ -104,12 +105,22 @@ def afficher_dashboard(res, params, key_prefix="main"):
     fig_bar = fig_heatmap_performance(res["perf_df"])
     st.plotly_chart(fig_bar, use_container_width=True, key=f"{key_prefix}_heatmap")
 
-    # === Bouton PDF ===
+    # === Exports ===
     st.markdown('<hr class="qt-divider">', unsafe_allow_html=True)
-    st.markdown('<div class="qt-section-title">Exporter le rapport</div>', unsafe_allow_html=True)
-    st.caption("Le rapport PDF inclut une analyse approfondie rédigée par l'analyste IA dans le style d'un professionnel institutionnel.")
+    st.markdown('<div class="qt-section-title">Exporter</div>', unsafe_allow_html=True)
+    st.caption("Le PDF contient une analyse rédigée par l'IA. Le CSV contient la série journalière brute (valeur du portefeuille + valeur de chaque poche en euros) pour ré-exploitation dans Excel ou Python.")
 
     allocs, valeur_fin = construire_allocations_finales(res["perf"], poids, params["capital"])
+
+    csv_bytes = generer_csv_simulation(df, poids, params["capital"])
+    st.download_button(
+        label="📊 Télécharger les données (CSV)",
+        data=csv_bytes,
+        file_name=f"quant_terminal_donnees_{datetime.now().strftime('%Y%m%d_%H%M')}.csv",
+        mime="text/csv",
+        use_container_width=True,
+        key=f"{key_prefix}_csv_dl",
+    )
 
     if st.button("🔬 Préparer le rapport PDF complet", key=f"{key_prefix}_prep_pdf",
                  use_container_width=True):

@@ -13,6 +13,7 @@ import streamlit as st
 from config import NOM_AFFICHAGE
 from core.metrics import calculer_metriques_risque
 from core.portfolio import calculer_poids, construire_allocations_finales, calculer_valeur_portefeuille
+from core.export_csv import generer_csv_simulation
 from core.risk_alerts import evaluer_alertes_risque
 from components.charts import (
     fig_courbes_categorie, construire_graphiques_par_categorie,
@@ -81,11 +82,21 @@ def render_page_backtest_dashboard():
     fig_bar = fig_heatmap_performance(bt["perf_df"], titre="Performance réelle par actif")
     st.plotly_chart(fig_bar, use_container_width=True, key="bt_heatmap")
 
-    # === PDF ===
+    # === Exports ===
     st.markdown('<hr class="qt-divider">', unsafe_allow_html=True)
-    st.markdown('<div class="qt-section-title">Exporter le rapport</div>',
+    st.markdown('<div class="qt-section-title">Exporter</div>',
                 unsafe_allow_html=True)
-    st.caption("Le rapport PDF inclut une analyse approfondie rédigée par l'analyste IA.")
+    st.caption("Le PDF contient l'analyse rédigée par l'IA. Le CSV contient la série journalière brute (valeur portefeuille + poches en euros) pour ré-exploitation Excel/Python.")
+
+    csv_bytes_bt = generer_csv_simulation(df, poids, params["capital"])
+    st.download_button(
+        label="📊 Télécharger les données (CSV)",
+        data=csv_bytes_bt,
+        file_name=f"quant_terminal_backtest_donnees_{datetime.now().strftime('%Y%m%d_%H%M')}.csv",
+        mime="text/csv",
+        use_container_width=True,
+        key="bt_csv_dl",
+    )
 
     res_bt = {
         "scenario": f"Backtest : {bt['evenement']} — {bt['description']}",
