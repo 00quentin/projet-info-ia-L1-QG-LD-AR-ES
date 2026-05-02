@@ -9,10 +9,10 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
-from config import COULEUR_TEXT
 from core.metrics import calculer_metriques_risque
 from core.portfolio import calculer_poids
 from components.empty_states import render_empty_comparaison
+from components.charts import apply_qt_theme, QT_PALETTE
 
 
 def render_page_comparaison():
@@ -82,20 +82,27 @@ def render_page_comparaison():
     s_B = _serie_portefeuille(st.session_state.simu_B)
 
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=s_A.index, y=s_A, name="Scénario A",
-                             line=dict(color="#1a365d", width=2.8)))
-    fig.add_trace(go.Scatter(x=s_B.index, y=s_B, name="Scénario B",
-                             line=dict(color="#319795", width=2.8)))
-    fig.add_hline(y=cap, line_dash="dash", line_color="#718096",
-                  annotation_text=f"Capital initial ({cap:,.0f} €)",
-                  annotation_position="bottom right")
-    fig.update_layout(template="plotly_white", height=420,
-                      margin=dict(l=10, r=10, t=30, b=10),
-                      xaxis_title="Jours de cotation",
-                      yaxis_title="Valeur du portefeuille (€)",
-                      legend=dict(orientation="h", yanchor="bottom", y=1.02,
-                                  xanchor="center", x=0.5),
-                      font=dict(color=COULEUR_TEXT))
+    fig.add_trace(go.Scatter(
+        x=s_A.index, y=s_A, name="Scénario A",
+        line=dict(color=QT_PALETTE[0], width=2.8, shape="spline", smoothing=0.5),
+        hovertemplate="<b>Scénario A</b><br>%{y:,.0f} €<extra></extra>",
+    ))
+    fig.add_trace(go.Scatter(
+        x=s_B.index, y=s_B, name="Scénario B",
+        line=dict(color=QT_PALETTE[1], width=2.8, shape="spline", smoothing=0.5),
+        hovertemplate="<b>Scénario B</b><br>%{y:,.0f} €<extra></extra>",
+    ))
+    fig.add_hline(
+        y=cap, line_dash="dot", line_color="#a0aec0", line_width=1,
+        annotation_text=f"Capital initial : {cap:,.0f} €",
+        annotation_position="bottom right",
+        annotation_font=dict(size=11, color="#718096"),
+    )
+    fig.update_layout(
+        xaxis_title="Jours de cotation",
+        yaxis_title="Valeur du portefeuille (€)",
+    )
+    apply_qt_theme(fig, height=420)
     st.plotly_chart(fig, use_container_width=True, key="compare_port_chart")
 
     # === Tableau comparatif des métriques ===

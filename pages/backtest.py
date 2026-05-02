@@ -10,7 +10,7 @@ from datetime import datetime
 import pandas as pd
 import streamlit as st
 
-from config import NOM_AFFICHAGE, COULEUR_TEXT
+from config import NOM_AFFICHAGE
 from core.metrics import calculer_metriques_risque
 from core.portfolio import calculer_poids, construire_allocations_finales
 from components.charts import (
