@@ -14,6 +14,7 @@ from config import (
     HORIZON_MIN, HORIZON_MAX, HORIZON_DEFAUT, HORIZON_STEP,
     CAPITAL_MIN, CAPITAL_MAX, CAPITAL_DEFAUT, CAPITAL_STEP,
 )
+from components.notifications import notify_warn, notify_info
 
 
 def _set_event_A(t: str):
@@ -157,7 +158,7 @@ def _render_selection_actifs() -> List[str]:
                     actifs_selectionnes.append(sim_key)
 
     if not actifs_selectionnes:
-        st.warning("Sélectionnez au moins un actif.")
+        notify_warn("Sélectionnez au moins un actif.")
 
     return actifs_selectionnes
 
@@ -203,7 +204,7 @@ def _render_portefeuille(actifs_selectionnes: List[str]) -> Tuple[float, str, Di
                 unsafe_allow_html=True
             )
         else:
-            st.info("Sélectionnez d'abord des actifs.")
+            notify_info("Sélectionnez d'abord des actifs.")
 
     return capital_initial, profil_risque, allocations_custom
 

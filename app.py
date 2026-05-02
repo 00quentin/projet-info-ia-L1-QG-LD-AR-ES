@@ -27,6 +27,7 @@ from components.header import render_header_complet
 from components.sidebar import render_sidebar
 from components.footer import render_footer, render_toasts
 from components.skeletons import render_skeleton_dashboard
+from components.notifications import notify_warn, notify_error
 
 from pages.dashboard import render_page_dashboard
 from pages.portefeuille import render_page_portefeuille
@@ -122,12 +123,12 @@ if config["lancer"] and config["mode_app"] == "Simulation prospective":
     scenario_B = st.session_state.event_text_B if st.session_state.mode_comparaison else None
 
     if len(scenario_A.strip()) < 10 or (st.session_state.mode_comparaison and len(scenario_B.strip()) < 10):
-        st.warning("Scénario trop court.")
+        notify_warn("Scénario trop court (au moins 10 caractères).")
     elif not config["actifs_selectionnes"]:
-        st.warning("Sélectionnez au moins un actif.")
+        notify_warn("Sélectionnez au moins un actif dans la barre latérale.")
     elif config["profil_risque"] == "Personnalisé" and sum(config["allocations_custom"].values()) != 100:
         total = sum(config["allocations_custom"].values())
-        st.warning(f"Allocation = 100% requis (actuellement {total}%).")
+        notify_warn(f"L'allocation doit totaliser 100% (actuellement {total}%).")
     else:
         prix_reels = None
         vols_reelles = None
@@ -138,7 +139,7 @@ if config["lancer"] and config["mode_app"] == "Simulation prospective":
                 prix_reels, erreurs_yahoo = get_prix_actuels(config["actifs_selectionnes"])
                 vols_reelles = get_volatilites_historiques(config["actifs_selectionnes"])
             if erreurs_yahoo:
-                st.warning(f"Indisponibles : {', '.join([NOM_AFFICHAGE.get(e, e) for e in erreurs_yahoo])}.")
+                notify_warn(f"Données Yahoo Finance indisponibles pour : {', '.join([NOM_AFFICHAGE.get(e, e) for e in erreurs_yahoo])}.")
 
         msg = "L'analyste IA étudie votre scénario... (cela peut prendre quelques secondes)"
         if config["calibration_historique"]:
@@ -157,7 +158,7 @@ if config["lancer"] and config["mode_app"] == "Simulation prospective":
                     prix_reels, vols_reelles, config["calibration_historique"]
                 )
                 if err_A:
-                    st.error(f"Scénario A : {err_A}")
+                    notify_error(f"Scénario A : {err_A}")
                 else:
                     st.session_state.simu_A = result_A
 
@@ -168,7 +169,7 @@ if config["lancer"] and config["mode_app"] == "Simulation prospective":
                         prix_reels, vols_reelles, config["calibration_historique"]
                     )
                     if err_B:
-                        st.error(f"Scénario B : {err_B}")
+                        notify_error(f"Scénario B : {err_B}")
                     else:
                         st.session_state.simu_B = result_B
 
@@ -218,7 +219,7 @@ if config["lancer"] and config["mode_app"] == "Simulation prospective":
 
             except Exception as e:
                 log.error("Erreur simulation : %s", e, exc_info=True)
-                st.error(f"Erreur technique : {e}")
+                notify_error(f"Erreur technique : {e}")
             finally:
                 skeleton_ph.empty()
 
@@ -229,10 +230,10 @@ if config["lancer"] and config["mode_app"] == "Simulation prospective":
 
 if config["lancer"] and config["mode_app"] == "Backtest historique":
     if not config["actifs_selectionnes"]:
-        st.warning("Sélectionnez au moins un actif.")
+        notify_warn("Sélectionnez au moins un actif dans la barre latérale.")
     elif config["profil_risque"] == "Personnalisé" and sum(config["allocations_custom"].values()) != 100:
         total = sum(config["allocations_custom"].values())
-        st.warning(f"Allocation = 100% requis (actuellement {total}%).")
+        notify_warn(f"L'allocation doit totaliser 100% (actuellement {total}%).")
     else:
         skeleton_ph_bt = render_skeleton_dashboard()
         with st.spinner(f"Récupération des données historiques pour {config['event_choisi']}..."):
@@ -244,7 +245,7 @@ if config["lancer"] and config["mode_app"] == "Backtest historique":
                 )
 
                 if df_histo.empty:
-                    st.error("Aucune donnée disponible pour cette période.")
+                    notify_error("Aucune donnée disponible pour cette période.")
                 else:
                     bt_result = lancer_backtest(df_histo, config["actifs_selectionnes"])
                     bt_result["evenement"] = config["event_choisi"]
@@ -284,7 +285,7 @@ if config["lancer"] and config["mode_app"] == "Backtest historique":
 
             except Exception as e:
                 log.error("Erreur backtest : %s", e, exc_info=True)
-                st.error(f"Erreur backtest : {e}")
+                notify_error(f"Erreur backtest : {e}")
             finally:
                 skeleton_ph_bt.empty()
 

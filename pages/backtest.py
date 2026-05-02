@@ -18,6 +18,7 @@ from components.charts import (
     fig_heatmap_performance, fig_evolution_portefeuille, html_metriques_jauges,
 )
 from components.empty_states import render_empty_backtest
+from components.notifications import notify_warn, notify_error, notify_success
 from ia_bot import generer_rapport_complet_ia
 from pdf_generator import generer_rapport_pdf
 from logger import get_logger
@@ -43,7 +44,7 @@ def render_page_backtest_dashboard():
 
     if bt["actifs_indisponibles"]:
         noms_indispo = [NOM_AFFICHAGE.get(a, a) for a in bt["actifs_indisponibles"]]
-        st.warning(f"Indisponibles à cette époque : {', '.join(noms_indispo)}")
+        notify_warn(f"Actifs indisponibles à cette époque : {', '.join(noms_indispo)}")
 
     # === Métriques de risque ===
     poids = calculer_poids(params["profil"], params["actifs_sim"], params["allocations"])
@@ -122,10 +123,10 @@ def render_page_backtest_dashboard():
                 log.info("PDF backtest généré (%d bytes)", len(pdf_bytes))
             except Exception as e:
                 log.error("Erreur génération PDF backtest : %s", e, exc_info=True)
-                st.error(f"Génération PDF impossible : {e}")
+                notify_error(f"Génération PDF impossible : {e}")
 
     if st.session_state.get("bt_pdf_ready", False):
-        st.success("✅ Rapport prêt !")
+        notify_success("Rapport prêt — cliquez ci-dessous pour le télécharger.")
         st.download_button(
             label="📄 Télécharger le rapport PDF",
             data=st.session_state["bt_pdf_bytes"],

@@ -16,6 +16,7 @@ from components.charts import (
     fig_heatmap_performance, html_metriques_jauges,
 )
 from components.empty_states import render_empty_dashboard
+from components.notifications import notify_error, notify_success
 from ia_bot import generer_rapport_complet_ia
 from pdf_generator import generer_rapport_pdf
 from logger import get_logger
@@ -130,10 +131,10 @@ def afficher_dashboard(res, params, key_prefix="main"):
                 log.info("PDF généré (key=%s, taille=%d bytes)", key_prefix, len(pdf_bytes))
             except Exception as e:
                 log.error("Erreur génération PDF : %s", e, exc_info=True)
-                st.error(f"Génération PDF impossible : {e}")
+                notify_error(f"Génération PDF impossible : {e}")
 
     if st.session_state.get(f"{key_prefix}_pdf_ready", False):
-        st.success("✅ Rapport prêt !")
+        notify_success("Rapport prêt — cliquez ci-dessous pour le télécharger.")
         st.download_button(
             label="📄 Télécharger le rapport PDF",
             data=st.session_state[f"{key_prefix}_pdf_bytes"],
