@@ -15,7 +15,18 @@ client = OpenAI(api_key=api_key, timeout=20.0, max_retries=1)
 
 
 @st.cache_data(ttl=3600, show_spinner=False)
-def analyser_evenement_macro(evenement_utilisateur, calibration_historique=False):
+def analyser_evenement_macro(evenement_utilisateur, calibration_historique=False,
+                              custom_tickers=None):
+    """
+    Analyse un scenario macro et estime les chocs sur chaque actif.
+
+    Args:
+        evenement_utilisateur: texte libre du scenario
+        calibration_historique: si True, force l'IA a s'ancrer sur un evenement reel
+        custom_tickers: liste optionnelle de dicts {ticker, nom, sim_key} pour
+            les actifs personnalises ajoutes par l'utilisateur. L'IA les
+            integrera a sa reponse avec une cle = sim_key.
+    """
     instruction_calibration = ""
     if calibration_historique:
         instruction_calibration = """
@@ -38,31 +49,77 @@ def analyser_evenement_macro(evenement_utilisateur, calibration_historique=False
     L'événement historique de référence DOIT être mentionné dans 'explication_courte'.
     """
 
-    prompt = f"""Tu es un analyste quantitatif institutionnel travaillant pour Quant Terminal.
-    Ton rôle est d'évaluer l'impact macro-économique du scénario suivant : "{evenement_utilisateur}".
+    # Section actifs personnalises : injectee dans le prompt + dans le format JSON
+    bloc_custom_instruction = ""
+    bloc_custom_format = ""
+    if custom_tickers:
+        lignes_tickers = "\n".join(
+            f"    - {c['sim_key']} (ticker {c['ticker']}, {c.get('nom', c['ticker'])})"
+            for c in custom_tickers
+        )
+        bloc_custom_instruction = f"""
+    ACTIFS PERSONNALISES A EVALUER AUSSI :
+    L'utilisateur a ajoute ces actifs cotes (en plus du catalogue standard).
+    Tu dois leur attribuer un choc specifique, en raisonnant sur leur secteur,
+    leur sensibilite au scenario et leur correlation avec les actifs standards :
+{lignes_tickers}
 
-    CRITÈRE DE VALIDATION :
-    - L'événement doit avoir un impact plausible sur la production, la consommation, la confiance, les ressources, la monnaie ou la stabilité politique.
+    Pour chacun, choisis un choc REALISTE coherent avec son secteur :
+    - Une action tech (TSLA, NVDA, MSFT) reagit comme NASDAQ mais avec un beta
+      plus eleve (souvent 1.2x a 1.8x) et une vol propre.
+    - Une action defense (LMT, RTX) reagit comme ETF_Defense avec amplification
+      sur les chocs geopolitiques.
+    - Un ETF sectoriel suit son secteur sous-jacent.
+    - Une crypto (DOGE, ADA) reagit comme Bitcoin mais avec une amplitude
+      en general superieure.
+    - Une action value/dividend (KO, JNJ) est moins volatile que le S&P 500.
+    Si tu n'es pas sur du secteur, raisonne par analogie avec l'actif standard
+    le plus proche, et applique un choc legerement attenue (multiplicateur 0.7-1.0).
+"""
+        cles_custom_json = ",\n            ".join(
+            f'"{c["sim_key"]}": 0.0' for c in custom_tickers
+        )
+        bloc_custom_format = f""",
+            {cles_custom_json}"""
+
+    prompt = f"""Tu es un analyste quantitatif institutionnel travaillant pour Quant Terminal.
+    Ton role est d'estimer l'impact realiste et probable du scenario : "{evenement_utilisateur}".
+
+    PRINCIPE DIRECTEUR (IMPORTANT) :
+    Les marches sont efficients : la plupart des informations sont DEJA partiellement
+    pricees. Un scenario produit des chocs plus MODESTES que ce que l'intuition
+    suggere, sauf en cas de surprise totale (crise systemique, guerre, defaut majeur).
+    Cas typique = mouvements de 3 a 15%. Cas extreme = 20-40%. Apocalyptique = au-dela.
+    Quand tu hesites entre deux amplitudes, choisis la plus modeste.
+
+    CRITERE DE VALIDATION :
+    - L'evenement doit avoir un impact plausible sur la production, la consommation,
+      la confiance, les ressources, la monnaie ou la stabilite politique.
     - Si totalement absurde, renvoie un dictionnaire avec une erreur.
 
-    TOLÉRANCE :
-    - Accepte les scénarios prospectifs sérieux (fusion nucléaire, AGI, guerre, pandémie, etc.).
-{instruction_calibration}
+    TOLERANCE :
+    - Accepte les scenarios prospectifs serieux (fusion nucleaire, AGI, guerre, pandemie, etc.).
+{instruction_calibration}{bloc_custom_instruction}
 
     Format erreur :
     {{
         "erreur": "Ce scénario ne semble pas lié à l'économie ou à la géopolitique."
     }}
 
-    *** MÉTHODOLOGIE OBLIGATOIRE EN 4 ÉTAPES ***
+    *** METHODOLOGIE OBLIGATOIRE EN 4 ETAPES ***
 
-    ÉTAPE 1 - CLASSIFIER LA SÉVÉRITÉ :
-    Évalue d'abord la sévérité du scénario sur une échelle :
-    - Léger (1) : annonce, ajustement marginal, mini-conflit régional → variations 1-5%
-    - Modéré (2) : récession, crise sectorielle, conflit régional → variations 5-15%
-    - Fort (3) : crise majeure type 2008 ou COVID → variations 15-30%
-    - Extrême (4) : guerre mondiale, effondrement systémique → variations 30-50%
-    - Apocalyptique (5) : extinction, guerre nucléaire totale → variations 50%+
+    ETAPE 1 - CLASSIFIER LA SEVERITE :
+    Evalue d'abord la severite du scenario en restant CONSERVATEUR (par defaut, descends
+    d'un cran si tu hesites) :
+    - Tres leger (0.5) : rumeur, annonce non confirmee, donnee macro decevante → 0.5-2%
+    - Leger (1) : decision attendue, mini-conflit regional, deception trimestrielle → 2-5%
+    - Modere (2) : recession technique, crise sectorielle, conflit regional → 5-12%
+    - Fort (3) : crise systemique type 2008 ou COVID (rare, ~tous les 10-15 ans) → 12-25%
+    - Extreme (4) : guerre mondiale, effondrement monetaire majeur → 25-45%
+    - Apocalyptique (5) : extinction, guerre nucleaire totale → 50%+
+
+    Demande-toi : "ce scenario s'est-il deja produit dans l'histoire moderne ?"
+    Si oui, regarde l'amplitude reelle observee plutot que ton intuition.
 
     ÉTAPE 2 - HORIZON :
     L'horizon est de 100 jours de cotation (~5 mois). Les chocs doivent être
@@ -101,7 +158,7 @@ def analyser_evenement_macro(evenement_utilisateur, calibration_historique=False
     Ces repères sont des ORDRES DE GRANDEUR. Tu peux dépasser SI le scénario le justifie
     vraiment (guerre nucléaire totale, extinction, etc.) — mais c'est rare.
 
-    Format JSON de réponse :
+    Format JSON de reponse :
     {{
         "macro": {{"inflation": <CHIFFRE %>, "taux_directeurs": <CHIFFRE %>}},
         "actifs": {{
@@ -110,10 +167,10 @@ def analyser_evenement_macro(evenement_utilisateur, calibration_historique=False
             "EUR_USD": 0.0, "Dollar_Index": 0.0, "VIX": 0.0,
             "Or": 0.0, "Argent": 0.0, "Petrole": 0.0, "Cuivre": 0.0, "ETF_Terres_Rares": 0.0,
             "ETF_Defense": 0.0,
-            "Bitcoin": 0.0, "Ethereum": 0.0, "XRP": 0.0, "Solana": 0.0
+            "Bitcoin": 0.0, "Ethereum": 0.0, "XRP": 0.0, "Solana": 0.0{bloc_custom_format}
         }},
-        "explication_courte": "Analyse en 3-4 phrases minimum : (1) sévérité du scénario et événement historique de référence, (2) mécanisme économique principal, (3) actifs gagnants et raisons, (4) actifs perdants et raisons.",
-        "evenement_reference": "Nom de l'événement historique de référence (ex: 'COVID 2020', 'Crise 2008', 'Helicopter money 2020'), ou null."
+        "explication_courte": "Analyse en 3-4 phrases : (1) severite du scenario et evenement historique de reference, (2) mecanisme economique principal, (3) actifs gagnants et raisons, (4) actifs perdants et raisons.",
+        "evenement_reference": "Nom de l'evenement historique de reference (ex: 'COVID 2020', 'Crise 2008', 'Helicopter money 2020'), ou null."
     }}
 
     RAPPELS FORMATS :
@@ -123,11 +180,12 @@ def analyser_evenement_macro(evenement_utilisateur, calibration_historique=False
     """
 
     try:
-        log.info("Appel OpenAI pour analyse macro (calibration=%s)", calibration_historique)
+        log.info("Appel OpenAI pour analyse macro (calibration=%s, %d custom)",
+                 calibration_historique, len(custom_tickers or []))
         reponse = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4o-mini",
             messages=[{"role": "user", "content": prompt}],
-            temperature=0.3,
+            temperature=0.15,
             response_format={"type": "json_object"}
         )
         contenu_brut = json.loads(reponse.choices[0].message.content)

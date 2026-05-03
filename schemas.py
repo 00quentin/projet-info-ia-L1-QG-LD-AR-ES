@@ -165,6 +165,35 @@ class ReponseAnalyseIA(BaseModel):
         }
 
 
+_BORNE_GENERIQUE_CUSTOM = (-0.80, 2.00)
+"""Bornes par defaut appliquees aux actifs personnalises (PERSO_*) inconnus
+du schema. Couvre tickers actions/ETF/cryptos avec une marge raisonnable."""
+
+
+def _extraire_extras_actifs(brut: dict) -> Dict[str, float]:
+    """Recupere les actifs custom (cles inconnues du schema) en les normalisant.
+
+    Le schema Pydantic a `extra="ignore"`, donc tout ticker custom serait
+    perdu. On le recupere ici a partir du JSON brut, on normalise le choc
+    et on applique une borne generique pour eviter les valeurs aberrantes.
+    """
+    if not isinstance(brut, dict):
+        return {}
+    actifs_brut = brut.get("actifs", {})
+    if not isinstance(actifs_brut, dict):
+        return {}
+
+    cles_connues = set(BORNES_ACTIFS.keys())
+    extras = {}
+    mn, mx = _BORNE_GENERIQUE_CUSTOM
+    for nom, val in actifs_brut.items():
+        if nom in cles_connues:
+            continue  # deja gere par le schema
+        v = _normaliser_choc(val)
+        extras[nom] = max(mn, min(mx, v))
+    return extras
+
+
 def valider_reponse_ia(brut: dict) -> dict:
     """
     Point d'entrée principal. Prend le JSON brut de l'IA, le valide,
@@ -174,19 +203,25 @@ def valider_reponse_ia(brut: dict) -> dict:
     """
     try:
         reponse = ReponseAnalyseIA.model_validate(brut)
-        return reponse.to_legacy_dict()
+        resultat = reponse.to_legacy_dict()
+        # Re-injecter les actifs custom (PERSO_*) que le schema a ignores
+        if "actifs" in resultat:
+            resultat["actifs"].update(_extraire_extras_actifs(brut))
+        return resultat
     except Exception as e:
         # En cas d'erreur de validation, on tente une dernière passe
         # avec uniquement les chocs valides
         try:
             actifs_brut = brut.get("actifs", {}) if isinstance(brut, dict) else {}
             actifs_norm = {}
+            mn_default, mx_default = _BORNE_GENERIQUE_CUSTOM
             for nom, val in actifs_brut.items():
                 v = _normaliser_choc(val)
                 if nom in BORNES_ACTIFS:
                     mn, mx = BORNES_ACTIFS[nom]
-                    v = max(mn, min(mx, v))
-                actifs_norm[nom] = v
+                else:
+                    mn, mx = mn_default, mx_default
+                actifs_norm[nom] = max(mn, min(mx, v))
 
             macro_brut = brut.get("macro", {}) if isinstance(brut, dict) else {}
             return {

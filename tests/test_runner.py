@@ -50,7 +50,7 @@ def test_simulation_propage_erreur_explicite_de_lia(monkeypatch):
     """Si l'IA renvoie {'erreur': ...} seul, le runner remonte l'erreur."""
     monkeypatch.setattr(
         runner, "analyser_evenement_macro",
-        lambda scenario, calibration_historique: {"erreur": "API indisponible"}
+        lambda scenario, calibration_historique, **kw: {"erreur": "API indisponible"}
     )
 
     res, err = runner.lancer_simulation_scenario(
@@ -66,7 +66,7 @@ def test_simulation_propage_erreur_explicite_de_lia(monkeypatch):
 def test_simulation_rejette_chocs_vides(monkeypatch):
     monkeypatch.setattr(
         runner, "analyser_evenement_macro",
-        lambda scenario, calibration_historique: {}
+        lambda scenario, calibration_historique, **kw: {}
     )
 
     res, err = runner.lancer_simulation_scenario(
@@ -83,7 +83,7 @@ def test_simulation_rejette_chocs_sans_actifs_ni_macro(monkeypatch):
     """Un dict IA qui n'a ni 'actifs' ni 'macro' est juge invalide."""
     monkeypatch.setattr(
         runner, "analyser_evenement_macro",
-        lambda scenario, calibration_historique: {"commentaire": "rien"}
+        lambda scenario, calibration_historique, **kw: {"commentaire": "rien"}
     )
 
     res, err = runner.lancer_simulation_scenario(
@@ -100,7 +100,7 @@ def test_simulation_accepte_chocs_avec_seulement_macro(monkeypatch, df_simu):
     """Un payload IA contenant uniquement 'macro' est valide."""
     monkeypatch.setattr(
         runner, "analyser_evenement_macro",
-        lambda scenario, calibration_historique: {"macro": {"taux": 0.5}}
+        lambda scenario, calibration_historique, **kw: {"macro": {"taux": 0.5}}
     )
     monkeypatch.setattr(
         runner, "simuler_marche_dynamique",
@@ -124,7 +124,7 @@ def test_simulation_mode_dynamique_renvoie_structure_complete(monkeypatch, df_si
     chocs_ia = {"actifs": {"S&P 500": -10}, "macro": {}}
     monkeypatch.setattr(
         runner, "analyser_evenement_macro",
-        lambda scenario, calibration_historique: chocs_ia
+        lambda scenario, calibration_historique, **kw: chocs_ia
     )
     monkeypatch.setattr(
         runner, "simuler_marche_dynamique",
@@ -148,7 +148,7 @@ def test_simulation_mode_dynamique_renvoie_structure_complete(monkeypatch, df_si
 def test_simulation_mode_monte_carlo_utilise_mediane(monkeypatch, df_simu):
     monkeypatch.setattr(
         runner, "analyser_evenement_macro",
-        lambda scenario, calibration_historique: {"actifs": {"S&P 500": 5}}
+        lambda scenario, calibration_historique, **kw: {"actifs": {"S&P 500": 5}}
     )
 
     appels = {"dyn": 0, "mc": 0}

@@ -140,3 +140,41 @@ def test_bornes_cryptos_plus_larges_que_actions():
     btc_min, btc_max = BORNES_ACTIFS["Bitcoin"]
     sp_min, sp_max = BORNES_ACTIFS["S&P 500"]
     assert (btc_max - btc_min) > (sp_max - sp_min)
+
+
+# === actifs custom (PERSO_*) ==============================================
+
+
+def test_actifs_perso_preserves_par_validation():
+    """Les cles PERSO_* ne doivent PAS etre filtrees par le schema Pydantic."""
+    brut = {
+        "macro": {"inflation": 1.0, "taux_directeurs": 0.5},
+        "actifs": {
+            "S&P 500": -0.10,
+            "PERSO_TSLA": -0.25,
+            "PERSO_NVDA": -0.30,
+        },
+        "explication_courte": "test",
+    }
+    out = valider_reponse_ia(brut)
+    assert "PERSO_TSLA" in out["actifs"]
+    assert "PERSO_NVDA" in out["actifs"]
+    assert out["actifs"]["PERSO_TSLA"] == pytest.approx(-0.25)
+
+
+def test_actifs_perso_normalisation_pourcentage():
+    """Un PERSO_* en pourcentage entier est normalise comme les autres."""
+    brut = {"actifs": {"PERSO_TSLA": -25}}
+    out = valider_reponse_ia(brut)
+    assert out["actifs"]["PERSO_TSLA"] == pytest.approx(-0.25)
+
+
+def test_actifs_perso_borne_generique_appliquee():
+    """Un PERSO_* avec valeur extreme est borne (-0.80 a 2.00)."""
+    brut = {"actifs": {"PERSO_DOGE": 5.0}}  # +500% -> doit etre borne
+    out = valider_reponse_ia(brut)
+    assert out["actifs"]["PERSO_DOGE"] <= 2.0
+
+    brut2 = {"actifs": {"PERSO_DOGE": -0.95}}  # -95% -> doit etre borne
+    out2 = valider_reponse_ia(brut2)
+    assert out2["actifs"]["PERSO_DOGE"] >= -0.80

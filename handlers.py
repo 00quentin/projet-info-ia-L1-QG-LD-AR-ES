@@ -119,6 +119,13 @@ def handler_simulation(config: Dict[str, Any]) -> None:
     actifs_perso = st.session_state.get(ACTIFS_PERSO_KEY, {})
     actifs_extras = vers_actifs_extras(actifs_perso) if actifs_perso else None
 
+    # Liste pour l'IA : on ne lui passe que les customs effectivement coches
+    custom_tickers_ia = [
+        {"sim_key": sim_key, "ticker": v["ticker"], "nom": v.get("nom", v["ticker"])}
+        for sim_key, v in actifs_perso.items()
+        if sim_key in config["actifs_selectionnes"]
+    ] or None
+
     prix_reels = vols_reelles = None
     if config["utiliser_prix_reels"]:
         # Pour Yahoo, on ne demande que les actifs du catalogue standard ;
@@ -143,6 +150,7 @@ def handler_simulation(config: Dict[str, Any]) -> None:
                     config["modele_simu"], config["mode_monte_carlo"],
                     prix_reels, vols_reelles, config["calibration_historique"],
                     actifs_extras=actifs_extras,
+                    custom_tickers=custom_tickers_ia,
                 )
                 if err:
                     notify_error(f"Scénario {label} : {err}")

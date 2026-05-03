@@ -37,6 +37,7 @@ def lancer_simulation_scenario(
     vols_reelles: Optional[Dict[str, float]],
     calibration_historique: bool,
     actifs_extras: Optional[Dict[str, Dict[str, float]]] = None,
+    custom_tickers: Optional[List[Dict]] = None,
 ) -> Tuple[Optional[Dict], Optional[str]]:
     """
     Lance une simulation complète pour un scénario donné.
@@ -48,7 +49,11 @@ def lancer_simulation_scenario(
     log.info("Simulation : scenario='%s...', %d actifs, %d jours, MC=%s",
              scenario[:40], len(actifs_selectionnes), duree, monte_carlo)
 
-    chocs = analyser_evenement_macro(scenario, calibration_historique=calibration_historique)
+    chocs = analyser_evenement_macro(
+        scenario,
+        calibration_historique=calibration_historique,
+        custom_tickers=custom_tickers,
+    )
 
     if isinstance(chocs, dict) and "erreur" in chocs and len(chocs) == 1:
         return None, chocs["erreur"]
