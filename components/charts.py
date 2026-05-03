@@ -288,12 +288,12 @@ def fig_camembert_repartition(poids: Dict[str, float]) -> go.Figure:
         textfont=dict(family="Inter, sans-serif", size=11),
         marker=dict(line=dict(color="#ffffff", width=2)),
         hovertemplate="<b>%{label}</b><br>%{percent}<extra></extra>",
+        automargin=True,
     )
-    apply_qt_theme(fig, height=360, legend_bottom=False)
+    apply_qt_theme(fig, height=420, legend_bottom=False)
     fig.update_layout(
-        legend=dict(orientation="v", x=1.0, y=0.5,
-                    font=dict(size=11), bgcolor="rgba(0,0,0,0)"),
-        margin=dict(l=12, r=12, t=46, b=12),
+        showlegend=False,
+        margin=dict(l=60, r=60, t=46, b=20),
     )
     fig.update_xaxes(showgrid=False, visible=False)
     fig.update_yaxes(showgrid=False, visible=False)

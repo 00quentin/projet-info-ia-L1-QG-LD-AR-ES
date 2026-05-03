@@ -25,14 +25,14 @@ from components.header import render_header_complet
 from components.sidebar import render_sidebar
 from components.footer import render_footer, render_toasts
 
-from pages.dashboard import render_page_dashboard
-from pages.portefeuille import render_page_portefeuille
-from pages.comparaison import render_page_comparaison
-from pages.backtest import render_page_backtest_dashboard, render_page_backtest_detail
-from pages.historique import render_page_historique
-from pages.academie import render_page_academie
-from pages.chat import render_page_chat
-from pages.apropos import render_page_apropos
+from views.dashboard import render_page_dashboard
+from views.portefeuille import render_page_portefeuille
+from views.comparaison import render_page_comparaison
+from views.backtest import render_page_backtest_dashboard, render_page_backtest_detail
+from views.historique import render_page_historique
+from views.academie import render_page_academie
+from views.chat import render_page_chat
+from views.apropos import render_page_apropos
 
 log = get_logger("app")
 
