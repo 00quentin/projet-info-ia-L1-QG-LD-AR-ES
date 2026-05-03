@@ -29,7 +29,8 @@ ACTIFS_PRO = {
 
 
 def simuler_marche_dynamique(chocs_ia, jours=100, modele="Probabiliste (Réaliste)",
-                              actifs=None, prix_reels=None, vols_reelles=None):
+                              actifs=None, prix_reels=None, vols_reelles=None,
+                              actifs_extras=None):
     impacts_brut = chocs_ia.get("actifs", {})
 
     # NORMALISATION : si l'IA renvoie en pourcentage au lieu de décimal,
@@ -48,13 +49,22 @@ def simuler_marche_dynamique(chocs_ia, jours=100, modele="Probabiliste (Réalist
         v = max(-0.95, min(5.0, v))
         impacts[actif] = v
 
+    # Catalogue de base + actifs personnalises injectes a la volee
+    catalogue = {k: v.copy() for k, v in ACTIFS_PRO.items()}
+    if actifs_extras:
+        for sim_key, params in actifs_extras.items():
+            catalogue[sim_key] = {
+                "prix":       float(params.get("prix", 100)),
+                "volatilite": float(params.get("volatilite", 0.015)),
+            }
+
     if actifs is not None:
-        actifs_a_simuler = {k: v.copy() for k, v in ACTIFS_PRO.items() if k in actifs}
+        actifs_a_simuler = {k: v.copy() for k, v in catalogue.items() if k in actifs}
     else:
-        actifs_a_simuler = {k: v.copy() for k, v in ACTIFS_PRO.items()}
+        actifs_a_simuler = {k: v.copy() for k, v in catalogue.items()}
 
     if not actifs_a_simuler:
-        actifs_a_simuler = {k: v.copy() for k, v in ACTIFS_PRO.items()}
+        actifs_a_simuler = {k: v.copy() for k, v in catalogue.items()}
 
     if prix_reels:
         for sim_key in actifs_a_simuler:
@@ -111,12 +121,14 @@ def simuler_marche_dynamique(chocs_ia, jours=100, modele="Probabiliste (Réalist
 
 
 def simuler_monte_carlo(chocs_ia, jours=100, modele="Probabiliste (Réaliste)",
-                         actifs=None, nb_simulations=50, prix_reels=None, vols_reelles=None):
+                         actifs=None, nb_simulations=50, prix_reels=None, vols_reelles=None,
+                         actifs_extras=None):
     toutes_simus = []
     for _ in range(nb_simulations):
         df = simuler_marche_dynamique(chocs_ia, jours=jours, modele=modele,
                                        actifs=actifs, prix_reels=prix_reels,
-                                       vols_reelles=vols_reelles)
+                                       vols_reelles=vols_reelles,
+                                       actifs_extras=actifs_extras)
         toutes_simus.append(df)
 
     stack = np.stack([df.values for df in toutes_simus], axis=-1)

@@ -23,6 +23,7 @@ from market_data import (
 from core.runner import lancer_simulation_scenario, lancer_backtest
 from core.portfolio import calculer_poids, construire_allocations_finales
 from core.history_store import ajouter_entree
+from core.custom_assets import SESSION_KEY as ACTIFS_PERSO_KEY, vers_actifs_extras
 from components.skeletons import render_skeleton_dashboard
 from components.notifications import notify_warn, notify_error
 
@@ -114,11 +115,21 @@ def handler_simulation(config: Dict[str, Any]) -> None:
     if not _valider_actifs_et_allocation(config):
         return
 
+    # Actifs personnalises ajoutes par l'utilisateur (deja calibres a l'ajout)
+    actifs_perso = st.session_state.get(ACTIFS_PERSO_KEY, {})
+    actifs_extras = vers_actifs_extras(actifs_perso) if actifs_perso else None
+
     prix_reels = vols_reelles = None
     if config["utiliser_prix_reels"]:
+        # Pour Yahoo, on ne demande que les actifs du catalogue standard ;
+        # les customs ont deja leur prix/vol calibres a l'ajout.
+        actifs_standards = [
+            a for a in config["actifs_selectionnes"]
+            if a not in (actifs_perso or {})
+        ]
         with st.spinner("Connexion à Yahoo Finance..."):
-            prix_reels, erreurs_yahoo = get_prix_actuels(config["actifs_selectionnes"])
-            vols_reelles = get_volatilites_historiques(config["actifs_selectionnes"])
+            prix_reels, erreurs_yahoo = get_prix_actuels(actifs_standards)
+            vols_reelles = get_volatilites_historiques(actifs_standards)
         if erreurs_yahoo:
             noms = ", ".join(NOM_AFFICHAGE.get(e, e) for e in erreurs_yahoo)
             notify_warn(f"Données Yahoo Finance indisponibles pour : {noms}.")
@@ -131,6 +142,7 @@ def handler_simulation(config: Dict[str, Any]) -> None:
                     scenario_txt, config["actifs_selectionnes"], config["duree"],
                     config["modele_simu"], config["mode_monte_carlo"],
                     prix_reels, vols_reelles, config["calibration_historique"],
+                    actifs_extras=actifs_extras,
                 )
                 if err:
                     notify_error(f"Scénario {label} : {err}")

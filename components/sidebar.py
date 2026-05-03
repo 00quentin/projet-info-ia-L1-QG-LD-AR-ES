@@ -15,6 +15,10 @@ from config import (
     CAPITAL_MIN, CAPITAL_MAX, CAPITAL_DEFAUT, CAPITAL_STEP,
     LABELS_SCENARIOS, NB_SCENARIOS_MAX,
 )
+from core.custom_assets import (
+    SESSION_KEY as ACTIFS_PERSO_KEY,
+    cle_simulation, valider_et_calibrer,
+)
 from components.notifications import notify_warn, notify_info
 
 
@@ -137,16 +141,68 @@ def _render_section_backtest() -> Dict[str, Any]:
     return options
 
 
+def _render_actif_perso_form() -> None:
+    """Formulaire pour ajouter un actif personnalise via ticker Yahoo Finance."""
+    actifs_perso = st.session_state.setdefault(ACTIFS_PERSO_KEY, {})
+
+    st.caption("Ajoutez n'importe quel actif coté via son ticker Yahoo Finance "
+               "(ex: TSLA, MSFT, BTC-USD).")
+
+    col_input, col_btn = st.columns([3, 1])
+    with col_input:
+        ticker = st.text_input("Ticker", key="custom_ticker_input",
+                                label_visibility="collapsed", placeholder="TSLA")
+    with col_btn:
+        ajouter = st.button("Ajouter", key="btn_add_custom", use_container_width=True)
+
+    if ajouter and ticker:
+        with st.spinner(f"Calibration de {ticker.upper()}..."):
+            info, err = valider_et_calibrer(ticker)
+        if err:
+            notify_warn(err)
+        else:
+            sim_key = cle_simulation(info["ticker"])
+            actifs_perso[sim_key] = info
+            st.session_state[f"chk_{sim_key}"] = True  # coche par defaut
+            notify_info(f"{info['nom']} ajouté (prix {info['prix']:.2f}, "
+                        f"vol {info['volatilite']:.2%}/jour).")
+            st.rerun()
+
+    if actifs_perso:
+        st.markdown('<div class="qt-sidebar-subhead">Mes actifs personnalisés</div>',
+                    unsafe_allow_html=True)
+        for sim_key, info in list(actifs_perso.items()):
+            col_chk, col_del = st.columns([5, 1])
+            with col_chk:
+                st.checkbox(
+                    f"{info['ticker']} — {info['nom'][:30]}",
+                    value=st.session_state.get(f"chk_{sim_key}", True),
+                    key=f"chk_{sim_key}",
+                )
+            with col_del:
+                if st.button("✕", key=f"del_{sim_key}",
+                             help=f"Supprimer {info['ticker']}"):
+                    actifs_perso.pop(sim_key, None)
+                    st.session_state.pop(f"chk_{sim_key}", None)
+                    st.rerun()
+
+
 def _render_selection_actifs() -> List[str]:
     """Cases à cocher des actifs à inclure (regroupées dans un accordéon parent)."""
     st.markdown("---")
 
+    actifs_perso = st.session_state.get(ACTIFS_PERSO_KEY, {})
+
     # Pré-comptage pour le badge dans le titre de l'expander
-    nb_total = sum(len(c) for c in ACTIFS_DISPONIBLES.values())
+    nb_total = sum(len(c) for c in ACTIFS_DISPONIBLES.values()) + len(actifs_perso)
     nb_coches = sum(
         1 for cat in ACTIFS_DISPONIBLES.values()
         for sim_key in cat.values()
         if st.session_state.get(f"chk_{sim_key}", sim_key in ACTIFS_PAR_DEFAUT)
+    )
+    nb_coches += sum(
+        1 for sim_key in actifs_perso
+        if st.session_state.get(f"chk_{sim_key}", True)
     )
 
     actifs_selectionnes = []
@@ -160,6 +216,13 @@ def _render_selection_actifs() -> List[str]:
                                 value=(sim_key in ACTIFS_PAR_DEFAUT),
                                 key=f"chk_{sim_key}"):
                     actifs_selectionnes.append(sim_key)
+
+        # Section actifs personnalises (toujours visible, meme vide)
+        st.markdown("---")
+        _render_actif_perso_form()
+        for sim_key in actifs_perso:
+            if st.session_state.get(f"chk_{sim_key}", True):
+                actifs_selectionnes.append(sim_key)
 
     if not actifs_selectionnes:
         notify_warn("Sélectionnez au moins un actif.")

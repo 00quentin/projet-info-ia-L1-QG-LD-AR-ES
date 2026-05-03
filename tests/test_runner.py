@@ -280,3 +280,49 @@ def test_backtest_detecte_actifs_indisponibles(df_histo):
 def test_backtest_indisponibles_vide_si_tout_present(df_histo):
     res = runner.lancer_backtest(df_histo, ["S&P 500", "Or"])
     assert res["actifs_indisponibles"] == []
+
+
+# === actifs_extras (custom assets) ========================================
+
+
+def test_simulation_propage_actifs_extras_au_simulateur(monkeypatch):
+    """Les actifs_extras passes a runner doivent atteindre simuler_marche_dynamique."""
+    extras_recus = {}
+
+    def fake_dyn(*a, **kw):
+        extras_recus.update(kw.get("actifs_extras") or {})
+        return pd.DataFrame({"PERSO_TSLA": [100.0, 110.0]})
+
+    monkeypatch.setattr(
+        runner, "analyser_evenement_macro",
+        lambda *a, **kw: {"actifs": {}}
+    )
+    monkeypatch.setattr(runner, "simuler_marche_dynamique", fake_dyn)
+
+    extras = {"PERSO_TSLA": {"prix": 250.0, "volatilite": 0.025}}
+    res, err = runner.lancer_simulation_scenario(
+        scenario="x", actifs_selectionnes=["PERSO_TSLA"], duree=2,
+        modele="GBM", monte_carlo=False, prix_reels=None, vols_reelles=None,
+        calibration_historique=False, actifs_extras=extras,
+    )
+
+    assert err is None
+    assert extras_recus == {"PERSO_TSLA": {"prix": 250.0, "volatilite": 0.025}}
+
+
+def test_simulation_libelle_strip_prefixe_perso(monkeypatch):
+    """Un sim_key PERSO_TSLA doit s'afficher 'TSLA' (sans prefixe)."""
+    df = pd.DataFrame({"PERSO_TSLA": [100.0, 110.0]})
+    monkeypatch.setattr(
+        runner, "analyser_evenement_macro",
+        lambda *a, **kw: {"actifs": {}}
+    )
+    monkeypatch.setattr(runner, "simuler_marche_dynamique", lambda *a, **kw: df)
+
+    res, _ = runner.lancer_simulation_scenario(
+        scenario="x", actifs_selectionnes=["PERSO_TSLA"], duree=2,
+        modele="GBM", monte_carlo=False, prix_reels=None, vols_reelles=None,
+        calibration_historique=False,
+    )
+
+    assert res["perf_df"]["Actif"].tolist() == ["TSLA"]

@@ -11,9 +11,20 @@ import pandas as pd
 from simulation import simuler_marche_dynamique, simuler_monte_carlo
 from ia_bot import analyser_evenement_macro
 from config import NOM_AFFICHAGE, NB_SIMULATIONS_MONTE_CARLO
+from core.custom_assets import PREFIXE_CUSTOM
 from logger import get_logger
 
 log = get_logger("runner")
+
+
+def _libelle_actif(sim_key: str) -> str:
+    """Convertit un sim_key en libelle d'affichage (gere les actifs custom)."""
+    if sim_key.startswith(PREFIXE_CUSTOM):
+        return sim_key[len(PREFIXE_CUSTOM):]  # PERSO_TSLA -> TSLA
+    return NOM_AFFICHAGE.get(
+        sim_key,
+        sim_key.replace("_", " ").replace("EUR USD", "EUR/USD")
+    )
 
 
 def lancer_simulation_scenario(
@@ -25,6 +36,7 @@ def lancer_simulation_scenario(
     prix_reels: Optional[Dict[str, float]],
     vols_reelles: Optional[Dict[str, float]],
     calibration_historique: bool,
+    actifs_extras: Optional[Dict[str, Dict[str, float]]] = None,
 ) -> Tuple[Optional[Dict], Optional[str]]:
     """
     Lance une simulation complète pour un scénario donné.
@@ -48,22 +60,22 @@ def lancer_simulation_scenario(
         mc_data = simuler_monte_carlo(
             chocs, jours=duree, modele=modele,
             actifs=actifs_selectionnes, nb_simulations=NB_SIMULATIONS_MONTE_CARLO,
-            prix_reels=prix_reels, vols_reelles=vols_reelles
+            prix_reels=prix_reels, vols_reelles=vols_reelles,
+            actifs_extras=actifs_extras,
         )
         df = mc_data["mediane"]
     else:
         df = simuler_marche_dynamique(
             chocs, jours=duree, modele=modele,
             actifs=actifs_selectionnes,
-            prix_reels=prix_reels, vols_reelles=vols_reelles
+            prix_reels=prix_reels, vols_reelles=vols_reelles,
+            actifs_extras=actifs_extras,
         )
 
     perf = ((df.iloc[-1] - df.iloc[0]) / df.iloc[0]) * 100
     perf_df = perf.reset_index()
     perf_df.columns = ['Actif', 'Performance (%)']
-    perf_df['Actif'] = perf_df['Actif'].apply(
-        lambda x: NOM_AFFICHAGE.get(x, x.replace("_", " ").replace("EUR USD", "EUR/USD"))
-    )
+    perf_df['Actif'] = perf_df['Actif'].apply(_libelle_actif)
     perf_df = perf_df.sort_values(by='Performance (%)', ascending=True)
 
     return {
@@ -92,9 +104,7 @@ def lancer_backtest(
     perf = ((df_histo.iloc[-1] - df_histo.iloc[0]) / df_histo.iloc[0]) * 100
     perf_df = perf.reset_index()
     perf_df.columns = ['Actif', 'Performance (%)']
-    perf_df['Actif'] = perf_df['Actif'].apply(
-        lambda x: NOM_AFFICHAGE.get(x, x.replace("_", " ").replace("EUR USD", "EUR/USD"))
-    )
+    perf_df['Actif'] = perf_df['Actif'].apply(_libelle_actif)
     perf_df = perf_df.sort_values(by='Performance (%)', ascending=True)
 
     return {
