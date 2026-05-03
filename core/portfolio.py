@@ -111,8 +111,25 @@ def calculer_valeur_portefeuille(
     if not actifs_presents:
         return pd.Series(capital, index=df.index, dtype=float)
 
-    # Normalisation Base 100, multiplication vectorisee par poids puis somme
-    sub = df[actifs_presents]
+    # ffill/bfill pour combler les trous de cotation (intra ou debut de periode)
+    sub = df[actifs_presents].ffill().bfill()
     base = sub.iloc[0]
-    poids_serie = pd.Series({sk: poids[sk] for sk in actifs_presents})
+
+    # Defensif : on ecarte les actifs dont le prix initial reste invalide
+    # (0 ou NaN apres ffill/bfill = aucune donnee dans toute la periode).
+    actifs_valides = [sk for sk in actifs_presents
+                       if pd.notna(base[sk]) and base[sk] > 0]
+    if not actifs_valides:
+        return pd.Series(capital, index=df.index, dtype=float)
+
+    sub = sub[actifs_valides]
+    base = sub.iloc[0]
+
+    # Renormalisation des poids sur les actifs encore valides pour que la
+    # somme reste a 1.0 (sinon le portefeuille serait mecaniquement < capital).
+    total_poids = sum(poids[sk] for sk in actifs_valides)
+    if total_poids <= 0:
+        return pd.Series(capital, index=df.index, dtype=float)
+    poids_serie = pd.Series({sk: poids[sk] / total_poids for sk in actifs_valides})
+
     return ((sub / base) * poids_serie * capital).sum(axis=1)

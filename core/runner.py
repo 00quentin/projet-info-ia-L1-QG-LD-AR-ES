@@ -77,7 +77,11 @@ def lancer_simulation_scenario(
             actifs_extras=actifs_extras,
         )
 
-    perf = ((df.iloc[-1] - df.iloc[0]) / df.iloc[0]) * 100
+    # Calcul de perf defensif : si iloc[0] = 0 ou NaN, fallback 0% au lieu
+    # de propager NaN dans l'UI ("+nan%").
+    base = df.iloc[0].replace(0, pd.NA)
+    perf = ((df.iloc[-1] - df.iloc[0]) / base) * 100
+    perf = perf.fillna(0.0).astype(float)
     perf_df = perf.reset_index()
     perf_df.columns = ['Actif', 'Performance (%)']
     perf_df['Actif'] = perf_df['Actif'].apply(_libelle_actif)
@@ -106,7 +110,12 @@ def lancer_backtest(
     if df_histo.empty:
         return None
 
-    perf = ((df_histo.iloc[-1] - df_histo.iloc[0]) / df_histo.iloc[0]) * 100
+    # Calcul de perf defensif : si iloc[0] = 0 ou NaN pour un actif, on
+    # remplace par 0 plutot que de propager des NaN qui s'affichent "+nan%".
+    base = df_histo.iloc[0].replace(0, pd.NA)
+    perf = ((df_histo.iloc[-1] - df_histo.iloc[0]) / base) * 100
+    perf = perf.fillna(0.0).astype(float)
+
     perf_df = perf.reset_index()
     perf_df.columns = ['Actif', 'Performance (%)']
     perf_df['Actif'] = perf_df['Actif'].apply(_libelle_actif)

@@ -103,7 +103,10 @@ def get_historique(actifs_keys, date_debut, date_fin):
         log.error("Aucune donnée historique récupérée")
         return df_global
 
-    df_global = df_global.ffill().dropna(how="all")
+    # ffill : trous de cotation au milieu de la periode (jours feries / suspension)
+    # bfill : trous au DEBUT (asset cote depuis moins longtemps que la fenetre demandee)
+    # Sans bfill, iloc[0] reste NaN et le calcul de perf produit "+nan%"
+    df_global = df_global.ffill().bfill().dropna(how="all")
     df_global = df_global.reset_index(drop=True)
     return df_global
 

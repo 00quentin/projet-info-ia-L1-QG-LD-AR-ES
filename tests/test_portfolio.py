@@ -146,16 +146,33 @@ def test_valeur_portefeuille_progression_correcte():
     assert math.isclose(serie.iloc[-1], 11500.0, abs_tol=1e-6)
 
 
-def test_valeur_portefeuille_actif_absent_ignore():
-    """Si poids contient un actif absent du df, il est ignore."""
+def test_valeur_portefeuille_actif_absent_renormalise():
+    """Si poids contient un actif absent du df, les poids restants sont
+    renormalises pour que le capital initial reste integralement investi
+    (sinon on aurait l'illusion d'une perte de 50% des l'ouverture)."""
     df = pd.DataFrame({"S&P 500": [100, 110]})
-    poids = {"S&P 500": 0.5, "Or": 0.5}  # Or absent
+    poids = {"S&P 500": 0.5, "Or": 0.5}  # Or absent du df
     serie = calculer_valeur_portefeuille(df, poids, 10000)
-    # Comportement attendu : on calcule sur les actifs presents seulement.
-    # Avec poids 0.5 sur S&P et 0.5 sur un actif absent, on accepte que
-    # le portefeuille progresse selon S&P seul mais avec un poids 0.5.
-    assert serie.iloc[0] == 5000.0  # 0.5 * 10000 (Or absent ne contribue pas)
-    assert serie.iloc[-1] == pytest.approx(5500.0, abs=1e-6)
+    # Or absent -> S&P prend 100% du capital apres renormalisation
+    assert serie.iloc[0] == pytest.approx(10000.0)
+    assert serie.iloc[-1] == pytest.approx(11000.0)
+
+
+def test_valeur_portefeuille_prix_initial_nul_actif_ecarte():
+    """Un actif au prix initial nul ou NaN est ecarte plutot que de propager
+    des inf/NaN dans la valeur du portefeuille (cause de '+nan%' a l'ecran)."""
+    import numpy as np
+    df = pd.DataFrame({
+        "S&P 500": [100.0, 110.0],
+        "TROU":    [0.0, 50.0],   # prix initial nul
+        "VIDE":    [np.nan, np.nan],  # aucune donnee
+    })
+    poids = {"S&P 500": 0.5, "TROU": 0.3, "VIDE": 0.2}
+    serie = calculer_valeur_portefeuille(df, poids, 10000)
+    # TROU et VIDE ecartes -> S&P prend 100% (renormalisation)
+    assert not serie.isna().any()
+    assert serie.iloc[0] == pytest.approx(10000.0)
+    assert serie.iloc[-1] == pytest.approx(11000.0)
 
 
 def test_valeur_portefeuille_aucun_actif_present():
