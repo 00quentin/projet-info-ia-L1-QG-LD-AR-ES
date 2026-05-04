@@ -89,98 +89,81 @@ def render_onboarding():
     if not st.session_state.show_onboarding:
         return
 
-    st.markdown("""
-    <div class="qt-onboarding">
-        <h3 style="margin-top:0;">👋 Bienvenue sur Quant Terminal !</h3>
-        <p style="margin-bottom:6px; color:var(--text-muted); font-size:0.97em;">
-            Quant Terminal est un <strong>simulateur d'investissement pédagogique</strong> :
-            vous décrivez un événement (krach, guerre, hausse des taux, révolution IA…),
-            et le terminal estime son impact sur votre portefeuille en utilisant les
-            <strong>vrais prix de marché</strong> récupérés en direct via Yahoo Finance.
-        </p>
-        <p style="margin-bottom:0; color:var(--text-muted); font-size:0.95em;">
-            <strong style="color:var(--primary);">⏱ Temps pour faire votre première simulation : ~2 minutes.</strong>
-            Suivez les 4 étapes ci-dessous.
-        </p>
-
-        <div class="qt-onboarding-steps">
-            <div class="qt-onboarding-step">
-                <div class="qt-onboarding-step-num">1</div>
-                <strong style="color:var(--primary);">Choisissez un scénario</strong>
-                <p style="font-size:0.88em; color:var(--text-muted); margin:8px 0 0 0;">
-                    Dans la <strong>sidebar à gauche</strong>, cliquez sur un scénario rapide
-                    (ex: "Krach 2008", "COVID 2020") ou écrivez le vôtre dans la zone de texte.
-                    Plus votre scénario est précis (pays, secteur, ampleur), plus l'IA sera pertinente.
-                </p>
-            </div>
-            <div class="qt-onboarding-step">
-                <div class="qt-onboarding-step-num">2</div>
-                <strong style="color:var(--primary);">Choisissez vos actifs</strong>
-                <p style="font-size:0.88em; color:var(--text-muted); margin:8px 0 0 0;">
-                    Ouvrez l'expander <em>"📊 Actifs à analyser"</em> et cochez les actifs
-                    à inclure (actions, obligations, or, pétrole, cryptos…).
-                    Vous pouvez aussi <strong>ajouter n'importe quel ticker Yahoo</strong>
-                    (TSLA, NVDA, BTC-USD…) dans la section "Mes actifs personnalisés".
-                </p>
-            </div>
-            <div class="qt-onboarding-step">
-                <div class="qt-onboarding-step-num">3</div>
-                <strong style="color:var(--primary);">Définissez votre portefeuille</strong>
-                <p style="font-size:0.88em; color:var(--text-muted); margin:8px 0 0 0;">
-                    Saisissez votre <strong>capital de départ (€)</strong> et choisissez un
-                    <strong>profil d'investisseur</strong> :<br>
-                    • <em>Prudent</em> = beaucoup d'obligations & or, peu d'actions<br>
-                    • <em>Équilibré</em> = mix classique 60/40<br>
-                    • <em>Agressif</em> = forte exposition actions & cryptos<br>
-                    • <em>Personnalisé</em> = vous fixez les % vous-même
-                </p>
-            </div>
-            <div class="qt-onboarding-step">
-                <div class="qt-onboarding-step-num">4</div>
-                <strong style="color:var(--primary);">Lancez & explorez les résultats</strong>
-                <p style="font-size:0.88em; color:var(--text-muted); margin:8px 0 0 0;">
-                    Cliquez sur <strong>"Lancer la simulation"</strong> en bas de la sidebar.
-                    Naviguez ensuite entre les onglets en haut :<br>
-                    • <em>Dashboard</em> = analyse IA + métriques de risque + graphiques<br>
-                    • <em>Portefeuille</em> = répartition & performance par actif<br>
-                    • <em>Historique</em> = retrouvez vos anciennes simulations<br>
-                    • <em>Académie</em> = explications des concepts (volatilité, Sharpe…)<br>
-                    • <em>Analyste IA</em> = chat libre avec l'IA financière
-                </p>
-            </div>
-        </div>
-
-        <div style="margin-top:22px; padding:14px 18px; background:var(--bg);
-                    border-radius:10px; border-left:4px solid var(--accent);">
-            <strong style="color:var(--primary); font-size:0.95em;">💡 Astuces pour bien démarrer</strong>
-            <ul style="margin:8px 0 0 0; padding-left:20px; font-size:0.88em; color:var(--text-muted); line-height:1.7;">
-                <li>Le bouton <strong>🔄 Recharger les prix Yahoo</strong> en haut de la sidebar
-                    force le rafraîchissement des prix réels (sinon cache de 1h).</li>
-                <li>Vous pouvez comparer jusqu'à <strong>3 scénarios côte à côte</strong>
-                    via le slider "Nombre de scénarios" en haut de la sidebar.</li>
-                <li>Cochez <em>"Mode Monte-Carlo"</em> dans les options avancées pour voir
-                    une <strong>fourchette de trajectoires</strong> (50 simulations).</li>
-                <li>Le mode <strong>Backtest historique</strong> rejoue les vraies données
-                    passées (2008, COVID…) pour voir comment votre portefeuille s'en serait sorti.</li>
-                <li>L'icône <strong>❓ Guide d'utilisation</strong> en haut à droite réaffiche
-                    ce panneau à tout moment.</li>
-                <li>Le <strong>mode sombre</strong> (bouton 🌙) est plus reposant pour les yeux
-                    en soirée.</li>
-            </ul>
-        </div>
-
-        <div style="margin-top:14px; padding:12px 16px; background:rgba(214,158,46,0.08);
-                    border-radius:10px; border-left:4px solid var(--warn);">
-            <span style="color:var(--warn); font-weight:700; font-size:0.92em;">⚠ Important</span>
-            <p style="margin:6px 0 0 0; font-size:0.86em; color:var(--text-muted); line-height:1.55;">
-                Quant Terminal est un <strong>outil pédagogique</strong>. Les résultats ne
-                constituent <strong>pas un conseil en investissement</strong>. L'IA estime des
-                ordres de grandeur en s'inspirant de crises historiques — la réalité peut
-                fortement diverger.
-            </p>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    html = (
+        '<div class="qt-onboarding">'
+        '<h3 style="margin-top:0;">👋 Bienvenue sur Quant Terminal !</h3>'
+        '<p style="margin-bottom:6px; color:var(--text-muted); font-size:0.97em;">'
+        'Quant Terminal est un <strong>simulateur d\'investissement pédagogique</strong> : '
+        'vous décrivez un événement (krach, guerre, hausse des taux, révolution IA…), '
+        'et le terminal estime son impact sur votre portefeuille en utilisant les '
+        '<strong>vrais prix de marché</strong> récupérés en direct via Yahoo Finance.'
+        '</p>'
+        '<p style="margin-bottom:0; color:var(--text-muted); font-size:0.95em;">'
+        '<strong style="color:var(--primary);">⏱ Temps pour faire votre première simulation : ~2 minutes.</strong> '
+        'Suivez les 4 étapes ci-dessous.'
+        '</p>'
+        '<div class="qt-onboarding-steps">'
+        '<div class="qt-onboarding-step">'
+        '<div class="qt-onboarding-step-num">1</div>'
+        '<strong style="color:var(--primary);">Choisissez un scénario</strong>'
+        '<p style="font-size:0.88em; color:var(--text-muted); margin:8px 0 0 0;">'
+        'Dans la <strong>sidebar à gauche</strong>, cliquez sur un scénario rapide '
+        '(ex: "Krach 2008", "COVID 2020") ou écrivez le vôtre dans la zone de texte. '
+        'Plus votre scénario est précis (pays, secteur, ampleur), plus l\'IA sera pertinente.'
+        '</p></div>'
+        '<div class="qt-onboarding-step">'
+        '<div class="qt-onboarding-step-num">2</div>'
+        '<strong style="color:var(--primary);">Choisissez vos actifs</strong>'
+        '<p style="font-size:0.88em; color:var(--text-muted); margin:8px 0 0 0;">'
+        'Ouvrez l\'expander <em>"📊 Actifs à analyser"</em> et cochez les actifs '
+        'à inclure (actions, obligations, or, pétrole, cryptos…). '
+        'Vous pouvez aussi <strong>ajouter n\'importe quel ticker Yahoo</strong> '
+        '(TSLA, NVDA, BTC-USD…) dans la section "Mes actifs personnalisés".'
+        '</p></div>'
+        '<div class="qt-onboarding-step">'
+        '<div class="qt-onboarding-step-num">3</div>'
+        '<strong style="color:var(--primary);">Définissez votre portefeuille</strong>'
+        '<p style="font-size:0.88em; color:var(--text-muted); margin:8px 0 0 0;">'
+        'Saisissez votre <strong>capital de départ (€)</strong> et choisissez un '
+        '<strong>profil d\'investisseur</strong> :<br>'
+        '• <em>Prudent</em> = beaucoup d\'obligations & or, peu d\'actions<br>'
+        '• <em>Équilibré</em> = mix classique 60/40<br>'
+        '• <em>Agressif</em> = forte exposition actions & cryptos<br>'
+        '• <em>Personnalisé</em> = vous fixez les % vous-même'
+        '</p></div>'
+        '<div class="qt-onboarding-step">'
+        '<div class="qt-onboarding-step-num">4</div>'
+        '<strong style="color:var(--primary);">Lancez &amp; explorez les résultats</strong>'
+        '<p style="font-size:0.88em; color:var(--text-muted); margin:8px 0 0 0;">'
+        'Cliquez sur <strong>"Lancer la simulation"</strong> en bas de la sidebar. '
+        'Naviguez ensuite entre les onglets en haut :<br>'
+        '• <em>Dashboard</em> = analyse IA + métriques de risque + graphiques<br>'
+        '• <em>Portefeuille</em> = répartition &amp; performance par actif<br>'
+        '• <em>Historique</em> = retrouvez vos anciennes simulations<br>'
+        '• <em>Académie</em> = explications des concepts (volatilité, Sharpe…)<br>'
+        '• <em>Analyste IA</em> = chat libre avec l\'IA financière'
+        '</p></div>'
+        '</div>'
+        '<div style="margin-top:22px; padding:14px 18px; background:var(--bg); border-radius:10px; border-left:4px solid var(--accent);">'
+        '<strong style="color:var(--primary); font-size:0.95em;">💡 Astuces pour bien démarrer</strong>'
+        '<ul style="margin:8px 0 0 0; padding-left:20px; font-size:0.88em; color:var(--text-muted); line-height:1.7;">'
+        '<li>Le bouton <strong>🔄 Recharger les prix Yahoo</strong> en haut de la sidebar force le rafraîchissement des prix réels (sinon cache de 1h).</li>'
+        '<li>Vous pouvez comparer jusqu\'à <strong>3 scénarios côte à côte</strong> via le slider "Nombre de scénarios" en haut de la sidebar.</li>'
+        '<li>Cochez <em>"Mode Monte-Carlo"</em> dans les options avancées pour voir une <strong>fourchette de trajectoires</strong> (50 simulations).</li>'
+        '<li>Le mode <strong>Backtest historique</strong> rejoue les vraies données passées (2008, COVID…) pour voir comment votre portefeuille s\'en serait sorti.</li>'
+        '<li>L\'icône <strong>❓ Guide d\'utilisation</strong> en haut à droite réaffiche ce panneau à tout moment.</li>'
+        '<li>Le <strong>mode sombre</strong> (bouton 🌙) est plus reposant pour les yeux en soirée.</li>'
+        '</ul></div>'
+        '<div style="margin-top:14px; padding:12px 16px; background:rgba(214,158,46,0.08); border-radius:10px; border-left:4px solid var(--warn);">'
+        '<span style="color:var(--warn); font-weight:700; font-size:0.92em;">⚠ Important</span>'
+        '<p style="margin:6px 0 0 0; font-size:0.86em; color:var(--text-muted); line-height:1.55;">'
+        'Quant Terminal est un <strong>outil pédagogique</strong>. Les résultats ne '
+        'constituent <strong>pas un conseil en investissement</strong>. L\'IA estime des '
+        'ordres de grandeur en s\'inspirant de crises historiques — la réalité peut fortement diverger.'
+        '</p></div>'
+        '</div>'
+    )
+    st.markdown(html, unsafe_allow_html=True)
     st.button(
         "✓ J'ai compris, masquer ce guide",
         key="hide_onboarding",
