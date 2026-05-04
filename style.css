@@ -280,58 +280,75 @@ div[data-testid="metric-container"]:hover {
 .stTabs [aria-selected="true"] { background-color: var(--primary) !important; color: white !important; }
 .stTabs [aria-selected="true"] p { color: white !important; }
 
-/* Boutons */
-.stButton > button {
-    border-radius: 10px;
-    font-weight: 500;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+/* ============ BOUTONS (override Streamlit) ============
+   Streamlit applique des styles inline tres specifiques via data-testid
+   et data-baseweb. On utilise des selecteurs encore plus specifiques
+   avec !important pour gagner la guerre de specificite. */
+.stApp .stButton button,
+.stApp [data-testid^="stBaseButton"],
+.stApp button[data-testid^="baseButton-"],
+.stApp .stButton button[kind="secondary"],
+.stApp .stButton button[kind="tertiary"],
+.stApp .stButton button:not([kind="primary"]) {
+    border-radius: 10px !important;
+    font-weight: 500 !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
     border: 1px solid var(--border-strong) !important;
     font-family: 'Inter', sans-serif !important;
     background-color: var(--card) !important;
     color: var(--text) !important;
 }
-.stButton > button p,
-.stButton > button span,
-.stButton > button div {
+.stApp .stButton button p,
+.stApp .stButton button span,
+.stApp .stButton button div,
+.stApp .stButton button strong,
+.stApp .stButton button[kind="secondary"] p,
+.stApp .stButton button[kind="secondary"] span,
+.stApp .stButton button[kind="secondary"] div {
     color: var(--text) !important;
 }
-.stButton > button:hover {
+.stApp .stButton button:hover:not([kind="primary"]),
+.stApp .stButton button:not([kind="primary"]):hover {
     background-color: var(--bg) !important;
     border-color: var(--accent) !important;
     color: var(--primary) !important;
 }
-.stButton > button:hover p,
-.stButton > button:hover span,
-.stButton > button:hover div {
+.stApp .stButton button:hover:not([kind="primary"]) p,
+.stApp .stButton button:hover:not([kind="primary"]) span,
+.stApp .stButton button:hover:not([kind="primary"]) div,
+.stApp .stButton button:hover:not([kind="primary"]) strong {
     color: var(--primary) !important;
 }
-.stButton > button[kind="primary"] {
+
+/* Boutons primary : gradient + texte BLANC en permanence (hover inclus) */
+.stApp .stButton button[kind="primary"] {
     background: linear-gradient(135deg, var(--primary), var(--secondary)) !important;
     border: none !important;
     color: #ffffff !important;
     box-shadow: 0 4px 12px rgba(26,54,93,0.2);
+    border-radius: 10px !important;
+    font-weight: 500 !important;
+    font-family: 'Inter', sans-serif !important;
 }
-.stButton > button[kind="primary"] p,
-.stButton > button[kind="primary"] span,
-.stButton > button[kind="primary"] div {
+.stApp .stButton button[kind="primary"] p,
+.stApp .stButton button[kind="primary"] span,
+.stApp .stButton button[kind="primary"] div,
+.stApp .stButton button[kind="primary"] strong {
     color: #ffffff !important;
 }
-.stButton > button[kind="primary"]:hover {
+.stApp .stButton button[kind="primary"]:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(26,54,93,0.35);
     color: #ffffff !important;
+    background: linear-gradient(135deg, var(--primary), var(--secondary)) !important;
 }
-.stButton > button[kind="primary"]:hover p,
-.stButton > button[kind="primary"]:hover span,
-.stButton > button[kind="primary"]:hover div {
+.stApp .stButton button[kind="primary"]:hover p,
+.stApp .stButton button[kind="primary"]:hover span,
+.stApp .stButton button[kind="primary"]:hover div,
+.stApp .stButton button[kind="primary"]:hover strong {
     color: #ffffff !important;
 }
-.stButton > button[kind="primary"]:active { transform: translateY(0); }
-/* Bouton secondaire Streamlit (kind="secondary") : meme style que default */
-.stButton > button[kind="secondary"] {
-    background-color: var(--card) !important;
-    color: var(--text) !important;
-}
+.stApp .stButton button[kind="primary"]:active { transform: translateY(0); }
 
 /* Expanders */
 .streamlit-expanderHeader, [data-testid="stExpander"] summary {
