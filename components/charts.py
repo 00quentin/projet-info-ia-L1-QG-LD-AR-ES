@@ -201,7 +201,6 @@ def fig_heatmap_performance(perf_df: pd.DataFrame, titre: str = "Performance par
     """Crée le graphique horizontal de performance par actif (couleurs nettes)."""
     c = get_theme_colors()
     # Couleur par signe : vert sature pour gains, rouge sature pour pertes.
-    # On evite le degrade qui blanchissait les petites valeurs (illisible sur fond clair).
     couleurs = [
         "#2f855a" if v >= 0 else "#c53030"
         for v in perf_df["Performance (%)"]
@@ -210,29 +209,41 @@ def fig_heatmap_performance(perf_df: pd.DataFrame, titre: str = "Performance par
         x=perf_df["Performance (%)"],
         y=perf_df["Actif"],
         orientation='h',
-        text=perf_df["Performance (%)"],
-        texttemplate='%{text:+.2f}%',
-        textposition='auto',  # plotly choisit inside/outside selon la taille de la barre
-        insidetextanchor='middle',
         cliponaxis=False,
         marker=dict(
             color=couleurs,
             line=dict(color=c["pie_border"], width=1),
         ),
-        textfont=dict(color=c["text_strong"], size=12, family="Inter, sans-serif"),
-        insidetextfont=dict(color="#ffffff", size=12, family="Inter, sans-serif"),
-        outsidetextfont=dict(color=c["text_strong"], size=12, family="Inter, sans-serif"),
         hovertemplate="<b>%{y}</b><br>Performance : %{x:+.2f}%<extra></extra>",
     ))
     fig.update_layout(title=dict(text=titre))
 
-    # Ajoute une marge sur l'axe X pour que les labels "outside" ne sortent pas du cadre
+    # Annotations placees a x=0 (axe central), avec offset selon le signe.
+    # Pour les barres positives : texte a droite de 0, dans la zone verte.
+    # Pour les barres negatives : texte a gauche de 0, dans la zone rouge.
+    # Comme ca on ne chevauche jamais les labels de l'axe Y.
+    for actif, val in zip(perf_df["Actif"], perf_df["Performance (%)"]):
+        positive = val >= 0
+        fig.add_annotation(
+            x=0, y=actif,
+            text=f"{val:+.2f}%",
+            showarrow=False,
+            xanchor="left" if positive else "right",
+            xshift=6 if positive else -6,
+            font=dict(
+                color=c["text_strong"],
+                size=12,
+                family="Inter, sans-serif",
+            ),
+        )
+
+    # Marge sur l'axe X pour que les annotations ne soient pas coupees
     if len(perf_df) > 0:
         vmin = float(perf_df["Performance (%)"].min())
         vmax = float(perf_df["Performance (%)"].max())
         amplitude = max(abs(vmin), abs(vmax), 1.0)
-        marge = amplitude * 0.18
-        fig.update_xaxes(range=[vmin - marge, vmax + marge])
+        marge = amplitude * 0.12
+        fig.update_xaxes(range=[min(0, vmin) - marge, max(0, vmax) + marge])
 
     apply_qt_theme(
         fig,
