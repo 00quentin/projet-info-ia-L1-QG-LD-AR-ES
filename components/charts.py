@@ -198,29 +198,51 @@ def construire_graphiques_par_categorie(
 
 
 def fig_heatmap_performance(perf_df: pd.DataFrame, titre: str = "Performance par actif") -> go.Figure:
-    """Crée la heatmap horizontale (barres colorées) de performance par actif."""
+    """Crée le graphique horizontal de performance par actif (couleurs nettes)."""
     c = get_theme_colors()
-    # En mode sombre, la couleur "neutre" du milieu doit etre sombre, pas blanche
-    couleur_neutre = "#2d3748" if _is_dark() else "#f7fafc"
-    fig = px.bar(
-        perf_df, x='Performance (%)', y='Actif', orientation='h',
-        color='Performance (%)',
-        color_continuous_scale=['#c53030', couleur_neutre, '#2f855a'],
-        color_continuous_midpoint=0,
-        text='Performance (%)', title=titre,
-    )
-    fig.update_traces(
-        texttemplate='%{text:.2f}%', textposition='outside',
+    # Couleur par signe : vert sature pour gains, rouge sature pour pertes.
+    # On evite le degrade qui blanchissait les petites valeurs (illisible sur fond clair).
+    couleurs = [
+        "#2f855a" if v >= 0 else "#c53030"
+        for v in perf_df["Performance (%)"]
+    ]
+    fig = go.Figure(go.Bar(
+        x=perf_df["Performance (%)"],
+        y=perf_df["Actif"],
+        orientation='h',
+        text=perf_df["Performance (%)"],
+        texttemplate='%{text:+.2f}%',
+        textposition='auto',  # plotly choisit inside/outside selon la taille de la barre
+        insidetextanchor='middle',
         cliponaxis=False,
+        marker=dict(
+            color=couleurs,
+            line=dict(color=c["pie_border"], width=1),
+        ),
         textfont=dict(color=c["text_strong"], size=12, family="Inter, sans-serif"),
-        hovertemplate="<b>%{y}</b><br>Performance : %{x:.2f}%<extra></extra>",
-    )
+        insidetextfont=dict(color="#ffffff", size=12, family="Inter, sans-serif"),
+        outsidetextfont=dict(color=c["text_strong"], size=12, family="Inter, sans-serif"),
+        hovertemplate="<b>%{y}</b><br>Performance : %{x:+.2f}%<extra></extra>",
+    ))
+    fig.update_layout(title=dict(text=titre))
+
+    # Ajoute une marge sur l'axe X pour que les labels "outside" ne sortent pas du cadre
+    if len(perf_df) > 0:
+        vmin = float(perf_df["Performance (%)"].min())
+        vmax = float(perf_df["Performance (%)"].max())
+        amplitude = max(abs(vmin), abs(vmax), 1.0)
+        marge = amplitude * 0.18
+        fig.update_xaxes(range=[vmin - marge, vmax + marge])
+
     apply_qt_theme(
         fig,
-        height=max(350, 30 * len(perf_df) + 80),
+        height=max(380, 36 * len(perf_df) + 100),
         show_legend=False,
+        legend_bottom=False,
     )
-    fig.update_layout(coloraxis_showscale=False)
+    # Ligne verticale a 0 pour la lisibilite
+    fig.add_vline(x=0, line_color=c["axis"], line_width=1)
+    fig.update_layout(coloraxis_showscale=False, bargap=0.32)
     return fig
 
 
