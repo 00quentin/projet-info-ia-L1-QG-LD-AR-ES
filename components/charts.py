@@ -8,6 +8,7 @@ from typing import Dict, List, Optional
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import streamlit as st
 
 from config import CATEGORIES_GRAPHIQUES, NOM_AFFICHAGE, HAUTEUR_GRAPHIQUE
 
@@ -25,10 +26,51 @@ QT_PALETTE = [
     "#2c5282",  # blue-600
     "#4a5568",  # gray-600
 ]
-QT_GRID    = "rgba(160,174,192,0.18)"   # gray-400 @ 18% — discret
-QT_AXIS    = "#a0aec0"                   # gray-400
-QT_TEXT    = "#2d3748"                   # gray-700
-QT_TITLE   = "#1a365d"                   # blue-700
+
+
+def _is_dark() -> bool:
+    """Retourne True si le mode sombre est actif (defaut False)."""
+    try:
+        return bool(st.session_state.get("dark_mode", False))
+    except Exception:
+        return False
+
+
+def get_theme_colors() -> dict:
+    """
+    Retourne un dict de couleurs adapte au mode (clair/sombre) en cours.
+    A utiliser dans les fonctions de chart pour que tout texte/axe reste lisible.
+    """
+    if _is_dark():
+        return {
+            "text":         "#e2e8f0",  # gray-200 — bien lisible sur fond sombre
+            "text_strong":  "#f7fafc",  # gray-50
+            "title":        "#90cdf4",  # blue-200 — primary clair
+            "axis":         "#cbd5e0",  # gray-300
+            "grid":         "rgba(226,232,240,0.14)",
+            "annot":        "#a0aec0",
+            "hover_bg":     "rgba(26,32,44,0.96)",   # gray-800
+            "hover_border": "#4fd1c5",                # teal-300
+            "pie_border":   "#1a202c",                # gray-800
+        }
+    return {
+        "text":         "#2d3748",
+        "text_strong":  "#171923",
+        "title":        "#1a365d",
+        "axis":         "#a0aec0",
+        "grid":         "rgba(160,174,192,0.18)",
+        "annot":        "#718096",
+        "hover_bg":     "rgba(255,255,255,0.96)",
+        "hover_border": "#319795",
+        "pie_border":   "#ffffff",
+    }
+
+
+# Aliases retro-compat (ne plus utiliser pour les nouveaux charts)
+QT_GRID    = "rgba(160,174,192,0.18)"
+QT_AXIS    = "#a0aec0"
+QT_TEXT    = "#2d3748"
+QT_TITLE   = "#1a365d"
 QT_HOVER_BG     = "rgba(255,255,255,0.96)"
 QT_HOVER_BORDER = "#319795"
 
@@ -43,23 +85,27 @@ def apply_qt_theme(
     """
     Applique le thème Quant Terminal à une figure Plotly :
     police Inter, axes/grille discrets, hover unifié, marges cohérentes.
+    Couleurs adaptees au mode (clair/sombre) en cours.
 
     À appeler en fin de construction de figure, après update_layout local.
     """
+    c = get_theme_colors()
     fig.update_layout(
-        template="plotly_white",
+        template="plotly_white" if not _is_dark() else "plotly_dark",
         font=dict(family="Inter, -apple-system, sans-serif",
-                  color=QT_TEXT, size=12),
+                  color=c["text"], size=12),
         title_font=dict(family="Inter, sans-serif",
-                        color=QT_TITLE, size=15),
+                        color=c["title"], size=15),
+        legend_font=dict(color=c["text"], size=11),
         colorway=QT_PALETTE,
         plot_bgcolor="rgba(0,0,0,0)",
         paper_bgcolor="rgba(0,0,0,0)",
-        margin=dict(l=12, r=12, t=46, b=70 if legend_bottom else 40),
+        # Marge basse plus large pour eviter que le titre x se chevauche avec la legende
+        margin=dict(l=12, r=12, t=46, b=110 if legend_bottom else 50),
         hoverlabel=dict(
-            bgcolor=QT_HOVER_BG,
-            bordercolor=QT_HOVER_BORDER,
-            font=dict(family="Inter, sans-serif", color=QT_TEXT, size=12),
+            bgcolor=c["hover_bg"],
+            bordercolor=c["hover_border"],
+            font=dict(family="Inter, sans-serif", color=c["text"], size=12),
         ),
         hovermode="x unified",
         showlegend=show_legend,
@@ -68,22 +114,28 @@ def apply_qt_theme(
         fig.update_layout(height=height)
     if show_legend and legend_bottom:
         fig.update_layout(legend=dict(
-            orientation="h", yanchor="top", y=-0.18,
+            orientation="h", yanchor="top", y=-0.32,
             xanchor="center", x=0.5,
             bgcolor="rgba(0,0,0,0)", borderwidth=0,
-            font=dict(size=11),
+            font=dict(size=11, color=c["text"]),
         ))
     fig.update_xaxes(
-        showgrid=True, gridcolor=QT_GRID, gridwidth=1,
-        zeroline=False, linecolor=QT_AXIS, linewidth=1,
-        ticks="outside", tickcolor=QT_AXIS, tickfont=dict(size=11),
-        title_font=dict(size=12, color=QT_TEXT),
+        showgrid=True, gridcolor=c["grid"], gridwidth=1,
+        zeroline=False, linecolor=c["axis"], linewidth=1,
+        ticks="outside", tickcolor=c["axis"],
+        tickfont=dict(size=11, color=c["text"]),
+        title_font=dict(size=12, color=c["text"]),
+        title_standoff=18,
+        automargin=True,
     )
     fig.update_yaxes(
-        showgrid=True, gridcolor=QT_GRID, gridwidth=1,
-        zeroline=False, linecolor=QT_AXIS, linewidth=1,
-        ticks="outside", tickcolor=QT_AXIS, tickfont=dict(size=11),
-        title_font=dict(size=12, color=QT_TEXT),
+        showgrid=True, gridcolor=c["grid"], gridwidth=1,
+        zeroline=False, linecolor=c["axis"], linewidth=1,
+        ticks="outside", tickcolor=c["axis"],
+        tickfont=dict(size=11, color=c["text"]),
+        title_font=dict(size=12, color=c["text"]),
+        title_standoff=14,
+        automargin=True,
     )
     return fig
 
@@ -147,17 +199,20 @@ def construire_graphiques_par_categorie(
 
 def fig_heatmap_performance(perf_df: pd.DataFrame, titre: str = "Performance par actif") -> go.Figure:
     """Crée la heatmap horizontale (barres colorées) de performance par actif."""
+    c = get_theme_colors()
+    # En mode sombre, la couleur "neutre" du milieu doit etre sombre, pas blanche
+    couleur_neutre = "#2d3748" if _is_dark() else "#f7fafc"
     fig = px.bar(
         perf_df, x='Performance (%)', y='Actif', orientation='h',
         color='Performance (%)',
-        # rouge -> blanc -> vert (danger / neutre / success)
-        color_continuous_scale=['#c53030', '#f7fafc', '#2f855a'],
+        color_continuous_scale=['#c53030', couleur_neutre, '#2f855a'],
         color_continuous_midpoint=0,
         text='Performance (%)', title=titre,
     )
     fig.update_traces(
         texttemplate='%{text:.2f}%', textposition='outside',
         cliponaxis=False,
+        textfont=dict(color=c["text_strong"], size=12, family="Inter, sans-serif"),
         hovertemplate="<b>%{y}</b><br>Performance : %{x:.2f}%<extra></extra>",
     )
     apply_qt_theme(
@@ -192,17 +247,18 @@ def fig_evolution_portefeuille(
             line=dict(color=QT_PALETTE[1], width=2, dash="dash"),
             hovertemplate=f"<b>{titre_benchmark}</b><br>%{{y:,.0f}} €<extra></extra>",
         ))
+    c = get_theme_colors()
     fig.add_hline(
-        y=capital, line_dash="dot", line_color="#a0aec0", line_width=1,
+        y=capital, line_dash="dot", line_color=c["axis"], line_width=1,
         annotation_text=f"Capital initial : {capital:,.0f} €",
         annotation_position="bottom right",
-        annotation_font=dict(size=11, color="#718096"),
+        annotation_font=dict(size=11, color=c["annot"]),
     )
     fig.update_layout(
         xaxis_title="Jours de cotation",
         yaxis_title="Valeur (€)",
     )
-    return apply_qt_theme(fig, height=420)
+    return apply_qt_theme(fig, height=440)
 
 
 def html_metriques_jauges(metriques: Dict[str, float]) -> str:
@@ -273,6 +329,7 @@ def html_metriques_jauges(metriques: Dict[str, float]) -> str:
 
 def fig_camembert_repartition(poids: Dict[str, float]) -> go.Figure:
     """Camembert (donut) de la répartition du portefeuille."""
+    c = get_theme_colors()
     pie_df = pd.DataFrame({
         "Actif": [NOM_AFFICHAGE.get(k, k) for k in poids.keys()],
         "Poids": [v * 100 for v in poids.values()]
@@ -285,15 +342,17 @@ def fig_camembert_repartition(poids: Dict[str, float]) -> go.Figure:
     fig.update_traces(
         textposition="outside",
         textinfo="label+percent",
-        textfont=dict(family="Inter, sans-serif", size=11),
-        marker=dict(line=dict(color="#ffffff", width=2)),
+        textfont=dict(family="Inter, sans-serif", size=12, color=c["text_strong"]),
+        outsidetextfont=dict(family="Inter, sans-serif", size=12, color=c["text_strong"]),
+        insidetextfont=dict(family="Inter, sans-serif", size=12, color="#ffffff"),
+        marker=dict(line=dict(color=c["pie_border"], width=2)),
         hovertemplate="<b>%{label}</b><br>%{percent}<extra></extra>",
         automargin=True,
     )
-    apply_qt_theme(fig, height=420, legend_bottom=False)
+    apply_qt_theme(fig, height=460, legend_bottom=False)
     fig.update_layout(
         showlegend=False,
-        margin=dict(l=60, r=60, t=46, b=20),
+        margin=dict(l=80, r=80, t=46, b=30),
     )
     fig.update_xaxes(showgrid=False, visible=False)
     fig.update_yaxes(showgrid=False, visible=False)

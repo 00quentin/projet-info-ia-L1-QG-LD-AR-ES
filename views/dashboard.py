@@ -8,7 +8,7 @@ from datetime import datetime
 import pandas as pd
 import streamlit as st
 
-from config import NOM_AFFICHAGE, COULEUR_PRIMAIRE, LABELS_SCENARIOS
+from config import NOM_AFFICHAGE, LABELS_SCENARIOS
 from core.metrics import calculer_metriques_risque
 from core.portfolio import calculer_poids, construire_allocations_finales, calculer_valeur_portefeuille
 from core.export_csv import generer_csv_simulation
@@ -51,7 +51,7 @@ def afficher_dashboard(res, params, key_prefix="main"):
     explication = chocs.get('explication_courte', 'Analyse non disponible.')
     st.markdown(
         f'<div class="qt-callout" style="margin-top:18px; line-height:1.6;">'
-        f'<strong style="color:{COULEUR_PRIMAIRE}; font-size:1.05em;">📊 Analyse de l\'IA</strong><br><br>'
+        f'<strong style="color:var(--primary); font-size:1.05em;">📊 Analyse de l\'IA</strong><br><br>'
         f'<span style="font-size:0.97em;">{explication}</span>'
         f'</div>',
         unsafe_allow_html=True

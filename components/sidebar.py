@@ -28,29 +28,6 @@ def _set_event_A(t: str):
 
 def _render_bouton_recharger():
     """Bouton 🔄 pour vider le cache Yahoo Finance."""
-    st.markdown(
-        '<style>'
-        '[data-testid="stSidebar"] .stButton > button:not([kind="primary"]) {'
-        '    background-color: #ebf8ff !important;'
-        '    color: #1a365d !important;'
-        '    border: 1px solid #319795 !important;'
-        '    font-weight: 600 !important;'
-        '}'
-        '[data-testid="stSidebar"] .stButton > button:not([kind="primary"]):hover {'
-        '    background-color: #319795 !important;'
-        '    color: white !important;'
-        '    border-color: #319795 !important;'
-        '}'
-        '[data-testid="stSidebar"] .stButton > button:not([kind="primary"]) p {'
-        '    color: #1a365d !important;'
-        '    font-weight: 600 !important;'
-        '}'
-        '[data-testid="stSidebar"] .stButton > button:not([kind="primary"]):hover p {'
-        '    color: white !important;'
-        '}'
-        '</style>',
-        unsafe_allow_html=True
-    )
     if st.button("🔄 Recharger les prix Yahoo", use_container_width=True,
                  help="Force un rafraîchissement des prix de marché (cache 1h sinon)."):
         get_prix_actuels.clear()
@@ -141,6 +118,11 @@ def _render_section_backtest() -> Dict[str, Any]:
     return options
 
 
+def _mark_actifs_expander_open():
+    """Callback : garde l'expander 'Actifs a analyser' ouvert apres un clic."""
+    st.session_state.actifs_expander_open = True
+
+
 def _render_actif_perso_form() -> None:
     """Formulaire pour ajouter un actif personnalise via ticker Yahoo Finance."""
     actifs_perso = st.session_state.setdefault(ACTIFS_PERSO_KEY, {})
@@ -153,7 +135,8 @@ def _render_actif_perso_form() -> None:
         ticker = st.text_input("Ticker", key="custom_ticker_input",
                                 label_visibility="collapsed", placeholder="TSLA")
     with col_btn:
-        ajouter = st.button("Ajouter", key="btn_add_custom", use_container_width=True)
+        ajouter = st.button("Ajouter", key="btn_add_custom", use_container_width=True,
+                            on_click=_mark_actifs_expander_open)
 
     if ajouter and ticker:
         with st.spinner(f"Calibration de {ticker.upper()}..."):
@@ -164,6 +147,7 @@ def _render_actif_perso_form() -> None:
             sim_key = cle_simulation(info["ticker"])
             actifs_perso[sim_key] = info
             st.session_state[f"chk_{sim_key}"] = True  # coche par defaut
+            st.session_state.actifs_expander_open = True
             notify_info(f"{info['nom']} ajouté (prix {info['prix']:.2f}, "
                         f"vol {info['volatilite']:.2%}/jour).")
             st.rerun()
@@ -178,10 +162,12 @@ def _render_actif_perso_form() -> None:
                     f"{info['ticker']} — {info['nom'][:30]}",
                     value=st.session_state.get(f"chk_{sim_key}", True),
                     key=f"chk_{sim_key}",
+                    on_change=_mark_actifs_expander_open,
                 )
             with col_del:
                 if st.button("✕", key=f"del_{sim_key}",
-                             help=f"Supprimer {info['ticker']}"):
+                             help=f"Supprimer {info['ticker']}",
+                             on_click=_mark_actifs_expander_open):
                     actifs_perso.pop(sim_key, None)
                     st.session_state.pop(f"chk_{sim_key}", None)
                     st.rerun()
@@ -206,7 +192,8 @@ def _render_selection_actifs() -> List[str]:
     )
 
     actifs_selectionnes = []
-    with st.expander(f"📊 Actifs à analyser  ·  {nb_coches}/{nb_total}", expanded=False):
+    expanded = st.session_state.get("actifs_expander_open", False)
+    with st.expander(f"📊 Actifs à analyser  ·  {nb_coches}/{nb_total}", expanded=expanded):
         st.caption("Cochez les actifs à inclure.")
         for categorie, actifs_cat in ACTIFS_DISPONIBLES.items():
             st.markdown(f'<div class="qt-sidebar-subhead">{categorie}</div>',
@@ -214,7 +201,8 @@ def _render_selection_actifs() -> List[str]:
             for nom_affiche, sim_key in actifs_cat.items():
                 if st.checkbox(nom_affiche,
                                 value=(sim_key in ACTIFS_PAR_DEFAUT),
-                                key=f"chk_{sim_key}"):
+                                key=f"chk_{sim_key}",
+                                on_change=_mark_actifs_expander_open):
                     actifs_selectionnes.append(sim_key)
 
         # Section actifs personnalises (toujours visible, meme vide)

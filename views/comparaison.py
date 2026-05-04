@@ -19,7 +19,7 @@ from core.metrics import calculer_metriques_risque
 from core.portfolio import calculer_poids, calculer_valeur_portefeuille
 from core.export_csv import generer_csv_comparaison
 from components.empty_states import render_empty_comparaison
-from components.charts import apply_qt_theme, QT_PALETTE
+from components.charts import apply_qt_theme, QT_PALETTE, get_theme_colors
 
 
 def _libelle_classement(idx: int) -> str:
@@ -95,15 +95,16 @@ def render_page_comparaison():
                        shape="spline", smoothing=0.5),
             hovertemplate=f"<b>Scénario {label}</b><br>%{{y:,.0f}} €<extra></extra>",
         ))
+    c_th = get_theme_colors()
     fig.add_hline(
-        y=cap, line_dash="dot", line_color="#a0aec0", line_width=1,
+        y=cap, line_dash="dot", line_color=c_th["axis"], line_width=1,
         annotation_text=f"Capital initial : {cap:,.0f} €",
         annotation_position="bottom right",
-        annotation_font=dict(size=11, color="#718096"),
+        annotation_font=dict(size=11, color=c_th["annot"]),
     )
     fig.update_layout(xaxis_title="Jours de cotation",
                       yaxis_title="Valeur du portefeuille (€)")
-    apply_qt_theme(fig, height=420)
+    apply_qt_theme(fig, height=440)
     st.plotly_chart(fig, use_container_width=True, key="compare_port_chart")
 
     # === Tableau comparatif des metriques ===

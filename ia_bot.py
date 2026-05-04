@@ -1,5 +1,7 @@
 import os
 import json
+import hashlib
+import random
 import streamlit as st
 from openai import OpenAI
 from dotenv import load_dotenv
@@ -169,14 +171,29 @@ def analyser_evenement_macro(evenement_utilisateur, calibration_historique=False
             "ETF_Defense": 0.0,
             "Bitcoin": 0.0, "Ethereum": 0.0, "XRP": 0.0, "Solana": 0.0{bloc_custom_format}
         }},
-        "explication_courte": "Analyse en 3-4 phrases : (1) severite du scenario et evenement historique de reference, (2) mecanisme economique principal, (3) actifs gagnants et raisons, (4) actifs perdants et raisons.",
+        "explication_courte": "Analyse en 4-5 phrases TRES specifiques au scenario decrit (cite des chiffres precis, secteurs, pays, mecanismes uniques). Evite les formulations generiques.",
         "evenement_reference": "Nom de l'evenement historique de reference (ex: 'COVID 2020', 'Crise 2008', 'Helicopter money 2020'), ou null."
     }}
 
     RAPPELS FORMATS :
-    - "inflation" et "taux_directeurs" en pourcentage (ex: 2.5 pour +2.5%, -0.75 pour -0.75%)
-    - Actifs en décimal (ex: -0.15 pour -15%, 0.30 pour +30%)
-    - "explication_courte" DOIT faire au minimum 3-4 phrases
+    - "inflation" et "taux_directeurs" en pourcentage avec 2 decimales NON-RONDES.
+      Evite imperativement 0.0, 1.0, 2.0, 5.0 — utilise des valeurs realistes type
+      2.37, -0.84, 1.13, 4.62, 0.27. Les vraies donnees macro ne sont JAMAIS rondes.
+    - Actifs en décimal (ex: -0.15 pour -15%, 0.30 pour +30%).
+
+    *** REGLES POUR L'EXPLICATION (CRUCIAL — DIVERSITE) ***
+    L'explication DOIT etre unique a CE scenario. Ne reutilise pas de phrases types.
+    Obligations concretes :
+    1. Mentionne au moins UN element specifique du scenario (lieu, secteur, entreprise,
+       chiffre, date) qui le rend reconnaissable.
+    2. Cite au moins UN chiffre precis dans l'analyse (ex: "VIX a +180%", "Or +14.3%").
+    3. Nomme l'evenement historique de reference avec son annee dans la 1ere phrase.
+    4. Decris le mecanisme de transmission specifique (ex: "fuite vers la qualite via les
+       Treasuries", "rotation defensive vers la consommation de base", "deleveraging des
+       hedge funds sur les emergents") — pas juste "les marches reagissent".
+    5. Termine par UN risque ou nuance specifique a ce scenario (pas une generalite).
+    Interdits : "les marches reagissent fortement", "forte volatilite attendue",
+    "incertitude generalisee", "impact significatif". Trop vagues. Sois specifique.
     """
 
     try:
@@ -185,7 +202,7 @@ def analyser_evenement_macro(evenement_utilisateur, calibration_historique=False
         reponse = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[{"role": "user", "content": prompt}],
-            temperature=0.15,
+            temperature=0.45,
             response_format={"type": "json_object"}
         )
         contenu_brut = json.loads(reponse.choices[0].message.content)
@@ -198,12 +215,38 @@ def analyser_evenement_macro(evenement_utilisateur, calibration_historique=False
         else:
             log.info("Analyse IA validée (event=%s)",
                      resultat.get("evenement_reference"))
+            # Anti-chiffres-ronds : bruite legerement inflation/taux si trop ronds
+            _debruiter_macro(resultat, evenement_utilisateur)
 
         return resultat
 
     except Exception as e:
         log.error("Erreur appel IA : %s", e, exc_info=True)
         return {"erreur": f"Erreur de connexion à l'IA : {str(e)[:120]}"}
+
+
+def _debruiter_macro(resultat: dict, scenario: str) -> None:
+    """
+    Si inflation ou taux_directeurs sont trop ronds (multiple de 0.5),
+    ajoute un petit bruit deterministe (seed = hash du scenario) pour
+    rendre les valeurs plus realistes. Modifie resultat in-place.
+    """
+    macro = resultat.get("macro")
+    if not isinstance(macro, dict):
+        return
+    seed = int(hashlib.md5(scenario.encode("utf-8")).hexdigest()[:8], 16)
+    rng = random.Random(seed)
+    for cle, amplitude in (("inflation", 0.27), ("taux_directeurs", 0.13)):
+        val = macro.get(cle)
+        if val is None:
+            continue
+        # "trop rond" = a 0.05 pres d'un multiple de 0.5
+        if abs((val * 2) - round(val * 2)) < 0.05:
+            jitter = rng.uniform(-amplitude, amplitude)
+            # On evite de retomber sur 0 si la valeur etait 0 (sauf si scenario neutre)
+            if val == 0 and abs(jitter) < 0.05:
+                jitter = 0.07 if rng.random() > 0.5 else -0.07
+            macro[cle] = round(val + jitter, 2)
 
 
 def discuter_avec_ia(historique_messages):

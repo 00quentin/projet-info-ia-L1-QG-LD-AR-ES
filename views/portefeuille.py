@@ -19,9 +19,9 @@ def afficher_portefeuille(res, params, key_prefix="main"):
     actifs_sim = params["actifs_sim"]
     poids = calculer_poids(profil, actifs_sim, params["allocations"])
 
-    st.markdown(f"<h3 style='text-align:center; color:#1a365d;'>Portefeuille de {cap:,.0f} €</h3>",
+    st.markdown(f"<h3 style='text-align:center; color:var(--primary);'>Portefeuille de {cap:,.0f} €</h3>",
                 unsafe_allow_html=True)
-    st.markdown(f"<p style='text-align:center; color:#718096; margin-bottom:28px;'>Profil : <strong>{profil}</strong></p>",
+    st.markdown(f"<p style='text-align:center; color:var(--text-muted); margin-bottom:28px;'>Profil : <strong>{profil}</strong></p>",
                 unsafe_allow_html=True)
 
     valeur_finale = 0

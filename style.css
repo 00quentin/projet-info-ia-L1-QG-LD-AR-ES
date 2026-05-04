@@ -285,20 +285,53 @@ div[data-testid="metric-container"]:hover {
     border-radius: 10px;
     font-weight: 500;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    border: 1px solid var(--border-strong);
+    border: 1px solid var(--border-strong) !important;
     font-family: 'Inter', sans-serif !important;
+    background-color: var(--card) !important;
+    color: var(--text) !important;
+}
+.stButton > button p,
+.stButton > button span,
+.stButton > button div {
+    color: var(--text) !important;
+}
+.stButton > button:hover {
+    background-color: var(--bg) !important;
+    border-color: var(--accent) !important;
+    color: var(--primary) !important;
+}
+.stButton > button:hover p,
+.stButton > button:hover span,
+.stButton > button:hover div {
+    color: var(--primary) !important;
 }
 .stButton > button[kind="primary"] {
     background: linear-gradient(135deg, var(--primary), var(--secondary)) !important;
     border: none !important;
-    color: white !important;
+    color: #ffffff !important;
     box-shadow: 0 4px 12px rgba(26,54,93,0.2);
+}
+.stButton > button[kind="primary"] p,
+.stButton > button[kind="primary"] span,
+.stButton > button[kind="primary"] div {
+    color: #ffffff !important;
 }
 .stButton > button[kind="primary"]:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(26,54,93,0.35);
+    color: #ffffff !important;
+}
+.stButton > button[kind="primary"]:hover p,
+.stButton > button[kind="primary"]:hover span,
+.stButton > button[kind="primary"]:hover div {
+    color: #ffffff !important;
 }
 .stButton > button[kind="primary"]:active { transform: translateY(0); }
+/* Bouton secondaire Streamlit (kind="secondary") : meme style que default */
+.stButton > button[kind="secondary"] {
+    background-color: var(--card) !important;
+    color: var(--text) !important;
+}
 
 /* Expanders */
 .streamlit-expanderHeader, [data-testid="stExpander"] summary {

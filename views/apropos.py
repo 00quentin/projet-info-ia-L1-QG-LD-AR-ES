@@ -42,8 +42,8 @@ def render_page_apropos():
                 <div style="width:60px; height:60px; background:linear-gradient(135deg, #1a365d, #319795); border-radius:50%; margin:0 auto 12px auto; display:flex; align-items:center; justify-content:center; color:white; font-weight:800; font-size:18px;">
                     {initiales}
                 </div>
-                <strong style="color:#1a365d; font-size:1.05em;">{nom}</strong>
-                <span style="font-size:0.85em; color:#718096; margin-top:6px; line-height:1.4;">{desc}</span>
+                <strong style="color:var(--primary); font-size:1.05em;">{nom}</strong>
+                <span style="font-size:0.85em; color:var(--text-muted); margin-top:6px; line-height:1.4;">{desc}</span>
             </div>
             """, unsafe_allow_html=True)
 
@@ -114,7 +114,7 @@ def render_page_apropos():
                 'et ajouter la modélisation des corrélations et des queues épaisses.'
                 '</div>', unsafe_allow_html=True)
 
-    st.markdown('<div style="text-align:center; color:#718096; margin-top:30px; padding:20px; '
-                'border-top: 1px solid #cbd5e0; font-size:0.85em;">'
+    st.markdown('<div style="text-align:center; color:var(--text-muted); margin-top:30px; padding:20px; '
+                'border-top: 1px solid var(--border); font-size:0.85em;">'
                 '© 2026 · Quant Terminal · Université Paris Nanterre · MIASHS'
                 '</div>', unsafe_allow_html=True)
