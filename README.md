@@ -78,9 +78,9 @@ L'application s'ouvre automatiquement dans votre navigateur sur `http://localhos
 Projet réalisé en L1 MIASHS à l'**Université Paris Nanterre** (2025-2026) :
 
 - **Quentin Geldreich**
-- **Léon Doazan**
-- **Elias Saadi**
-- **Alexandre Ruimy**
+- **Lukha Doazan**
+- **Evan Saadi**
+- **Alex Ruimy**
 
 ---
 
