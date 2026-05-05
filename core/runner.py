@@ -60,11 +60,19 @@ def lancer_simulation_scenario(
     if not chocs or ("actifs" not in chocs and "macro" not in chocs):
         return None, "L'IA n'a pas pu lier ce scénario à la finance."
 
+    # On injecte toujours "S&P 500" dans la simulation pour pouvoir afficher
+    # un benchmark, même si l'utilisateur ne l'a pas sélectionné dans son
+    # portefeuille. Il sera exclu de perf_df ci-dessous.
+    BENCHMARK_KEY = "S&P 500"
+    actifs_a_simuler = list(actifs_selectionnes)
+    if BENCHMARK_KEY not in actifs_a_simuler:
+        actifs_a_simuler.append(BENCHMARK_KEY)
+
     mc_data = None
     if monte_carlo:
         mc_data = simuler_monte_carlo(
             chocs, jours=duree, modele=modele,
-            actifs=actifs_selectionnes, nb_simulations=NB_SIMULATIONS_MONTE_CARLO,
+            actifs=actifs_a_simuler, nb_simulations=NB_SIMULATIONS_MONTE_CARLO,
             prix_reels=prix_reels, vols_reelles=vols_reelles,
             actifs_extras=actifs_extras,
         )
@@ -72,7 +80,7 @@ def lancer_simulation_scenario(
     else:
         df = simuler_marche_dynamique(
             chocs, jours=duree, modele=modele,
-            actifs=actifs_selectionnes,
+            actifs=actifs_a_simuler,
             prix_reels=prix_reels, vols_reelles=vols_reelles,
             actifs_extras=actifs_extras,
         )
@@ -82,7 +90,12 @@ def lancer_simulation_scenario(
     base = df.iloc[0].replace(0, pd.NA)
     perf = ((df.iloc[-1] - df.iloc[0]) / base) * 100
     perf = perf.fillna(0.0).astype(float)
-    perf_df = perf.reset_index()
+
+    # perf_df ne doit lister que les actifs réellement choisis par l'utilisateur
+    # (sinon le S&P 500 injecté apparaît dans la heatmap alors qu'il n'est pas
+    # dans le portefeuille).
+    perf_pour_df = perf[perf.index.isin(actifs_selectionnes)]
+    perf_df = perf_pour_df.reset_index()
     perf_df.columns = ['Actif', 'Performance (%)']
     perf_df['Actif'] = perf_df['Actif'].apply(_libelle_actif)
     perf_df = perf_df.sort_values(by='Performance (%)', ascending=True)

@@ -16,6 +16,7 @@ from core.risk_alerts import evaluer_alertes_risque
 from components.charts import (
     fig_courbes_categorie, construire_graphiques_par_categorie,
     fig_heatmap_performance, html_metriques_jauges,
+    fig_evolution_portefeuille,
 )
 from components.empty_states import render_empty_dashboard
 from components.notifications import notify_error, notify_success, render_alerte_risque
@@ -72,6 +73,36 @@ def afficher_dashboard(res, params, key_prefix="main"):
     # Alertes automatiques sur les metriques (drawdown severe, Sharpe negatif...)
     for alerte in evaluer_alertes_risque(metriques):
         render_alerte_risque(alerte.severite, alerte.titre, alerte.message)
+
+    # === Évolution du portefeuille vs benchmark S&P 500 ===
+    st.markdown('<hr class="qt-divider">', unsafe_allow_html=True)
+    st.markdown('<div class="qt-section-title">Évolution du portefeuille vs marché</div>',
+                unsafe_allow_html=True)
+    st.caption("Votre portefeuille comparé au S&P 500 sur la même période simulée. "
+               "L'alpha mesure votre surperformance par rapport au marché.")
+
+    cap = params["capital"]
+    benchmark = None
+    if "S&P 500" in df.columns:
+        benchmark = (df["S&P 500"] / df["S&P 500"].iloc[0]) * cap
+
+    fig_evo = fig_evolution_portefeuille(valeur_port, cap, benchmark)
+    st.plotly_chart(fig_evo, use_container_width=True, key=f"{key_prefix}_evolution")
+
+    if benchmark is not None:
+        valeur_finale = float(valeur_port.iloc[-1])
+        perf_p = (valeur_finale - cap) / cap * 100 if cap > 0 else 0
+        perf_b = (float(benchmark.iloc[-1]) - cap) / cap * 100 if cap > 0 else 0
+        alpha = perf_p - perf_b
+        couleur_alpha = "#2f855a" if alpha >= 0 else "#c53030"
+        st.markdown(
+            f'<div style="background:{couleur_alpha}; color:white; padding:14px 20px; '
+            f'border-radius:10px; text-align:center; margin:18px 0; font-size:1em;">'
+            f'Alpha vs S&P 500 : <strong>{alpha:+.2f} points</strong>'
+            f' ({"surperformance" if alpha >= 0 else "sous-performance"})'
+            f'</div>',
+            unsafe_allow_html=True
+        )
 
     # === Graphiques par catégorie ===
     st.markdown('<hr class="qt-divider">', unsafe_allow_html=True)
