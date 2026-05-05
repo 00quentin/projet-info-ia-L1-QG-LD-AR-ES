@@ -18,7 +18,7 @@ client = OpenAI(api_key=api_key, timeout=20.0, max_retries=1)
 
 # Bump this version when the prompt structure changes, to invalidate
 # all old cached IA responses (they don't have the new fields).
-PROMPT_VERSION = "v3-mix-fiabilite-2026-05"
+PROMPT_VERSION = "v4-mix-fiabilite-strict-2026-05"
 
 
 def analyser_evenement_macro(evenement_utilisateur, calibration_historique=False,
@@ -238,10 +238,21 @@ def _analyser_impl(evenement_utilisateur, calibration_historique=False,
         "fiabilite_calibration": {{"niveau": "elevee|moyenne|faible", "raison": "Pourquoi ce niveau de confiance (1 phrase)."}}
     }}
 
-    REGLES references_historiques :
+    REGLES references_historiques (OBLIGATOIRE quand calibration_historique=True) :
     - Liste de 1 a 3 elements. Si 1 seul evenement colle parfaitement, donner poids 1.0.
     - La somme des poids doit etre 1.0.
-    - Si le scenario n'est PAS calibre (calibration_historique=False), tu peux renvoyer une liste vide [] et fiabilite "faible".
+    - JAMAIS vide quand la calibration est demandee. Meme un scenario inedit doit
+      etre rattache au moins a UN evenement par analogie de mecanisme.
+    - "evenement_reference" doit etre rempli avec le nom du PREMIER element de
+      references_historiques (le plus pondere). Ne JAMAIS laisser null.
+    - Si le scenario n'est PAS calibre (calibration_historique=False), tu peux
+      renvoyer une liste vide [] et fiabilite "faible".
+
+    *** RAPPEL FINAL CRITIQUE ***
+    Avant d'envoyer ta reponse JSON, verifie :
+    [ ] Champ "references_historiques" : contient 1 a 3 evenements ponderes (sum=1.0)
+    [ ] Champ "evenement_reference" : nom du 1er element, JAMAIS null
+    [ ] Champ "fiabilite_calibration" : objet {{niveau, raison}} JAMAIS null
 
     RAPPELS FORMATS :
     - "inflation" et "taux_directeurs" en pourcentage avec 2 decimales NON-RONDES.

@@ -81,6 +81,20 @@ def afficher_dashboard(res, params, key_prefix="main"):
                 "raison": "Événement de référence unique (l'IA n'a pas renvoyé de mix pondéré).",
             }]
 
+        # Si on a vraiment rien (ni mix, ni evenement), on affiche quand meme
+        # le bloc avec un placeholder pour que l'utilisateur sache que la
+        # calibration est active mais que l'IA a echoue a structurer la reponse.
+        if not refs:
+            st.markdown(
+                '<div class="qt-callout" style="margin-top:14px; border-left:4px solid #d69e2e;">'
+                '<strong style="color:#d69e2e;">⚠️ Calibration historique activée</strong><br>'
+                '<span style="font-size:0.92em;">L\'IA n\'a pas extrait d\'événement de référence '
+                'structuré pour ce scénario (réponse JSON incomplète). '
+                'Réessaye avec une formulation un peu différente, ou décoche la calibration '
+                'pour une projection libre.</span>'
+                '</div>',
+                unsafe_allow_html=True
+            )
         if refs:
             def _ligne_ref(r):
                 nom = r.get("evenement", "?")
