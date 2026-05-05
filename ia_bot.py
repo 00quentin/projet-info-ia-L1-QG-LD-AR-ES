@@ -16,9 +16,34 @@ api_key = os.getenv("OPENAI_API_KEY") or st.secrets.get("OPENAI_API_KEY", None)
 client = OpenAI(api_key=api_key, timeout=20.0, max_retries=1)
 
 
-@st.cache_data(ttl=3600, show_spinner=False)
+# Bump this version when the prompt structure changes, to invalidate
+# all old cached IA responses (they don't have the new fields).
+PROMPT_VERSION = "v3-mix-fiabilite-2026-05"
+
+
 def analyser_evenement_macro(evenement_utilisateur, calibration_historique=False,
                               custom_tickers=None):
+    """Point d'entree public. Cache via _analyser_cache_impl.
+    La PROMPT_VERSION est dans la cle pour invalider l'ancien cache a chaque
+    refonte du prompt."""
+    # custom_tickers est une liste de dicts (non hashable) -> on serialise
+    custom_key = json.dumps(custom_tickers, sort_keys=True) if custom_tickers else ""
+    return _analyser_cache_impl(
+        evenement_utilisateur, calibration_historique, custom_key, PROMPT_VERSION
+    )
+
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def _analyser_cache_impl(evenement_utilisateur, calibration_historique,
+                          custom_tickers_key, prompt_version):
+    """Implementation cachee. NE PAS appeler directement, passer par
+    analyser_evenement_macro."""
+    custom_tickers = json.loads(custom_tickers_key) if custom_tickers_key else None
+    return _analyser_impl(evenement_utilisateur, calibration_historique, custom_tickers)
+
+
+def _analyser_impl(evenement_utilisateur, calibration_historique=False,
+                    custom_tickers=None):
     """
     Analyse un scenario macro et estime les chocs sur chaque actif.
 

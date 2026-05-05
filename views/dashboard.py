@@ -70,6 +70,17 @@ def afficher_dashboard(res, params, key_prefix="main"):
         }
         couleur, label = couleurs_fiab.get(niveau, couleurs_fiab["moyenne"])
 
+        # Fallback : si l'IA n'a pas renvoye de mix mais juste un evenement
+        # principal, on construit un mix degenere a 1 element pour eclairer
+        # quand meme l'utilisateur (cas reponse cache ancienne ou IA legere).
+        if not refs and chocs.get("evenement_reference"):
+            refs = [{
+                "evenement": chocs["evenement_reference"],
+                "annee": None,
+                "poids": 1.0,
+                "raison": "Événement de référence unique (l'IA n'a pas renvoyé de mix pondéré).",
+            }]
+
         if refs:
             def _ligne_ref(r):
                 nom = r.get("evenement", "?")
