@@ -138,9 +138,11 @@ def test_simulation_mode_dynamique_renvoie_structure_complete(monkeypatch, df_si
     )
 
     assert err is None
-    assert set(res.keys()) == {"scenario", "chocs_ia", "df", "mc_data", "perf", "perf_df"}
+    assert set(res.keys()) == {"scenario", "chocs_ia", "chocs_libre",
+                                "df", "mc_data", "perf", "perf_df"}
     assert res["scenario"] == "krach"
     assert res["chocs_ia"] is chocs_ia
+    assert res["chocs_libre"] is None  # pas de calibration -> pas d'analyse libre
     assert res["mc_data"] is None  # pas de MC en mode dynamique
     assert res["df"] is df_simu
 

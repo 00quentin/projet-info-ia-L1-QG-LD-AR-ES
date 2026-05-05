@@ -102,6 +102,79 @@ def afficher_dashboard(res, params, key_prefix="main"):
             html_refs += "</div>"
             st.markdown(html_refs, unsafe_allow_html=True)
 
+        # === Comparaison Calibree vs Libre ===
+        chocs_libre = res.get("chocs_libre")
+        if chocs_libre:
+            st.markdown('<hr class="qt-divider">', unsafe_allow_html=True)
+            st.markdown('<div class="qt-section-title">Calibrée vs estimation libre</div>',
+                        unsafe_allow_html=True)
+            st.caption(
+                "Pour mesurer ce que l'ancrage historique apporte ou retire, l'IA a "
+                "aussi produit une estimation SANS calibration (pure projection). Compare "
+                "les deux pour voir où l'ancrage pèse — un grand écart = scénario peu "
+                "couvert par l'histoire."
+            )
+
+            macro_c = chocs.get("macro", {}) or {}
+            macro_l = chocs_libre.get("macro", {}) or {}
+            actifs_c = chocs.get("actifs", {}) or {}
+            actifs_l = chocs_libre.get("actifs", {}) or {}
+
+            col_c, col_l = st.columns(2)
+            with col_c:
+                st.markdown(
+                    '<div style="background:#805ad5; color:white; padding:6px 12px; '
+                    'border-radius:6px; text-align:center; font-weight:600; '
+                    'font-size:0.92em; margin-bottom:8px;">CALIBRÉE (ancrée historique)</div>',
+                    unsafe_allow_html=True
+                )
+                st.metric("Inflation", f"{macro_c.get('inflation', 0):+.2f} %")
+                st.metric("Taux directeurs", f"{macro_c.get('taux_directeurs', 0):+.2f} %")
+            with col_l:
+                st.markdown(
+                    '<div style="background:#3182ce; color:white; padding:6px 12px; '
+                    'border-radius:6px; text-align:center; font-weight:600; '
+                    'font-size:0.92em; margin-bottom:8px;">LIBRE (projection IA pure)</div>',
+                    unsafe_allow_html=True
+                )
+                st.metric("Inflation", f"{macro_l.get('inflation', 0):+.2f} %")
+                st.metric("Taux directeurs", f"{macro_l.get('taux_directeurs', 0):+.2f} %")
+
+            # Tableau comparatif des actifs : on prend les actifs du portefeuille
+            # uniquement (sinon trop bruyant), et on calcule l'ecart absolu en points.
+            actifs_compa = [a for a in params["actifs_sim"] if a in actifs_c or a in actifs_l]
+            if actifs_compa:
+                lignes = []
+                for a in actifs_compa:
+                    v_c = actifs_c.get(a, 0) * 100
+                    v_l = actifs_l.get(a, 0) * 100
+                    ecart = v_l - v_c
+                    nom = NOM_AFFICHAGE.get(a, a.replace("_", " "))
+                    lignes.append({"Actif": nom, "Calibrée (%)": v_c,
+                                    "Libre (%)": v_l, "Écart (pts)": ecart})
+                df_compa = pd.DataFrame(lignes)
+                df_compa = df_compa.reindex(
+                    df_compa["Écart (pts)"].abs().sort_values(ascending=False).index
+                )
+                st.markdown(
+                    '<div style="margin-top:18px; font-weight:600;">Écart par actif (trié par amplitude) :</div>',
+                    unsafe_allow_html=True
+                )
+                st.dataframe(
+                    df_compa.style.format({
+                        "Calibrée (%)": "{:+.2f}",
+                        "Libre (%)": "{:+.2f}",
+                        "Écart (pts)": "{:+.2f}",
+                    }).background_gradient(subset=["Écart (pts)"], cmap="RdYlGn"),
+                    use_container_width=True,
+                    hide_index=True,
+                )
+                st.caption(
+                    "💡 Un écart faible (<5 pts) = l'ancrage historique confirme la projection. "
+                    "Un écart fort = scénario peu couvert par l'histoire OU le passé suggère "
+                    "un mécanisme que la projection libre n'a pas vu."
+                )
+
     # === Métriques de risque ===
     poids = calculer_poids(params["profil"], params["actifs_sim"], params["allocations"])
     valeur_port = calculer_valeur_portefeuille(df, poids, params["capital"])

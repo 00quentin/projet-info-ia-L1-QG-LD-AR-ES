@@ -60,6 +60,24 @@ def lancer_simulation_scenario(
     if not chocs or ("actifs" not in chocs and "macro" not in chocs):
         return None, "L'IA n'a pas pu lier ce scénario à la finance."
 
+    # Si la calibration historique est active, on lance aussi une analyse LIBRE
+    # (sans ancrage historique) pour pouvoir comparer dans le dashboard et
+    # montrer ce que l'ancrage apporte ou retire. Cout : un appel IA en plus.
+    chocs_libre = None
+    if calibration_historique:
+        try:
+            chocs_libre_brut = analyser_evenement_macro(
+                scenario,
+                calibration_historique=False,
+                custom_tickers=custom_tickers,
+            )
+            if (isinstance(chocs_libre_brut, dict)
+                    and "erreur" not in chocs_libre_brut
+                    and ("actifs" in chocs_libre_brut or "macro" in chocs_libre_brut)):
+                chocs_libre = chocs_libre_brut
+        except Exception as e:
+            log.warning("Analyse libre (compa) echouee, on continue sans : %s", e)
+
     # On injecte toujours "S&P 500" dans la simulation pour pouvoir afficher
     # un benchmark, même si l'utilisateur ne l'a pas sélectionné dans son
     # portefeuille. Il sera exclu de perf_df ci-dessous.
@@ -101,12 +119,13 @@ def lancer_simulation_scenario(
     perf_df = perf_df.sort_values(by='Performance (%)', ascending=True)
 
     return {
-        "scenario":  scenario,
-        "chocs_ia":  chocs,
-        "df":        df,
-        "mc_data":   mc_data,
-        "perf":      perf,
-        "perf_df":   perf_df,
+        "scenario":   scenario,
+        "chocs_ia":   chocs,
+        "chocs_libre": chocs_libre,  # None si pas de calibration
+        "df":         df,
+        "mc_data":    mc_data,
+        "perf":       perf,
+        "perf_df":    perf_df,
     }, None
 
 
