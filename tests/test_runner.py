@@ -203,7 +203,8 @@ def test_simulation_perf_df_trie_ascendant(monkeypatch, df_simu):
     monkeypatch.setattr(runner, "simuler_marche_dynamique", lambda *a, **kw: df_simu)
 
     res, _ = runner.lancer_simulation_scenario(
-        scenario="x", actifs_selectionnes=[], duree=4, modele="GBM",
+        scenario="x", actifs_selectionnes=["S&P 500", "Or", "EUR_USD"],
+        duree=4, modele="GBM",
         monte_carlo=False, prix_reels=None, vols_reelles=None,
         calibration_historique=False,
     )
@@ -221,7 +222,8 @@ def test_simulation_libelles_via_nom_affichage(monkeypatch, df_simu):
     monkeypatch.setattr(runner, "simuler_marche_dynamique", lambda *a, **kw: df_simu)
 
     res, _ = runner.lancer_simulation_scenario(
-        scenario="x", actifs_selectionnes=[], duree=4, modele="GBM",
+        scenario="x", actifs_selectionnes=["S&P 500", "Or", "EUR_USD"],
+        duree=4, modele="GBM",
         monte_carlo=False, prix_reels=None, vols_reelles=None,
         calibration_historique=False,
     )
@@ -243,7 +245,8 @@ def test_simulation_fallback_underscore_pour_code_inconnu(monkeypatch):
     monkeypatch.setattr(runner, "simuler_marche_dynamique", lambda *a, **kw: df)
 
     res, _ = runner.lancer_simulation_scenario(
-        scenario="x", actifs_selectionnes=[], duree=2, modele="GBM",
+        scenario="x", actifs_selectionnes=["ACTIF_INCONNU_X"],
+        duree=2, modele="GBM",
         monte_carlo=False, prix_reels=None, vols_reelles=None,
         calibration_historique=False,
     )

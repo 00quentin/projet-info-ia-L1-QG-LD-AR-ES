@@ -289,7 +289,22 @@ def generer_rapport_pdf(simu, params, metriques, allocations_finales,
     if params.get("prix_reels"):
         params_text += "<b>Prix initiaux :</b> Yahoo Finance (temps réel)<br/>"
     if params.get("calib") and simu.get("chocs_ia", {}).get("evenement_reference"):
-        params_text += f"<b>Calibration historique IA :</b> {simu['chocs_ia']['evenement_reference']}<br/>"
+        chocs_pdf = simu.get("chocs_ia", {})
+        refs = chocs_pdf.get("references_historiques") or []
+        if refs:
+            mix_str = ", ".join(
+                f"{r.get('evenement', '?')} ({r.get('poids', 0):.0%})"
+                for r in refs
+            )
+            params_text += f"<b>Calibration historique IA :</b> {mix_str}<br/>"
+            fiab = chocs_pdf.get("fiabilite_calibration") or {}
+            if fiab.get("niveau"):
+                params_text += f"<b>Fiabilité :</b> {fiab['niveau']}"
+                if fiab.get("raison"):
+                    params_text += f" — <i>{fiab['raison']}</i>"
+                params_text += "<br/>"
+        else:
+            params_text += f"<b>Calibration historique IA :</b> {chocs_pdf['evenement_reference']}<br/>"
     story.append(Paragraph(params_text, styles["body"]))
 
     # ---- Synthèse macro IA ----

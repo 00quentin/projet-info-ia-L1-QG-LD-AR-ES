@@ -34,21 +34,53 @@ def analyser_evenement_macro(evenement_utilisateur, calibration_historique=False
         instruction_calibration = """
 
     CALIBRATION HISTORIQUE (IMPORTANT) :
-    Avant d'estimer les chocs, identifie l'événement historique le plus PROCHE du scénario décrit.
-    Utilise les amplitudes RÉELLES observées lors de cet événement comme référence.
-    Tableau de référence (sur 100 jours environ) :
-    - Krach 2008 (Lehman) : S&P 500 -40%, Or +15%, Bons Trésor US +12%, VIX +200%, Pétrole -50%
-    - COVID mars 2020 : S&P 500 -34% en 23j, Or +12%, Pétrole -65%, VIX +500%, Bitcoin -50%
-    - Choc pétrolier 1973 : S&P 500 -30% (sur 100j), Or +60%, Pétrole +200%, Inflation +5%
-    - Bulle internet 2000 : Nasdaq -40% (sur 100j), S&P 500 -25%, Or +5%
-    - Hausse FED 2022 (sur 100j) : S&P 500 -15%, Bonds -8%, Crypto -50%, Dollar +8%
-    - Brexit 2016 : Livre -10%, FTSE -5% puis rebond, Or +5%
-    - Russie-Ukraine 2022 (100 premiers jours) : Pétrole +35%, Cuivre +10%, Émergents -15%
-    - Helicopter money / impression massive (cas COVID 2020 + cas années 70) :
+    Au lieu d'ancrer aveuglément ton analyse sur UN SEUL événement, identifie les
+    2 ou 3 événements historiques les plus PROCHES du scénario décrit, et fais
+    une PONDÉRATION explicite (somme des poids = 1.0). Utilise les amplitudes
+    RÉELLES de chacun, pondérées par leur similarité au scénario.
+
+    Tableau de référence enrichi (sur ~100 jours de cotation) :
+    - Krach 1929 (octobre) : S&P -38% sur 100j, Or +0% (étalon-or), déflation -3%
+    - Crise de Suez 1956 : Pétrole +50%, Livre -10%, FTSE -8%, géopolitique nationalisations
+    - Choc pétrolier 1973 : S&P 500 -30%, Or +60%, Pétrole +200%, Inflation +5%
+    - Krach 1987 (Black Monday) : S&P -28% en 1 jour, -22% sur 100j, Or +5%, VIX inexistant
+    - Crise asiatique 1997 : Émergents -45%, Dollar +12%, Pétrole -25%, USD/Won +60%
+    - LTCM 1998 : S&P -15% court, Treasuries +8% (fuite vers qualité), Émergents -25%
+    - Bulle internet 2000-2002 : Nasdaq -40% sur 100j, S&P 500 -25%, Or +5%
+    - 11-Septembre 2001 : S&P -12% en 5j, Pétrole +15% éphémère, Or +8%, ETF Défense +20%
+    - Krach 2008 (Lehman) : S&P 500 -40%, Or +15%, Treasuries +12%, VIX +200%, Pétrole -50%
+    - Crise Euro 2011 (Grèce) : OAT/Bund écart, Bourses EU -20%, EUR/USD -10%, Or +25%
+    - Fukushima 2011 : Nikkei -18% en 5j, Yen +5% (rapatriement), Uranium -50%
+    - Hausse FED 2013 (Taper Tantrum) : Treasuries -8%, Émergents -18%, Or -25%, Dollar +5%
+    - Crise grecque 2015 (référendum) : Athex -25%, EUR -7%, Treasuries +3%
+    - Brexit 2016 (vote 23 juin) : Livre -10% en 1j, FTSE -5% puis rebond, Or +5%
+    - Krach Trump 2018 (4e trim) : S&P -20% sur 100j, VIX +100%, Bitcoin -50%
+    - COVID mars 2020 : S&P -34% en 23j, Or +12%, Pétrole -65%, VIX +500%, Bitcoin -50%
+    - Russie-Ukraine 2022 : Pétrole +35%, Cuivre +10%, Émergents -15%, Or +8%, Gaz EU +200%
+    - Hausse FED 2022 : S&P -15% sur 100j, Bonds -8%, Crypto -50%, Dollar +8%
+    - SVB / banques régionales 2023 : KBW Bank -25%, Treasuries +5% (fuite), Or +10%
+    - Helicopter money / impression massive (COVID 2020 + années 70) :
         Or +15 à +30%, Cryptos +40 à +100%, Actions +10 à +25% (inflation actifs),
         Dollar -8 à -15%, Pétrole +20 à +40%, Obligations -5 à -15%
 
-    L'événement historique de référence DOIT être mentionné dans 'explication_courte'.
+    PROCESSUS OBLIGATOIRE :
+    1. Identifie les 2-3 événements LES PLUS PROCHES (similarité de mécanisme,
+       de magnitude, de secteur affecté, pas juste de mot-clé).
+    2. Attribue un poids à chacun (somme = 1.0). Exemple : 0.6 / 0.3 / 0.1.
+    3. Applique les chocs en pondérant les amplitudes réelles.
+    4. JUSTIFIE le choix de chaque événement en 1 phrase.
+
+    SCORE DE FIABILITE :
+    Évalue honnêtement la qualité du mapping :
+    - "elevee" : le scénario décrit colle à >70% à un événement connu (ex: "récession
+      COVID-like" → COVID 2020 à 0.9). Les chiffres sont solides.
+    - "moyenne" : le scénario combine plusieurs analogies sans précédent identique
+      (ex: "guerre Iran + cyber-attaque réseau US" → mélange 1973+11-Sept+SVB). Approximatif.
+    - "faible" : scénario INÉDIT sans bon analogue historique (ex: "AGI déployée massivement",
+      "panne d'internet 6 mois", "extinction d'une espèce-clé"). Calibration spéculative,
+      ne pas surinterpréter les chiffres.
+
+    L'événement principal DOIT être mentionné dans 'explication_courte'.
     """
 
     # Section actifs personnalises : injectee dans le prompt + dans le format JSON
@@ -172,8 +204,19 @@ def analyser_evenement_macro(evenement_utilisateur, calibration_historique=False
             "Bitcoin": 0.0, "Ethereum": 0.0, "XRP": 0.0, "Solana": 0.0{bloc_custom_format}
         }},
         "explication_courte": "Analyse en 4-5 phrases TRES specifiques au scenario decrit (cite des chiffres precis, secteurs, pays, mecanismes uniques). Evite les formulations generiques.",
-        "evenement_reference": "Nom de l'evenement historique de reference (ex: 'COVID 2020', 'Crise 2008', 'Helicopter money 2020'), ou null."
+        "evenement_reference": "Nom de l'evenement historique principal (le plus pondere). Ex: 'COVID 2020', 'Crise 2008'. Null si pas calibre.",
+        "references_historiques": [
+            {{"evenement": "Nom (ex: 'COVID 2020')", "annee": 2020, "poids": 0.6, "raison": "Pourquoi cet evenement (1 phrase)"}},
+            {{"evenement": "Nom (ex: 'Crise 2008')", "annee": 2008, "poids": 0.3, "raison": "..."}},
+            {{"evenement": "Nom (ex: 'Hausse FED 2022')", "annee": 2022, "poids": 0.1, "raison": "..."}}
+        ],
+        "fiabilite_calibration": {{"niveau": "elevee|moyenne|faible", "raison": "Pourquoi ce niveau de confiance (1 phrase)."}}
     }}
+
+    REGLES references_historiques :
+    - Liste de 1 a 3 elements. Si 1 seul evenement colle parfaitement, donner poids 1.0.
+    - La somme des poids doit etre 1.0.
+    - Si le scenario n'est PAS calibre (calibration_historique=False), tu peux renvoyer une liste vide [] et fiabilite "faible".
 
     RAPPELS FORMATS :
     - "inflation" et "taux_directeurs" en pourcentage avec 2 decimales NON-RONDES.

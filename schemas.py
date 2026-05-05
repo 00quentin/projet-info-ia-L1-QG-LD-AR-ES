@@ -13,7 +13,7 @@ Maintenant, toute réponse IA est :
 4. Rejetée si invalide
 """
 
-from typing import Optional, Dict
+from typing import Optional, Dict, List, Literal
 from pydantic import BaseModel, Field, field_validator, ConfigDict
 
 
@@ -124,6 +124,34 @@ class ChocsActifs(BaseModel):
         return _normaliser_choc(v)
 
 
+class ReferenceHistorique(BaseModel):
+    """Un evenement historique pondere pour la calibration en mix."""
+    model_config = ConfigDict(extra="ignore")
+    evenement: str = ""
+    annee: Optional[int] = None
+    poids: float = 0.0
+    raison: str = ""
+
+    @field_validator("poids", mode="before")
+    @classmethod
+    def _normaliser_poids(cls, v):
+        # Clamp dans [0, 1]. Si l'IA renvoie 60 (au lieu de 0.6), on divise par 100.
+        try:
+            v = float(v)
+        except (TypeError, ValueError):
+            return 0.0
+        if v > 1.0:
+            v = v / 100.0
+        return max(0.0, min(1.0, v))
+
+
+class FiabiliteCalibration(BaseModel):
+    """Score de confiance qualitatif sur la calibration."""
+    model_config = ConfigDict(extra="ignore")
+    niveau: Literal["elevee", "moyenne", "faible"] = "moyenne"
+    raison: str = ""
+
+
 class ReponseAnalyseIA(BaseModel):
     """
     Réponse complète de l'IA pour un scénario macro.
@@ -136,6 +164,8 @@ class ReponseAnalyseIA(BaseModel):
     actifs: Optional[ChocsActifs] = None
     explication_courte: Optional[str] = ""
     evenement_reference: Optional[str] = None
+    references_historiques: List[ReferenceHistorique] = Field(default_factory=list)
+    fiabilite_calibration: Optional[FiabiliteCalibration] = None
 
     def to_legacy_dict(self) -> dict:
         """
@@ -157,11 +187,23 @@ class ReponseAnalyseIA(BaseModel):
 
         macro_dict = self.macro.model_dump() if self.macro else {"inflation": 0.0, "taux_directeurs": 0.0}
 
+        # Normalise les references : limite a 3, renormalise les poids a 1.0 si besoin
+        refs = [r.model_dump() for r in self.references_historiques[:3] if r.poids > 0]
+        total_poids = sum(r["poids"] for r in refs)
+        if total_poids > 0 and abs(total_poids - 1.0) > 0.05:
+            for r in refs:
+                r["poids"] = r["poids"] / total_poids
+
         return {
             "macro": macro_dict,
             "actifs": actifs_dict,
             "explication_courte": self.explication_courte or "",
             "evenement_reference": self.evenement_reference,
+            "references_historiques": refs,
+            "fiabilite_calibration": (
+                self.fiabilite_calibration.model_dump()
+                if self.fiabilite_calibration else None
+            ),
         }
 
 
@@ -232,6 +274,8 @@ def valider_reponse_ia(brut: dict) -> dict:
                 "actifs": actifs_norm,
                 "explication_courte": brut.get("explication_courte", "") if isinstance(brut, dict) else "",
                 "evenement_reference": brut.get("evenement_reference") if isinstance(brut, dict) else None,
+                "references_historiques": brut.get("references_historiques", []) if isinstance(brut, dict) else [],
+                "fiabilite_calibration": brut.get("fiabilite_calibration") if isinstance(brut, dict) else None,
             }
         except Exception:
             return {"erreur": f"Réponse IA invalide : {str(e)[:120]}"}

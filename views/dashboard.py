@@ -58,6 +58,50 @@ def afficher_dashboard(res, params, key_prefix="main"):
         unsafe_allow_html=True
     )
 
+    # === Calibration historique : mix d'evenements + score de fiabilite ===
+    if params.get("calib"):
+        refs = chocs.get("references_historiques") or []
+        fiab = chocs.get("fiabilite_calibration") or {}
+        niveau = fiab.get("niveau", "moyenne")
+        couleurs_fiab = {
+            "elevee":  ("#2f855a", "Fiabilité élevée"),
+            "moyenne": ("#d69e2e", "Fiabilité moyenne"),
+            "faible":  ("#c53030", "Fiabilité faible"),
+        }
+        couleur, label = couleurs_fiab.get(niveau, couleurs_fiab["moyenne"])
+
+        if refs:
+            def _ligne_ref(r):
+                nom = r.get("evenement", "?")
+                annee = r.get("annee")
+                titre = f"{nom} ({annee})" if annee else nom
+                poids_pct = r.get("poids", 0)
+                raison = r.get("raison", "")
+                return (
+                    f'<li style="margin-bottom:6px;">'
+                    f'<strong>{titre}</strong>'
+                    f' — poids <strong>{poids_pct:.0%}</strong>'
+                    f'<br><span style="opacity:0.85; font-size:0.92em;">{raison}</span>'
+                    f'</li>'
+                )
+            lignes_refs = "".join(_ligne_ref(r) for r in refs)
+            html_refs = (
+                f'<div class="qt-callout" style="margin-top:14px; border-left:4px solid {couleur};">'
+                f'<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">'
+                f'<strong style="color:var(--primary); font-size:1.02em;">🎯 Calibration historique (mix)</strong>'
+                f'<span style="background:{couleur}; color:white; padding:3px 10px; border-radius:6px; '
+                f'font-size:0.85em; font-weight:600;">{label}</span>'
+                f'</div>'
+                f'<ul style="margin:0; padding-left:20px;">{lignes_refs}</ul>'
+            )
+            if fiab.get("raison"):
+                html_refs += (
+                    f'<div style="margin-top:10px; font-size:0.88em; opacity:0.85; font-style:italic;">'
+                    f'{fiab["raison"]}</div>'
+                )
+            html_refs += "</div>"
+            st.markdown(html_refs, unsafe_allow_html=True)
+
     # === Métriques de risque ===
     poids = calculer_poids(params["profil"], params["actifs_sim"], params["allocations"])
     valeur_port = calculer_valeur_portefeuille(df, poids, params["capital"])
