@@ -1,9 +1,11 @@
-streamlit
-pandas
-numpy
-plotly
-openai
-python-dotenv
-yfinance
-reportlab
+# Bornes minimales requises par le code (cache_resource, OpenAI v1+, yfinance batch).
+# Pas de pin haut pour laisser pip choisir une version compatible recente.
+streamlit>=1.30
+pandas>=2.0
+numpy>=1.24
+plotly>=5.0
+openai>=1.30
+python-dotenv>=1.0
+yfinance>=0.2.40
+reportlab>=4.0
 pydantic>=2.0

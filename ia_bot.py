@@ -87,6 +87,7 @@ def _analyser_impl(evenement_utilisateur, calibration_historique=False,
                     custom_tickers=None):
     """
     Analyse un scenario macro et estime les chocs sur chaque actif.
+    Orchestrateur leger : delegue a _build_prompt_macro + _appel_openai_macro.
 
     Args:
         evenement_utilisateur: texte libre du scenario
@@ -94,6 +95,23 @@ def _analyser_impl(evenement_utilisateur, calibration_historique=False,
         custom_tickers: liste optionnelle de dicts {ticker, nom, sim_key} pour
             les actifs personnalises ajoutes par l'utilisateur. L'IA les
             integrera a sa reponse avec une cle = sim_key.
+    """
+    prompt = _build_prompt_macro(
+        evenement_utilisateur, calibration_historique, custom_tickers
+    )
+    return _appel_openai_macro(
+        prompt, evenement_utilisateur, calibration_historique, custom_tickers
+    )
+
+
+def _build_prompt_macro(evenement_utilisateur, calibration_historique=False,
+                          custom_tickers=None) -> str:
+    """Construit le prompt envoye a OpenAI. Pure fonction (testable sans reseau).
+
+    Trois blocs concatenes :
+    - Section calibration historique (uniquement si calibration_historique=True)
+    - Section actifs personnalises (uniquement si custom_tickers non vide)
+    - Section meta : methodologie, format JSON, regles d'explication
     """
     instruction_calibration = ""
     if calibration_historique:
@@ -315,7 +333,17 @@ def _analyser_impl(evenement_utilisateur, calibration_historique=False,
     Interdits : "les marches reagissent fortement", "forte volatilite attendue",
     "incertitude generalisee", "impact significatif". Trop vagues. Sois specifique.
     """
+    return prompt
 
+
+def _appel_openai_macro(prompt: str, evenement_utilisateur: str,
+                          calibration_historique: bool,
+                          custom_tickers) -> dict:
+    """Appelle OpenAI, valide la reponse et la post-traite.
+
+    Retourne soit le dict valide, soit `{"erreur": ...}` en cas de souci
+    (timeout / rate limit / reseau / parsing / validation).
+    """
     try:
         log.info("Appel OpenAI pour analyse macro (calibration=%s, %d custom)",
                  calibration_historique, len(custom_tickers or []))
