@@ -53,27 +53,67 @@ PRIX_FALLBACK = {
 
 @st.cache_data(ttl=3600, show_spinner=False)
 def get_prix_actuels(actifs_keys=None):
+    """Recupere le dernier prix de cloture pour chaque actif demande.
+
+    Optimisation : un seul appel yf.download(...) batch (parallelise par
+    yfinance en interne) plutot qu'une boucle sequentielle ticker par ticker.
+    """
     if actifs_keys is None:
         actifs_keys = list(TICKERS_YAHOO.keys())
 
-    log.info("Récupération prix Yahoo pour %d actifs", len(actifs_keys))
+    log.info("Récupération prix Yahoo pour %d actifs (batch)", len(actifs_keys))
     prix = {}
     erreurs = []
 
+    # Mapping ticker -> sim_key, pour reconstruire le dict apres le batch
+    ticker_to_sim = {}
+    tickers_a_charger = []
     for sim_key in actifs_keys:
         ticker = TICKERS_YAHOO.get(sim_key)
         if ticker is None:
             prix[sim_key] = PRIX_FALLBACK.get(sim_key, 100)
-            continue
+        else:
+            ticker_to_sim[ticker] = sim_key
+            tickers_a_charger.append(ticker)
+
+    if not tickers_a_charger:
+        return prix, erreurs
+
+    try:
+        data = yf.download(
+            tickers=tickers_a_charger,
+            period="5d",
+            interval="1d",
+            progress=False,
+            group_by="ticker",
+            threads=True,
+            auto_adjust=True,
+        )
+    except Exception as e:  # noqa: BLE001 — yfinance leve plusieurs types
+        log.warning("Batch yf.download a echoue (%s) : fallback prix par defaut", str(e)[:80])
+        for sim_key in [ticker_to_sim[t] for t in tickers_a_charger]:
+            prix[sim_key] = PRIX_FALLBACK.get(sim_key, 100)
+            erreurs.append(sim_key)
+        return prix, erreurs
+
+    # Format de sortie yf.download :
+    # - 1 ticker : DataFrame plat avec colonnes (Open, High, ...)
+    # - N tickers : MultiIndex de colonnes (ticker, OHLC)
+    multi = len(tickers_a_charger) > 1
+    for ticker in tickers_a_charger:
+        sim_key = ticker_to_sim[ticker]
         try:
-            data = yf.Ticker(ticker).history(period="5d", interval="1d", timeout=5)
-            if not data.empty:
-                prix[sim_key] = float(data["Close"].iloc[-1])
+            if multi:
+                serie = data[ticker]["Close"].dropna() if ticker in data.columns.get_level_values(0) else None
+            else:
+                serie = data["Close"].dropna()
+            if serie is not None and not serie.empty:
+                prix[sim_key] = float(serie.iloc[-1])
             else:
                 prix[sim_key] = PRIX_FALLBACK.get(sim_key, 100)
                 erreurs.append(sim_key)
-        except Exception as e:
-            log.warning("Yahoo failed for %s (%s): %s", sim_key, ticker, str(e)[:60])
+        except (KeyError, IndexError, ValueError) as e:
+            log.warning("Yahoo parse failed for %s (%s): %s", sim_key, ticker, str(e)[:60])
             prix[sim_key] = PRIX_FALLBACK.get(sim_key, 100)
             erreurs.append(sim_key)
 
@@ -82,30 +122,64 @@ def get_prix_actuels(actifs_keys=None):
     return prix, erreurs
 
 
+def _telecharger_closes(tickers: list, **kwargs) -> pd.DataFrame:
+    """Helper : un seul yf.download() batch et reconstruit un DataFrame de
+    series Close indexees par ticker. Renvoie un DF vide en cas d'echec.
+    """
+    if not tickers:
+        return pd.DataFrame()
+    try:
+        data = yf.download(
+            tickers=tickers,
+            progress=False,
+            group_by="ticker",
+            threads=True,
+            auto_adjust=True,
+            **kwargs,
+        )
+    except Exception as e:  # noqa: BLE001
+        log.warning("yf.download batch failed: %s", str(e)[:80])
+        return pd.DataFrame()
+
+    out = pd.DataFrame()
+    if len(tickers) == 1:
+        if "Close" in data.columns:
+            out[tickers[0]] = data["Close"]
+        return out
+    for ticker in tickers:
+        if ticker in data.columns.get_level_values(0):
+            try:
+                out[ticker] = data[ticker]["Close"]
+            except KeyError:
+                continue
+    return out
+
+
 @st.cache_data(ttl=21600, show_spinner=False)
 def get_historique(actifs_keys, date_debut, date_fin):
-    log.info("Backtest Yahoo: %d actifs, %s → %s", len(actifs_keys), date_debut, date_fin)
-    df_global = pd.DataFrame()
-    for sim_key in actifs_keys:
-        ticker = TICKERS_YAHOO.get(sim_key)
-        if ticker is None:
-            continue
-        try:
-            data = yf.Ticker(ticker).history(start=date_debut, end=date_fin,
-                                              interval="1d", timeout=8)
-            if not data.empty:
-                df_global[sim_key] = data["Close"]
-        except Exception as e:
-            log.warning("Backtest Yahoo failed for %s: %s", sim_key, str(e)[:60])
-            continue
+    log.info("Backtest Yahoo (batch): %d actifs, %s → %s",
+             len(actifs_keys), date_debut, date_fin)
+    sim_to_ticker = {sk: TICKERS_YAHOO[sk] for sk in actifs_keys if sk in TICKERS_YAHOO}
+    if not sim_to_ticker:
+        return pd.DataFrame()
 
-    if df_global.empty:
+    df_tickers = _telecharger_closes(
+        list(sim_to_ticker.values()),
+        start=date_debut,
+        end=date_fin,
+        interval="1d",
+    )
+    if df_tickers.empty:
         log.error("Aucune donnée historique récupérée")
-        return df_global
+        return pd.DataFrame()
+
+    # Renomme : ticker -> sim_key
+    rename = {tk: sk for sk, tk in sim_to_ticker.items() if tk in df_tickers.columns}
+    df_global = df_tickers.rename(columns=rename)
+    df_global = df_global[[c for c in df_global.columns if c in sim_to_ticker]]
 
     # ffill : trous de cotation au milieu de la periode (jours feries / suspension)
     # bfill : trous au DEBUT (asset cote depuis moins longtemps que la fenetre demandee)
-    # Sans bfill, iloc[0] reste NaN et le calcul de perf produit "+nan%"
     df_global = df_global.ffill().bfill().dropna(how="all")
     df_global = df_global.reset_index(drop=True)
     return df_global
@@ -116,20 +190,27 @@ def get_volatilites_historiques(actifs_keys, jours=252):
     fin = datetime.now()
     debut = fin - timedelta(days=jours * 2)
 
+    sim_to_ticker = {sk: TICKERS_YAHOO[sk] for sk in actifs_keys if sk in TICKERS_YAHOO}
+    if not sim_to_ticker:
+        return {}
+
+    df_tickers = _telecharger_closes(
+        list(sim_to_ticker.values()),
+        start=debut.strftime("%Y-%m-%d"),
+        end=fin.strftime("%Y-%m-%d"),
+        interval="1d",
+    )
+    if df_tickers.empty:
+        return {}
+
     vols = {}
-    for sim_key in actifs_keys:
-        ticker = TICKERS_YAHOO.get(sim_key)
-        if ticker is None:
+    for sim_key, ticker in sim_to_ticker.items():
+        if ticker not in df_tickers.columns:
             continue
-        try:
-            data = yf.Ticker(ticker).history(start=debut, end=fin,
-                                              interval="1d", timeout=5)
-            if not data.empty and len(data) > 30:
-                rendements = data["Close"].pct_change().dropna()
-                vols[sim_key] = float(rendements.std())
-        except Exception as e:
-            log.debug("Vol historique indispo %s: %s", sim_key, str(e)[:60])
-            continue
+        serie = df_tickers[ticker].dropna()
+        if len(serie) > 30:
+            rendements = serie.pct_change().dropna()
+            vols[sim_key] = float(rendements.std())
     return vols
 
 

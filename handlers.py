@@ -21,7 +21,7 @@ from market_data import (
     EVENEMENTS_HISTORIQUES,
 )
 from core.runner import lancer_simulation_scenario, lancer_backtest
-from core.portfolio import calculer_poids, construire_allocations_finales
+from core.portfolio import calculer_valeur_finale
 from core.history_store import ajouter_entree
 from core.custom_assets import SESSION_KEY as ACTIFS_PERSO_KEY, vers_actifs_extras
 from components.skeletons import render_skeleton_dashboard
@@ -169,16 +169,16 @@ def handler_simulation(config: Dict[str, Any]) -> None:
                 "calib":        config["calibration_historique"],
             }
 
-            poids_h = calculer_poids(
-                config["profil_risque"], config["actifs_selectionnes"],
-                config["allocations_custom"],
-            )
             for label in labels_actifs:
                 res = st.session_state.simulations[label]
                 if res is None:
                     continue
-                _, valeur_finale = construire_allocations_finales(
-                    res["perf"], poids_h, config["capital_initial"],
+                valeur_finale = calculer_valeur_finale(
+                    config["profil_risque"],
+                    config["actifs_selectionnes"],
+                    config["allocations_custom"],
+                    res["perf"],
+                    config["capital_initial"],
                 )
                 _enregistrer_historique(
                     scenario=res["scenario"],
@@ -193,8 +193,11 @@ def handler_simulation(config: Dict[str, Any]) -> None:
             if any(st.session_state.simulations[lab] for lab in labels_actifs):
                 st.session_state["_just_simulated"] = True
 
-        except Exception as e:
-            log.error("Erreur simulation : %s", e, exc_info=True)
+        except (ValueError, KeyError, TypeError) as e:
+            log.error("Erreur simulation (donnees) : %s", e, exc_info=True)
+            notify_error(f"Erreur technique : {e}")
+        except Exception as e:  # noqa: BLE001 — derniere ligne de defense UI
+            log.error("Erreur simulation (inattendue) : %s", e, exc_info=True)
             notify_error(f"Erreur technique : {e}")
         finally:
             skeleton_ph.empty()
@@ -235,12 +238,12 @@ def handler_backtest(config: Dict[str, Any]) -> None:
                 "capital":      config["capital_initial"],
             }
 
-            poids_h = calculer_poids(
-                config["profil_risque"], list(df_histo.columns),
+            valeur_finale = calculer_valeur_finale(
+                config["profil_risque"],
+                list(df_histo.columns),
                 config["allocations_custom"],
-            )
-            _, valeur_finale = construire_allocations_finales(
-                bt_result["perf"], poids_h, config["capital_initial"],
+                bt_result["perf"],
+                config["capital_initial"],
             )
             _enregistrer_historique(
                 scenario=f"Backtest : {config['event_choisi']}",
@@ -253,8 +256,11 @@ def handler_backtest(config: Dict[str, Any]) -> None:
             )
             st.session_state["_just_backtested"] = True
 
-        except Exception as e:
-            log.error("Erreur backtest : %s", e, exc_info=True)
+        except (ValueError, KeyError, TypeError) as e:
+            log.error("Erreur backtest (donnees) : %s", e, exc_info=True)
+            notify_error(f"Erreur backtest : {e}")
+        except Exception as e:  # noqa: BLE001 — derniere ligne de defense UI
+            log.error("Erreur backtest (inattendue) : %s", e, exc_info=True)
             notify_error(f"Erreur backtest : {e}")
         finally:
             skeleton_ph_bt.empty()

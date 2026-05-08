@@ -1,9 +1,10 @@
 import os
+import re
 import json
 import hashlib
 import random
 import streamlit as st
-from openai import OpenAI
+from openai import OpenAI, APIError, APIConnectionError, APITimeoutError, RateLimitError
 from dotenv import load_dotenv
 
 from schemas import valider_reponse_ia
@@ -12,13 +13,50 @@ from logger import get_logger
 log = get_logger("ia_bot")
 
 load_dotenv()
-api_key = os.getenv("OPENAI_API_KEY") or st.secrets.get("OPENAI_API_KEY", None)
-client = OpenAI(api_key=api_key, timeout=20.0, max_retries=1)
+
+
+@st.cache_resource(show_spinner=False)
+def _get_openai_client() -> OpenAI:
+    """Singleton client OpenAI (evite la recreation a chaque rerun Streamlit)."""
+    api_key = os.getenv("OPENAI_API_KEY") or st.secrets.get("OPENAI_API_KEY", None)
+    return OpenAI(api_key=api_key, timeout=20.0, max_retries=1)
 
 
 # Bump this version when the prompt structure changes, to invalidate
 # all old cached IA responses (they don't have the new fields).
-PROMPT_VERSION = "v4-mix-fiabilite-strict-2026-05"
+PROMPT_VERSION = "v5-sanitize-2026-05"
+
+
+# Patterns qui ressemblent a une tentative d'injection de prompt.
+# On les retire silencieusement avant d'envoyer le scenario a l'IA.
+_INJECTION_PATTERNS = [
+    re.compile(r"ignore\s+(all\s+)?(previous|above|prior)\s+(instructions?|prompts?)", re.I),
+    re.compile(r"disregard\s+(all\s+)?(previous|above|prior)\s+(instructions?|prompts?)", re.I),
+    re.compile(r"forget\s+(all\s+)?(previous|above|prior)\s+(instructions?|prompts?)", re.I),
+    re.compile(r"system\s*[:\-]\s*", re.I),
+    re.compile(r"you\s+are\s+now\s+(a|an)\s+", re.I),
+    re.compile(r"<\s*/?\s*(system|assistant|user)\s*>", re.I),
+]
+
+# Longueur maximale du scenario envoye a l'IA (au-dela : tronque).
+_SCENARIO_MAX_LEN = 1000
+
+
+def _sanitize_scenario(texte: str) -> str:
+    """Nettoie une entree utilisateur avant injection dans le prompt IA.
+
+    - Tronque a _SCENARIO_MAX_LEN caracteres
+    - Retire les motifs typiques d'injection de prompt
+    - Echappe les guillemets/accolades qui pourraient casser le format
+    """
+    if not isinstance(texte, str):
+        return ""
+    t = texte.strip()[:_SCENARIO_MAX_LEN]
+    for pat in _INJECTION_PATTERNS:
+        t = pat.sub("[filtre]", t)
+    # On retire les triples backticks qui pourraient permettre de sortir du contexte
+    t = t.replace("```", "'''")
+    return t
 
 
 def analyser_evenement_macro(evenement_utilisateur, calibration_historique=False,
@@ -26,17 +64,20 @@ def analyser_evenement_macro(evenement_utilisateur, calibration_historique=False
     """Point d'entree public. Cache via _analyser_cache_impl.
     La PROMPT_VERSION est dans la cle pour invalider l'ancien cache a chaque
     refonte du prompt."""
+    # Sanitize avant tout (et avant la cle de cache : un input malveillant
+    # equivalent au texte propre doit hitter le meme cache).
+    evenement_clean = _sanitize_scenario(evenement_utilisateur)
     # custom_tickers est une liste de dicts (non hashable) -> on serialise
     custom_key = json.dumps(custom_tickers, sort_keys=True) if custom_tickers else ""
     return _analyser_cache_impl(
-        evenement_utilisateur, calibration_historique, custom_key, PROMPT_VERSION
+        evenement_clean, calibration_historique, custom_key, PROMPT_VERSION
     )
 
 
-@st.cache_data(ttl=3600, show_spinner=False)
+@st.cache_data(ttl=86400, show_spinner=False)
 def _analyser_cache_impl(evenement_utilisateur, calibration_historique,
                           custom_tickers_key, prompt_version):
-    """Implementation cachee. NE PAS appeler directement, passer par
+    """Implementation cachee 24h. NE PAS appeler directement, passer par
     analyser_evenement_macro."""
     custom_tickers = json.loads(custom_tickers_key) if custom_tickers_key else None
     return _analyser_impl(evenement_utilisateur, calibration_historique, custom_tickers)
@@ -278,7 +319,7 @@ def _analyser_impl(evenement_utilisateur, calibration_historique=False,
     try:
         log.info("Appel OpenAI pour analyse macro (calibration=%s, %d custom)",
                  calibration_historique, len(custom_tickers or []))
-        reponse = client.chat.completions.create(
+        reponse = _get_openai_client().chat.completions.create(
             model="gpt-4o-mini",
             messages=[{"role": "user", "content": prompt}],
             temperature=0.45,
@@ -299,9 +340,21 @@ def _analyser_impl(evenement_utilisateur, calibration_historique=False,
 
         return resultat
 
-    except Exception as e:
-        log.error("Erreur appel IA : %s", e, exc_info=True)
-        return {"erreur": f"Erreur de connexion à l'IA : {str(e)[:120]}"}
+    except APITimeoutError as e:
+        log.error("Timeout OpenAI : %s", e)
+        return {"erreur": "L'IA n'a pas répondu à temps. Réessayez."}
+    except RateLimitError as e:
+        log.error("Rate limit OpenAI : %s", e)
+        return {"erreur": "Limite d'appels OpenAI atteinte. Patientez quelques secondes."}
+    except APIConnectionError as e:
+        log.error("Connexion OpenAI échouée : %s", e)
+        return {"erreur": "Impossible de joindre OpenAI (réseau)."}
+    except APIError as e:
+        log.error("Erreur API OpenAI : %s", e)
+        return {"erreur": f"Erreur API OpenAI : {str(e)[:120]}"}
+    except (ValueError, KeyError, json.JSONDecodeError) as e:
+        log.error("Réponse IA invalide : %s", e, exc_info=True)
+        return {"erreur": "Réponse IA invalide. Réessayez."}
 
 
 def _debruiter_macro(resultat: dict, scenario: str) -> None:
@@ -343,14 +396,18 @@ def discuter_avec_ia(historique_messages):
     messages.extend(historique_messages)
 
     try:
-        reponse = client.chat.completions.create(
+        reponse = _get_openai_client().chat.completions.create(
             model="gpt-3.5-turbo",
             messages=messages,
             temperature=0.6
         )
         return reponse.choices[0].message.content
-    except Exception as e:
-        return f"❌ Erreur de communication avec l'analyste : {str(e)}"
+    except APITimeoutError:
+        return "❌ L'analyste IA n'a pas répondu à temps. Réessayez."
+    except RateLimitError:
+        return "❌ Limite d'appels OpenAI atteinte. Patientez quelques secondes."
+    except (APIConnectionError, APIError) as e:
+        return f"❌ Erreur de communication avec l'analyste : {str(e)[:120]}"
 
 
 def generer_rapport_complet_ia(scenario, chocs_ia, perf_par_actif, metriques,
@@ -410,7 +467,7 @@ CONTRAINTES :
 """
 
     try:
-        reponse = client.chat.completions.create(
+        reponse = _get_openai_client().chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": "Tu es un analyste financier senior expert."},
@@ -420,5 +477,9 @@ CONTRAINTES :
             max_tokens=1200,
         )
         return reponse.choices[0].message.content
-    except Exception as e:
-        return f"Analyse non disponible (erreur IA : {str(e)})"
+    except APITimeoutError:
+        return "Analyse non disponible (timeout IA)."
+    except RateLimitError:
+        return "Analyse non disponible (limite OpenAI atteinte)."
+    except (APIConnectionError, APIError) as e:
+        return f"Analyse non disponible (erreur IA : {str(e)[:120]})"
