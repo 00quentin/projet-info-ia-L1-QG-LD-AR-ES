@@ -4,6 +4,9 @@ market_data.py
 Connexion aux données réelles via Yahoo Finance.
 """
 
+import json
+from pathlib import Path
+
 import pandas as pd
 import yfinance as yf
 import streamlit as st
@@ -12,6 +15,13 @@ from datetime import datetime, timedelta
 from logger import get_logger
 
 log = get_logger("market_data")
+
+
+# Snapshot rafraichi 1x/jour : dernier prix connu pour chaque actif. Sert de
+# fallback intelligent quand Yahoo est down (au lieu des constantes hardcodees
+# qui se decalent de la realite avec le temps).
+_SNAPSHOT_PATH = Path(__file__).resolve().parent / ".prix_snapshot.json"
+_SNAPSHOT_TTL_HEURES = 24
 
 
 TICKERS_YAHOO = {
@@ -41,7 +51,11 @@ TICKERS_YAHOO = {
 }
 
 
-PRIX_FALLBACK = {
+# Prix de secours (filet de derniere ligne). Utilises uniquement si :
+# 1) le snapshot disque est inexistant ET 2) Yahoo plante.
+# Mis a jour en code de temps en temps. Au runtime, le snapshot disque
+# (rafraichi automatiquement) prend le pas sur ces valeurs.
+_PRIX_HARDCODE = {
     "S&P 500": 5200, "NASDAQ": 18200, "CAC 40": 8100, "MSCI_World": 3500, "Emerging_Markets": 1100,
     "Bons_Tresor_US_10Y": 100, "Bund_10Y": 100, "OAT_10Y": 100, "JGB_10Y": 100, "Gilt_10Y": 100,
     "EUR_USD": 1.08, "Dollar_Index": 104, "VIX": 18,
@@ -49,6 +63,50 @@ PRIX_FALLBACK = {
     "ETF_Defense": 42,
     "Bitcoin": 65000, "Ethereum": 3300, "XRP": 0.55, "Solana": 160,
 }
+
+
+def _charger_snapshot() -> dict:
+    """Lit le snapshot disque si present et frais (< 24h)."""
+    if not _SNAPSHOT_PATH.exists():
+        return {}
+    try:
+        data = json.loads(_SNAPSHOT_PATH.read_text(encoding="utf-8"))
+        ts = datetime.fromisoformat(data.get("timestamp", "1970-01-01"))
+        age_h = (datetime.now() - ts).total_seconds() / 3600
+        if age_h > _SNAPSHOT_TTL_HEURES:
+            log.info("Snapshot fallback périmé (%dh), sera rafraîchi", int(age_h))
+        return data.get("prix", {})
+    except (json.JSONDecodeError, ValueError, OSError) as e:
+        log.warning("Snapshot fallback illisible : %s", e)
+        return {}
+
+
+def _ecrire_snapshot(prix: dict) -> None:
+    """Persiste les prix sur disque pour servir de fallback la prochaine fois."""
+    try:
+        payload = {"timestamp": datetime.now().isoformat(), "prix": prix}
+        _SNAPSHOT_PATH.write_text(
+            json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
+    except OSError as e:
+        log.debug("Snapshot non persiste (%s), pas critique", e)
+
+
+# Initialisation : on charge le snapshot a l'import. Les prix Yahoo recuperes
+# avec succes au runtime mettront le snapshot a jour automatiquement.
+_SNAPSHOT_PRIX = _charger_snapshot()
+
+
+def _prix_fallback(sim_key: str, defaut: float = 100) -> float:
+    """Hierarchie de fallback : snapshot disque > hardcode > defaut."""
+    if sim_key in _SNAPSHOT_PRIX:
+        return _SNAPSHOT_PRIX[sim_key]
+    return _PRIX_HARDCODE.get(sim_key, defaut)
+
+
+# Alias retro-compatible : du code externe peut encore lire PRIX_FALLBACK
+# comme un dict. On garde l'API publique stable.
+PRIX_FALLBACK = _PRIX_HARDCODE
 
 
 @st.cache_data(ttl=3600, show_spinner=False)
@@ -71,7 +129,7 @@ def get_prix_actuels(actifs_keys=None):
     for sim_key in actifs_keys:
         ticker = TICKERS_YAHOO.get(sim_key)
         if ticker is None:
-            prix[sim_key] = PRIX_FALLBACK.get(sim_key, 100)
+            prix[sim_key] = _prix_fallback(sim_key)
         else:
             ticker_to_sim[ticker] = sim_key
             tickers_a_charger.append(ticker)
@@ -90,9 +148,9 @@ def get_prix_actuels(actifs_keys=None):
             auto_adjust=True,
         )
     except Exception as e:  # noqa: BLE001 — yfinance leve plusieurs types
-        log.warning("Batch yf.download a echoue (%s) : fallback prix par defaut", str(e)[:80])
+        log.warning("Batch yf.download a echoue (%s) : fallback snapshot", str(e)[:80])
         for sim_key in [ticker_to_sim[t] for t in tickers_a_charger]:
-            prix[sim_key] = PRIX_FALLBACK.get(sim_key, 100)
+            prix[sim_key] = _prix_fallback(sim_key)
             erreurs.append(sim_key)
         return prix, erreurs
 
@@ -110,15 +168,23 @@ def get_prix_actuels(actifs_keys=None):
             if serie is not None and not serie.empty:
                 prix[sim_key] = float(serie.iloc[-1])
             else:
-                prix[sim_key] = PRIX_FALLBACK.get(sim_key, 100)
+                prix[sim_key] = _prix_fallback(sim_key)
                 erreurs.append(sim_key)
         except (KeyError, IndexError, ValueError) as e:
             log.warning("Yahoo parse failed for %s (%s): %s", sim_key, ticker, str(e)[:60])
-            prix[sim_key] = PRIX_FALLBACK.get(sim_key, 100)
+            prix[sim_key] = _prix_fallback(sim_key)
             erreurs.append(sim_key)
 
     if erreurs:
         log.warning("Indispos Yahoo: %s", erreurs)
+
+    # Persist snapshot des prix recuperes avec succes (sert de fallback futur)
+    succes = {k: v for k, v in prix.items() if k not in erreurs and k in TICKERS_YAHOO}
+    if succes:
+        snapshot_complet = {**_SNAPSHOT_PRIX, **succes}
+        _ecrire_snapshot(snapshot_complet)
+        _SNAPSHOT_PRIX.update(succes)
+
     return prix, erreurs
 
 
