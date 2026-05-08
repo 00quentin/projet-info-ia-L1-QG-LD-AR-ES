@@ -5,6 +5,7 @@ Orchestration des simulations et backtests.
 Encapsule la logique métier qui était dispersée dans app.py.
 """
 
+from concurrent.futures import ThreadPoolExecutor
 from typing import Dict, List, Optional, Tuple
 import pandas as pd
 
@@ -49,34 +50,40 @@ def lancer_simulation_scenario(
     log.info("Simulation : scenario='%s...', %d actifs, %d jours, MC=%s",
              scenario[:40], len(actifs_selectionnes), duree, monte_carlo)
 
-    chocs = analyser_evenement_macro(
-        scenario,
-        calibration_historique=calibration_historique,
-        custom_tickers=custom_tickers,
-    )
+    # Mode calibration : on lance EN PARALLELE l'analyse calibree (necessaire) et
+    # l'analyse libre (pour la comparaison dashboard). Sans parallelisation, le 2eme
+    # appel doublait la latence de la simulation.
+    chocs_libre = None
+    if calibration_historique:
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            fut_calib = pool.submit(
+                analyser_evenement_macro, scenario,
+                calibration_historique=True, custom_tickers=custom_tickers,
+            )
+            fut_libre = pool.submit(
+                analyser_evenement_macro, scenario,
+                calibration_historique=False, custom_tickers=custom_tickers,
+            )
+            chocs = fut_calib.result()
+            try:
+                chocs_libre_brut = fut_libre.result()
+                if (isinstance(chocs_libre_brut, dict)
+                        and "erreur" not in chocs_libre_brut
+                        and ("actifs" in chocs_libre_brut or "macro" in chocs_libre_brut)):
+                    chocs_libre = chocs_libre_brut
+            except Exception as e:  # noqa: BLE001
+                log.warning("Analyse libre (compa) echouee, on continue sans : %s", e)
+    else:
+        chocs = analyser_evenement_macro(
+            scenario,
+            calibration_historique=False,
+            custom_tickers=custom_tickers,
+        )
 
     if isinstance(chocs, dict) and "erreur" in chocs and len(chocs) == 1:
         return None, chocs["erreur"]
     if not chocs or ("actifs" not in chocs and "macro" not in chocs):
         return None, "L'IA n'a pas pu lier ce scénario à la finance."
-
-    # Si la calibration historique est active, on lance aussi une analyse LIBRE
-    # (sans ancrage historique) pour pouvoir comparer dans le dashboard et
-    # montrer ce que l'ancrage apporte ou retire. Cout : un appel IA en plus.
-    chocs_libre = None
-    if calibration_historique:
-        try:
-            chocs_libre_brut = analyser_evenement_macro(
-                scenario,
-                calibration_historique=False,
-                custom_tickers=custom_tickers,
-            )
-            if (isinstance(chocs_libre_brut, dict)
-                    and "erreur" not in chocs_libre_brut
-                    and ("actifs" in chocs_libre_brut or "macro" in chocs_libre_brut)):
-                chocs_libre = chocs_libre_brut
-        except Exception as e:
-            log.warning("Analyse libre (compa) echouee, on continue sans : %s", e)
 
     # On injecte toujours "S&P 500" dans la simulation pour pouvoir afficher
     # un benchmark, même si l'utilisateur ne l'a pas sélectionné dans son

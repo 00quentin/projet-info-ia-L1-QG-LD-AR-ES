@@ -21,7 +21,11 @@ from market_data import (
     EVENEMENTS_HISTORIQUES,
 )
 from core.runner import lancer_simulation_scenario, lancer_backtest
-from core.portfolio import calculer_poids, construire_allocations_finales
+from core.portfolio import calculer_valeur_finale
+from core.validation import (
+    valider_actifs_et_allocation, valider_scenarios_textes,
+    construire_params_sim_simulation, construire_params_sim_backtest,
+)
 from core.history_store import ajouter_entree
 from core.custom_assets import SESSION_KEY as ACTIFS_PERSO_KEY, vers_actifs_extras
 from components.skeletons import render_skeleton_dashboard
@@ -57,22 +61,15 @@ def _enregistrer_historique(scenario: str, profil: str, capital: float,
 
 
 def _valider_actifs_et_allocation(config: Dict[str, Any]) -> bool:
-    """
-    Garde-fou commun aux 2 modes : au moins un actif et, si profil
-    Personnalise, allocation totalisant 100%.
-
-    Returns:
-        True si la config est valide pour lancer ; False sinon (notification
-        deja affichee).
-    """
-    if not config["actifs_selectionnes"]:
-        notify_warn("Sélectionnez au moins un actif dans la barre latérale.")
+    """Adapter Streamlit : delegue a la validation pure et notifie en cas d'erreur."""
+    erreur = valider_actifs_et_allocation(
+        config["actifs_selectionnes"],
+        config["profil_risque"],
+        config["allocations_custom"],
+    )
+    if erreur:
+        notify_warn(erreur)
         return False
-    if config["profil_risque"] == "Personnalisé":
-        total = sum(config["allocations_custom"].values())
-        if total != 100:
-            notify_warn(f"L'allocation doit totaliser 100% (actuellement {total}%).")
-            return False
     return True
 
 
@@ -107,10 +104,10 @@ def handler_simulation(config: Dict[str, Any]) -> None:
     textes = {label: st.session_state[f"event_text_{label}"] for label in labels_actifs}
 
     # Validation : chaque scenario doit faire >= 10 caracteres
-    for label, txt in textes.items():
-        if len(txt.strip()) < 10:
-            notify_warn(f"Scénario {label} trop court (au moins 10 caractères).")
-            return
+    erreur_scenario = valider_scenarios_textes(textes)
+    if erreur_scenario:
+        notify_warn(erreur_scenario[1])
+        return
 
     if not _valider_actifs_et_allocation(config):
         return
@@ -157,28 +154,18 @@ def handler_simulation(config: Dict[str, Any]) -> None:
                 else:
                     st.session_state.simulations[label] = result
 
-            st.session_state.params_sim = {
-                "actifs_sim":   config["actifs_selectionnes"].copy(),
-                "allocations":  config["allocations_custom"].copy(),
-                "profil":       config["profil_risque"],
-                "capital":      config["capital_initial"],
-                "duree":        config["duree"],
-                "mc":           config["mode_monte_carlo"],
-                "nb_scenarios": nb,
-                "prix_reels":   config["utiliser_prix_reels"],
-                "calib":        config["calibration_historique"],
-            }
+            st.session_state.params_sim = construire_params_sim_simulation(config, nb)
 
-            poids_h = calculer_poids(
-                config["profil_risque"], config["actifs_selectionnes"],
-                config["allocations_custom"],
-            )
             for label in labels_actifs:
                 res = st.session_state.simulations[label]
                 if res is None:
                     continue
-                _, valeur_finale = construire_allocations_finales(
-                    res["perf"], poids_h, config["capital_initial"],
+                valeur_finale = calculer_valeur_finale(
+                    config["profil_risque"],
+                    config["actifs_selectionnes"],
+                    config["allocations_custom"],
+                    res["perf"],
+                    config["capital_initial"],
                 )
                 _enregistrer_historique(
                     scenario=res["scenario"],
@@ -193,8 +180,11 @@ def handler_simulation(config: Dict[str, Any]) -> None:
             if any(st.session_state.simulations[lab] for lab in labels_actifs):
                 st.session_state["_just_simulated"] = True
 
-        except Exception as e:
-            log.error("Erreur simulation : %s", e, exc_info=True)
+        except (ValueError, KeyError, TypeError) as e:
+            log.error("Erreur simulation (donnees) : %s", e, exc_info=True)
+            notify_error(f"Erreur technique : {e}")
+        except Exception as e:  # noqa: BLE001 — derniere ligne de defense UI
+            log.error("Erreur simulation (inattendue) : %s", e, exc_info=True)
             notify_error(f"Erreur technique : {e}")
         finally:
             skeleton_ph.empty()
@@ -228,19 +218,16 @@ def handler_backtest(config: Dict[str, Any]) -> None:
             bt_result["date_fin"] = config["date_fin_custom"]
             st.session_state.backtest_data = bt_result
 
-            st.session_state.params_sim = {
-                "actifs_sim":   list(df_histo.columns),
-                "allocations":  config["allocations_custom"].copy(),
-                "profil":       config["profil_risque"],
-                "capital":      config["capital_initial"],
-            }
-
-            poids_h = calculer_poids(
-                config["profil_risque"], list(df_histo.columns),
-                config["allocations_custom"],
+            st.session_state.params_sim = construire_params_sim_backtest(
+                config, list(df_histo.columns)
             )
-            _, valeur_finale = construire_allocations_finales(
-                bt_result["perf"], poids_h, config["capital_initial"],
+
+            valeur_finale = calculer_valeur_finale(
+                config["profil_risque"],
+                list(df_histo.columns),
+                config["allocations_custom"],
+                bt_result["perf"],
+                config["capital_initial"],
             )
             _enregistrer_historique(
                 scenario=f"Backtest : {config['event_choisi']}",
@@ -253,8 +240,11 @@ def handler_backtest(config: Dict[str, Any]) -> None:
             )
             st.session_state["_just_backtested"] = True
 
-        except Exception as e:
-            log.error("Erreur backtest : %s", e, exc_info=True)
+        except (ValueError, KeyError, TypeError) as e:
+            log.error("Erreur backtest (donnees) : %s", e, exc_info=True)
+            notify_error(f"Erreur backtest : {e}")
+        except Exception as e:  # noqa: BLE001 — derniere ligne de defense UI
+            log.error("Erreur backtest (inattendue) : %s", e, exc_info=True)
             notify_error(f"Erreur backtest : {e}")
         finally:
             skeleton_ph_bt.empty()

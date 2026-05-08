@@ -17,14 +17,17 @@ def render_page_academie():
     dans l'ordre — chaque partie s'appuie sur la précédente. Prenez votre temps.
     """)
 
-    st_outils, st_modeles, st_macro, st_cas, st_strat, st_lex, st_methodo = st.tabs([
+    (st_outils, st_modeles, st_macro, st_cas, st_strat, st_construire,
+     st_biais, st_lex, st_methodo) = st.tabs([
         "1. Lire les données",
         "2. Modèles & maths",
         "3. Macro-économie",
         "4. Cas historiques",
         "5. Stratégies d'investissement",
-        "6. Lexique",
-        "7. Méthodologie",
+        "6. Construction de portefeuille",
+        "7. Biais comportementaux",
+        "8. Lexique",
+        "9. Méthodologie",
     ])
 
     with st_outils:
@@ -37,6 +40,10 @@ def render_page_academie():
         _render_cas()
     with st_strat:
         _render_strategies()
+    with st_construire:
+        _render_construction_portefeuille()
+    with st_biais:
+        _render_biais_comportementaux()
     with st_lex:
         _render_lexique()
     with st_methodo:
@@ -530,7 +537,54 @@ def _render_strategies():
     Ils gèrent des centaines de milliards sur ce principe.
     """)
 
-    st.markdown("#### 5.6 — Pour choisir votre stratégie")
+    st.markdown("#### 5.6 — L'indexation passive (Bogle, Vanguard)")
+    st.write("""
+    En 1976, **John Bogle** crée le premier fonds indiciel grand public chez Vanguard. Son idée
+    est radicale pour l'époque : *"Si la plupart des gérants actifs sous-performent l'indice après
+    frais, autant juste acheter l'indice."* La recherche académique lui a donné raison : sur 20 ans,
+    **plus de 85% des gérants actions actifs aux US sous-performent le S&P 500** (étude SPIVA 2024).
+
+    **Principe** : acheter un ETF qui réplique un large indice (S&P 500, MSCI World) avec des frais
+    de 0,03% à 0,20% par an, contre 1,5% à 2,5% pour un fonds actif. Sur 30 ans, l'écart de frais
+    composé représente **~30% de capital final perdu** pour l'investisseur en fonds actif.
+
+    **Pourquoi ça marche ?** Le marché est globalement efficient à long terme. Battre l'indice
+    demande une information ou un timing exceptionnels — et même Buffett conseille à sa femme
+    d'investir 90% en S&P 500 dans son testament.
+    """)
+
+    st.markdown("#### 5.7 — Le DCA (Dollar-Cost Averaging)")
+    st.write("""
+    Plutôt que d'investir un gros montant d'un coup, on investit **une somme fixe à intervalle
+    régulier** (chaque mois). L'avantage : on lisse mécaniquement le prix d'achat, on achète plus
+    de parts quand le marché est bas et moins quand il est haut.
+
+    **Exemple concret** : 200€/mois pendant 20 ans dans un ETF MSCI World à 8% annualisé =
+    **environ 118 000€** (dont 48 000€ versés et 70 000€ d'intérêts composés). C'est la stratégie
+    par défaut pour 99% des épargnants particuliers.
+
+    **Limite** : sur le long terme (>10 ans), **investir d'un coup** ("lump sum") bat le DCA dans
+    ~70% des cas, parce que les marchés montent en moyenne. Le DCA est surtout un outil
+    **psychologique** qui réduit le regret en cas de krach juste après un gros versement.
+    """)
+
+    st.markdown("#### 5.8 — Le factor investing (Fama, French)")
+    st.write("""
+    Initiée par **Eugene Fama** (Prix Nobel 2013) et **Kenneth French** dans les années 1990.
+    Ils identifient des **facteurs de risque** systématiques qui expliquent les rendements
+    au-delà du simple beta de marché :
+
+    - **Value** : actions sous-évaluées (faible P/B, P/E) — surperformance historique +2-4%/an
+    - **Size** : petites capitalisations — surperformance +1-3%/an, mais plus volatile
+    - **Momentum** : titres en tendance haussière 6-12 mois — +3-5%/an
+    - **Quality** : entreprises rentables et peu endettées — +1-2%/an, plus stable en crise
+    - **Low volatility** : actions à faible vol surperformnent à long terme (paradoxe !)
+
+    En pratique, on construit des portefeuilles "smart beta" en combinant ces facteurs. AQR,
+    Dimensional Fund Advisors et BlackRock sont les leaders mondiaux du factor investing.
+    """)
+
+    st.markdown("#### 5.9 — Pour choisir votre stratégie")
     st.markdown('<div class="qt-callout">'
                 'Il n\'y a pas de "meilleure" stratégie dans l\'absolu. Tout dépend de :<br><br>'
                 '• <strong>Votre horizon</strong> : 5 ans vs 30 ans, ce n\'est pas la même chose.<br><br>'
@@ -538,6 +592,190 @@ def _render_strategies():
                 '• <strong>Vos objectifs</strong> : préservation du capital, rendement, héritage ?<br><br>'
                 '• <strong>Vos compétences</strong> : le value investing demande de savoir analyser un bilan, '
                 'le momentum d\'avoir une discipline de fer.'
+                '</div>', unsafe_allow_html=True)
+
+
+def _render_construction_portefeuille():
+    st.markdown("### Construire un portefeuille comme un pro")
+    st.write("""
+    Choisir une stratégie ne suffit pas. Il faut savoir **assembler** les briques pour que le
+    portefeuille total soit plus robuste que la somme de ses parties. C'est la grande idée de
+    Markowitz, qui lui a valu le Nobel en 1990.
+    """)
+
+    st.markdown("#### 6.1 — La diversification : le seul vrai \"free lunch\"")
+    st.write("""
+    Harry Markowitz, 1952. Il démontre mathématiquement que **diversifier permet de réduire le
+    risque sans réduire le rendement** — à condition que les actifs ne soient pas parfaitement
+    corrélés. C'est le seul résultat de la finance qui ressemble à un \"repas gratuit\".
+
+    **Exemple chiffré** : un actif A à vol 20%/an + un actif B à vol 20%/an, avec une corrélation
+    de 0% (donc indépendants), donnent un portefeuille 50/50 à vol **14,1%** (et non 20%). On a
+    réduit le risque de 30% sans rien sacrifier au rendement. La magie vient de :
+    """)
+    st.latex(r"\sigma_p^2 = w_A^2 \sigma_A^2 + w_B^2 \sigma_B^2 + 2 w_A w_B \rho_{AB} \sigma_A \sigma_B")
+
+    st.markdown("#### 6.2 — La frontière efficiente")
+    st.write("""
+    En combinant N actifs avec des poids variables, on génère une infinité de portefeuilles
+    possibles. Markowitz montre qu'il existe une **frontière** : pour chaque niveau de risque,
+    il y a un portefeuille qui maximise le rendement. Tous les portefeuilles **en-dessous**
+    de cette courbe sont sous-optimaux (on peut faire mieux à risque égal).
+
+    Les gérants institutionnels visent cette frontière. En pratique, c'est compliqué car les
+    rendements futurs sont incertains, et les corrélations changent en crise. Mais l'intuition
+    reste : **il existe un portefeuille idéal pour chaque profil de risque**.
+    """)
+
+    st.markdown("#### 6.3 — Les corrélations entre classes d'actifs (régime normal)")
+    st.markdown("""
+    | | Actions US | Obligs 10Y | Or | Pétrole | BTC |
+    |---|---|---|---|---|---|
+    | **Actions US** | 1.00 | -0.30 | 0.10 | 0.30 | 0.40 |
+    | **Obligs 10Y** | -0.30 | 1.00 | 0.20 | -0.10 | -0.05 |
+    | **Or** | 0.10 | 0.20 | 1.00 | 0.20 | 0.20 |
+    | **Pétrole** | 0.30 | -0.10 | 0.20 | 1.00 | 0.20 |
+    | **BTC** | 0.40 | -0.05 | 0.20 | 0.20 | 1.00 |
+    """)
+    st.write("""
+    **Lecture** : actions et obligations ont une corrélation **négative** (-0,30) en régime
+    normal — c'est le fondement du 60/40. Mais en 2022, cette corrélation est passée
+    **positive** (+0,50), causant le pire drawdown du 60/40 depuis 1969.
+    """)
+
+    st.markdown('<div class="qt-callout-warn">'
+                '<strong>Le piège des corrélations en crise :</strong><br><br>'
+                'En 2008 et en mars 2020, <strong>toutes les corrélations sont montées vers 1</strong>. '
+                'Actions, obligations corporate, immobilier, matières premières ont chuté ensemble. '
+                'Seuls l\'or, les Treasuries longs et le cash ont protégé.<br><br>'
+                'C\'est ce qu\'on appelle <strong>le risque systémique</strong> : la diversification '
+                'protège en régime normal, mais s\'effondre exactement quand on en a le plus besoin. '
+                'D\'où l\'importance d\'avoir 5-10% en or physique ou en cash pour les vrais chocs.'
+                '</div>', unsafe_allow_html=True)
+
+    st.markdown("#### 6.4 — Le rebalancement (rebalancing)")
+    st.write("""
+    Sans intervention, un portefeuille 60/40 dérive. Si les actions montent fort, vous vous
+    retrouvez avec 70/30 sans l'avoir choisi — vous prenez plus de risque qu'initialement voulu.
+
+    **Le rebalancement** consiste à racheter périodiquement (annuellement ou quand l'écart
+    dépasse 5 points) la cible 60/40. Mécaniquement, cela revient à **vendre ce qui a monté
+    et acheter ce qui a baissé** — l'inverse exact du comportement émotionnel naturel.
+
+    **Effet mesuré** : un portefeuille 60/40 rebalancé annuellement bat un portefeuille
+    \"laissé courir\" d'environ **+0,3%/an** sur 30 ans. Modeste mais cumulé sur la vie d'un
+    investisseur, c'est significatif.
+    """)
+
+    st.markdown("#### 6.5 — Le découpage par horizon (bucket strategy)")
+    st.write("""
+    Une approche pragmatique recommandée par les conseillers : segmenter le patrimoine par
+    **horizon de besoin** :
+
+    - **Bucket 1 (0-2 ans)** : cash + livrets. Sécurité absolue. Rendement faible mais accessible.
+    - **Bucket 2 (2-7 ans)** : obligations courtes + foncier. Stabilité, peu de volatilité.
+    - **Bucket 3 (7+ ans)** : actions + actifs risqués. Rendement long terme malgré la volatilité.
+
+    Le bucket 1 sert à dormir tranquille. Le bucket 3 sert à enrichir. Le bucket 2 fait le pont.
+    Cette structure réduit le **risque de séquence** (avoir besoin de vendre en bas de cycle).
+    """)
+
+
+def _render_biais_comportementaux():
+    st.markdown("### Les biais qui ruinent les investisseurs")
+    st.write("""
+    Daniel Kahneman (Nobel d'économie 2002) a démontré que les humains ne sont **pas rationnels**
+    face à l'argent. Notre cerveau utilise des heuristiques (raccourcis) qui marchent au quotidien
+    mais qui sont **catastrophiques** en investissement. Les connaître, c'est déjà se protéger.
+    """)
+
+    st.markdown("#### 7.1 — L'aversion à la perte")
+    st.write("""
+    **Découverte fondamentale de Kahneman & Tversky (1979)** : la douleur de perdre 100€ est
+    **psychologiquement deux fois plus intense** que le plaisir de gagner 100€. Conséquences :
+
+    - On vend trop tôt les positions gagnantes (\"sécuriser le gain\")
+    - On garde trop longtemps les positions perdantes (\"attendre que ça remonte\")
+    - On panique en bas de cycle et on rate la reprise
+
+    **Étude Dalbar 2024** : sur 30 ans, l'investisseur particulier moyen a gagné **+3,7%/an**
+    sur les actions, contre **+10,2%/an** pour le S&P 500. La différence (~6,5%/an !) vient
+    quasi-exclusivement de mauvais timing dicté par les émotions.
+    """)
+
+    st.markdown("#### 7.2 — Le biais de confirmation")
+    st.write("""
+    On cherche les informations qui **confirment** ce qu'on croit déjà, et on ignore celles
+    qui le contredisent. Si vous achetez Tesla, vous lirez les articles haussiers et zapperez
+    les baissiers. C'est humain, mais désastreux.
+
+    **Antidote pro** : avant chaque décision, listez explicitement **3 raisons pour lesquelles
+    vous pourriez avoir tort**. Si vous n'en trouvez pas, ne tradez pas — vous êtes biaisé.
+    """)
+
+    st.markdown("#### 7.3 — L'effet de récence")
+    st.write("""
+    On donne trop d'importance aux événements récents. Après 3 ans de bull market sur la tech,
+    on croit que ça durera toujours (souvenez-vous de 2021). Après un krach, on croit que les
+    actions sont \"finies\" (mars 2009). Les deux fois, on prend exactement la mauvaise décision.
+
+    **Antidote** : raisonner sur **20 ans**, pas sur 6 mois. Le S&P 500 a fait +10%/an sur
+    100 ans, malgré 1929, 1987, 2000, 2008, 2020. Le long terme efface les drames.
+    """)
+
+    st.markdown("#### 7.4 — Le biais d'ancrage")
+    st.write("""
+    Notre cerveau s'accroche au **premier chiffre** vu (l'ancre). Si vous avez acheté NVDA
+    à 200$ et qu'elle vaut maintenant 800$, vous pensez \"trop tard pour entrer\". Si elle vaut
+    120$, vous pensez \"super, c'est en solde\". Mais le **prix initial n'a aucune importance** —
+    seul compte la valeur intrinsèque future.
+
+    **Antidote** : oubliez votre prix d'achat. Chaque jour, demandez-vous : *\"Si je n'avais pas
+    cette position, est-ce que je l'achèterais à ce prix aujourd'hui ?\"*. Si la réponse est non,
+    vendez.
+    """)
+
+    st.markdown("#### 7.5 — L'excès de confiance")
+    st.write("""
+    Les investisseurs particuliers **surestiment systématiquement leurs compétences**. Étude
+    Barber & Odean (2001) : les hommes tradent 45% plus que les femmes — et **gagnent 1,4%/an
+    de moins**, à cause des frais et des mauvaises décisions. Plus on trade, moins on gagne.
+
+    **Statistique brutale** : 80% des day-traders particuliers perdent de l'argent sur un an.
+    **97% sur 5 ans** (étude Brésil 2017). Pourtant, chacun croit faire partie des 3% qui
+    réussissent.
+    """)
+
+    st.markdown("#### 7.6 — Le biais de disponibilité")
+    st.write("""
+    On surestime la probabilité des événements **dont on entend parler**. Après un krach
+    médiatisé, on est sûr qu'un autre arrive bientôt. Pendant un bull market calme, on oublie
+    que la volatilité existe. Les médias amplifient ce biais en couvrant ce qui fait du clic.
+
+    **Antidote** : ne jamais prendre une décision d'investissement après avoir lu une news
+    sensationnelle. Attendez 24h. Les pros disent : *\"Sleep on it\"*.
+    """)
+
+    st.markdown("#### 7.7 — Le mimétisme (herding)")
+    st.write("""
+    On se sent en sécurité quand on fait comme tout le monde. C'est ce qui crée les **bulles**
+    (tout le monde achète, donc on achète) et les **paniques** (tout le monde vend, donc on
+    vend). Robert Shiller (Nobel 2013) a démontré que les marchés sont régulièrement loin de
+    la valeur fondamentale à cause de cette dynamique.
+
+    **Buffett** : *\"Be fearful when others are greedy, and greedy when others are fearful.\"*
+    (Soyez craintif quand les autres sont avides, et avide quand les autres sont craintifs.)
+    """)
+
+    st.markdown('<div class="qt-callout">'
+                '<strong>Le seul antidote universel : un plan écrit.</strong><br><br>'
+                'Avant d\'investir, écrivez sur papier :<br>'
+                '• Votre allocation cible (ex: 60% actions, 40% obligations)<br>'
+                '• Vos règles de rebalancement (ex: tous les 12 mois)<br>'
+                '• Vos critères de vente d\'une position (ex: -25% sur l\'objectif initial)<br><br>'
+                'Quand l\'émotion vous dit de tout vendre en bas de cycle, relisez ce plan. '
+                'C\'est ce que font les meilleurs gérants : <strong>déléguer les décisions à un '
+                'soi-même rationnel passé</strong> plutôt qu\'au soi-même paniqué présent.'
                 '</div>', unsafe_allow_html=True)
 
 

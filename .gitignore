@@ -38,6 +38,9 @@ desktop.ini
 # ===== Streamlit cache =====
 .streamlit/cache/
 
+# ===== Cache runtime (snapshot prix Yahoo, genere automatiquement) =====
+.prix_snapshot.json
+
 # ===== Logs =====
 *.log
 logs/

@@ -86,6 +86,23 @@ def construire_allocations_finales(
     return allocations, valeur_finale
 
 
+def calculer_valeur_finale(
+    profil: str,
+    actifs: List[str],
+    allocations_custom: Dict[str, int],
+    perf_par_actif: Dict[str, float],
+    capital: float,
+) -> float:
+    """Helper : calcule la valeur finale du portefeuille en une etape.
+
+    Compose calculer_poids() + construire_allocations_finales(), pour eviter
+    de dupliquer ce sequencage dans les handlers et les vues.
+    """
+    poids = calculer_poids(profil, actifs, allocations_custom)
+    _, valeur_finale = construire_allocations_finales(perf_par_actif, poids, capital)
+    return valeur_finale
+
+
 def calculer_valeur_portefeuille(
     df: pd.DataFrame,
     poids: Dict[str, float],
