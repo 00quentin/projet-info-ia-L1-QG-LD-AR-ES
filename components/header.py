@@ -17,25 +17,25 @@ def _show_onboarding():
 
 
 def render_dark_mode_toggle():
-    """Toolbar discrete : 2 boutons avec icônes SVG, alignes a droite."""
+    """Toolbar : 2 boutons header de taille identique avec icônes Unicode propres."""
+    # Colonnes ÉGALES (2/2) pour boutons de même largeur, peu importe le texte.
     col_h1, col_h2, col_h3 = st.columns([8, 2, 2])
     with col_h2:
-        # Icône lune si on est en clair (on veut basculer vers sombre)
-        # Icône soleil si on est en sombre (on veut basculer vers clair)
+        # 🌙 lune si on est en clair, ☀ soleil si on est en sombre
         if st.session_state.dark_mode:
-            label_dark = "☀  Thème clair"
+            label = "☀  Mode clair"
         else:
-            label_dark = "☾  Thème sombre"
+            label = "🌙  Mode sombre"
         st.button(
-            label_dark,
-            help="Basculer entre mode clair et mode sombre",
+            label,
+            help="Basculer entre le mode clair et le mode sombre",
             key="toggle_dark",
             on_click=_toggle_dark_mode,
             use_container_width=True,
         )
     with col_h3:
         st.button(
-            "?  Guide",
+            "📖  Guide",
             help="Afficher le guide d'utilisation pas-à-pas",
             key="show_help",
             on_click=_show_onboarding,
@@ -145,12 +145,17 @@ def render_onboarding():
         '</div>'
     )
     st.markdown(html, unsafe_allow_html=True)
-    st.button(
-        "✓ J'ai compris, masquer ce guide",
-        key="hide_onboarding",
+    # Pattern direct (sans on_click callback) : plus robuste contre les
+    # erreurs Streamlit qui surviennent quand un widget disparaît au rerun
+    # déclenché par son propre callback.
+    if st.button(
+        "J'ai compris, masquer ce guide",
+        key="btn_hide_onboarding",
         use_container_width=True,
-        on_click=_hide_onboarding,
-    )
+        type="primary",
+    ):
+        st.session_state.show_onboarding = False
+        st.rerun()
 
 
 def _sparkline_svg(values: list, up: bool) -> str:

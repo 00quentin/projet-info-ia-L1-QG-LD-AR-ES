@@ -1267,6 +1267,22 @@ div[data-testid="metric-container"]:hover::before {
     .qt-skel-charts { grid-template-columns: 1fr; }
 }
 
+/* === BOUTONS HEADER (Mode sombre/clair, Guide) === */
+/* Force les boutons à avoir une taille identique et un look cohérent */
+[data-testid="stHorizontalBlock"] [data-testid="stColumn"]:nth-child(2) .stButton > button,
+[data-testid="stHorizontalBlock"] [data-testid="stColumn"]:nth-child(3) .stButton > button {
+    min-height: 38px;
+    height: 38px;
+    padding: 0 14px;
+    font-size: 0.84em;
+    font-weight: 600;
+    text-align: center;
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 /* === ACADÉMIE — illustrations hero pour chaque section === */
 .qt-acad-illu {
     --acad-accent: #319795;

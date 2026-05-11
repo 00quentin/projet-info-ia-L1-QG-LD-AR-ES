@@ -248,12 +248,12 @@ def illu_krach() -> str:
     <!-- Courbe principale -->
     <path d="M 10 25 L 50 35 L 90 30 L 130 50 L 170 75 L 210 100 L 250 115 L 295 125"
           fill="none" stroke="#b91c1c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-    <!-- Indicateur en chute -->
+    <!-- Indicateur en chute (triangle pointant vers le bas) -->
     <g transform="translate(285 130)">
         <circle r="6" fill="#dc2626">
             <animate attributeName="r" values="6;9;6" dur="1.5s" repeatCount="indefinite"/>
         </circle>
-        <text x="0" y="3" text-anchor="middle" fill="white" font-size="9" font-weight="bold">▼</text>
+        <polygon points="-3,-2 3,-2 0,3" fill="#ffffff"/>
     </g>
     '''
     return _wrap(inner, "#dc2626",

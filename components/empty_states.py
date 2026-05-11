@@ -182,11 +182,10 @@ def render_empty_dashboard():
             icone = ICONES_SCENARIOS.get(nom, "◆")
             illustration_html = get_illustration(nom)
             with cols[col_idx]:
-                # On utilise st.html (Streamlit 1.33+) pour le HTML brut complexe
-                # contenant des SVG : st.markdown peut échapper / dupliquer les
-                # IDs SVG (linearGradient id="...") quand plusieurs cartes
-                # contiennent des défs SVG dans le même rerun.
-                card_html = (
+                # st.markdown(unsafe_allow_html=True) — st.html sanitize
+                # certains attributs SVG (animate, animateMotion) ce qui
+                # casse les illustrations.
+                st.markdown(
                     f'<div class="qt-preset-card">'
                     f'{illustration_html}'
                     f'<div class="qt-preset-body">'
@@ -199,12 +198,9 @@ def render_empty_dashboard():
                     f'<span class="qt-preset-arrow">Lancer &rarr;</span>'
                     f'</div>'
                     f'</div>'
-                    f'</div>'
+                    f'</div>',
+                    unsafe_allow_html=True,
                 )
-                if hasattr(st, "html"):
-                    st.html(card_html)
-                else:
-                    st.markdown(card_html, unsafe_allow_html=True)
                 st.button(
                     "Lancer la simulation",
                     key=f"empty_preset_{i}",

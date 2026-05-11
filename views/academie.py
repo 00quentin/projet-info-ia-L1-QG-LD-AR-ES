@@ -13,10 +13,7 @@ def _illu(section: str):
     """Helper : affiche l'illustration hero d'une section de l'académie."""
     html = get_academie_illustration(section)
     if html:
-        if hasattr(st, "html"):
-            st.html(html)
-        else:
-            st.markdown(html, unsafe_allow_html=True)
+        st.markdown(html, unsafe_allow_html=True)
 
 
 def render_page_academie():
