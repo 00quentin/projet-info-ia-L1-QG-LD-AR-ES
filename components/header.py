@@ -5,7 +5,7 @@ Composants de l'en-tête : toggle dark mode, hero, bande live, onboarding.
 """
 
 import streamlit as st
-from market_data import get_prix_actuels
+from market_data import get_prix_actuels, get_prix_avec_variation
 
 
 def _toggle_dark_mode():
@@ -148,17 +148,49 @@ def render_onboarding():
     )
 
 
+def _sparkline_svg(values: list, up: bool) -> str:
+    """Mini-sparkline SVG (40x16) normalisée à partir d'une liste de prix.
+    Couleur verte si tendance haussière, rouge sinon.
+    """
+    if not values or len(values) < 2:
+        return ('<svg class="qt-spark" width="40" height="16" viewBox="0 0 40 16">'
+                '<line x1="2" y1="8" x2="38" y2="8" stroke="#94a3b8" '
+                'stroke-width="1.5" stroke-linecap="round" opacity="0.5"/></svg>')
+    vmin, vmax = min(values), max(values)
+    rng = vmax - vmin if vmax > vmin else 1
+    n = len(values)
+    pts = []
+    for i, v in enumerate(values):
+        x = 2 + (i / (n - 1)) * 36
+        y = 14 - ((v - vmin) / rng) * 12  # inverse Y (haut = grande valeur)
+        pts.append(f"{x:.1f},{y:.1f}")
+    path = " ".join(pts)
+    color = "#16a34a" if up else "#dc2626"
+    # Aire douce sous la courbe
+    area_pts = path + f" 38,14 2,14"
+    return (
+        f'<svg class="qt-spark" width="40" height="16" viewBox="0 0 40 16">'
+        f'<polygon points="{area_pts}" fill="{color}" opacity="0.15"/>'
+        f'<polyline points="{path}" fill="none" stroke="{color}" '
+        f'stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>'
+        f'<circle cx="{pts[-1].split(",")[0]}" cy="{pts[-1].split(",")[1]}" '
+        f'r="1.8" fill="{color}"><animate attributeName="r" values="1.8;3;1.8" '
+        f'dur="1.5s" repeatCount="indefinite"/></circle>'
+        f'</svg>'
+    )
+
+
 def render_bande_marche():
-    """Bande horizontale avec prix live de 6 actifs majeurs."""
+    """Bande horizontale avec prix live + variation + mini-sparkline."""
     try:
         actifs_strip = ["S&P 500", "VIX", "Or", "Petrole", "Bitcoin", "EUR_USD"]
-        prix, _ = get_prix_actuels(actifs_strip)
+        donnees = get_prix_avec_variation(actifs_strip)
 
-        items_html = '<div class="market-strip-tag">⬤ LIVE</div>'
+        items_html = '<div class="market-strip-tag"><span class="qt-live-dot"></span>LIVE</div>'
         labels_courts = {
             "S&P 500": "S&P 500", "VIX": "VIX",
-            "Or": "OR ($/oz)", "Petrole": "PÉTROLE ($)",
-            "Bitcoin": "BTC ($)", "EUR_USD": "EUR/USD",
+            "Or": "OR", "Petrole": "WTI",
+            "Bitcoin": "BTC", "EUR_USD": "EUR/USD",
         }
         formats = {
             "S&P 500": "{:,.0f}", "VIX": "{:.2f}",
@@ -166,18 +198,44 @@ def render_bande_marche():
             "Bitcoin": "{:,.0f}", "EUR_USD": "{:.4f}",
         }
         for actif in actifs_strip:
-            if actif in prix:
-                val = formats[actif].format(prix[actif]).replace(",", " ")
-                items_html += (
-                    f'<div class="market-strip-item">'
-                    f'<span class="market-strip-label">{labels_courts[actif]}</span>'
-                    f'<span class="market-strip-value">{val}</span>'
-                    f'</div>'
-                )
+            d = donnees.get(actif)
+            if not d:
+                continue
+            val = formats[actif].format(d["prix"]).replace(",", " ")
+            var = d["variation_pct"]
+            up = var >= 0
+            arrow = "▲" if up else "▼"
+            color_cls = "qt-spark-up" if up else "qt-spark-down"
+            spark = _sparkline_svg(d.get("sparkline", []), up)
+            items_html += (
+                f'<div class="market-strip-item">'
+                f'<span class="market-strip-label">{labels_courts[actif]}</span>'
+                f'<span class="market-strip-value">{val}</span>'
+                f'{spark}'
+                f'<span class="market-strip-var {color_cls}">{arrow} {abs(var):.2f}%</span>'
+                f'</div>'
+            )
 
         st.markdown(f'<div class="market-strip">{items_html}</div>', unsafe_allow_html=True)
     except Exception:
-        pass
+        # Fallback : fonction legacy sans sparklines, garantit que la bande s'affiche
+        try:
+            actifs_strip = ["S&P 500", "VIX", "Or", "Petrole", "Bitcoin", "EUR_USD"]
+            prix, _ = get_prix_actuels(actifs_strip)
+            items_html = '<div class="market-strip-tag"><span class="qt-live-dot"></span>LIVE</div>'
+            formats = {"S&P 500": "{:,.0f}", "VIX": "{:.2f}", "Or": "{:,.0f}",
+                       "Petrole": "{:.2f}", "Bitcoin": "{:,.0f}", "EUR_USD": "{:.4f}"}
+            labels = {"S&P 500": "S&P 500", "VIX": "VIX", "Or": "OR",
+                      "Petrole": "WTI", "Bitcoin": "BTC", "EUR_USD": "EUR/USD"}
+            for actif in actifs_strip:
+                if actif in prix:
+                    val = formats[actif].format(prix[actif]).replace(",", " ")
+                    items_html += (f'<div class="market-strip-item">'
+                                   f'<span class="market-strip-label">{labels[actif]}</span>'
+                                   f'<span class="market-strip-value">{val}</span></div>')
+            st.markdown(f'<div class="market-strip">{items_html}</div>', unsafe_allow_html=True)
+        except Exception:
+            pass
 
 
 def render_disclaimer_top():

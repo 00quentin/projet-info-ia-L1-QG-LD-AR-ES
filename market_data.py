@@ -188,6 +188,71 @@ def get_prix_actuels(actifs_keys=None):
     return prix, erreurs
 
 
+@st.cache_data(ttl=3600, show_spinner=False)
+def get_prix_avec_variation(actifs_keys=None):
+    """Retourne pour chaque actif : {"prix": float, "variation_pct": float,
+    "sparkline": list[float]} sur les 5 derniers jours de cotation.
+
+    Sert au market strip pour afficher une mini-tendance visuelle à côté
+    de chaque prix (très peu de coût additionnel : on récupère déjà 5j).
+    """
+    if actifs_keys is None:
+        actifs_keys = list(TICKERS_YAHOO.keys())
+
+    result = {}
+    tickers_a_charger = []
+    ticker_to_sim = {}
+    for sim_key in actifs_keys:
+        ticker = TICKERS_YAHOO.get(sim_key)
+        if ticker is None:
+            result[sim_key] = {"prix": _prix_fallback(sim_key),
+                               "variation_pct": 0.0, "sparkline": []}
+        else:
+            ticker_to_sim[ticker] = sim_key
+            tickers_a_charger.append(ticker)
+
+    if not tickers_a_charger:
+        return result
+
+    try:
+        data = yf.download(
+            tickers=tickers_a_charger, period="7d", interval="1d",
+            progress=False, group_by="ticker", threads=True, auto_adjust=True,
+        )
+    except Exception as e:  # noqa: BLE001
+        log.warning("get_prix_avec_variation: batch echec (%s)", str(e)[:80])
+        for ticker in tickers_a_charger:
+            sk = ticker_to_sim[ticker]
+            result[sk] = {"prix": _prix_fallback(sk),
+                          "variation_pct": 0.0, "sparkline": []}
+        return result
+
+    multi = len(tickers_a_charger) > 1
+    for ticker in tickers_a_charger:
+        sk = ticker_to_sim[ticker]
+        try:
+            if multi:
+                serie = (data[ticker]["Close"].dropna()
+                         if ticker in data.columns.get_level_values(0) else None)
+            else:
+                serie = data["Close"].dropna()
+            if serie is not None and len(serie) >= 2:
+                prix_now = float(serie.iloc[-1])
+                prix_prev = float(serie.iloc[-2])
+                variation = ((prix_now - prix_prev) / prix_prev * 100.0) if prix_prev else 0.0
+                spark = [float(v) for v in serie.tail(5).tolist()]
+                result[sk] = {"prix": prix_now,
+                              "variation_pct": variation, "sparkline": spark}
+            else:
+                result[sk] = {"prix": _prix_fallback(sk),
+                              "variation_pct": 0.0, "sparkline": []}
+        except (KeyError, IndexError, ValueError):
+            result[sk] = {"prix": _prix_fallback(sk),
+                          "variation_pct": 0.0, "sparkline": []}
+
+    return result
+
+
 def _telecharger_closes(tickers: list, **kwargs) -> pd.DataFrame:
     """Helper : un seul yf.download() batch et reconstruit un DataFrame de
     series Close indexees par ticker. Renvoie un DF vide en cas d'echec.

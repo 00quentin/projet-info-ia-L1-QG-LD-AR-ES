@@ -281,7 +281,7 @@ def fig_evolution_portefeuille(
 
 
 def html_metriques_jauges(metriques: Dict[str, float]) -> str:
-    """Génère le HTML des 4 cartes métriques avec jauges visuelles colorées."""
+    """Génère le HTML des 4 cartes métriques avec jauges circulaires SVG animées."""
 
     vol = metriques["vol_ann"]
     sharpe = metriques["sharpe"]
@@ -320,27 +320,51 @@ def html_metriques_jauges(metriques: Dict[str, float]) -> str:
     dd_pct     = min(100.0, dd  / 50 * 100)
     var_pct    = min(100.0, var /  8 * 100)
 
-    def _card(label, valeur_fmt, pct, couleur, verdict, aide):
+    def _gauge_svg(pct: float, couleur: str, valeur: str) -> str:
+        """Demi-cercle SVG animé : arc qui se remplit depuis la gauche."""
+        # Demi-cercle de rayon 38, circumférence pi*r = ~119.4
+        circumf = 119.4
+        offset = circumf * (1 - pct / 100)
         return (
-            f'<div class="qt-metric-gauge" style="border-left:4px solid {couleur};">'
-            f'<div class="qt-metric-gauge-label" title="{aide}">{label}</div>'
-            f'<div class="qt-metric-gauge-value" style="color:{couleur};">{valeur_fmt}</div>'
-            f'<div class="qt-metric-gauge-track">'
-            f'<div class="qt-metric-gauge-fill" style="width:{pct:.1f}%;background:{couleur};"></div>'
+            f'<svg class="qt-gauge-svg" viewBox="0 0 100 60" '
+            f'xmlns="http://www.w3.org/2000/svg">'
+            # Track de fond (gris)
+            f'<path d="M 10 50 A 40 40 0 0 1 90 50" '
+            f'fill="none" stroke="#e2e8f0" stroke-width="8" stroke-linecap="round"/>'
+            # Arc rempli (couleur, animé)
+            f'<path d="M 10 50 A 40 40 0 0 1 90 50" '
+            f'fill="none" stroke="{couleur}" stroke-width="8" stroke-linecap="round" '
+            f'stroke-dasharray="{circumf}" stroke-dashoffset="{circumf}" '
+            f'style="animation: qtGaugeFill 1.2s cubic-bezier(0.65,0,0.35,1) forwards; '
+            f'--gauge-offset:{offset:.1f};"/>'
+            # Valeur centrale
+            f'<text x="50" y="48" text-anchor="middle" font-size="14" '
+            f'font-weight="700" fill="{couleur}" '
+            f'font-family="Inter, sans-serif">{valeur}</text>'
+            f'</svg>'
+        )
+
+    def _card(label, valeur_fmt, pct, couleur, verdict, aide):
+        gauge = _gauge_svg(pct, couleur, valeur_fmt)
+        return (
+            f'<div class="qt-metric-gauge" style="--gauge-color:{couleur};" title="{aide}">'
+            f'<div class="qt-metric-gauge-label">{label}</div>'
+            f'<div class="qt-metric-gauge-circle">{gauge}</div>'
+            f'<div class="qt-metric-gauge-verdict" style="color:{couleur};">'
+            f'<span class="qt-gauge-dot" style="background:{couleur};"></span>{verdict}'
             f'</div>'
-            f'<div class="qt-metric-gauge-verdict" style="color:{couleur};">▲ {verdict}</div>'
             f'</div>'
         )
 
     return (
         '<div class="qt-metrics-row">'
-        + _card("Volatilité annualisée", f"{vol:.2f} %",    vol_pct,    vc, vv,
+        + _card("Volatilité annualisée", f"{vol:.1f}%",   vol_pct,    vc, vv,
                 "Amplitude des variations. Plus faible = plus stable.")
-        + _card("Sharpe Ratio",          f"{sharpe:.2f}",   sharpe_pct, sc, sv,
+        + _card("Sharpe Ratio",          f"{sharpe:.2f}", sharpe_pct, sc, sv,
                 ">2 Excellent · >1 Bon · 0–1 Passable · <0 Mauvais")
-        + _card("Max Drawdown",          f"−{dd:.2f} %",    dd_pct,     dc, dv,
+        + _card("Max Drawdown",          f"−{dd:.1f}%",   dd_pct,     dc, dv,
                 "Pire chute depuis un plus-haut historique.")
-        + _card("VaR 95% (1 jour)",      f"−{var:.2f} %",   var_pct,    rc, rv,
+        + _card("VaR 95% (1 jour)",      f"−{var:.1f}%",  var_pct,    rc, rv,
                 "Perte max probable en 1 jour (niveau de confiance 95%).")
         + '</div>'
     )
@@ -367,6 +391,10 @@ def fig_camembert_repartition(poids: Dict[str, float]) -> go.Figure:
         marker=dict(line=dict(color=c["pie_border"], width=2)),
         hovertemplate="<b>%{label}</b><br>%{percent}<extra></extra>",
         automargin=True,
+        # Effet "pull" : tranches qui s'écartent légèrement de manière aléatoire
+        # pour donner un look 3D dynamique. Pull en valeur par tranche.
+        pull=[0.02] * len(poids),
+        rotation=90,  # commence en haut pour un look plus moderne
     )
     apply_qt_theme(fig, height=460, legend_bottom=False)
     fig.update_layout(
