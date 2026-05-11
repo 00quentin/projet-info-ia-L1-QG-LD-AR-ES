@@ -17,10 +17,15 @@ def _show_onboarding():
 
 
 def render_dark_mode_toggle():
-    """Toolbar discrete : 2 boutons epures, sans emoji, alignes a droite."""
+    """Toolbar discrete : 2 boutons avec icônes SVG, alignes a droite."""
     col_h1, col_h2, col_h3 = st.columns([8, 2, 2])
     with col_h2:
-        label_dark = "Thème clair" if st.session_state.dark_mode else "Thème sombre"
+        # Icône lune si on est en clair (on veut basculer vers sombre)
+        # Icône soleil si on est en sombre (on veut basculer vers clair)
+        if st.session_state.dark_mode:
+            label_dark = "☀  Thème clair"
+        else:
+            label_dark = "☾  Thème sombre"
         st.button(
             label_dark,
             help="Basculer entre mode clair et mode sombre",
@@ -30,8 +35,8 @@ def render_dark_mode_toggle():
         )
     with col_h3:
         st.button(
-            "Guide",
-            help="Afficher le guide d'utilisation",
+            "?  Guide",
+            help="Afficher le guide d'utilisation pas-à-pas",
             key="show_help",
             on_click=_show_onboarding,
             use_container_width=True,

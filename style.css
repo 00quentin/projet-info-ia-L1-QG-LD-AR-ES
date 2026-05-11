@@ -1183,6 +1183,30 @@ div[data-testid="metric-container"]:hover::before {
     border-radius: 6px;
 }
 
+/* Info-bulle d'aide dans la sidebar (ex : explication de Recharger Yahoo) */
+.qt-sidebar-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px 12px;
+    background: rgba(99,102,241,0.06);
+    border: 1px solid rgba(99,102,241,0.18);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    font-size: 0.78em;
+    line-height: 1.45;
+    color: var(--text-muted);
+}
+.qt-sidebar-info-icon {
+    font-size: 1.15em;
+    color: var(--accent);
+    flex-shrink: 0;
+    margin-top: 1px;
+    line-height: 1;
+}
+.qt-sidebar-info-text { flex: 1; }
+.qt-sidebar-info-text strong { color: var(--text); font-weight: 700; }
+
 /* === SKELETON LOADERS === */
 @keyframes ccShimmer {
     0%   { background-position: -800px 0; }
@@ -1241,6 +1265,51 @@ div[data-testid="metric-container"]:hover::before {
 @media (max-width: 900px) {
     .qt-skel-row { grid-template-columns: repeat(2, 1fr); }
     .qt-skel-charts { grid-template-columns: 1fr; }
+}
+
+/* === ACADÉMIE — illustrations hero pour chaque section === */
+.qt-acad-illu {
+    --acad-accent: #319795;
+    width: 100%;
+    border-radius: 14px;
+    margin: 8px 0 28px 0;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 16px rgba(var(--shadow-rgb), 0.06);
+    animation: fadeInUp 0.6s ease-out;
+}
+.qt-acad-illu svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 180px;
+}
+.qt-acad-illu-caption {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 10px 18px;
+    background: linear-gradient(180deg, transparent, rgba(255,255,255,0.85) 60%);
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+.qt-acad-illu-label {
+    font-weight: 800;
+    font-size: 0.95em;
+    color: var(--acad-accent);
+    letter-spacing: -0.01em;
+}
+.qt-acad-illu-sub {
+    font-size: 0.78em;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+/* En mode sombre : assombrir le fond du caption */
+[data-theme="dark"] .qt-acad-illu-caption,
+.dark-mode .qt-acad-illu-caption {
+    background: linear-gradient(180deg, transparent, rgba(15,23,42,0.85) 60%);
 }
 
 /* === EMPTY STATES — avec illustration SVG animée === */
@@ -1308,6 +1377,8 @@ div[data-testid="metric-container"]:hover::before {
     overflow: hidden;
     transform-style: preserve-3d;
     cursor: pointer;
+    /* Hauteur fixe pour alignement parfait sur la grille */
+    height: 340px;
 }
 .qt-preset-card::after {
     /* Lueur d'accent qui apparaît au hover */
@@ -1407,6 +1478,10 @@ div[data-testid="metric-container"]:hover::before {
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    min-height: 60px;
+}
+.qt-preset-title {
+    min-height: 42px; /* uniformise les titres sur 1 ou 2 lignes */
 }
 .qt-preset-meta {
     display: flex;

@@ -27,11 +27,26 @@ def _set_event_A(t: str):
 
 
 def _render_bouton_recharger():
-    """Bouton pour vider le cache Yahoo Finance."""
-    if st.button("Recharger Yahoo", use_container_width=True,
-                 help="Force un rafraîchissement des prix de marché (cache 1h sinon)."):
+    """Bouton pour vider le cache Yahoo Finance + libellé explicatif."""
+    st.markdown(
+        '<div class="qt-sidebar-info">'
+        '<span class="qt-sidebar-info-icon">↻</span>'
+        '<span class="qt-sidebar-info-text">'
+        '<strong>Prix de marché</strong> mis en cache <strong>1h</strong>.'
+        '<br>Force un rafraîchissement immédiat depuis Yahoo Finance.'
+        '</span></div>',
+        unsafe_allow_html=True,
+    )
+    if st.button("↻  Rafraîchir les prix Yahoo", use_container_width=True,
+                 help="Vide le cache et re-télécharge les derniers prix de S&P, Or, Bitcoin, etc."):
         get_prix_actuels.clear()
         get_volatilites_historiques.clear()
+        # On vide aussi le cache des sparklines/variations
+        try:
+            from market_data import get_prix_avec_variation
+            get_prix_avec_variation.clear()
+        except Exception:
+            pass
         st.rerun()
 
 

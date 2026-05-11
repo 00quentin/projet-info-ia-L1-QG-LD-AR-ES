@@ -1,10 +1,22 @@
 """
 pages/academie.py
 =================
-Académie pédagogique : 7 sections denses pour comprendre la finance de marché.
+Académie pédagogique : 9 sections denses pour comprendre la finance de marché.
 """
 
 import streamlit as st
+
+from components.academie_illustrations import get_academie_illustration
+
+
+def _illu(section: str):
+    """Helper : affiche l'illustration hero d'une section de l'académie."""
+    html = get_academie_illustration(section)
+    if html:
+        if hasattr(st, "html"):
+            st.html(html)
+        else:
+            st.markdown(html, unsafe_allow_html=True)
 
 
 def render_page_academie():
@@ -51,6 +63,7 @@ def render_page_academie():
 
 
 def _render_outils():
+    _illu("outils")
     st.markdown("### Apprendre à lire un graphique de marché")
     st.write("""
     Un graphique financier n'est pas un simple dessin : c'est le résultat de millions d'ordres 
@@ -132,6 +145,7 @@ def _render_outils():
 
 
 def _render_modeles():
+    _illu("modeles")
     st.markdown("### Comment simuler l'avenir avec des mathématiques")
     st.write("""
     Personne ne peut prédire le marché. Mais on peut **modéliser les lois statistiques** qui le régissent. 
@@ -235,6 +249,7 @@ def _render_modeles():
 
 
 def _render_macro():
+    _illu("macro")
     st.markdown("### Les 3 forces qui contrôlent les marchés mondiaux")
     st.write("""
     Il y a des milliers d'actions cotées, des dizaines de devises, des centaines de matières premières. 
@@ -346,6 +361,7 @@ def _render_macro():
 
 
 def _render_cas():
+    _illu("cas")
     st.markdown("### Les grandes crises expliquées")
     st.write("""
     L'histoire boursière n'est pas une succession d'événements aléatoires. Chaque crise a sa logique, 
@@ -448,6 +464,7 @@ def _render_cas():
 
 
 def _render_strategies():
+    _illu("strategies")
     st.markdown("### Les grandes stratégies d'allocation d'actifs")
     st.write("""
     Il existe des centaines de stratégies d'investissement, mais 5 grandes écoles dominent 
@@ -596,6 +613,7 @@ def _render_strategies():
 
 
 def _render_construction_portefeuille():
+    _illu("construction")
     st.markdown("### Construire un portefeuille comme un pro")
     st.write("""
     Choisir une stratégie ne suffit pas. Il faut savoir **assembler** les briques pour que le
@@ -682,6 +700,7 @@ def _render_construction_portefeuille():
 
 
 def _render_biais_comportementaux():
+    _illu("biais")
     st.markdown("### Les biais qui ruinent les investisseurs")
     st.write("""
     Daniel Kahneman (Nobel d'économie 2002) a démontré que les humains ne sont **pas rationnels**
@@ -780,6 +799,7 @@ def _render_biais_comportementaux():
 
 
 def _render_lexique():
+    _illu("lexique")
     st.markdown("### Le lexique du professionnel")
 
     st.markdown("#### Marchés & cycles")
@@ -859,6 +879,7 @@ def _render_lexique():
 
 
 def _render_methodologie():
+    _illu("methodologie")
     st.markdown("### Méthodologie mathématique de Quant Terminal")
     st.write("""
     Pour les utilisateurs exigeants (et les professeurs), voici les formules exactes 
