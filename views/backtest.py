@@ -113,7 +113,7 @@ def render_page_backtest_dashboard():
         bt["perf"], poids, params["capital"]
     )
 
-    if st.button("🔬 Préparer le rapport PDF complet", key="bt_prep_pdf",
+    if st.button("Préparer le rapport PDF", key="bt_prep_pdf",
                  use_container_width=True):
         st.session_state["bt_pdf_ready"] = False
         with st.spinner("L'analyste IA rédige son rapport approfondi... (15-30 secondes)"):

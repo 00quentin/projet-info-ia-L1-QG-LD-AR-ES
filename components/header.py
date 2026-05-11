@@ -17,10 +17,10 @@ def _show_onboarding():
 
 
 def render_dark_mode_toggle():
-    """Boutons toggle mode sombre + bouton aide."""
+    """Toolbar discrete : 2 boutons epures, sans emoji, alignes a droite."""
     col_h1, col_h2, col_h3 = st.columns([8, 2, 2])
     with col_h2:
-        label_dark = "☀️ Mode clair" if st.session_state.dark_mode else "🌙 Mode sombre"
+        label_dark = "Thème clair" if st.session_state.dark_mode else "Thème sombre"
         st.button(
             label_dark,
             help="Basculer entre mode clair et mode sombre",
@@ -30,7 +30,7 @@ def render_dark_mode_toggle():
         )
     with col_h3:
         st.button(
-            "❓ Guide d'utilisation",
+            "Guide",
             help="Afficher le guide d'utilisation",
             key="show_help",
             on_click=_show_onboarding,
@@ -39,41 +39,17 @@ def render_dark_mode_toggle():
 
 
 def render_hero():
-    """Hero compact orienté business : logo + tagline + stats inline."""
+    """Toolbar minimaliste : logo + titre + version + tagline courte. Pas de stats marketing."""
     st.markdown("""
-    <div class="qt-hero">
-        <div class="qt-hero-grid">
-            <div class="qt-hero-left">
-                <div class="qt-hero-brand">
-                    <div class="qt-hero-logo">QT</div>
-                    <div>
-                        <div class="qt-hero-eyebrow">Simulateur d'investissement</div>
-                        <h1 class="qt-hero-title">Quant Terminal</h1>
-                    </div>
+    <div class="qt-topbar">
+        <div class="qt-topbar-brand">
+            <div class="qt-topbar-logo">QT</div>
+            <div class="qt-topbar-text">
+                <div class="qt-topbar-titlerow">
+                    <span class="qt-topbar-title">Quant Terminal</span>
+                    <span class="qt-topbar-version">v2.0 &middot; beta</span>
                 </div>
-                <p class="qt-hero-tagline">
-                    Imaginez un événement — krach boursier, guerre, révolution IA — et voyez en direct
-                    son impact sur votre portefeuille. Avec les vrais prix de marché et une IA entraînée
-                    sur les grandes crises de l'histoire.
-                </p>
-            </div>
-            <div class="qt-hero-right">
-                <div class="qt-hero-stat-card">
-                    <div class="qt-hero-stat-value">23</div>
-                    <div class="qt-hero-stat-label">Actifs</div>
-                </div>
-                <div class="qt-hero-stat-card">
-                    <div class="qt-hero-stat-value">6</div>
-                    <div class="qt-hero-stat-label">Crises</div>
-                </div>
-                <div class="qt-hero-stat-card">
-                    <div class="qt-hero-stat-value">4</div>
-                    <div class="qt-hero-stat-label">Métriques</div>
-                </div>
-                <div class="qt-hero-stat-card">
-                    <div class="qt-hero-stat-value">∞</div>
-                    <div class="qt-hero-stat-label">Scénarios</div>
-                </div>
+                <div class="qt-topbar-sub">Simulateur d'investissement &mdash; prix Yahoo Finance &amp; IA</div>
             </div>
         </div>
     </div>
@@ -231,10 +207,13 @@ def render_intro_card():
 
 
 def render_header_complet():
-    """Affiche tout le header en une seule fonction."""
+    """Affiche tout le header en une seule fonction.
+
+    Style epure : toolbar fine + onboarding (a la demande) + bande live discrete.
+    On ne charge plus l'intro card ni le disclaimer geant (encombrant). Le disclaimer
+    fonctionnel est dans le footer.
+    """
     render_dark_mode_toggle()
     render_hero()
     render_onboarding()
     render_bande_marche()
-    render_disclaimer_top()
-    render_intro_card()

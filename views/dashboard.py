@@ -287,7 +287,7 @@ def afficher_dashboard(res, params, key_prefix="main"):
 
     csv_bytes = generer_csv_simulation(df, poids, params["capital"])
     st.download_button(
-        label="📊 Télécharger les données (CSV)",
+        label="Télécharger les données (CSV)",
         data=csv_bytes,
         file_name=f"quant_terminal_donnees_{datetime.now().strftime('%Y%m%d_%H%M')}.csv",
         mime="text/csv",
@@ -295,7 +295,7 @@ def afficher_dashboard(res, params, key_prefix="main"):
         key=f"{key_prefix}_csv_dl",
     )
 
-    if st.button("🔬 Préparer le rapport PDF complet", key=f"{key_prefix}_prep_pdf",
+    if st.button("Préparer le rapport PDF", key=f"{key_prefix}_prep_pdf",
                  use_container_width=True):
         st.session_state[f"{key_prefix}_pdf_ready"] = False
         with st.spinner("L'analyste IA rédige son rapport approfondi... (15-30 secondes)"):

@@ -15,16 +15,16 @@ _DESIGN_TOKENS = """
     --space-5: 20px;  --space-6: 24px;  --space-8: 32px;  --space-10: 40px;
     --space-12: 48px; --space-16: 64px;
 
-    /* === RADIUS SCALE === */
-    --radius-sm: 6px; --radius-md: 10px; --radius-lg: 14px; --radius-xl: 20px;
+    /* === RADIUS SCALE — descendus pour un look pro (vs marketing) === */
+    --radius-sm: 4px; --radius-md: 6px; --radius-lg: 8px; --radius-xl: 12px;
     --radius-full: 9999px;
 
-    /* === SHADOW SCALE === */
-    --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-    --shadow-md: 0 2px 8px rgba(0,0,0,0.06);
-    --shadow-lg: 0 8px 24px rgba(0,0,0,0.10);
-    --shadow-xl: 0 16px 40px rgba(0,0,0,0.14);
-    --shadow-glow: 0 0 0 3px rgba(49,151,149,0.18);
+    /* === SHADOW SCALE — ultra discretes type Linear/Vercel === */
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03);
+    --shadow-lg: 0 4px 12px rgba(0,0,0,0.06);
+    --shadow-xl: 0 8px 24px rgba(0,0,0,0.08);
+    --shadow-glow: 0 0 0 3px rgba(99,102,241,0.12);
 
     /* === TYPOGRAPHIE === */
     --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -33,31 +33,41 @@ _DESIGN_TOKENS = """
     /* === TIMING === */
     --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
     --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
-    --duration-fast: 150ms;
-    --duration-base: 250ms;
-    --duration-slow: 400ms;
+    --duration-fast: 120ms;
+    --duration-base: 180ms;
+    --duration-slow: 280ms;
 
-    /* === BLUE SCALE 50-900 === */
-    --blue-50: #ebf8ff;  --blue-100: #bee3f8; --blue-200: #90cdf4;
-    --blue-300: #63b3ed; --blue-400: #4299e1; --blue-500: #3182ce;
-    --blue-600: #2c5282; --blue-700: #1a365d; --blue-800: #0f1f3d;
-    --blue-900: #0a1628;
+    /* === SLATE SCALE (neutres dominants — inspiration Linear/Vercel) === */
+    --slate-50: #fafafa;  --slate-100: #f4f4f5; --slate-200: #e4e4e7;
+    --slate-300: #d4d4d8; --slate-400: #a1a1aa; --slate-500: #71717a;
+    --slate-600: #52525b; --slate-700: #3f3f46; --slate-800: #27272a;
+    --slate-900: #18181b; --slate-950: #09090b;
 
-    /* === TEAL SCALE === */
-    --teal-50: #e6fffa;  --teal-100: #b2f5ea; --teal-200: #81e6d9;
-    --teal-300: #4fd1c5; --teal-400: #38b2ac; --teal-500: #319795;
-    --teal-600: #2c7a7b; --teal-700: #285e61;
+    /* === INDIGO SCALE (accent unique, sobre type Linear) === */
+    --indigo-50: #eef2ff;  --indigo-100: #e0e7ff; --indigo-200: #c7d2fe;
+    --indigo-300: #a5b4fc; --indigo-400: #818cf8; --indigo-500: #6366f1;
+    --indigo-600: #4f46e5; --indigo-700: #4338ca; --indigo-800: #3730a3;
 
-    /* === GRAY SCALE === */
-    --gray-50: #f7fafc;  --gray-100: #edf2f7; --gray-200: #e2e8f0;
-    --gray-300: #cbd5e0; --gray-400: #a0aec0; --gray-500: #718096;
-    --gray-600: #4a5568; --gray-700: #2d3748; --gray-800: #1a202c;
-    --gray-900: #171923;
+    /* === Aliases retro-compatibles (anciennes vars utilisees dans style.css) === */
+    --blue-50: var(--indigo-50);   --blue-100: var(--indigo-100);
+    --blue-200: var(--indigo-200); --blue-300: var(--indigo-300);
+    --blue-400: var(--indigo-400); --blue-500: var(--indigo-500);
+    --blue-600: var(--indigo-600); --blue-700: var(--indigo-700);
+    --blue-800: var(--indigo-800); --blue-900: var(--slate-900);
+    --teal-50: var(--indigo-50);   --teal-100: var(--indigo-100);
+    --teal-200: var(--indigo-200); --teal-300: var(--indigo-300);
+    --teal-400: var(--indigo-400); --teal-500: var(--indigo-500);
+    --teal-600: var(--indigo-600); --teal-700: var(--indigo-700);
+    --gray-50: var(--slate-50);    --gray-100: var(--slate-100);
+    --gray-200: var(--slate-200);  --gray-300: var(--slate-300);
+    --gray-400: var(--slate-400);  --gray-500: var(--slate-500);
+    --gray-600: var(--slate-600);  --gray-700: var(--slate-700);
+    --gray-800: var(--slate-800);  --gray-900: var(--slate-900);
 
-    /* === SEMANTIC === */
-    --success-50: #f0fff4; --success-500: #2f855a; --success-700: #22543d;
-    --danger-50:  #fff5f5; --danger-500:  #c53030; --danger-700:  #742a2a;
-    --warn-50:    #fffaf0; --warn-500:    #d69e2e; --warn-700:    #744210;
+    /* === SEMANTIC (sobre, pas fluo) === */
+    --success-50: #f0fdf4; --success-500: #16a34a; --success-700: #15803d;
+    --danger-50:  #fef2f2; --danger-500:  #dc2626; --danger-700:  #b91c1c;
+    --warn-50:    #fffbeb; --warn-500:    #d97706; --warn-700:    #b45309;
 }
 </style>
 """
@@ -65,25 +75,26 @@ _DESIGN_TOKENS = """
 CSS_VARS_CLAIR = """
 <style>
 :root {
-    --primary:       var(--blue-700);
-    --secondary:     var(--blue-600);
-    --accent:        var(--teal-500);
-    --accent-soft:   var(--teal-100);
-    --bg:            var(--gray-50);
+    /* Identite : slate dominant, indigo en accent unique */
+    --primary:       var(--slate-900);          /* titres, headers */
+    --secondary:     var(--slate-700);
+    --accent:        var(--indigo-600);         /* unique accent (boutons primary, focus) */
+    --accent-soft:   var(--indigo-100);
+    --bg:            var(--slate-50);
     --bg-2:          #ffffff;
     --card:          #ffffff;
-    --border:        var(--gray-300);
-    --border-strong: var(--gray-400);
-    --text:          var(--gray-700);
-    --text-muted:    var(--gray-600);
-    --muted:         var(--gray-500);
+    --border:        var(--slate-200);
+    --border-strong: var(--slate-300);
+    --text:          var(--slate-800);
+    --text-muted:    var(--slate-600);
+    --muted:         var(--slate-500);
     --success:       var(--success-500);
     --danger:        var(--danger-500);
     --warn:          var(--warn-500);
     /* Ombres et hovers contextuels (changent en dark) */
-    --shadow-rgb:    0,0,0;
-    --hover-tint:    rgba(49,151,149,0.08);
-    --focus-ring:    rgba(49,151,149,0.45);
+    --shadow-rgb:    15,23,42;                   /* slate-900 a faible opacite */
+    --hover-tint:    rgba(99,102,241,0.06);
+    --focus-ring:    rgba(99,102,241,0.4);
 }
 </style>
 """
@@ -91,25 +102,26 @@ CSS_VARS_CLAIR = """
 CSS_VARS_SOMBRE = """
 <style>
 :root {
-    --primary:       var(--blue-300);
-    --secondary:     var(--blue-400);
-    --accent:        var(--teal-300);
-    --accent-soft:   var(--teal-700);
-    --bg:            var(--gray-800);
-    --bg-2:          var(--gray-700);
-    --card:          var(--gray-700);
-    --border:        var(--gray-600);
-    --border-strong: var(--gray-500);
-    --text:          var(--gray-100);          /* +contraste vs gray-200 */
-    --text-muted:    var(--gray-300);
-    --muted:         var(--gray-400);
-    --success:       #68d391;                  /* AA sur fond sombre */
-    --danger:        #fc8181;
-    --warn:          #f6ad55;
+    /* Identite sombre : noir presque pur (style Linear/Vercel dark) */
+    --primary:       var(--slate-50);            /* titres clairs sur fond sombre */
+    --secondary:     var(--slate-200);
+    --accent:        var(--indigo-400);          /* indigo plus clair pour le contraste dark */
+    --accent-soft:   var(--indigo-800);
+    --bg:            var(--slate-950);           /* ~#09090b */
+    --bg-2:          #111113;
+    --card:          #161618;
+    --border:        #262629;
+    --border-strong: #3f3f46;
+    --text:          var(--slate-100);
+    --text-muted:    var(--slate-400);
+    --muted:         var(--slate-500);
+    --success:       #4ade80;
+    --danger:        #f87171;
+    --warn:          #fbbf24;
     /* Ombres : en dark on assombrit avec du noir profond */
     --shadow-rgb:    0,0,0;
-    --hover-tint:    rgba(79,209,197,0.12);
-    --focus-ring:    rgba(79,209,197,0.55);
+    --hover-tint:    rgba(129,140,248,0.10);
+    --focus-ring:    rgba(129,140,248,0.5);
 }
 </style>
 """

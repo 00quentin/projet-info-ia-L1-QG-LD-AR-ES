@@ -27,8 +27,8 @@ def _set_event_A(t: str):
 
 
 def _render_bouton_recharger():
-    """Bouton 🔄 pour vider le cache Yahoo Finance."""
-    if st.button("🔄 Recharger les prix Yahoo", use_container_width=True,
+    """Bouton pour vider le cache Yahoo Finance."""
+    if st.button("Recharger Yahoo", use_container_width=True,
                  help="Force un rafraîchissement des prix de marché (cache 1h sinon)."):
         get_prix_actuels.clear()
         get_volatilites_historiques.clear()
@@ -77,7 +77,7 @@ def _render_section_simulation() -> Dict[str, Any]:
         st.text_area("Événement", height=120, key="event_text_A", label_visibility="collapsed")
 
     st.markdown("---")
-    with st.expander("⚙️ Options avancées", expanded=False):
+    with st.expander("Options avancées", expanded=False):
         options["modele_simu"] = st.selectbox(
             "Comportement du marché",
             ["Probabiliste (Réaliste)", "Historique (Chocs violents)", "Machine Learning (Tendance)"]
