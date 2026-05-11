@@ -1624,6 +1624,60 @@ div[data-testid="metric-container"]:hover::before {
 [data-testid="stTooltipIcon"] { color: var(--accent) !important; opacity: 0.8; }
 [data-testid="stTooltipIcon"]:hover { opacity: 1; }
 
+/* === TOOLTIPS & TOASTS — contraste forcé sur fond sombre ===
+   Streamlit affiche ses tooltips (help="...") et toasts (st.toast)
+   sur un fond charbon. Notre règle globale `color: var(--text)` les
+   rendait illisibles (texte sombre sur fond sombre). On surcharge ici
+   avec une spécificité plus haute. */
+
+/* Tooltips natifs (help="..." sur boutons, sliders, etc.) */
+[data-baseweb="tooltip"],
+[data-baseweb="tooltip"] *,
+[role="tooltip"],
+[role="tooltip"] * {
+    color: #ffffff !important;
+    background-color: rgba(15, 23, 42, 0.95) !important;
+    border: none !important;
+}
+[data-baseweb="tooltip"] {
+    border-radius: 8px !important;
+    padding: 8px 12px !important;
+    font-size: 0.82em !important;
+    line-height: 1.45 !important;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25) !important;
+    max-width: 320px !important;
+}
+
+/* Toasts (st.toast) — bandeau éphémère en bas-droite */
+[data-testid="stToast"],
+[data-testid="stToast"] *,
+[data-testid="stNotification"] [data-baseweb*="toast"],
+[data-baseweb="toast"],
+[data-baseweb="toast"] * {
+    color: #ffffff !important;
+}
+[data-testid="stToast"],
+[data-baseweb="toast"] {
+    background-color: rgba(15, 23, 42, 0.96) !important;
+    border-radius: 10px !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.30) !important;
+    padding: 10px 14px !important;
+}
+/* Le icon du toast ne doit pas être forcé en blanc (emojis) */
+[data-testid="stToast"] [data-testid="stToastIcon"],
+[data-baseweb="toast"] [data-baseweb*="icon"] {
+    color: initial !important;
+    background: transparent !important;
+}
+
+/* Tooltips ARIA (used by some baseweb-internals via portail) */
+[data-portal-id] [role="tooltip"],
+[data-portal-id] [role="tooltip"] * {
+    color: #ffffff !important;
+    background-color: rgba(15, 23, 42, 0.95) !important;
+}
+
 /* === SCROLLBAR === */
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
