@@ -199,63 +199,34 @@ def illu_revolution_ia() -> str:
 
 
 def illu_krach() -> str:
-    """Courbe boursière qui plonge avec bougies rouges + buildings."""
-    inner = '''
-    <defs>
-        <linearGradient id="g_krach_fill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#dc2626" stop-opacity="0.4"/>
-            <stop offset="100%" stop-color="#dc2626" stop-opacity="0"/>
-        </linearGradient>
-    </defs>
-    <!-- Grille de fond -->
-    <g stroke="#fecaca" stroke-width="0.5" opacity="0.6">
-        <line x1="0" y1="30" x2="320" y2="30"/>
-        <line x1="0" y1="60" x2="320" y2="60"/>
-        <line x1="0" y1="90" x2="320" y2="90"/>
-        <line x1="0" y1="120" x2="320" y2="120"/>
-    </g>
-    <!-- Aire sous la courbe -->
-    <path d="M 10 25 L 50 35 L 90 30 L 130 50 L 170 75 L 210 100 L 250 115 L 295 125 L 295 140 L 10 140 Z"
-          fill="url(#g_krach_fill)">
-        <animate attributeName="opacity" values="0.4;0.8;0.4" dur="3s" repeatCount="indefinite"/>
-    </path>
-    <!-- Bougies (red candles) qui chutent -->
-    <g fill="#dc2626">
-        <rect x="20" y="20" width="8" height="14" rx="1"/>
-        <line x1="24" y1="14" x2="24" y2="38" stroke="#dc2626" stroke-width="1.5"/>
-
-        <rect x="55" y="28" width="8" height="12" rx="1"/>
-        <line x1="59" y1="22" x2="59" y2="44" stroke="#dc2626" stroke-width="1.5"/>
-
-        <rect x="90" y="25" width="8" height="10" rx="1"/>
-        <line x1="94" y1="20" x2="94" y2="40" stroke="#dc2626" stroke-width="1.5"/>
-
-        <rect x="125" y="40" width="8" height="18" rx="1"/>
-        <line x1="129" y1="34" x2="129" y2="62" stroke="#dc2626" stroke-width="1.5"/>
-
-        <rect x="160" y="60" width="8" height="20" rx="1"/>
-        <line x1="164" y1="55" x2="164" y2="85" stroke="#dc2626" stroke-width="1.5"/>
-
-        <rect x="195" y="85" width="8" height="22" rx="1"/>
-        <line x1="199" y1="80" x2="199" y2="112" stroke="#dc2626" stroke-width="1.5"/>
-
-        <rect x="230" y="100" width="8" height="20" rx="1"/>
-        <line x1="234" y1="95" x2="234" y2="125" stroke="#dc2626" stroke-width="1.5"/>
-
-        <rect x="265" y="115" width="8" height="14" rx="1"/>
-        <line x1="269" y1="110" x2="269" y2="134" stroke="#dc2626" stroke-width="1.5"/>
-    </g>
-    <!-- Courbe principale -->
-    <path d="M 10 25 L 50 35 L 90 30 L 130 50 L 170 75 L 210 100 L 250 115 L 295 125"
-          fill="none" stroke="#b91c1c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-    <!-- Indicateur en chute (triangle pointant vers le bas) -->
-    <g transform="translate(285 130)">
-        <circle r="6" fill="#dc2626">
-            <animate attributeName="r" values="6;9;6" dur="1.5s" repeatCount="indefinite"/>
-        </circle>
-        <polygon points="-3,-2 3,-2 0,3" fill="#ffffff"/>
-    </g>
-    '''
+    """Krach : courbe rouge qui plonge + bougies baissieres. Version simplifiee."""
+    inner = (
+        '<defs>'
+        '<linearGradient id="gKrashFill" x1="0" y1="0" x2="0" y2="1">'
+        '<stop offset="0%" stop-color="#dc2626" stop-opacity="0.35"/>'
+        '<stop offset="100%" stop-color="#dc2626" stop-opacity="0"/>'
+        '</linearGradient>'
+        '</defs>'
+        # Aire sous la courbe
+        '<path d="M 10 25 L 60 35 L 110 50 L 160 75 L 210 100 L 260 118 L 305 128 L 305 140 L 10 140 Z" '
+        'fill="url(#gKrashFill)"/>'
+        # Quelques bougies rouges qui chutent
+        '<g fill="#dc2626">'
+        '<rect x="20" y="20" width="8" height="14" rx="1"/>'
+        '<rect x="70" y="32" width="8" height="14" rx="1"/>'
+        '<rect x="120" y="48" width="8" height="18" rx="1"/>'
+        '<rect x="170" y="70" width="8" height="22" rx="1"/>'
+        '<rect x="220" y="92" width="8" height="22" rx="1"/>'
+        '<rect x="270" y="112" width="8" height="16" rx="1"/>'
+        '</g>'
+        # Courbe principale qui plonge
+        '<path d="M 10 25 L 60 35 L 110 50 L 160 75 L 210 100 L 260 118 L 305 128" '
+        'fill="none" stroke="#b91c1c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>'
+        # Indicateur en chute
+        '<circle cx="305" cy="128" r="5" fill="#dc2626">'
+        '<animate attributeName="r" values="5;8;5" dur="1.6s" repeatCount="indefinite"/>'
+        '</circle>'
+    )
     return _wrap(inner, "#dc2626",
                  "linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)",
                  "scn-krach")
