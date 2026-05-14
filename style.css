@@ -2027,6 +2027,88 @@ div[data-testid="metric-container"]:hover {
 
 
 /* ============================================================
+   PHASE 5 - Header & sidebar epures (Linear / TradingView feel)
+   ============================================================ */
+
+/* Topbar : padding reduit, ligne de fond subtile */
+.qt-topbar {
+    padding: 12px 4px 14px 4px !important;
+    margin-bottom: 8px !important;
+    border-bottom: 1px solid var(--border);
+}
+
+/* Titre topbar : taille plus prononcee, contraste augmente */
+.qt-topbar-title {
+    font-size: 1.15em !important;
+    letter-spacing: -0.015em !important;
+    font-weight: 800 !important;
+}
+
+/* Version pill plus subtile */
+.qt-topbar-version {
+    background: color-mix(in srgb, var(--accent) 10%, transparent) !important;
+    color: var(--accent) !important;
+    border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+    font-size: 0.68em !important;
+    padding: 2px 8px !important;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+/* Boutons header (dark mode + guide) : plus compacts et discrets */
+.element-container:has(button[data-testid*="toggle_dark"]) button,
+.element-container:has(button[data-testid*="show_help"]) button {
+    border-radius: var(--radius-md) !important;
+    font-size: 0.85em !important;
+    padding: 6px 14px !important;
+}
+
+/* Sidebar : sections clairement separees */
+[data-testid="stSidebar"] hr {
+    border: 0 !important;
+    border-top: 1px solid var(--border) !important;
+    margin: 14px 0 !important;
+    opacity: 0.7;
+}
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] strong {
+    color: var(--text) !important;
+    letter-spacing: -0.005em;
+}
+.qt-sidebar-section {
+    color: var(--text-muted) !important;
+    font-size: 0.72em !important;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700 !important;
+    margin: 6px 0 8px !important;
+}
+.qt-sidebar-subhead {
+    color: var(--text-muted) !important;
+    font-size: 0.78em;
+    font-weight: 600;
+    margin: 12px 0 6px;
+    letter-spacing: 0.02em;
+}
+
+/* Expanders sidebar : plus visibles */
+[data-testid="stSidebar"] details {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 4px 10px;
+    background: var(--card);
+    transition: border-color var(--duration-base) var(--ease-out);
+}
+[data-testid="stSidebar"] details[open] {
+    border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
+}
+[data-testid="stSidebar"] details summary {
+    font-weight: 600 !important;
+    color: var(--text) !important;
+    cursor: pointer;
+}
+
+
+/* ============================================================
    PHASE 2 - HERO DASHBOARD style TradingView
    Grande valeur + variation coloree + chips contextuels
    ============================================================ */
