@@ -272,23 +272,16 @@ def fig_evolution_portefeuille(
     g = int(couleur_courbe[3:5], 16)
     b = int(couleur_courbe[5:7], 16)
 
-    # Floor du fill : on remplit jusqu'au capital initial pour visualiser
-    # gains/pertes (au-dessus = gain, en-dessous = perte). On utilise un floor
-    # commun en ajoutant d'abord une trace invisible a y=capital.
-    fig.add_trace(go.Scatter(
-        x=valeur_port.index, y=[capital] * len(valeur_port),
-        mode="lines",
-        line=dict(width=0),
-        showlegend=False,
-        hoverinfo="skip",
-    ))
+    # Fill style TradingView : gradient subtil sous la courbe du portefeuille.
+    # On utilise tozeroy (zone complete sous la ligne) avec une couleur dynamique
+    # vert/rouge selon la performance finale.
     fig.add_trace(go.Scatter(
         x=valeur_port.index, y=valeur_port,
-        name="Votre portefeuille",
+        name="Portefeuille",
         mode="lines",
         line=dict(color=couleur_courbe, width=2.5, shape="spline", smoothing=0.4),
-        fill="tonexty",
-        fillcolor=f"rgba({r},{g},{b},0.18)",
+        fill="tozeroy",
+        fillcolor=f"rgba({r},{g},{b},0.12)",
         hovertemplate="<b>Portefeuille</b><br>%{y:,.0f} €<extra></extra>",
     ))
     if benchmark is not None:
