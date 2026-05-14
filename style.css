@@ -2080,6 +2080,25 @@ div[data-testid="metric-container"]:hover {
    PHASE 4 - Académie : photos Wikipedia + blocs visuels
    ============================================================ */
 
+/* En-tete de section Academie : pill colore */
+.qt-acad-section-header {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border-radius: var(--radius-lg);
+    background: color-mix(in srgb, var(--acad-accent, var(--accent)) 12%, transparent);
+    border-left: 4px solid var(--acad-accent, var(--accent));
+    margin: 0 0 16px 0;
+    color: var(--acad-accent, var(--accent));
+    font-size: 0.95em;
+    letter-spacing: 0.005em;
+}
+.qt-acad-section-emoji {
+    font-size: 1.2em;
+    line-height: 1;
+}
+
 /* Photo Wikipedia generique avec credit */
 .qt-acad-photo {
     margin: 0 0 18px 0;

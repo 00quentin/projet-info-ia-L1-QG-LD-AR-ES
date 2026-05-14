@@ -6,14 +6,32 @@ Académie pédagogique : 9 sections denses pour comprendre la finance de marché
 
 import streamlit as st
 
-from components.academie_illustrations import get_academie_illustration
+from components.academie_illustrations import (
+    get_academie_illustration, get_academie_synthese,
+    img_chandelier, img_gaussienne, img_fed_building,
+    img_crowd_1929, img_gas_line_1973, img_black_monday_1987,
+    img_lehman_brothers, img_markowitz_frontier, img_buffett,
+    img_nyse_building, img_kahneman,
+)
 
 
 def _illu(section: str):
-    """Helper : affiche l'illustration hero d'une section de l'académie."""
+    """Affiche l'en-tete compact d'une section (titre + emoji)."""
     html = get_academie_illustration(section)
     if html:
         st.markdown(html, unsafe_allow_html=True)
+
+
+def _synthese(section: str):
+    """Affiche le bloc visuel de synthese en fin de section."""
+    html = get_academie_synthese(section)
+    if html:
+        st.markdown(html, unsafe_allow_html=True)
+
+
+def _img(html: str):
+    """Insere une image Wikipedia + legende au sein du contenu."""
+    st.markdown(html, unsafe_allow_html=True)
 
 
 def render_page_academie():
@@ -117,17 +135,19 @@ def _render_outils():
 
     st.markdown("#### 1.4 — Lire une trajectoire stochastique")
     st.write("""
-    Une courbe de cours n'est **jamais** lisse. Elle tremble, elle zigzague, elle rebondit. 
-    Ce tremblement quotidien s'appelle le **bruit de marché**. Ce qui compte, c'est la **tendance 
+    Une courbe de cours n'est **jamais** lisse. Elle tremble, elle zigzague, elle rebondit.
+    Ce tremblement quotidien s'appelle le **bruit de marché**. Ce qui compte, c'est la **tendance
     sous-jacente**. Trois signaux à identifier :
-    
+
     - **La pente moyenne** : est-ce que globalement ça monte, descend, ou stagne ?
-    - **L'amplitude des oscillations** : est-ce que les variations journalières sont de 0.5%, 
+    - **L'amplitude des oscillations** : est-ce que les variations journalières sont de 0.5%,
       2%, ou 10% ? Plus elles sont grandes, plus l'actif est risqué.
-    - **Les cassures** : les moments où la courbe change brutalement de direction. 
-      Ce sont souvent des événements majeurs (décision de banque centrale, résultats d'entreprise, 
+    - **Les cassures** : les moments où la courbe change brutalement de direction.
+      Ce sont souvent des événements majeurs (décision de banque centrale, résultats d'entreprise,
       actualité géopolitique).
     """)
+
+    _img(img_chandelier())
 
     st.markdown("#### 1.5 — Les bandes de confiance Monte-Carlo")
     st.write("""
@@ -194,6 +214,8 @@ def _render_modeles():
                 'arrivent tous les 10 ans.<br><br>'
                 'Un bon modèle doit en tenir compte.'
                 '</div>', unsafe_allow_html=True)
+
+    _img(img_gaussienne())
 
     st.markdown("#### 2.3 — Les 3 modèles de Quant Terminal")
     st.markdown("**A. Modèle Probabiliste (Brownien classique)**")
@@ -276,12 +298,14 @@ def _render_macro():
     st.write("""
     - Les crédits deviennent difficiles. Les projets d'investissement sont reportés.
     - Les entreprises endettées peinent à refinancer leur dette.
-    - Les investisseurs peuvent placer leur argent **sans risque** dans des Bons du Trésor 
+    - Les investisseurs peuvent placer leur argent **sans risque** dans des Bons du Trésor
       à 5% — pourquoi prendre du risque sur des actions quand on peut gagner 5% en dormant ?
     - Résultat : rotation massive vers les obligations, chute des actions et des cryptos.
-    - Période emblématique : **1979-1982** (Paul Volcker à la FED, taux à 20%), et **2022-2024** 
+    - Période emblématique : **1979-1982** (Paul Volcker à la FED, taux à 20%), et **2022-2024**
       (Jerome Powell face à l'inflation post-COVID).
     """)
+
+    _img(img_fed_building())
 
     st.markdown("#### 3.2 — L'inflation : la taxe invisible qui ronge votre argent")
     st.write("""
@@ -296,18 +320,20 @@ def _render_macro():
     st.markdown("**Comment se protéger de l'inflation ?**")
     st.write("""
     On achète des choses **qu'on ne peut pas imprimer à l'infini** :
-    
-    - **Or** : quantité physique limitée dans la croûte terrestre, actif refuge depuis 5000 ans. 
+
+    - **Or** : quantité physique limitée dans la croûte terrestre, actif refuge depuis 5000 ans.
       Pendant la crise des années 70 (inflation à 15% aux USA), l'or a été multiplié par 20.
     - **Matières premières** (pétrole, cuivre, blé) : leur prix monte avec le coût de la vie.
     - **Immobilier** : les loyers peuvent être indexés sur l'inflation.
-    - **Actions d'entreprises avec pricing power** : entreprises capables d'augmenter leurs 
-      prix sans perdre de clients (LVMH, Apple, Coca-Cola). On dit qu'elles ont une "douve" 
+    - **Actions d'entreprises avec pricing power** : entreprises capables d'augmenter leurs
+      prix sans perdre de clients (LVMH, Apple, Coca-Cola). On dit qu'elles ont une "douve"
       (*moat*) selon Warren Buffett.
-    - **Crypto** : Bitcoin a été inventé comme une réserve de valeur limitée à 21 millions 
-      d'unités. En théorie, c'est un hedge contre l'inflation — en pratique, c'est beaucoup plus 
+    - **Crypto** : Bitcoin a été inventé comme une réserve de valeur limitée à 21 millions
+      d'unités. En théorie, c'est un hedge contre l'inflation — en pratique, c'est beaucoup plus
       corrélé au Nasdaq qu'on ne le pensait.
     """)
+
+    _img(img_gas_line_1973())
 
     st.markdown("#### 3.3 — La courbe des taux : l'indicateur préféré des récessions")
     st.write("""
@@ -376,10 +402,12 @@ def _render_cas():
     
     **Enseignements :**
     - L'effet de levier excessif est une bombe à retardement.
-    - Les banques centrales peuvent aggraver une crise par leurs erreurs (la FED a resserré 
+    - Les banques centrales peuvent aggraver une crise par leurs erreurs (la FED a resserré
       au pire moment en 1931, ce qui a transformé un krach boursier en dépression mondiale).
     - Ce qui a sauvé les USA : le **New Deal** de Roosevelt (1933) et les dépenses publiques massives.
     """)
+
+    _img(img_crowd_1929())
 
     st.markdown("#### 4.2 — Le Black Monday du 19 octobre 1987")
     st.write("""
@@ -390,10 +418,12 @@ def _render_cas():
     Record absolu jamais égalé. Cause probable : les algorithmes de vente automatique ont déclenché 
     une cascade de ventes, sans intervention humaine pour l'arrêter.
     
-    **Enseignement clé :** les systèmes automatisés peuvent créer des **boucles de rétroaction** 
-    catastrophiques. C'est ce qui a mené à l'introduction des **coupe-circuits** (circuit breakers) 
+    **Enseignement clé :** les systèmes automatisés peuvent créer des **boucles de rétroaction**
+    catastrophiques. C'est ce qui a mené à l'introduction des **coupe-circuits** (circuit breakers)
     à Wall Street : la Bourse s'arrête automatiquement si ça baisse de trop.
     """)
+
+    _img(img_black_monday_1987())
 
     st.markdown("#### 4.3 — La bulle internet (1995-2002)")
     st.write("""
@@ -427,10 +457,12 @@ def _render_cas():
     **La chute :** S&P 500 -57% entre octobre 2007 et mars 2009. Or : **+25%** sur la même période 
     (flight to quality). Bons du Trésor US 10 ans : rendement de 5% à 2%, prix des obligations explose.
     
-    **Enseignement clé :** la complexité financière est une arme à double tranchant. Quand personne 
-    ne comprend les produits qu'il détient, la confiance s'effondre en quelques jours. Warren Buffett 
+    **Enseignement clé :** la complexité financière est une arme à double tranchant. Quand personne
+    ne comprend les produits qu'il détient, la confiance s'effondre en quelques jours. Warren Buffett
     avait qualifié les dérivés d'*"armes de destruction massive financière"* dès 2003.
     """)
+
+    _img(img_lehman_brothers())
 
     st.markdown("#### 4.5 — Le krach COVID de mars 2020")
     st.write("""
@@ -458,6 +490,10 @@ def _render_cas():
                 '• Diversifier à travers des actifs décorrélés (actions, obligations, or, cash) reste la seule défense sérieuse.<br><br>'
                 '• Les liquidités disponibles (cash) sont aussi une position : elles permettent d\'acheter quand tout est bradé.'
                 '</div>', unsafe_allow_html=True)
+
+    st.markdown('<div class="qt-section-title" style="margin-top:28px;">Synthèse visuelle des grandes crises</div>',
+                unsafe_allow_html=True)
+    _synthese("cas")
 
 
 def _render_strategies():
@@ -535,9 +571,11 @@ def _render_strategies():
     - Historique de profits stables
     - Prix d'achat **raisonnable** par rapport aux profits (ratio P/E bas)
     
-    **Exemples emblématiques** : Coca-Cola (acheté en 1988, x20 depuis), Apple (x6 depuis 2016), 
+    **Exemples emblématiques** : Coca-Cola (acheté en 1988, x20 depuis), Apple (x6 depuis 2016),
     American Express.
     """)
+
+    _img(img_buffett())
 
     st.markdown("#### 5.5 — Le momentum / trend following")
     st.write("""
@@ -608,6 +646,10 @@ def _render_strategies():
                 'le momentum d\'avoir une discipline de fer.'
                 '</div>', unsafe_allow_html=True)
 
+    st.markdown('<div class="qt-section-title" style="margin-top:28px;">Les 3 profils en un coup d\'œil</div>',
+                unsafe_allow_html=True)
+    _synthese("strategies")
+
 
 def _render_construction_portefeuille():
     _illu("construction")
@@ -641,6 +683,8 @@ def _render_construction_portefeuille():
     rendements futurs sont incertains, et les corrélations changent en crise. Mais l'intuition
     reste : **il existe un portefeuille idéal pour chaque profil de risque**.
     """)
+
+    _img(img_markowitz_frontier())
 
     st.markdown("#### 6.3 — Les corrélations entre classes d'actifs (régime normal)")
     st.markdown("""
@@ -695,6 +739,10 @@ def _render_construction_portefeuille():
     Cette structure réduit le **risque de séquence** (avoir besoin de vendre en bas de cycle).
     """)
 
+    st.markdown('<div class="qt-section-title" style="margin-top:28px;">Exemple d\'allocation équilibrée</div>',
+                unsafe_allow_html=True)
+    _synthese("construction")
+
 
 def _render_biais_comportementaux():
     _illu("biais")
@@ -718,6 +766,8 @@ def _render_biais_comportementaux():
     sur les actions, contre **+10,2%/an** pour le S&P 500. La différence (~6,5%/an !) vient
     quasi-exclusivement de mauvais timing dicté par les émotions.
     """)
+
+    _img(img_kahneman())
 
     st.markdown("#### 7.2 — Le biais de confirmation")
     st.write("""
@@ -793,6 +843,10 @@ def _render_biais_comportementaux():
                 'C\'est ce que font les meilleurs gérants : <strong>déléguer les décisions à un '
                 'soi-même rationnel passé</strong> plutôt qu\'au soi-même paniqué présent.'
                 '</div>', unsafe_allow_html=True)
+
+    st.markdown('<div class="qt-section-title" style="margin-top:28px;">Les 4 grands biais à connaître</div>',
+                unsafe_allow_html=True)
+    _synthese("biais")
 
 
 def _render_lexique():
@@ -873,6 +927,10 @@ def _render_lexique():
     - **ROE** — Return on Equity. Rentabilité des fonds propres.
     - **Dilution** — Quand une entreprise émet de nouvelles actions, chaque actionnaire possède un pourcentage plus petit.
     """)
+
+    st.markdown('<div class="qt-section-title" style="margin-top:28px;">Les termes essentiels à retenir</div>',
+                unsafe_allow_html=True)
+    _synthese("lexique")
 
 
 def _render_methodologie():
@@ -972,3 +1030,7 @@ def _render_methodologie():
                 'Pour un usage professionnel réel, il faudrait ajouter ces raffinements et calibrer '
                 'le modèle sur des données de marché en temps réel.'
                 '</div>', unsafe_allow_html=True)
+
+    st.markdown('<div class="qt-section-title" style="margin-top:28px;">Pipeline de Quant Terminal</div>',
+                unsafe_allow_html=True)
+    _synthese("methodologie")
