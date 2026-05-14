@@ -341,8 +341,12 @@ def render_page_dashboard():
         return
 
     if len(labels_disponibles) == 1:
-        afficher_dashboard(simulations[labels_disponibles[0]],
-                           st.session_state.params_sim, key_prefix="dash_main")
+        res = simulations[labels_disponibles[0]]
+        st.markdown(
+            f'<div class="qt-callout"><strong>Scénario :</strong> {res["scenario"]}</div>',
+            unsafe_allow_html=True
+        )
+        afficher_dashboard(res, st.session_state.params_sim, key_prefix="dash_main")
         return
 
     # Multi-scenarios : un sous-onglet par label

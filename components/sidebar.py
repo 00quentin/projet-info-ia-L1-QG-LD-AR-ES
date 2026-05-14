@@ -70,22 +70,6 @@ def _render_section_simulation() -> Dict[str, Any]:
             st.text_area(f"Scénario {label}", height=100,
                          key=f"event_text_{label}", label_visibility="collapsed")
     else:
-        st.markdown("**Scénarios rapides**")
-        preset_keys = list(EVENEMENTS_PRESETS.keys())
-        for i in range(0, len(preset_keys), 2):
-            col1, col2 = st.columns(2)
-            with col1:
-                if i < len(preset_keys):
-                    st.button(preset_keys[i], key=f"preset_{i}",
-                              on_click=_set_event_A,
-                              args=(EVENEMENTS_PRESETS[preset_keys[i]],),
-                              use_container_width=True)
-            with col2:
-                if i + 1 < len(preset_keys):
-                    st.button(preset_keys[i + 1], key=f"preset_{i+1}",
-                              on_click=_set_event_A,
-                              args=(EVENEMENTS_PRESETS[preset_keys[i + 1]],),
-                              use_container_width=True)
         st.markdown("**Événement à simuler**")
         st.caption("💡 Conseil : soyez précis et détaillé pour que l'analyste IA soit performant. "
                    "Mentionnez le pays, le secteur, l'ampleur, la durée si possible.")
