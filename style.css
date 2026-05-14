@@ -2027,6 +2027,56 @@ div[data-testid="metric-container"]:hover {
 
 
 /* ============================================================
+   LOGO IDENTITAIRE (nouveau, gradient indigo->vert + courbe)
+   ============================================================ */
+.qt-topbar-logo-new {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    color: transparent !important;
+    overflow: visible !important;
+}
+.qt-topbar-logo-new::before,
+.qt-topbar-logo-new::after { display: none !important; }
+.qt-topbar-logo-new svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.4s var(--ease-out);
+}
+.qt-topbar-logo-new:hover svg {
+    transform: scale(1.05) rotate(-2deg);
+}
+.qt-logo-svg {
+    filter: drop-shadow(0 2px 6px rgba(99,102,241,0.25));
+}
+
+/* Brand inline (logo + texte) reutilisable */
+.qt-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+.qt-brand-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+}
+.qt-brand-name {
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.01em;
+    font-size: 1.05em;
+}
+.qt-brand-tag {
+    font-size: 0.78em;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+
+/* ============================================================
    PHASE 4 - Académie : photos Wikipedia + blocs visuels
    ============================================================ */
 
@@ -2036,15 +2086,21 @@ div[data-testid="metric-container"]:hover {
     border-radius: var(--radius-xl);
     overflow: hidden;
     border: 1px solid var(--border);
-    background: var(--card);
+    background: var(--bg-2);
     box-shadow: var(--shadow-md);
 }
 .qt-acad-photo img {
     display: block;
     width: 100%;
-    height: 220px;
-    object-fit: cover;
+    max-height: 320px;
+    object-fit: contain;
+    background: var(--bg-2);
     transition: transform 0.6s var(--ease-out);
+}
+/* Version paysage cover : pour les photos d'evenements ou la composition se prete */
+.qt-acad-photo.qt-acad-photo-cover img {
+    height: 240px;
+    object-fit: cover;
 }
 .qt-acad-photo:hover img {
     transform: scale(1.03);
@@ -2170,7 +2226,7 @@ div[data-testid="metric-container"]:hover {
 }
 .qt-acad-crisis-photo {
     position: relative;
-    height: 160px;
+    height: 180px;
     background: linear-gradient(135deg, var(--bg-2) 0%, var(--card) 100%);
     overflow: hidden;
 }
@@ -2178,7 +2234,14 @@ div[data-testid="metric-container"]:hover {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: center;
     transition: transform 0.6s var(--ease-out);
+}
+/* Si l'image n'est pas une photo (graphique/diagramme), on contain */
+.qt-acad-crisis-photo.qt-acad-crisis-photo-contain img {
+    object-fit: contain;
+    padding: 8px;
+    background: var(--bg-2);
 }
 .qt-acad-crisis-card:hover .qt-acad-crisis-photo img {
     transform: scale(1.08);

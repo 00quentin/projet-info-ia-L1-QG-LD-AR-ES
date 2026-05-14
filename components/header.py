@@ -6,6 +6,7 @@ Composants de l'en-tête : toggle dark mode, hero, bande live, onboarding.
 
 import streamlit as st
 from market_data import get_prix_actuels, get_prix_avec_variation
+from components.logo import logo_svg
 
 
 def _toggle_dark_mode():
@@ -44,11 +45,11 @@ def render_dark_mode_toggle():
 
 
 def render_hero():
-    """Toolbar minimaliste : logo + titre + version + tagline courte. Pas de stats marketing."""
-    st.markdown("""
+    """Toolbar minimaliste : logo SVG + titre + version + tagline courte."""
+    st.markdown(f"""
     <div class="qt-topbar">
         <div class="qt-topbar-brand">
-            <div class="qt-topbar-logo">QT</div>
+            <div class="qt-topbar-logo qt-topbar-logo-new">{logo_svg(size=40)}</div>
             <div class="qt-topbar-text">
                 <div class="qt-topbar-titlerow">
                     <span class="qt-topbar-title">Quant Terminal</span>

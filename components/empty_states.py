@@ -201,7 +201,7 @@ def render_empty_dashboard():
                     unsafe_allow_html=True,
                 )
                 st.button(
-                    f"Lancer « {nom} »",
+                    "▶ Lancer la simulation",
                     key=f"empty_preset_{i}",
                     use_container_width=True,
                     on_click=_on_preset_click,

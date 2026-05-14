@@ -11,7 +11,7 @@ les pages dans pages/, et les flots de lancement dans handlers.py.
 import streamlit as st
 
 # --- Configuration de la page (DOIT être en premier) ---
-st.set_page_config(page_title="Quant Terminal", page_icon="◆", layout="wide")
+st.set_page_config(page_title="Quant Terminal", page_icon="📈", layout="wide")
 
 # --- Imports locaux ---
 from config import SCENARIO_A_DEFAUT, SCENARIO_B_DEFAUT, SCENARIO_C_DEFAUT, LABELS_SCENARIOS
