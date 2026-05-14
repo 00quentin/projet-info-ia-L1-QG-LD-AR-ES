@@ -27,20 +27,67 @@ from logger import get_logger
 log = get_logger("page_dashboard")
 
 
+def _render_hero_dashboard(res, params):
+    """Hero TradingView : grande valeur finale + variation coloree + badges."""
+    chocs = res["chocs_ia"]
+    df = res["df"]
+    poids = calculer_poids(params["profil"], params["actifs_sim"], params["allocations"])
+    valeur_port = calculer_valeur_portefeuille(df, poids, params["capital"])
+    valeur_finale = float(valeur_port.iloc[-1])
+    capital = params["capital"]
+    variation = valeur_finale - capital
+    variation_pct = (variation / capital * 100) if capital > 0 else 0.0
+    up = variation >= 0
+    classe = "up" if up else "down"
+    arrow = "▲" if up else "▼"
+
+    # Formatage : separateur d'espaces, 2 decimales en EUR
+    val_str = f"{valeur_finale:,.2f}".replace(",", " ").replace(".", ",")
+    var_str = f"{abs(variation):,.2f}".replace(",", " ").replace(".", ",")
+    pct_str = f"{abs(variation_pct):.2f}".replace(".", ",")
+
+    # Badges contextuels
+    badges_html = ""
+    if params.get("prix_reels"):
+        badges_html += '<span class="qt-dash-hero-chip qt-dash-hero-chip-live">● Prix réels</span>'
+    if params.get("calib") and chocs.get("evenement_reference"):
+        ref = chocs["evenement_reference"]
+        badges_html += f'<span class="qt-dash-hero-chip qt-dash-hero-chip-calib">Calibré : {ref}</span>'
+    if params.get("monte_carlo"):
+        badges_html += '<span class="qt-dash-hero-chip qt-dash-hero-chip-mc">Monte-Carlo · 50 simulations</span>'
+
+    st.markdown(
+        f'<div class="qt-dash-hero">'
+        f'<div class="qt-dash-hero-top">'
+        f'<div class="qt-dash-hero-label">Valeur finale du portefeuille</div>'
+        f'<div class="qt-dash-hero-chips">{badges_html}</div>'
+        f'</div>'
+        f'<div class="qt-dash-hero-row">'
+        f'<span class="qt-dash-hero-value">{val_str}</span>'
+        f'<span class="qt-dash-hero-unit">€</span>'
+        f'<span class="qt-dash-hero-variation {classe}">'
+        f'<span class="qt-dash-hero-arrow">{arrow}</span>'
+        f'{var_str} € · {pct_str}%'
+        f'</span>'
+        f'</div>'
+        f'<div class="qt-dash-hero-sub">'
+        f'Capital initial : <strong>{capital:,.0f} €</strong>'.replace(",", " ")
+        + f' &middot; Horizon : <strong>{len(df)} jours</strong>'
+        + f' &middot; {len(params["actifs_sim"])} actifs'
+        + '</div>'
+        + '</div>',
+        unsafe_allow_html=True
+    )
+
+
 def afficher_dashboard(res, params, key_prefix="main"):
     """Affiche le dashboard complet pour un résultat de simulation."""
     chocs = res["chocs_ia"]
     df = res["df"]
     mc = res["mc_data"]
 
-    # === Badges (prix réels, calibration) ===
-    badges = ""
-    if params.get("prix_reels"):
-        badges += '<span class="qt-live-badge">PRIX RÉELS</span>'
-    if params.get("calib") and chocs.get("evenement_reference"):
-        badges += f'<span class="qt-live-badge" style="background:#805ad5;">CALIBRÉ : {chocs["evenement_reference"]}</span>'
-    if badges:
-        st.markdown(f'<div style="margin-bottom:14px;">{badges}</div>', unsafe_allow_html=True)
+    # === Hero TradingView : valeur finale + variation ===
+    _render_hero_dashboard(res, params)
 
     # === Macro IA ===
     col1, col2 = st.columns(2)

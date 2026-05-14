@@ -2027,6 +2027,139 @@ div[data-testid="metric-container"]:hover {
 
 
 /* ============================================================
+   PHASE 2 - HERO DASHBOARD style TradingView
+   Grande valeur + variation coloree + chips contextuels
+   ============================================================ */
+
+.qt-dash-hero {
+    background: linear-gradient(135deg, var(--card) 0%, var(--bg-2) 100%);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    padding: 22px 26px;
+    margin-bottom: 22px;
+    box-shadow: var(--shadow-md);
+    animation: fadeInUp 0.5s var(--ease-out) both;
+}
+.qt-dash-hero-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+.qt-dash-hero-label {
+    color: var(--text-muted);
+    font-size: 0.88em;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+.qt-dash-hero-chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+.qt-dash-hero-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    font-size: 0.75em;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    line-height: 1;
+}
+.qt-dash-hero-chip-live {
+    background: color-mix(in srgb, var(--success) 14%, transparent);
+    color: var(--success);
+    border: 1px solid color-mix(in srgb, var(--success) 30%, transparent);
+}
+.qt-dash-hero-chip-live::before {
+    content: "";
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--success);
+    margin-right: 4px;
+    animation: pulseSoft 2s ease-in-out infinite;
+}
+.qt-dash-hero-chip-calib {
+    background: color-mix(in srgb, var(--accent) 14%, transparent);
+    color: var(--accent);
+    border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+}
+.qt-dash-hero-chip-mc {
+    background: color-mix(in srgb, var(--warn) 14%, transparent);
+    color: var(--warn);
+    border: 1px solid color-mix(in srgb, var(--warn) 30%, transparent);
+}
+
+.qt-dash-hero-row {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin: 6px 0 8px;
+}
+.qt-dash-hero-value {
+    font-family: var(--font-sans);
+    font-weight: 800;
+    font-size: 2.8em;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+}
+.qt-dash-hero-unit {
+    font-size: 1.2em;
+    color: var(--text-muted);
+    font-weight: 600;
+    margin-left: 6px;
+}
+.qt-dash-hero-variation {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 1.05em;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin-left: 18px;
+    font-variant-numeric: tabular-nums;
+    padding: 5px 12px;
+    border-radius: var(--radius-md);
+}
+.qt-dash-hero-variation.up {
+    color: var(--success);
+    background: color-mix(in srgb, var(--success) 12%, transparent);
+}
+.qt-dash-hero-variation.down {
+    color: var(--danger);
+    background: color-mix(in srgb, var(--danger) 12%, transparent);
+}
+.qt-dash-hero-arrow {
+    font-size: 0.85em;
+    opacity: 0.9;
+}
+.qt-dash-hero-sub {
+    color: var(--text-muted);
+    font-size: 0.88em;
+    margin-top: 4px;
+    letter-spacing: 0.005em;
+}
+.qt-dash-hero-sub strong {
+    color: var(--text);
+    font-weight: 600;
+}
+
+@media (max-width: 640px) {
+    .qt-dash-hero-value { font-size: 2.1em; }
+    .qt-dash-hero-variation { margin-left: 0; margin-top: 8px; }
+}
+
+
+/* ============================================================
    LOGO IDENTITAIRE (nouveau, gradient indigo->vert + courbe)
    ============================================================ */
 .qt-topbar-logo-new {

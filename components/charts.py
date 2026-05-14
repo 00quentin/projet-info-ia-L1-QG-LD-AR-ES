@@ -127,6 +127,9 @@ def apply_qt_theme(
         title_font=dict(size=12, color=c["text"]),
         title_standoff=18,
         automargin=True,
+        # Crosshair TradingView : ligne verticale au survol
+        showspikes=True, spikemode="across", spikesnap="cursor",
+        spikecolor=c["axis"], spikethickness=1, spikedash="dot",
     )
     fig.update_yaxes(
         showgrid=True, gridcolor=c["grid"], gridwidth=1,
@@ -136,6 +139,9 @@ def apply_qt_theme(
         title_font=dict(size=12, color=c["text"]),
         title_standoff=14,
         automargin=True,
+        # Crosshair TradingView : ligne horizontale au survol
+        showspikes=True, spikemode="across", spikesnap="cursor",
+        spikecolor=c["axis"], spikethickness=1, spikedash="dot",
     )
     return fig
 
@@ -249,33 +255,70 @@ def fig_evolution_portefeuille(
     benchmark: Optional[pd.Series] = None,
     titre_benchmark: str = "S&P 500 (benchmark)",
 ) -> go.Figure:
-    """Évolution du portefeuille vs benchmark optionnel."""
+    """Evolution du portefeuille vs benchmark optionnel, style TradingView.
+
+    La courbe portefeuille prend la couleur success/danger selon le sens
+    de la performance finale, avec un gradient subtil sous la ligne (signature
+    TradingView). Le benchmark reste en pointille neutre.
+    """
     fig = go.Figure()
+
+    # Couleur dynamique : vert si performance positive, rouge sinon
+    valeur_finale = float(valeur_port.iloc[-1])
+    up = valeur_finale >= capital
+    # Vert et rouge TradingView (alignes sur les vars semantiques --success/--danger)
+    couleur_courbe = "#16c784" if up else "#ef454a"
+    r = int(couleur_courbe[1:3], 16)
+    g = int(couleur_courbe[3:5], 16)
+    b = int(couleur_courbe[5:7], 16)
+
+    # Floor du fill : on remplit jusqu'au capital initial pour visualiser
+    # gains/pertes (au-dessus = gain, en-dessous = perte). On utilise un floor
+    # commun en ajoutant d'abord une trace invisible a y=capital.
+    fig.add_trace(go.Scatter(
+        x=valeur_port.index, y=[capital] * len(valeur_port),
+        mode="lines",
+        line=dict(width=0),
+        showlegend=False,
+        hoverinfo="skip",
+    ))
     fig.add_trace(go.Scatter(
         x=valeur_port.index, y=valeur_port,
         name="Votre portefeuille",
-        line=dict(color=QT_PALETTE[0], width=3, shape="spline", smoothing=0.5),
-        fill="tozeroy",
-        fillcolor=f"rgba({int(QT_PALETTE[0][1:3],16)},{int(QT_PALETTE[0][3:5],16)},{int(QT_PALETTE[0][5:7],16)},0.06)",
+        mode="lines",
+        line=dict(color=couleur_courbe, width=2.5, shape="spline", smoothing=0.4),
+        fill="tonexty",
+        fillcolor=f"rgba({r},{g},{b},0.18)",
         hovertemplate="<b>Portefeuille</b><br>%{y:,.0f} €<extra></extra>",
     ))
     if benchmark is not None:
         fig.add_trace(go.Scatter(
             x=benchmark.index, y=benchmark,
             name=titre_benchmark,
-            line=dict(color=QT_PALETTE[1], width=2, dash="dash"),
+            mode="lines",
+            line=dict(color="#94a3b8", width=1.8, dash="dot"),
             hovertemplate=f"<b>{titre_benchmark}</b><br>%{{y:,.0f}} €<extra></extra>",
         ))
     c = get_theme_colors()
     fig.add_hline(
-        y=capital, line_dash="dot", line_color=c["axis"], line_width=1,
+        y=capital, line_dash="dash", line_color=c["axis"], line_width=1,
         annotation_text=f"Capital initial : {capital:,.0f} €",
         annotation_position="bottom right",
         annotation_font=dict(size=11, color=c["annot"]),
     )
+    # Crosshair style TradingView : ligne verticale au survol
+    fig.update_xaxes(
+        showspikes=True, spikemode="across", spikesnap="cursor",
+        spikecolor=c["axis"], spikethickness=1, spikedash="dot",
+    )
+    fig.update_yaxes(
+        showspikes=True, spikemode="across", spikesnap="cursor",
+        spikecolor=c["axis"], spikethickness=1, spikedash="dot",
+    )
     fig.update_layout(
         xaxis_title="Jours de cotation",
         yaxis_title="Valeur (€)",
+        hovermode="x unified",
     )
     return apply_qt_theme(fig, height=440)
 
