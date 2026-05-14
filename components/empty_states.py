@@ -195,18 +195,18 @@ def render_empty_dashboard():
                     f'<div class="qt-preset-desc">{texte}</div>'
                     f'<div class="qt-preset-meta">'
                     f'<span class="qt-preset-time">~ 2 min</span>'
-                    f'<span class="qt-preset-arrow">Lancer &rarr;</span>'
                     f'</div>'
                     f'</div>'
                     f'</div>',
                     unsafe_allow_html=True,
                 )
                 st.button(
-                    "Lancer la simulation",
+                    f"Lancer « {nom} »",
                     key=f"empty_preset_{i}",
                     use_container_width=True,
                     on_click=_on_preset_click,
                     args=(texte,),
+                    type="primary",
                 )
 
 
