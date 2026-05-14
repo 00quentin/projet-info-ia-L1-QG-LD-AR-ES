@@ -64,9 +64,9 @@ _DESIGN_TOKENS = """
     --gray-600: var(--slate-600);  --gray-700: var(--slate-700);
     --gray-800: var(--slate-800);  --gray-900: var(--slate-900);
 
-    /* === SEMANTIC (sobre, pas fluo) === */
-    --success-50: #f0fdf4; --success-500: #16a34a; --success-700: #15803d;
-    --danger-50:  #fef2f2; --danger-500:  #dc2626; --danger-700:  #b91c1c;
+    /* === SEMANTIC — couleurs TradingView (vert/rouge vifs et lisibles) === */
+    --success-50: #ecfdf5; --success-500: #16c784; --success-700: #15803d;
+    --danger-50:  #fef2f2; --danger-500:  #ef454a; --danger-700:  #b91c1c;
     --warn-50:    #fffbeb; --warn-500:    #d97706; --warn-700:    #b45309;
 }
 </style>
@@ -88,8 +88,8 @@ CSS_VARS_CLAIR = """
     --text:          var(--slate-800);
     --text-muted:    var(--slate-600);
     --muted:         var(--slate-500);
-    --success:       var(--success-500);
-    --danger:        var(--danger-500);
+    --success:       #16c784;                    /* vert TradingView */
+    --danger:        #ef454a;                    /* rouge TradingView */
     --warn:          var(--warn-500);
     /* Ombres et hovers contextuels (changent en dark) */
     --shadow-rgb:    15,23,42;                   /* slate-900 a faible opacite */
@@ -107,16 +107,16 @@ CSS_VARS_SOMBRE = """
     --secondary:     var(--slate-200);
     --accent:        var(--indigo-400);          /* indigo plus clair pour le contraste dark */
     --accent-soft:   var(--indigo-800);
-    --bg:            var(--slate-950);           /* ~#09090b */
-    --bg-2:          #111113;
-    --card:          #161618;
-    --border:        #262629;
-    --border-strong: #3f3f46;
-    --text:          var(--slate-100);
-    --text-muted:    var(--slate-400);
-    --muted:         var(--slate-500);
-    --success:       #4ade80;
-    --danger:        #f87171;
+    --bg:            #0b0e11;                    /* fond TradingView dark */
+    --bg-2:          #131722;                    /* card background dark TradingView */
+    --card:          #1e222d;                    /* secondary cards */
+    --border:        #2a2e39;
+    --border-strong: #363a45;
+    --text:          #d1d4dc;                    /* texte principal TradingView */
+    --text-muted:    #868993;
+    --muted:         #5d606b;
+    --success:       #26a69a;                    /* vert TradingView dark — meilleur sur fond noir */
+    --danger:        #ef5350;                    /* rouge TradingView dark */
     --warn:          #fbbf24;
     /* Ombres : en dark on assombrit avec du noir profond */
     --shadow-rgb:    0,0,0;

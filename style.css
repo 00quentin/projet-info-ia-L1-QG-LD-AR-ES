@@ -1851,3 +1851,466 @@ div[data-testid="metric-container"]:hover { box-shadow: 0 8px 20px rgba(49,151,1
     color: var(--text-muted);
     line-height: 1.55;
 }
+
+
+/* ============================================================
+   PHASE 1 - Refonte typo TradingView : grands chiffres
+   ============================================================ */
+
+/* Grand nombre type hero TradingView (ex: 682,41) */
+.qt-big-number {
+    font-family: var(--font-sans);
+    font-weight: 700;
+    font-size: 2.75em;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+}
+.qt-big-number-unit {
+    font-size: 0.45em;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-left: 8px;
+    letter-spacing: 0;
+    vertical-align: middle;
+}
+.qt-big-variation {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 1.1em;
+    letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 14px;
+}
+.qt-big-variation.up { color: var(--success); }
+.qt-big-variation.down { color: var(--danger); }
+.qt-big-variation-arrow {
+    font-size: 0.85em;
+    opacity: 0.9;
+}
+.qt-big-label {
+    color: var(--text-muted);
+    font-size: 0.92em;
+    margin-top: 4px;
+    letter-spacing: 0.005em;
+}
+
+/* st.metric : valeurs en tabular-nums + plus grandes pour respirer */
+div[data-testid="metric-container"] [data-testid="stMetricValue"] {
+    font-variant-numeric: tabular-nums;
+    font-weight: 700 !important;
+    letter-spacing: -0.02em !important;
+    font-size: 1.85em !important;
+}
+div[data-testid="metric-container"] [data-testid="stMetricDelta"] {
+    font-weight: 600 !important;
+    font-variant-numeric: tabular-nums;
+}
+/* Couleurs delta synchronisees avec les vars semantiques */
+div[data-testid="metric-container"] [data-testid="stMetricDelta"] svg {
+    transition: transform var(--duration-base) var(--ease-out);
+}
+
+/* Tabular-nums sur tout ce qui ressemble a un chiffre dans les tableaux */
+.stDataFrame td, .stDataFrame th,
+[data-testid="stDataFrame"] td, [data-testid="stDataFrame"] th {
+    font-variant-numeric: tabular-nums;
+}
+
+
+/* ============================================================
+   PHASE 1 - Cards plus aerees + hover subtil (style TradingView)
+   ============================================================ */
+
+/* Espacement plus genereux sur les sections du dashboard */
+.qt-section-title {
+    margin-top: 28px !important;
+}
+hr.qt-divider {
+    margin: 32px 0 !important;
+    border: 0 !important;
+    border-top: 1px solid var(--border) !important;
+    opacity: 0.6;
+}
+
+/* st.metric : padding plus genereux, hover plus subtil et premium */
+div[data-testid="metric-container"] {
+    padding: 18px 20px !important;
+    border-radius: var(--radius-xl) !important;
+    background: var(--card) !important;
+    border: 1px solid var(--border) !important;
+    transition: transform var(--duration-base) var(--ease-out),
+                box-shadow var(--duration-base) var(--ease-out),
+                border-color var(--duration-base) var(--ease-out);
+}
+div[data-testid="metric-container"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(var(--shadow-rgb), 0.07);
+    border-color: var(--border-strong) !important;
+}
+
+/* Boutons : un poil plus arrondis et avec une transition douce */
+.stButton > button {
+    border-radius: var(--radius-lg) !important;
+    transition: transform var(--duration-fast) var(--ease-out),
+                box-shadow var(--duration-base) var(--ease-out),
+                background-color var(--duration-base) var(--ease-out),
+                border-color var(--duration-base) var(--ease-out) !important;
+}
+.stButton > button[kind="primary"] {
+    box-shadow: 0 1px 2px rgba(99,102,241,0.18), inset 0 1px 0 rgba(255,255,255,0.08);
+}
+.stButton > button[kind="primary"]:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(99,102,241,0.25), inset 0 1px 0 rgba(255,255,255,0.10);
+}
+
+
+/* ============================================================
+   PHASE 1 - Badges variation type TradingView (pill colore)
+   ============================================================ */
+
+.qt-pill-var {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: var(--radius-md);
+    font-size: 0.85em;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.005em;
+    line-height: 1;
+}
+.qt-pill-var.up {
+    background: color-mix(in srgb, var(--success) 12%, transparent);
+    color: var(--success);
+}
+.qt-pill-var.down {
+    background: color-mix(in srgb, var(--danger) 12%, transparent);
+    color: var(--danger);
+}
+.qt-pill-var.neutral {
+    background: color-mix(in srgb, var(--text-muted) 12%, transparent);
+    color: var(--text-muted);
+}
+
+
+/* ============================================================
+   PHASE 1 - Mode sombre : harmoniser les blocs HTML inline
+   (les illustrations academie + onboarding utilisent souvent
+   des couleurs hardcodees blanches, on les rend transparentes
+   au theme)
+   ============================================================ */
+
+/* Cartes inline (style="background:#f8fafc...") -> on remplace par var */
+.qt-acad-illu, .qt-card, .qt-callout, .qt-callout-warn {
+    background: var(--card) !important;
+    color: var(--text);
+    border-color: var(--border);
+}
+
+/* Inputs / textarea : assombrissement propre en dark */
+.stTextArea textarea, .stTextInput input, .stNumberInput input {
+    background: var(--bg-2) !important;
+    color: var(--text) !important;
+    border-color: var(--border) !important;
+}
+.stTextArea textarea:focus, .stTextInput input:focus, .stNumberInput input:focus {
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 3px var(--focus-ring) !important;
+}
+
+
+/* ============================================================
+   PHASE 4 - Académie : photos Wikipedia + blocs visuels
+   ============================================================ */
+
+/* Photo Wikipedia generique avec credit */
+.qt-acad-photo {
+    margin: 0 0 18px 0;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--card);
+    box-shadow: var(--shadow-md);
+}
+.qt-acad-photo img {
+    display: block;
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    transition: transform 0.6s var(--ease-out);
+}
+.qt-acad-photo:hover img {
+    transform: scale(1.03);
+}
+.qt-acad-photo figcaption {
+    padding: 10px 16px;
+    font-size: 0.82em;
+    color: var(--text-muted);
+    background: var(--bg-2);
+    border-top: 1px solid var(--border);
+    font-style: italic;
+}
+.qt-acad-photo-credit {
+    opacity: 0.75;
+    font-size: 0.85em;
+}
+
+/* Grilles d'items (3 ou 4 colonnes) */
+.qt-acad-grid {
+    display: grid;
+    gap: 12px;
+    margin: 12px 0;
+}
+.qt-acad-grid-2 { grid-template-columns: repeat(2, 1fr); }
+.qt-acad-grid-3 { grid-template-columns: repeat(3, 1fr); }
+.qt-acad-grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+@media (max-width: 768px) {
+    .qt-acad-grid-3, .qt-acad-grid-4 { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Item generique */
+.qt-acad-item {
+    background: var(--bg-2);
+    border-radius: var(--radius-lg);
+    padding: 14px;
+    border: 1px solid var(--border);
+    text-align: center;
+    transition: transform var(--duration-base) var(--ease-out),
+                border-color var(--duration-base) var(--ease-out);
+}
+.qt-acad-item:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-strong);
+}
+.qt-acad-item-icon {
+    font-size: 2em;
+    margin-bottom: 8px;
+    line-height: 1;
+}
+.qt-acad-item-icon-xl {
+    font-size: 2.4em;
+    margin-bottom: 10px;
+}
+.qt-acad-item-label {
+    font-weight: 700;
+    color: var(--text);
+    font-size: 1em;
+    margin-bottom: 4px;
+}
+.qt-acad-item-desc {
+    font-size: 0.85em;
+    color: var(--text-muted);
+    line-height: 1.45;
+    margin-top: 4px;
+}
+.qt-acad-item-tall {
+    padding-bottom: 18px;
+}
+.qt-acad-pill {
+    display: inline-block;
+    padding: 3px 10px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-full);
+    font-size: 0.8em;
+    color: var(--text-muted);
+    margin: 6px 0;
+}
+.qt-acad-alloc {
+    background: var(--bg);
+    padding: 10px 12px;
+    border-radius: var(--radius-md);
+    font-size: 0.82em;
+    color: var(--text);
+    margin-top: 6px;
+    line-height: 1.7;
+}
+
+/* Bloc "À retenir" uniformisé */
+.qt-acad-retenir {
+    background: var(--bg-2);
+    border-radius: var(--radius-lg);
+    padding: 14px 16px;
+    margin-top: 14px;
+    border-left: 4px solid var(--accent);
+    line-height: 1.55;
+    color: var(--text);
+    font-size: 0.93em;
+}
+.qt-acad-retenir strong {
+    color: var(--text);
+}
+
+/* Cas historiques : timeline avec photos */
+.qt-acad-crises {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+    margin: 16px 0;
+}
+.qt-acad-crisis-card {
+    background: var(--card);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    transition: transform var(--duration-base) var(--ease-out),
+                box-shadow var(--duration-base) var(--ease-out);
+}
+.qt-acad-crisis-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-xl);
+}
+.qt-acad-crisis-photo {
+    position: relative;
+    height: 160px;
+    background: linear-gradient(135deg, var(--bg-2) 0%, var(--card) 100%);
+    overflow: hidden;
+}
+.qt-acad-crisis-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s var(--ease-out);
+}
+.qt-acad-crisis-card:hover .qt-acad-crisis-photo img {
+    transform: scale(1.08);
+}
+.qt-acad-crisis-photo-fallback {
+    /* Quand l'image ne charge pas : on garde le degrade comme placeholder */
+    background: linear-gradient(135deg, var(--bg) 0%, var(--bg-2) 100%);
+}
+.qt-acad-crisis-year {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    color: white;
+    padding: 4px 12px;
+    border-radius: var(--radius-md);
+    font-weight: 800;
+    font-size: 0.95em;
+    letter-spacing: 0.02em;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    z-index: 1;
+}
+.qt-acad-crisis-body {
+    padding: 14px 16px;
+}
+.qt-acad-crisis-body h4 {
+    margin: 0 0 8px 0 !important;
+    font-size: 1.05em;
+    font-weight: 700;
+}
+.qt-acad-crisis-body p {
+    color: var(--text-muted);
+    font-size: 0.88em;
+    line-height: 1.5;
+    margin: 0 0 8px 0;
+}
+
+/* Biais : cards colorées par biais */
+.qt-acad-bias-card {
+    background: linear-gradient(135deg,
+        color-mix(in srgb, var(--bias-color) 12%, transparent) 0%,
+        color-mix(in srgb, var(--bias-color) 3%, transparent) 100%);
+    border-left: 4px solid var(--bias-color);
+    border-radius: var(--radius-lg);
+    padding: 14px 16px;
+    transition: transform var(--duration-base) var(--ease-out);
+}
+.qt-acad-bias-card:hover {
+    transform: translateY(-2px);
+}
+.qt-acad-bias-name {
+    font-weight: 800;
+    color: var(--bias-color);
+    margin-bottom: 4px;
+    letter-spacing: 0.05em;
+}
+
+/* Lexique : cards compactes */
+.qt-acad-lex {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 12px;
+    text-align: center;
+    transition: border-color var(--duration-base) var(--ease-out);
+}
+.qt-acad-lex:hover {
+    border-color: var(--accent);
+}
+.qt-acad-lex-icon {
+    font-size: 1.6em;
+    margin-bottom: 4px;
+    line-height: 1;
+}
+.qt-acad-lex-term {
+    font-weight: 700;
+    color: var(--accent);
+    font-size: 0.95em;
+}
+
+/* Bars d'allocation */
+.qt-acad-alloc-bars {
+    margin: 14px 0;
+}
+.qt-acad-alloc-row {
+    margin-bottom: 12px;
+}
+.qt-acad-alloc-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+    color: var(--text);
+    font-size: 0.95em;
+}
+.qt-acad-alloc-bar-bg {
+    background: var(--bg-2);
+    border-radius: var(--radius-sm);
+    height: 22px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+}
+.qt-acad-alloc-bar-fill {
+    height: 100%;
+    border-radius: var(--radius-sm);
+    transition: width 0.8s var(--ease-out);
+}
+
+/* Méthodologie : étapes numérotées */
+.qt-acad-step {
+    background: var(--bg-2);
+    border: 2px solid var(--accent);
+    border-radius: var(--radius-lg);
+    padding: 14px;
+    text-align: center;
+    transition: transform var(--duration-base) var(--ease-out),
+                box-shadow var(--duration-base) var(--ease-out);
+}
+.qt-acad-step:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(99,102,241,0.15);
+}
+.qt-acad-step-num {
+    background: var(--accent);
+    color: white;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 10px;
+    font-weight: 800;
+    font-size: 1.15em;
+    box-shadow: 0 2px 6px rgba(99,102,241,0.30);
+}
