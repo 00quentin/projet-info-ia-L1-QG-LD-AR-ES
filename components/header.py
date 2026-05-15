@@ -22,16 +22,16 @@ def render_topbar():
     col_brand, col_dark, col_guide = st.columns([11, 0.7, 0.7])
 
     with col_brand:
-        icon_html = logo_svg(size=44)
+        icon_html = logo_svg(size=64)
         st.markdown(f"""
         <div class="qt-topbar-brand">
-            <div class="qt-topbar-logo qt-topbar-logo-new">{icon_html}</div>
+            <div class="qt-topbar-logo qt-topbar-logo-new" style="width:64px;height:64px;">{icon_html}</div>
             <div class="qt-topbar-text">
                 <div class="qt-topbar-titlerow">
-                    <span class="qt-topbar-title">Quant Terminal</span>
+                    <span class="qt-topbar-title" style="font-size:1.55em;font-weight:800;letter-spacing:-0.02em;">Quant Terminal</span>
                     <span class="qt-topbar-version">v2.0 &middot; beta</span>
                 </div>
-                <div class="qt-topbar-sub">Simulateur d&rsquo;investissement &mdash; Yahoo Finance &amp; IA</div>
+                <div class="qt-topbar-sub" style="font-size:0.9em;">Simulateur d&rsquo;investissement &mdash; Yahoo Finance &amp; IA</div>
             </div>
         </div>
         """, unsafe_allow_html=True)
