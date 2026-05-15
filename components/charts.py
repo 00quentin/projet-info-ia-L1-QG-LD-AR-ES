@@ -439,11 +439,15 @@ def html_metriques_jauges(metriques: Dict[str, float]) -> str:
     def _card(label, valeur_fmt, pct, couleur, verdict, aide):
         gauge = _gauge_svg(pct, couleur, valeur_fmt)
         return (
-            f'<div class="qt-metric-gauge" style="--gauge-color:{couleur};" title="{aide}">'
+            f'<div class="qt-metric-gauge" style="--gauge-color:{couleur};">'
             f'<div class="qt-metric-gauge-label">{label}</div>'
             f'<div class="qt-metric-gauge-circle">{gauge}</div>'
             f'<div class="qt-metric-gauge-verdict" style="color:{couleur};">'
             f'<span class="qt-gauge-dot" style="background:{couleur};"></span>{verdict}'
+            f'</div>'
+            f'<div class="qt-gauge-info">'
+            f'<span class="qt-gauge-info-trigger">ℹ Définition &amp; barème</span>'
+            f'<div class="qt-gauge-info-bubble">{aide}</div>'
             f'</div>'
             f'</div>'
         )

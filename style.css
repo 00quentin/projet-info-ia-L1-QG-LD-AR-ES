@@ -1620,9 +1620,56 @@ div[data-testid="metric-container"]:hover::before {
     .qt-metrics-row { grid-template-columns: 1fr; }
 }
 
-/* === TOOLTIP === */
+/* === TOOLTIP Streamlit (help=) === */
 [data-testid="stTooltipIcon"] { color: var(--accent) !important; opacity: 0.8; }
 [data-testid="stTooltipIcon"]:hover { opacity: 1; }
+
+/* === TOOLTIP des jauges métriques === */
+.qt-gauge-info {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+.qt-gauge-info-trigger {
+    font-size: 0.72em;
+    color: var(--accent);
+    cursor: pointer;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    padding: 3px 8px;
+    border-radius: 20px;
+    border: 1px solid var(--accent);
+    opacity: 0.75;
+    transition: opacity 0.2s, background 0.2s;
+    user-select: none;
+}
+.qt-gauge-info-trigger:hover { opacity: 1; background: rgba(99,102,241,0.08); }
+.qt-gauge-info-bubble {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 230px;
+    background: var(--card);
+    color: var(--text);
+    border: 1px solid var(--border-strong);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 0.80em;
+    line-height: 1.55;
+    text-align: left;
+    z-index: 9999;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.18);
+    transition: opacity 0.18s ease;
+    pointer-events: none;
+}
+.qt-gauge-info:hover .qt-gauge-info-bubble {
+    visibility: visible;
+    opacity: 1;
+}
 
 /* === TOOLTIPS & TOASTS — contraste forcé sur fond sombre ===
    Streamlit affiche ses tooltips (help="...") et toasts (st.toast)
