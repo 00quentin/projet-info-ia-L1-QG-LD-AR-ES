@@ -38,10 +38,12 @@ def _img(filename: str, caption: str, credit: str,
     """
     url = f"{WIKIMEDIA_BASE}/{filename}?width={width}"
     extra_class = " qt-acad-photo-cover" if mode == "cover" else ""
+    # alt vide : si l'image casse, on ne veut PAS afficher de texte alt brut.
+    # onerror masque toute la figure (image + legende) -> aucun placeholder moche.
     return (
         f'<figure class="qt-acad-photo{extra_class}">'
-        f'<img src="{url}" alt="{caption}" loading="lazy" '
-        f'onerror="this.parentElement.style.display=\'none\'"/>'
+        f'<img src="{url}" alt="" loading="lazy" '
+        f'onerror="this.closest(\'figure\').style.display=\'none\'"/>'
         f'<figcaption>{caption}<span class="qt-acad-photo-credit"> &middot; {credit}</span></figcaption>'
         f'</figure>'
     )
@@ -197,7 +199,7 @@ def block_crises_grid() -> str:
             "year": "1929",
             "name": "Krach de Wall Street",
             "img": "Crowd_outside_nyse.jpg",
-            "alt": "Foule devant le NYSE - Krach 1929",
+            "emoji": "📉",
             "credit": "Public domain",
             "desc": "Bulle speculative + leverage 90% -> -89% sur le Dow en 3 ans. Grande Depression.",
             "color": "#dc2626",
@@ -206,7 +208,7 @@ def block_crises_grid() -> str:
             "year": "1973",
             "name": "Choc petrolier",
             "img": "Line_at_a_gas_station,_June_15,_1979.jpg",
-            "alt": "Files d'attente essence - Crise petroliere",
+            "emoji": "🛢️",
             "credit": "Public domain US",
             "desc": "Embargo OPEP. Baril x4 en quelques mois. Stagflation mondiale jusqu'en 1982.",
             "color": "#92400e",
@@ -215,7 +217,7 @@ def block_crises_grid() -> str:
             "year": "1987",
             "name": "Lundi noir",
             "img": "Black_Monday_Dow_Jones.svg",
-            "alt": "Dow Jones le 19 octobre 1987",
+            "emoji": "⚡",
             "credit": "CC BY-SA",
             "desc": "-22,6% en une seule seance. Premiers coupe-circuits introduits a Wall Street.",
             "color": "#dc2626",
@@ -224,7 +226,7 @@ def block_crises_grid() -> str:
             "year": "2008",
             "name": "Subprimes",
             "img": "Lehman_Brothers_Times_Square_by_David_Shankbone.jpg",
-            "alt": "Lehman Brothers a Times Square",
+            "emoji": "🏦",
             "credit": "D. Shankbone, CC BY 3.0",
             "desc": "Faillite Lehman. S&P -57% en 18 mois. Sauvetage massif (TARP, QE).",
             "color": "#dc2626",
@@ -232,9 +234,9 @@ def block_crises_grid() -> str:
         {
             "year": "2020",
             "name": "COVID-19",
-            "img": "Times_Square_during_the_2020_coronavirus_pandemic_(March_18).jpg",
-            "alt": "Times Square vide - mars 2020",
-            "credit": "Wikimedia CC BY",
+            "img": "Wall_Street,_Manhattan_2009.jpg",
+            "emoji": "🦠",
+            "credit": "Wikimedia Commons",
             "desc": "Krach eclair (-34% en 23 jours). Sauvetage record : 10 000 milliards injectes.",
             "color": "#0891b2",
         },
@@ -243,10 +245,10 @@ def block_crises_grid() -> str:
     for c in crises:
         html += (
             f'<article class="qt-acad-crisis-card">'
-            f'<div class="qt-acad-crisis-photo">'
-            f'<img src="{WIKIMEDIA_BASE}/{c["img"]}?width=640" alt="{c["alt"]}" loading="lazy" '
-            f'onerror="this.parentElement.classList.add(\'qt-acad-crisis-photo-fallback\'); '
-            f'this.style.display=\'none\'"/>'
+            f'<div class="qt-acad-crisis-photo" style="--crisis-color:{c["color"]};">'
+            f'<div class="qt-acad-crisis-fallback">{c["emoji"]}</div>'
+            f'<img src="{WIKIMEDIA_BASE}/{c["img"]}?width=640" alt="" loading="lazy" '
+            f'onerror="this.style.display=\'none\'"/>'
             f'<div class="qt-acad-crisis-year" style="background:{c["color"]};">{c["year"]}</div>'
             f'</div>'
             f'<div class="qt-acad-crisis-body">'
