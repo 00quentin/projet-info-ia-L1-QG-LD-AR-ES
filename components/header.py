@@ -17,49 +17,50 @@ def _show_onboarding():
     st.session_state.show_onboarding = True
 
 
-def render_dark_mode_toggle():
-    """Toolbar : 2 boutons header de taille identique avec icônes Unicode propres."""
-    # Colonnes ÉGALES (2/2) pour boutons de même largeur, peu importe le texte.
-    col_h1, col_h2, col_h3 = st.columns([8, 2, 2])
-    with col_h2:
-        # 🌙 lune si on est en clair, ☀ soleil si on est en sombre
-        if st.session_state.dark_mode:
-            label = "☀  Mode clair"
-        else:
-            label = "🌙  Mode sombre"
-        st.button(
-            label,
-            help="Basculer entre le mode clair et le mode sombre",
-            key="toggle_dark",
-            on_click=_toggle_dark_mode,
-            use_container_width=True,
-        )
-    with col_h3:
-        st.button(
-            "📖  Guide",
-            help="Afficher le guide d'utilisation pas-à-pas",
-            key="show_help",
-            on_click=_show_onboarding,
-            use_container_width=True,
-        )
+def render_topbar():
+    """Topbar unifiée : logo + titre à gauche, boutons icônes discrets à droite."""
+    col_brand, col_dark, col_guide = st.columns([11, 0.7, 0.7])
 
-
-def render_hero():
-    """Toolbar minimaliste : logo SVG + titre + version + tagline courte."""
-    st.markdown(f"""
-    <div class="qt-topbar">
+    with col_brand:
+        icon_html = logo_svg(size=44)
+        st.markdown(f"""
         <div class="qt-topbar-brand">
-            <div class="qt-topbar-logo qt-topbar-logo-new">{logo_svg(size=40)}</div>
+            <div class="qt-topbar-logo qt-topbar-logo-new">{icon_html}</div>
             <div class="qt-topbar-text">
                 <div class="qt-topbar-titlerow">
                     <span class="qt-topbar-title">Quant Terminal</span>
                     <span class="qt-topbar-version">v2.0 &middot; beta</span>
                 </div>
-                <div class="qt-topbar-sub">Simulateur d'investissement &mdash; prix Yahoo Finance &amp; IA</div>
+                <div class="qt-topbar-sub">Simulateur d&rsquo;investissement &mdash; Yahoo Finance &amp; IA</div>
             </div>
         </div>
-    </div>
-    """, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
+
+    with col_dark:
+        icon = "☀" if st.session_state.dark_mode else "🌙"
+        st.button(
+            icon,
+            help="Basculer mode clair / sombre",
+            key="toggle_dark",
+            on_click=_toggle_dark_mode,
+        )
+
+    with col_guide:
+        st.button(
+            "📖",
+            help="Guide d'utilisation pas-à-pas",
+            key="show_help",
+            on_click=_show_onboarding,
+        )
+
+
+# Aliases de compatibilité (anciens noms encore utilisés dans render_header_complet)
+def render_dark_mode_toggle():
+    render_topbar()
+
+
+def render_hero():
+    pass  # fusionné dans render_topbar()
 
 
 def _hide_onboarding():
@@ -67,9 +68,29 @@ def _hide_onboarding():
 
 
 def render_onboarding():
-    """Guide d'utilisation complet (si activé)."""
+    """Guide d'utilisation complet précédé d'un splash de bienvenue (si activé)."""
     if not st.session_state.show_onboarding:
         return
+
+    # ----- Splash de bienvenue (grand logo centré) -----
+    big_logo = logo_svg(size=88, animate=True)
+    st.markdown(f"""
+    <div class="qt-welcome-splash">
+        <div class="qt-welcome-logo">{big_logo}</div>
+        <div class="qt-welcome-title">Quant Terminal</div>
+        <div class="qt-welcome-tagline">Simulateur d&rsquo;investissement pédagogique &middot; L1 MIASHS 2026</div>
+        <div class="qt-welcome-desc">
+            Testez l&rsquo;impact d&rsquo;événements économiques sur votre portefeuille —
+            vrais prix de marché via Yahoo Finance, analyse par IA, métriques institutionnelles.
+        </div>
+        <div class="qt-welcome-chips">
+            <span class="qt-welcome-chip">📊 Scénarios personnalisés</span>
+            <span class="qt-welcome-chip">🤖 IA financière</span>
+            <span class="qt-welcome-chip">⚡ Prix en temps réel</span>
+            <span class="qt-welcome-chip">📈 Métriques de risque</span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
     html = (
         '<div class="qt-onboarding">'
@@ -276,13 +297,7 @@ def render_intro_card():
 
 
 def render_header_complet():
-    """Affiche tout le header en une seule fonction.
-
-    Style epure : toolbar fine + onboarding (a la demande) + bande live discrete.
-    On ne charge plus l'intro card ni le disclaimer geant (encombrant). Le disclaimer
-    fonctionnel est dans le footer.
-    """
-    render_dark_mode_toggle()
-    render_hero()
+    """Affiche tout le header : topbar unifiée + splash/guide + bande live."""
+    render_topbar()
     render_onboarding()
     render_bande_marche()
