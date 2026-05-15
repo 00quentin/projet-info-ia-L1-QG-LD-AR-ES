@@ -249,7 +249,7 @@ def _render_portefeuille(actifs_selectionnes: List[str]) -> Tuple[float, str, Di
                 )
                 allocations_custom[sim_key] = val
                 total_alloc += val
-            couleur = "#2f855a" if total_alloc == 100 else "#c53030"
+            couleur = "#16c784" if total_alloc == 100 else "#ef454a"
             icone = "✓" if total_alloc == 100 else "!"
             st.markdown(
                 f"<div style='text-align:center; margin-top:8px;'>"

@@ -60,7 +60,7 @@ def render_footer():
         </div>
         <div class="qt-footer-bottom">
             <div style="background: rgba(214,158,46,0.12); border: 1px solid rgba(214,158,46,0.3); border-radius: 8px; padding: 12px 16px; margin-bottom: 14px; text-align: left; font-size: 0.82em; line-height: 1.6;">
-                <strong style="color: #d69e2e;">⚠ Avertissement</strong> — Quant Terminal est un <strong>outil pédagogique</strong> développé dans un cadre universitaire (Université Paris Nanterre, MIASHS L1).
+                <strong style="color: #f59e0b;">⚠ Avertissement</strong> — Quant Terminal est un <strong>outil pédagogique</strong> développé dans un cadre universitaire (Université Paris Nanterre, MIASHS L1).
                 Les simulations et analyses présentées <strong>ne constituent pas un conseil en investissement</strong>, ni une recommandation d'achat ou de vente d'un quelconque actif financier.
                 Les performances passées ne préjugent pas des performances futures. Les utilisateurs sont seuls responsables de leurs décisions d'investissement et sont invités à consulter un conseiller financier agréé avant toute opération.
             </div>

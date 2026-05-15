@@ -117,9 +117,9 @@ def afficher_dashboard(res, params, key_prefix="main"):
         fiab = chocs.get("fiabilite_calibration") or {}
         niveau = fiab.get("niveau", "moyenne")
         couleurs_fiab = {
-            "elevee":  ("#2f855a", "Fiabilité élevée"),
-            "moyenne": ("#d69e2e", "Fiabilité moyenne"),
-            "faible":  ("#c53030", "Fiabilité faible"),
+            "elevee":  ("#16c784", "Fiabilité élevée"),
+            "moyenne": ("#f59e0b", "Fiabilité moyenne"),
+            "faible":  ("#ef454a", "Fiabilité faible"),
         }
         couleur, label = couleurs_fiab.get(niveau, couleurs_fiab["moyenne"])
 
@@ -139,8 +139,8 @@ def afficher_dashboard(res, params, key_prefix="main"):
         # calibration est active mais que l'IA a echoue a structurer la reponse.
         if not refs:
             st.markdown(
-                '<div class="qt-callout" style="margin-top:14px; border-left:4px solid #d69e2e;">'
-                '<strong style="color:#d69e2e;">⚠️ Calibration historique activée</strong><br>'
+                '<div class="qt-callout" style="margin-top:14px; border-left:4px solid #f59e0b;">'
+                '<strong style="color:#f59e0b;">⚠️ Calibration historique activée</strong><br>'
                 '<span style="font-size:0.92em;">L\'IA n\'a pas extrait d\'événement de référence '
                 'structuré pour ce scénario (réponse JSON incomplète). '
                 'Réessaye avec une formulation un peu différente, ou décoche la calibration '
@@ -233,8 +233,8 @@ def afficher_dashboard(res, params, key_prefix="main"):
                 '<div style="display:flex; align-items:stretch; gap:0; '
                 'margin-top:8px; position:relative;">'
                 # Colonne Calibrée
-                f'<div style="{card_style} background:rgba(128,90,213,0.06);">'
-                f'<div style="{label_style} color:#805ad5;">🎯 Calibrée — ancrage historique</div>'
+                f'<div style="{card_style} background:rgba(139,92,246,0.07);">'
+                f'<div style="{label_style} color:#8b5cf6;">🎯 Calibrée — ancrage historique</div>'
                 + _macro_row("Inflation", infl_c)
                 + _macro_row("Taux directeurs", taux_c) +
                 '</div>'
@@ -246,8 +246,8 @@ def afficher_dashboard(res, params, key_prefix="main"):
                 'color:var(--text-muted); letter-spacing:0.04em;">VS</div>'
                 '</div>'
                 # Colonne Libre
-                f'<div style="{card_style} background:rgba(49,130,206,0.06);">'
-                f'<div style="{label_style} color:#3182ce;">🤖 Libre — projection IA pure</div>'
+                f'<div style="{card_style} background:rgba(59,130,246,0.07);">'
+                f'<div style="{label_style} color:#3b82f6;">🤖 Libre — projection IA pure</div>'
                 + _macro_row("Inflation", infl_l)
                 + _macro_row("Taux directeurs", taux_l) +
                 '</div>'
@@ -285,7 +285,7 @@ def afficher_dashboard(res, params, key_prefix="main"):
                     if abs_v < 5:
                         bg, fg = "rgba(22,199,132,0.13)", "#16c784"
                     elif abs_v < 15:
-                        bg, fg = "rgba(214,158,46,0.13)", "#d69e2e"
+                        bg, fg = "rgba(245,158,11,0.13)", "#f59e0b"
                     else:
                         bg, fg = "rgba(239,69,74,0.13)", "#ef454a"
                     sign = "+" if val >= 0 else ""

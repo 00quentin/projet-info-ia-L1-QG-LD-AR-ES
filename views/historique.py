@@ -28,7 +28,7 @@ def render_page_historique():
             st.rerun()
 
     for simu in st.session_state.historique_simus:
-        couleur = "#2f855a" if simu["perf"] >= 0 else "#c53030"
+        couleur = "#16c784" if simu["perf"] >= 0 else "#ef454a"
         icone = "↑" if simu["perf"] >= 0 else "↓"
         tag_mc = " · Monte-Carlo" if simu["monte_carlo"] else ""
         label = f" · Scénario {simu['label_compare']}" if simu.get("label_compare") else ""

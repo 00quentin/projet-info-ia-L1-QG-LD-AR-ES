@@ -387,15 +387,15 @@ def block_methodology_steps() -> str:
 # du texte via les fonctions img_xxx() depuis views/academie.py.
 
 _SECTION_META = {
-    "outils":       ("Lire les donnees", "#319795", "📊", None),
-    "modeles":      ("Modeles & mathematiques", "#7c3aed", "🔬", None),
-    "macro":        ("Macro-economie", "#d97706", "🌍", None),
-    "cas":          ("Cas historiques", "#475569", "📚", block_crises_grid),
-    "strategies":   ("Strategies d'investissement", "#7c3aed", "🎯", block_strategies_grid),
+    "outils":       ("Lire les donnees", "#6366f1", "📊", None),
+    "modeles":      ("Modeles & mathematiques", "#8b5cf6", "🔬", None),
+    "macro":        ("Macro-economie", "#f59e0b", "🌍", None),
+    "cas":          ("Cas historiques", "#64748b", "📚", block_crises_grid),
+    "strategies":   ("Strategies d'investissement", "#8b5cf6", "🎯", block_strategies_grid),
     "construction": ("Construction de portefeuille", "#3b82f6", "🧩", block_allocation_bars),
-    "biais":        ("Biais comportementaux", "#d97706", "🧠", block_biases_grid),
-    "lexique":      ("Lexique", "#0891b2", "📖", block_lexicon_grid),
-    "methodologie": ("Methodologie", "#7c3aed", "⚙️", block_methodology_steps),
+    "biais":        ("Biais comportementaux", "#f59e0b", "🧠", block_biases_grid),
+    "lexique":      ("Lexique", "#06b6d4", "📖", block_lexicon_grid),
+    "methodologie": ("Methodologie", "#8b5cf6", "⚙️", block_methodology_steps),
 }
 
 

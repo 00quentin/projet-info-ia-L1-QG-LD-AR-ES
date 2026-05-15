@@ -116,15 +116,34 @@ PROFILS = {
 
 
 # ==========================================
-# COULEURS — palette graphiques (utilisée par Plotly)
+# COULEURS — palette unifiée (SOURCE DE VÉRITÉ Python)
+# ------------------------------------------------------------------
+# Miroir des tokens CSS de components/styling.py (--accent, --success…).
+# Les graphiques Plotly et les SVG ne lisent pas le CSS : ils importent
+# ces constantes pour rester cohérents avec le reste de l'interface.
 # ==========================================
-COULEURS_PLOTLY = ["#1a365d", "#319795", "#d69e2e", "#c53030", "#805ad5", "#2f855a"]
-COULEUR_PRIMAIRE = "#1a365d"
-COULEUR_ACCENT = "#319795"
-COULEUR_SUCCESS = "#2f855a"
-COULEUR_DANGER = "#c53030"
-COULEUR_MUTED = "#718096"
-COULEUR_TEXT = "#2d3748"
+COULEUR_ACCENT  = "#6366f1"   # indigo — accent de marque
+COULEUR_SUCCESS = "#16c784"   # vert TradingView — gains, "bon"
+COULEUR_DANGER  = "#ef454a"   # rouge TradingView — pertes, "mauvais"
+COULEUR_WARN    = "#f59e0b"   # ambre — "moyen / attention"
+COULEUR_MUTED   = "#64748b"   # slate — neutre
+COULEUR_TEXT    = "#1e293b"   # slate-800 — texte sombre
+
+# Palette qualitative pour les graphiques multi-séries (Plotly).
+# Couleurs distinctes mais harmonisées autour de l'indigo de marque.
+PALETTE_GRAPHIQUES = [
+    "#6366f1",  # indigo  (marque)
+    "#16c784",  # vert
+    "#f59e0b",  # ambre
+    "#8b5cf6",  # violet
+    "#06b6d4",  # cyan
+    "#ef454a",  # rouge
+    "#3b82f6",  # bleu
+    "#64748b",  # slate
+]
+
+# Alias rétro-compatible
+COULEURS_PLOTLY = PALETTE_GRAPHIQUES
 
 
 # ==========================================

@@ -10,22 +10,16 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
-from config import CATEGORIES_GRAPHIQUES, NOM_AFFICHAGE, HAUTEUR_GRAPHIQUE
+from config import (
+    CATEGORIES_GRAPHIQUES, NOM_AFFICHAGE, HAUTEUR_GRAPHIQUE,
+    PALETTE_GRAPHIQUES, COULEUR_ACCENT, COULEUR_SUCCESS, COULEUR_DANGER,
+    COULEUR_WARN,
+)
 
 
 # === THÈME PLOTLY UNIFIÉ ============================================
-# Palette alignée sur les design tokens (cf. components/styling.py).
-# Si tu changes ces hex, change aussi les --blue/--teal correspondants.
-QT_PALETTE = [
-    "#1a365d",  # blue-700  (primary)
-    "#319795",  # teal-500  (accent)
-    "#d69e2e",  # warn-500
-    "#805ad5",  # violet
-    "#2f855a",  # success-500
-    "#c53030",  # danger-500
-    "#2c5282",  # blue-600
-    "#4a5568",  # gray-600
-]
+# Palette qualitative : source unique dans config.py (PALETTE_GRAPHIQUES).
+QT_PALETTE = PALETTE_GRAPHIQUES
 
 
 def _is_dark() -> bool:
@@ -43,36 +37,36 @@ def get_theme_colors() -> dict:
     """
     if _is_dark():
         return {
-            "text":         "#e2e8f0",  # gray-200 — bien lisible sur fond sombre
-            "text_strong":  "#f7fafc",  # gray-50
-            "title":        "#90cdf4",  # blue-200 — primary clair
-            "axis":         "#cbd5e0",  # gray-300
-            "grid":         "rgba(226,232,240,0.14)",
-            "annot":        "#a0aec0",
-            "hover_bg":     "rgba(26,32,44,0.96)",   # gray-800
-            "hover_border": "#4fd1c5",                # teal-300
-            "pie_border":   "#1a202c",                # gray-800
+            "text":         "#d1d4dc",  # texte principal TradingView dark
+            "text_strong":  "#f7fafc",
+            "title":        "#a5b4fc",  # indigo-300 — accent clair
+            "axis":         "#868993",
+            "grid":         "rgba(209,212,220,0.12)",
+            "annot":        "#868993",
+            "hover_bg":     "rgba(30,34,45,0.97)",   # card dark
+            "hover_border": "#818cf8",                # indigo-400
+            "pie_border":   "#1e222d",
         }
     return {
-        "text":         "#2d3748",
-        "text_strong":  "#171923",
-        "title":        "#1a365d",
-        "axis":         "#a0aec0",
-        "grid":         "rgba(160,174,192,0.18)",
-        "annot":        "#718096",
-        "hover_bg":     "rgba(255,255,255,0.96)",
-        "hover_border": "#319795",
+        "text":         "#1e293b",  # slate-800
+        "text_strong":  "#0f172a",
+        "title":        COULEUR_ACCENT,
+        "axis":         "#a1a1aa",
+        "grid":         "rgba(100,116,139,0.16)",
+        "annot":        "#64748b",
+        "hover_bg":     "rgba(255,255,255,0.97)",
+        "hover_border": COULEUR_ACCENT,
         "pie_border":   "#ffffff",
     }
 
 
 # Aliases retro-compat (ne plus utiliser pour les nouveaux charts)
-QT_GRID    = "rgba(160,174,192,0.18)"
-QT_AXIS    = "#a0aec0"
-QT_TEXT    = "#2d3748"
-QT_TITLE   = "#1a365d"
-QT_HOVER_BG     = "rgba(255,255,255,0.96)"
-QT_HOVER_BORDER = "#319795"
+QT_GRID    = "rgba(100,116,139,0.16)"
+QT_AXIS    = "#a1a1aa"
+QT_TEXT    = "#1e293b"
+QT_TITLE   = COULEUR_ACCENT
+QT_HOVER_BG     = "rgba(255,255,255,0.97)"
+QT_HOVER_BORDER = COULEUR_ACCENT
 
 
 def apply_qt_theme(
@@ -210,7 +204,7 @@ def fig_heatmap_performance(perf_df: pd.DataFrame, titre: str = "Performance par
     c = get_theme_colors()
     # Couleur par signe : vert sature pour gains, rouge sature pour pertes.
     couleurs = [
-        "#2f855a" if v >= 0 else "#c53030"
+        COULEUR_SUCCESS if v >= 0 else COULEUR_DANGER
         for v in perf_df["Performance (%)"]
     ]
     # On pre-formate les valeurs pour le hover : evite les 20 decimales
@@ -387,26 +381,26 @@ def html_metriques_jauges(metriques: Dict[str, float]) -> str:
     var = abs(metriques["var_95"])
 
     def _sharpe_meta(v):
-        if v < 0:    return "#c53030", "Mauvais"
-        if v < 1:    return "#d69e2e", "Passable"
-        if v < 2:    return "#2f855a", "Bon"
-        return           "#319795", "Excellent"
+        if v < 0:    return COULEUR_DANGER,  "Mauvais"
+        if v < 1:    return COULEUR_WARN,    "Passable"
+        if v < 2:    return COULEUR_SUCCESS, "Bon"
+        return            COULEUR_ACCENT,   "Excellent"
 
     def _vol_meta(v):
-        if v < 10:   return "#319795", "Faible"
-        if v < 20:   return "#2f855a", "Modérée"
-        if v < 35:   return "#d69e2e", "Élevée"
-        return           "#c53030", "Très élevée"
+        if v < 10:   return COULEUR_SUCCESS, "Faible"
+        if v < 20:   return COULEUR_SUCCESS, "Modérée"
+        if v < 35:   return COULEUR_WARN,    "Élevée"
+        return            COULEUR_DANGER,   "Très élevée"
 
     def _dd_meta(v):
-        if v < 10:   return "#2f855a", "Limité"
-        if v < 25:   return "#d69e2e", "Modéré"
-        return           "#c53030", "Sévère"
+        if v < 10:   return COULEUR_SUCCESS, "Limité"
+        if v < 25:   return COULEUR_WARN,    "Modéré"
+        return            COULEUR_DANGER,   "Sévère"
 
     def _var_meta(v):
-        if v < 2:    return "#319795", "Faible"
-        if v < 4:    return "#d69e2e", "Modérée"
-        return           "#c53030", "Élevée"
+        if v < 2:    return COULEUR_SUCCESS, "Faible"
+        if v < 4:    return COULEUR_WARN,    "Modérée"
+        return            COULEUR_DANGER,   "Élevée"
 
     sc, sv = _sharpe_meta(sharpe)
     vc, vv = _vol_meta(vol)

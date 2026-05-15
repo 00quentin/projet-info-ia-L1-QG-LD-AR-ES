@@ -39,7 +39,7 @@ def render_page_apropos():
             initiales = f"{nom.split()[0][0]}{nom.split()[1][0]}"
             st.markdown(f"""
             <div class="qt-card" style="text-align:center; height:180px; display:flex; flex-direction:column; justify-content:center;">
-                <div style="width:60px; height:60px; background:linear-gradient(135deg, #1a365d, #319795); border-radius:50%; margin:0 auto 12px auto; display:flex; align-items:center; justify-content:center; color:white; font-weight:800; font-size:18px;">
+                <div style="width:60px; height:60px; background:linear-gradient(135deg, #4338ca, #6366f1); border-radius:50%; margin:0 auto 12px auto; display:flex; align-items:center; justify-content:center; color:white; font-weight:800; font-size:18px;">
                     {initiales}
                 </div>
                 <strong style="color:var(--primary); font-size:1.05em;">{nom}</strong>

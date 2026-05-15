@@ -71,7 +71,7 @@ def render_page_comparaison():
         couleur_g = "#718096"
         message_g = f"Égalité parfaite entre {len(labels_dispo)} scénarios"
     else:
-        couleur_g = "#2f855a"
+        couleur_g = "#16c784"
         message_g = (f"Scénario {gagnant} l'emporte avec un écart de "
                      f"<strong>{ecart:.2f} points</strong> sur le scénario {second}")
 
@@ -167,7 +167,7 @@ def render_page_comparaison():
                        else f" · {ecart_vs_premier:+.2f} pts vs 1er")
             st.markdown(
                 f'<div style="padding:12px 20px; margin:8px 0; border-radius:8px; '
-                f'background:rgba(49,151,149,0.08); border-left:4px solid #319795;">'
+                f'background:rgba(99,102,241,0.08); border-left:4px solid #6366f1;">'
                 f'<strong>{_libelle_classement(idx)} · Scénario {label}</strong> '
                 f'— performance {perfs[label]:+.2f}%{suffixe}</div>',
                 unsafe_allow_html=True

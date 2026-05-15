@@ -1,0 +1,34 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(timeout 30 streamlit run app.py --logger.level=error)",
+      "Bash(python -m streamlit run app.py --logger.level=error)",
+      "Bash(python -m py_compile views/dashboard.py components/sidebar.py components/academie_illustrations.py)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(python -m py_compile components/styling.py)",
+      "Bash(python -m py_compile components/styling.py components/academie_illustrations.py)",
+      "Bash(python -c ' *)",
+      "Bash(python -m py_compile components/empty_states.py)",
+      "Bash(git fetch *)",
+      "Bash(git push *)",
+      "Bash(python -m py_compile components/logo.py components/header.py components/empty_states.py app.py)",
+      "Bash(python -c \"from components.logo import logo_svg; print\\(logo_svg\\(40\\)[:80]\\)\")",
+      "Bash(python -m py_compile views/academie.py components/academie_illustrations.py)",
+      "Bash(python -m py_compile views/dashboard.py components/charts.py components/styling.py)",
+      "Bash(python -m py_compile components/scenario_illustrations.py)",
+      "Bash(python -m py_compile components/charts.py)",
+      "WebSearch",
+      "Bash(python -m py_compile components/academie_illustrations.py)",
+      "Bash(python -m py_compile components/header.py)",
+      "Bash(python -m py_compile app.py)",
+      "Bash(python -m py_compile views/dashboard.py)",
+      "Bash(python -m py_compile views/dashboard.py components/charts.py views/portefeuille.py)",
+      "Bash(python -m py_compile components/charts.py views/dashboard.py views/backtest.py views/comparaison.py)",
+      "Bash(python -m py_compile config.py components/charts.py)",
+      "Bash(python -m py_compile config.py components/charts.py components/empty_states.py views/dashboard.py views/comparaison.py views/historique.py views/apropos.py components/sidebar.py components/footer.py)",
+      "Bash(python -m pytest -q)",
+      "Bash(python -c \"import config; import components.charts; import components.empty_states; import components.academie_illustrations; print\\('imports OK'\\); print\\('PALETTE:', config.PALETTE_GRAPHIQUES[:3]\\); print\\('QT_PALETTE:', components.charts.QT_PALETTE[:3]\\)\")"
+    ]
+  }
+}
