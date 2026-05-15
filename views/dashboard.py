@@ -16,7 +16,7 @@ from core.risk_alerts import evaluer_alertes_risque
 from components.charts import (
     fig_courbes_categorie, construire_graphiques_par_categorie,
     fig_heatmap_performance, html_metriques_jauges,
-    fig_evolution_portefeuille, html_cartes_performance,
+    fig_evolution_portefeuille, html_cartes_performance, _tip,
 )
 from components.empty_states import render_empty_dashboard
 from components.notifications import notify_error, notify_success, render_alerte_risque
@@ -25,6 +25,11 @@ from pdf_generator import generer_rapport_pdf
 from logger import get_logger
 
 log = get_logger("page_dashboard")
+
+
+def _section_tip(titre: str, aide: str) -> str:
+    """Titre de section avec icône ℹ tooltip au hover."""
+    return f'<div class="qt-section-title">{titre}{_tip(aide)}</div>'
 
 
 def _render_hero_dashboard(res, params):
@@ -184,14 +189,12 @@ def afficher_dashboard(res, params, key_prefix="main"):
         chocs_libre = res.get("chocs_libre")
         if chocs_libre:
             st.markdown('<hr class="qt-divider">', unsafe_allow_html=True)
-            st.markdown('<div class="qt-section-title">Calibrée vs estimation libre</div>',
-                        unsafe_allow_html=True)
-            st.caption(
-                "Pour mesurer ce que l'ancrage historique apporte ou retire, l'IA a "
-                "aussi produit une estimation SANS calibration (pure projection). Compare "
-                "les deux pour voir où l'ancrage pèse — un grand écart = scénario peu "
-                "couvert par l'histoire."
-            )
+            st.markdown(_section_tip(
+                "Calibrée vs estimation libre",
+                "Calibrée = l'IA ancre ses chocs sur des crises historiques similaires "
+                "(ex : 2008, COVID). Libre = projection pure sans contrainte. "
+                "Un grand écart entre les deux = ce scénario est peu couvert par l'histoire."
+            ), unsafe_allow_html=True)
 
             macro_c = chocs.get("macro", {}) or {}
             macro_l = chocs_libre.get("macro", {}) or {}
@@ -350,9 +353,12 @@ def afficher_dashboard(res, params, key_prefix="main"):
     metriques = calculer_metriques_risque(valeur_port)
 
     st.markdown('<hr class="qt-divider">', unsafe_allow_html=True)
-    st.markdown('<div class="qt-section-title">Métriques de risque du portefeuille</div>',
-                unsafe_allow_html=True)
-    st.caption("Indicateurs utilisés par les gérants de fonds professionnels.")
+    st.markdown(_section_tip(
+        "Métriques de risque du portefeuille",
+        "4 indicateurs utilisés par les gérants de fonds professionnels pour "
+        "évaluer le risque d'un portefeuille, indépendamment de sa performance absolue. "
+        "Hover sur le i de chaque jauge pour comprendre chaque métrique."
+    ), unsafe_allow_html=True)
 
     st.markdown(html_metriques_jauges(metriques), unsafe_allow_html=True)
 
@@ -362,9 +368,11 @@ def afficher_dashboard(res, params, key_prefix="main"):
 
     # === Évolution du portefeuille vs benchmarks ===
     st.markdown('<hr class="qt-divider">', unsafe_allow_html=True)
-    st.markdown('<div class="qt-section-title">Évolution du portefeuille vs marché</div>',
-                unsafe_allow_html=True)
-    st.caption("Votre portefeuille comparé au S&P 500 et au MSCI World sur la même période simulée.")
+    st.markdown(_section_tip(
+        "Évolution du portefeuille vs marché",
+        "Simulation jour par jour de votre portefeuille comparé aux indices de référence. "
+        "Courbe au-dessus du S&P 500 = vous surperformez le marché sur cette période."
+    ), unsafe_allow_html=True)
 
     cap = params["capital"]
     valeur_finale = float(valeur_port.iloc[-1])
@@ -424,6 +432,12 @@ def afficher_dashboard(res, params, key_prefix="main"):
 
     # === Heatmap performance ===
     st.markdown('<hr class="qt-divider">', unsafe_allow_html=True)
+    st.markdown(_section_tip(
+        "Performance par actif",
+        "Gain ou perte simulée de chaque actif sur l'horizon. "
+        "Vert = actif gagnant dans ce scénario, rouge = actif perdant. "
+        "Trié du plus faible au plus fort pour repérer immédiatement les points faibles."
+    ), unsafe_allow_html=True)
     fig_bar = fig_heatmap_performance(res["perf_df"])
     st.plotly_chart(fig_bar, use_container_width=True, key=f"{key_prefix}_heatmap")
 

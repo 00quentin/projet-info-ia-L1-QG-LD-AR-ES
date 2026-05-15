@@ -1632,19 +1632,24 @@ div[data-testid="metric-container"]:hover::before {
     margin-top: 10px;
 }
 .qt-gauge-info-trigger {
-    font-size: 0.72em;
-    color: var(--accent);
-    cursor: pointer;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    padding: 3px 8px;
-    border-radius: 20px;
-    border: 1px solid var(--accent);
-    opacity: 0.75;
-    transition: opacity 0.2s, background 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    background: var(--accent);
+    color: white;
+    border-radius: 50%;
+    font-size: 0.68em;
+    font-weight: 800;
+    font-style: italic;
+    cursor: help;
+    opacity: 0.5;
+    border: none;
+    transition: opacity 0.2s;
     user-select: none;
 }
-.qt-gauge-info-trigger:hover { opacity: 1; background: rgba(99,102,241,0.08); }
+.qt-gauge-info-trigger:hover { opacity: 1; }
 .qt-gauge-info-bubble {
     visibility: hidden;
     opacity: 0;
@@ -1665,8 +1670,62 @@ div[data-testid="metric-container"]:hover::before {
     box-shadow: 0 8px 28px rgba(0,0,0,0.18);
     transition: opacity 0.18s ease;
     pointer-events: none;
+    font-weight: 400;
+    font-style: normal;
 }
 .qt-gauge-info:hover .qt-gauge-info-bubble {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* === TOOLTIP inline (titres de section, cartes performance) === */
+.qt-tip-icon {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    background: var(--accent);
+    color: white;
+    border-radius: 50%;
+    font-size: 0.60em;
+    font-weight: 800;
+    font-style: italic;
+    cursor: help;
+    opacity: 0.5;
+    flex-shrink: 0;
+    transition: opacity 0.2s;
+    vertical-align: middle;
+    margin-left: 5px;
+}
+.qt-tip-icon:hover { opacity: 1; }
+.qt-tip-icon .qt-tip-bubble {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 240px;
+    background: var(--card);
+    color: var(--text);
+    border: 1px solid var(--border-strong);
+    border-radius: 10px;
+    padding: 11px 13px;
+    font-size: 0.80em;
+    line-height: 1.55;
+    text-align: left;
+    z-index: 9999;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.15);
+    transition: opacity 0.18s ease;
+    pointer-events: none;
+    font-weight: 400;
+    font-style: normal;
+    letter-spacing: normal;
+    text-transform: none;
+}
+.qt-tip-icon:hover .qt-tip-bubble {
     visibility: visible;
     opacity: 1;
 }

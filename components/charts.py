@@ -340,6 +340,32 @@ def fig_evolution_portefeuille(
     return apply_qt_theme(fig, height=400)
 
 
+def _tip(aide: str) -> str:
+    """Icône ℹ inline avec popup CSS au hover. Utilisable dans n'importe quel HTML."""
+    return (
+        f'<span class="qt-tip-icon">i'
+        f'<span class="qt-tip-bubble">{aide}</span>'
+        f'</span>'
+    )
+
+
+# Textes d'aide pour les benchmarks de performance
+_AIDE_PERF = {
+    "Mon portefeuille": (
+        "Valeur simulée de votre portefeuille à la fin de la période, "
+        "selon vos actifs et votre allocation personnelle."
+    ),
+    "S&P 500": (
+        "Indice des 500 plus grandes entreprises américaines. "
+        "Référence mondiale pour mesurer la performance d'un portefeuille."
+    ),
+    "MSCI World": (
+        "Indice mondial couvrant ~1 400 entreprises dans 23 pays développés. "
+        "Représente environ 85 % des marchés boursiers mondiaux."
+    ),
+}
+
+
 def html_cartes_performance(items: List[dict], capital: float) -> str:
     """Cartes de performance côte à côte (portefeuille + benchmarks).
 
@@ -356,12 +382,15 @@ def html_cartes_performance(items: List[dict], capital: float) -> str:
         arrow = "▲" if up else "▼"
         fond = ("color-mix(in srgb, var(--accent) 9%, var(--card))"
                 if it.get("principal") else "var(--card)")
+        aide = _AIDE_PERF.get(it["nom"], "")
+        tip_html = _tip(aide) if aide else ""
         cartes.append(
             f'<div style="flex:1; padding:18px 20px; background:{fond}; '
             f'border-radius:12px; text-align:center; border:1px solid var(--border);">'
             f'<div style="font-size:0.78em; font-weight:600; text-transform:uppercase; '
-            f'letter-spacing:0.06em; color:var(--text-muted); margin-bottom:6px;">'
-            f'{it.get("emoji", "")} {it["nom"]}</div>'
+            f'letter-spacing:0.06em; color:var(--text-muted); margin-bottom:6px; '
+            f'display:inline-flex; align-items:center; gap:4px;">'
+            f'{it.get("emoji", "")} {it["nom"]}{tip_html}</div>'
             f'<div style="font-size:1.85em; font-weight:800; color:var(--text); '
             f'letter-spacing:-0.02em;">{val_fin:,.0f} €</div>'
             f'<div style="font-size:1em; font-weight:700; color:{col_perf}; margin-top:4px;">'
@@ -446,8 +475,9 @@ def html_metriques_jauges(metriques: Dict[str, float]) -> str:
             f'<span class="qt-gauge-dot" style="background:{couleur};"></span>{verdict}'
             f'</div>'
             f'<div class="qt-gauge-info">'
-            f'<span class="qt-gauge-info-trigger">ℹ Définition &amp; barème</span>'
-            f'<div class="qt-gauge-info-bubble">{aide}</div>'
+            f'<span class="qt-gauge-info-trigger">i'
+            f'<span class="qt-gauge-info-bubble">{aide}</span>'
+            f'</span>'
             f'</div>'
             f'</div>'
         )
