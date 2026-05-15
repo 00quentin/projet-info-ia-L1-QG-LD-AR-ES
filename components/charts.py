@@ -94,10 +94,10 @@ def apply_qt_theme(
         template="plotly_white" if not _is_dark() else "plotly_dark",
         font=dict(family="Inter, -apple-system, sans-serif",
                   color=c["text"], size=12),
-        # title_font seul sans title.text provoque un "undefined" dans Plotly JS.
-        # On force title.text="" pour éviter ce bug.
-        title=dict(text="", font=dict(family="Inter, sans-serif",
-                                      color=c["title"], size=15)),
+        # Uniquement la font du titre : merge sans écraser title.text.
+        # Les charts sans titre doivent appeler fig.update_layout(title_text="") eux-mêmes.
+        title=dict(font=dict(family="Inter, sans-serif",
+                             color=c["title"], size=15)),
         legend_font=dict(color=c["text"], size=11),
         colorway=QT_PALETTE,
         plot_bgcolor="rgba(0,0,0,0)",
@@ -337,6 +337,7 @@ def fig_evolution_portefeuille(
         spikecolor=c["axis"], spikethickness=1, spikedash="dot",
     )
     fig.update_layout(
+        title_text="",   # pas de titre sur ce chart — évite le bug "undefined" Plotly JS
         xaxis_title="Jours de cotation",
         yaxis_title="Valeur (€)",
         hovermode="x unified",
@@ -463,6 +464,7 @@ def fig_camembert_repartition(poids: Dict[str, float]) -> go.Figure:
     )
     apply_qt_theme(fig, height=460, legend_bottom=False)
     fig.update_layout(
+        title_text="",
         showlegend=False,
         margin=dict(l=80, r=80, t=46, b=30),
     )
