@@ -18,40 +18,32 @@ def _show_onboarding():
 
 
 def render_topbar():
-    """Topbar unifiée : logo + titre à gauche, boutons icônes discrets à droite."""
-    col_brand, col_dark, col_guide = st.columns([11, 0.7, 0.7])
+    """Topbar : boutons utilitaires à droite, puis hero logo full-width."""
 
-    with col_brand:
-        icon_html = logo_svg(size=64)
-        st.markdown(f"""
-        <div class="qt-topbar-brand">
-            <div class="qt-topbar-logo qt-topbar-logo-new" style="width:64px;height:64px;">{icon_html}</div>
-            <div class="qt-topbar-text">
-                <div class="qt-topbar-titlerow">
-                    <span class="qt-topbar-title" style="font-size:1.55em;font-weight:800;letter-spacing:-0.02em;">Quant Terminal</span>
-                    <span class="qt-topbar-version">v2.0 &middot; beta</span>
-                </div>
-                <div class="qt-topbar-sub" style="font-size:0.9em;">Simulateur d&rsquo;investissement &mdash; Yahoo Finance &amp; IA</div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
+    # --- Ligne utilitaire (boutons tout en haut à droite) ---
+    col_sp, col_dark, col_guide = st.columns([10, 1, 1])
     with col_dark:
         icon = "☀" if st.session_state.dark_mode else "🌙"
-        st.button(
-            icon,
-            help="Basculer mode clair / sombre",
-            key="toggle_dark",
-            on_click=_toggle_dark_mode,
-        )
-
+        st.button(icon, help="Mode clair / sombre",
+                  key="toggle_dark", on_click=_toggle_dark_mode)
     with col_guide:
-        st.button(
-            "📖",
-            help="Guide d'utilisation pas-à-pas",
-            key="show_help",
-            on_click=_show_onboarding,
-        )
+        st.button("📖", help="Guide d'utilisation",
+                  key="show_help", on_click=_show_onboarding)
+
+    # --- Hero logo full-width (hors colonnes = taille libre) ---
+    big_logo = logo_svg(size=88, animate=True)
+    st.markdown(f"""
+    <div class="qt-brand-hero">
+        <div class="qt-brand-hero-logo">{big_logo}</div>
+        <div class="qt-brand-hero-text">
+            <div class="qt-brand-hero-title">Quant Terminal</div>
+            <div class="qt-brand-hero-sub">
+                Simulateur d&rsquo;investissement &mdash; Yahoo Finance &amp; IA
+            </div>
+        </div>
+        <span class="qt-brand-hero-badge">v2.0 &middot; beta</span>
+    </div>
+    """, unsafe_allow_html=True)
 
 
 # Aliases de compatibilité (anciens noms encore utilisés dans render_header_complet)
