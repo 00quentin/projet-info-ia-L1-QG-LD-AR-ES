@@ -425,13 +425,20 @@ def html_metriques_jauges(metriques: Dict[str, float]) -> str:
     return (
         '<div class="qt-metrics-row">'
         + _card("Volatilité annualisée", f"{vol:.1f}%",   vol_pct,    vc, vv,
-                "Amplitude des variations. Plus faible = plus stable.")
+                "Amplitude des variations sur un an. Plus c'est faible, plus le "
+                "portefeuille est stable.  Barème : <10% faible · 10-20% modérée "
+                "· 20-35% élevée · >35% très élevée.")
         + _card("Sharpe Ratio",          f"{sharpe:.2f}", sharpe_pct, sc, sv,
-                ">2 Excellent · >1 Bon · 0–1 Passable · <0 Mauvais")
+                "Rendement gagné par unité de risque pris. Mesure si les gains "
+                "valent le risque encouru.  Barème : >2 excellent · 1-2 bon · "
+                "0-1 passable · <0 mauvais (perte).")
         + _card("Max Drawdown",          f"−{dd:.1f}%",   dd_pct,     dc, dv,
-                "Pire chute depuis un plus-haut historique.")
+                "Pire chute subie entre un sommet et le creux qui a suivi. "
+                "Mesure la douleur maximale.  Barème : <10% limité · 10-25% "
+                "modéré · >25% sévère.")
         + _card("VaR 95% (1 jour)",      f"−{var:.1f}%",  var_pct,    rc, rv,
-                "Perte max probable en 1 jour (niveau de confiance 95%).")
+                "Perte maximale probable en une seule journée, dans 95% des cas. "
+                "Barème : <2% faible · 2-4% modérée · >4% élevée.")
         + '</div>'
     )
 

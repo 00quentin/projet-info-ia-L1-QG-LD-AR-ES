@@ -47,9 +47,13 @@ def afficher_portefeuille(res, params, key_prefix="main"):
             st.markdown("<br><br>", unsafe_allow_html=True)
             gains = valeur_finale - cap
             st.metric("Bilan net du portefeuille", f"{valeur_finale:,.2f} €",
-                      f"{gains:,.2f} € (gains/pertes)")
+                      f"{gains:,.2f} € (gains/pertes)",
+                      help="Valeur totale du portefeuille à la fin de la période simulée, "
+                           "et écart en euros par rapport au capital de départ.")
             perf_g = (gains / cap) * 100 if cap > 0 else 0
-            st.metric("Performance globale", f"{perf_g:+.2f} %")
+            st.metric("Performance globale", f"{perf_g:+.2f} %",
+                      help="Rendement total en pourcentage : (valeur finale − capital) / capital. "
+                           "C'est le gain ou la perte global de votre stratégie.")
 
     return valeur_finale
 

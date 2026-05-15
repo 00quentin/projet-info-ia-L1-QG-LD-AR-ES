@@ -92,9 +92,15 @@ def afficher_dashboard(res, params, key_prefix="main"):
     # === Macro IA ===
     col1, col2 = st.columns(2)
     col1.metric("Impact Inflation (Estimé)",
-                f"{chocs.get('macro', {}).get('inflation', 0):+.2f} %")
+                f"{chocs.get('macro', {}).get('inflation', 0):+.2f} %",
+                help="Variation estimée du niveau général des prix suite au scénario. "
+                     "Une inflation forte (> +5 %) érode le pouvoir d'achat, pénalise "
+                     "les obligations et pousse souvent l'or à la hausse.")
     col2.metric("Taux Directeurs (Estimé)",
-                f"{chocs.get('macro', {}).get('taux_directeurs', 0):+.2f} %")
+                f"{chocs.get('macro', {}).get('taux_directeurs', 0):+.2f} %",
+                help="Variation estimée du taux fixé par les banques centrales (FED, BCE). "
+                     "Une hausse renchérit le crédit et fait généralement baisser "
+                     "actions ET obligations en même temps.")
 
     explication = chocs.get('explication_courte', 'Analyse non disponible.')
     st.markdown(
