@@ -446,18 +446,28 @@ def afficher_dashboard(res, params, key_prefix="main"):
 
     # === Exports ===
     st.markdown('<hr class="qt-divider">', unsafe_allow_html=True)
-    st.markdown('<div class="qt-section-title">Exporter</div>', unsafe_allow_html=True)
-    st.caption("Le PDF contient une analyse rédigée par l'IA. Le CSV contient la série journalière brute (valeur du portefeuille + valeur de chaque poche en euros) pour ré-exploitation dans Excel ou Python.")
+    st.markdown(
+        '<div class="qt-section-title">Exporter les résultats</div>'
+        '<div style="background:rgba(99,102,241,0.06); border:1px solid rgba(99,102,241,0.18); '
+        'border-radius:10px; padding:12px 16px; margin-bottom:16px; font-size:0.88em; '
+        'color:var(--text-muted); line-height:1.6;">'
+        '📊 <strong>CSV</strong> — série journalière brute (valeur portefeuille + chaque poche en €). '
+        'Idéal pour Excel ou Python.<br>'
+        '📄 <strong>PDF</strong> — rapport complet rédigé par l\'IA avec analyse, métriques et recommandations.'
+        '</div>',
+        unsafe_allow_html=True
+    )
 
     allocs, valeur_fin = construire_allocations_finales(res["perf"], poids, params["capital"])
 
     csv_bytes = generer_csv_simulation(df, poids, params["capital"])
     st.download_button(
-        label="Télécharger les données (CSV)",
+        label="📊 Télécharger les données (CSV)",
         data=csv_bytes,
         file_name=f"quant_terminal_donnees_{datetime.now().strftime('%Y%m%d_%H%M')}.csv",
         mime="text/csv",
         use_container_width=True,
+        type="primary",
         key=f"{key_prefix}_csv_dl",
     )
 

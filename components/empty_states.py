@@ -155,6 +155,11 @@ def _on_preset_click(texte: str):
     st.session_state["_auto_launch"] = True
 
 
+def _on_launch_defaut():
+    """Déclenche la simulation avec le scénario déjà saisi (ou le défaut)."""
+    st.session_state["_auto_launch"] = True
+
+
 def render_empty_dashboard():
     """Empty state du Dashboard : 8 cartes de scénarios avec illustrations SVG animées."""
     _hero_empty(
@@ -164,6 +169,26 @@ def render_empty_dashboard():
         "ou rédigez le vôtre dans la barre latérale à gauche.",
         illu_kind="dashboard",
     )
+
+    # CTA principal visible dans la zone de contenu (utile sur mobile où la sidebar est cachée)
+    col_cta, col_hint = st.columns([1, 2])
+    with col_cta:
+        st.button(
+            "🚀 Lancer la simulation",
+            key="empty_launch_defaut",
+            use_container_width=True,
+            type="primary",
+            on_click=_on_launch_defaut,
+            help="Lance la simulation avec le scénario actuellement saisi dans la sidebar.",
+        )
+    with col_hint:
+        st.markdown(
+            '<p style="color:var(--text-muted); font-size:0.85em; '
+            'margin:10px 0 0 0; line-height:1.5;">'
+            '← Sur mobile : tapez <strong>☰</strong> en haut à gauche '
+            'pour accéder aux paramètres.</p>',
+            unsafe_allow_html=True,
+        )
 
     st.markdown('<div class="qt-section-title">Scénarios prêts à l\'emploi</div>',
                 unsafe_allow_html=True)

@@ -87,13 +87,21 @@ def render_page_backtest_dashboard():
 
     # === Exports ===
     st.markdown('<hr class="qt-divider">', unsafe_allow_html=True)
-    st.markdown('<div class="qt-section-title">Exporter</div>',
-                unsafe_allow_html=True)
-    st.caption("Le PDF contient l'analyse rédigée par l'IA. Le CSV contient la série journalière brute (valeur portefeuille + poches en euros) pour ré-exploitation Excel/Python.")
+    st.markdown(
+        '<div class="qt-section-title">Exporter les résultats</div>'
+        '<div style="background:rgba(99,102,241,0.06); border:1px solid rgba(99,102,241,0.18); '
+        'border-radius:10px; padding:12px 16px; margin-bottom:16px; font-size:0.88em; '
+        'color:var(--text-muted); line-height:1.6;">'
+        '📊 <strong>CSV</strong> — série journalière brute pour ré-exploitation Excel/Python.<br>'
+        '📄 <strong>PDF</strong> — rapport complet rédigé par l\'IA avec analyse et métriques.'
+        '</div>',
+        unsafe_allow_html=True
+    )
 
     csv_bytes_bt = generer_csv_simulation(df, poids, params["capital"])
     st.download_button(
         label="📊 Télécharger les données (CSV)",
+        type="primary",
         data=csv_bytes_bt,
         file_name=f"quant_terminal_backtest_donnees_{datetime.now().strftime('%Y%m%d_%H%M')}.csv",
         mime="text/csv",

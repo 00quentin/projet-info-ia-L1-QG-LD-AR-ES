@@ -2477,15 +2477,15 @@ button[data-testid*="empty_preset"],
    ============================================================ */
 .qt-welcome-splash {
     text-align: center;
-    padding: 48px 24px 40px;
+    padding: 20px 24px 18px;
     background: linear-gradient(
         135deg,
         rgba(99,102,241,0.06) 0%,
         rgba(22,199,132,0.04) 100%
     );
-    border-radius: 20px;
+    border-radius: 16px;
     border: 1px solid rgba(99,102,241,0.15);
-    margin: 12px 0 28px 0;
+    margin: 8px 0 20px 0;
     animation: fadeInUp 0.55s var(--ease-out) both;
 }
 .qt-welcome-logo {
@@ -2593,13 +2593,13 @@ button[data-testid*="empty_preset"],
 }
 .qt-brand-hero-badge {
     padding: 3px 10px;
-    background: color-mix(in srgb, var(--accent) 12%, transparent);
-    border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+    background: rgba(148,163,184,0.12);
+    border: 1px solid rgba(148,163,184,0.28);
     border-radius: 999px;
     font-size: 0.68em;
-    font-weight: 700;
-    color: var(--accent);
-    letter-spacing: 0.06em;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
     text-transform: uppercase;
     white-space: nowrap;
 }

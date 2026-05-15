@@ -38,7 +38,7 @@ def render_topbar():
         <div class="qt-brand-hero-text">
             <div class="qt-brand-hero-titlerow">
                 <span class="qt-brand-hero-title">Quant Terminal</span>
-                <span class="qt-brand-hero-badge">V2.0 &middot; BETA</span>
+                <span class="qt-brand-hero-badge">V2.0</span>
             </div>
             <div class="qt-brand-hero-sub">Simulateur d&rsquo;investissement pédagogique</div>
         </div>
@@ -64,12 +64,9 @@ def render_onboarding():
     if not st.session_state.show_onboarding:
         return
 
-    # ----- Splash de bienvenue (grand logo centré) -----
-    big_logo = logo_svg(size=88, animate=True)
-    st.markdown(f"""
+    # ----- Splash de bienvenue (compact, sans répéter le titre du topbar) -----
+    st.markdown("""
     <div class="qt-welcome-splash">
-        <div class="qt-welcome-logo">{big_logo}</div>
-        <div class="qt-welcome-title">Quant Terminal</div>
         <div class="qt-welcome-tagline">Simulateur d&rsquo;investissement pédagogique &middot; L1 MIASHS 2026</div>
         <div class="qt-welcome-desc">
             Testez l&rsquo;impact d&rsquo;événements économiques sur votre portefeuille —
@@ -162,14 +159,22 @@ def render_onboarding():
     # Pattern direct (sans on_click callback) : plus robuste contre les
     # erreurs Streamlit qui surviennent quand un widget disparaît au rerun
     # déclenché par son propre callback.
-    if st.button(
-        "J'ai compris, masquer ce guide",
-        key="btn_hide_onboarding",
-        use_container_width=True,
-        type="primary",
-    ):
-        st.session_state.show_onboarding = False
-        st.rerun()
+    col_btn, col_tip = st.columns([1, 2])
+    with col_btn:
+        if st.button(
+            "Démarrer →",
+            key="btn_hide_onboarding",
+            use_container_width=True,
+            type="primary",
+        ):
+            st.session_state.show_onboarding = False
+            st.rerun()
+    with col_tip:
+        st.markdown(
+            '<p style="font-size:0.82em; color:var(--text-muted); '
+            'margin:10px 0 0 4px;">Le bouton 📖 en haut à droite permet de rouvrir ce guide à tout moment.</p>',
+            unsafe_allow_html=True,
+        )
 
 
 def _sparkline_svg(values: list, up: bool) -> str:
