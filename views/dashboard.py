@@ -228,23 +228,77 @@ def afficher_dashboard(res, params, key_prefix="main"):
                 df_compa = df_compa.reindex(
                     df_compa["Écart (pts)"].abs().sort_values(ascending=False).index
                 )
+                # Tableau HTML custom : plus lisible que st.dataframe styled
+                def _chip_pct(val: float, ref_color: str = "var(--accent)") -> str:
+                    col = "#16c784" if val >= 0 else "#ef454a"
+                    sign = "+" if val >= 0 else ""
+                    return (f'<span style="display:inline-block; padding:2px 9px; '
+                            f'border-radius:6px; background:{"rgba(22,199,132,0.12)" if val >= 0 else "rgba(239,69,74,0.12)"}; '
+                            f'color:{col}; font-weight:600; font-size:0.9em;">'
+                            f'{sign}{val:.2f}%</span>')
+
+                def _chip_ecart(val: float) -> str:
+                    abs_v = abs(val)
+                    if abs_v < 5:
+                        bg, fg = "rgba(22,199,132,0.13)", "#16c784"
+                    elif abs_v < 15:
+                        bg, fg = "rgba(214,158,46,0.13)", "#d69e2e"
+                    else:
+                        bg, fg = "rgba(239,69,74,0.13)", "#ef454a"
+                    sign = "+" if val >= 0 else ""
+                    return (f'<span style="display:inline-block; padding:2px 9px; '
+                            f'border-radius:6px; background:{bg}; color:{fg}; '
+                            f'font-weight:700; font-size:0.9em;">{sign}{val:.1f} pts</span>')
+
+                lignes_html = ""
+                for _, row in df_compa.iterrows():
+                    lignes_html += (
+                        f'<tr>'
+                        f'<td style="padding:10px 14px; font-weight:500; '
+                        f'color:var(--text); border-bottom:1px solid var(--border);">'
+                        f'{row["Actif"]}</td>'
+                        f'<td style="padding:10px 14px; text-align:right; '
+                        f'border-bottom:1px solid var(--border);">'
+                        f'{_chip_pct(row["Calibrée (%)"])}</td>'
+                        f'<td style="padding:10px 14px; text-align:right; '
+                        f'border-bottom:1px solid var(--border);">'
+                        f'{_chip_pct(row["Libre (%)"])}</td>'
+                        f'<td style="padding:10px 14px; text-align:right; '
+                        f'border-bottom:1px solid var(--border);">'
+                        f'{_chip_ecart(row["Écart (pts)"])}</td>'
+                        f'</tr>'
+                    )
+
+                header_style = (
+                    'padding:9px 14px; font-size:0.78em; font-weight:600; '
+                    'text-transform:uppercase; letter-spacing:0.05em; '
+                    'color:var(--text-muted); background:var(--card); '
+                    'border-bottom:2px solid var(--border);'
+                )
+                table_html = (
+                    '<div style="margin-top:16px; border-radius:12px; overflow:hidden; '
+                    'border:1px solid var(--border);">'
+                    '<table style="width:100%; border-collapse:collapse; '
+                    'background:var(--bg);">'
+                    '<thead><tr>'
+                    f'<th style="{header_style} text-align:left;">Actif</th>'
+                    f'<th style="{header_style} text-align:right;">Calibrée</th>'
+                    f'<th style="{header_style} text-align:right;">Libre</th>'
+                    f'<th style="{header_style} text-align:right;">Écart</th>'
+                    '</tr></thead>'
+                    f'<tbody>{lignes_html}</tbody>'
+                    '</table></div>'
+                )
+                st.markdown(table_html, unsafe_allow_html=True)
                 st.markdown(
-                    '<div style="margin-top:18px; font-weight:600;">Écart par actif (trié par amplitude) :</div>',
+                    '<div style="margin-top:10px; padding:10px 14px; '
+                    'background:rgba(99,102,241,0.06); border-radius:8px; '
+                    'border-left:3px solid var(--accent); '
+                    'font-size:0.84em; color:var(--text-muted);">'
+                    '💡 <strong>Écart &lt; 5 pts</strong> = l\'ancrage historique confirme la projection. '
+                    '<strong>Écart &gt; 15 pts</strong> = scénario peu couvert par l\'histoire.'
+                    '</div>',
                     unsafe_allow_html=True
-                )
-                st.dataframe(
-                    df_compa.style.format({
-                        "Calibrée (%)": "{:+.2f}",
-                        "Libre (%)": "{:+.2f}",
-                        "Écart (pts)": "{:+.2f}",
-                    }).background_gradient(subset=["Écart (pts)"], cmap="RdYlGn"),
-                    use_container_width=True,
-                    hide_index=True,
-                )
-                st.caption(
-                    "💡 Un écart faible (<5 pts) = l'ancrage historique confirme la projection. "
-                    "Un écart fort = scénario peu couvert par l'histoire OU le passé suggère "
-                    "un mécanisme que la projection libre n'a pas vu."
                 )
 
     # === Métriques de risque ===

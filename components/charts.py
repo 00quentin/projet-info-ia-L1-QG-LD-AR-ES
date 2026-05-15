@@ -94,8 +94,10 @@ def apply_qt_theme(
         template="plotly_white" if not _is_dark() else "plotly_dark",
         font=dict(family="Inter, -apple-system, sans-serif",
                   color=c["text"], size=12),
-        title_font=dict(family="Inter, sans-serif",
-                        color=c["title"], size=15),
+        # title_font seul sans title.text provoque un "undefined" dans Plotly JS.
+        # On force title.text="" pour éviter ce bug.
+        title=dict(text="", font=dict(family="Inter, sans-serif",
+                                      color=c["title"], size=15)),
         legend_font=dict(color=c["text"], size=11),
         colorway=QT_PALETTE,
         plot_bgcolor="rgba(0,0,0,0)",
@@ -266,22 +268,37 @@ def fig_evolution_portefeuille(
     # Couleur dynamique : vert si performance positive, rouge sinon
     valeur_finale = float(valeur_port.iloc[-1])
     up = valeur_finale >= capital
-    # Vert et rouge TradingView (alignes sur les vars semantiques --success/--danger)
     couleur_courbe = "#16c784" if up else "#ef454a"
     r = int(couleur_courbe[1:3], 16)
     g = int(couleur_courbe[3:5], 16)
     b = int(couleur_courbe[5:7], 16)
 
-    # Fill style TradingView : gradient subtil sous la courbe du portefeuille.
-    # On utilise tozeroy (zone complete sous la ligne) avec une couleur dynamique
-    # vert/rouge selon la performance finale.
+    # Calcul du range Y : zoom sur les données réelles, pas depuis 0.
+    # Sans ça, un portefeuille à 8k-10k laisse 80% du graphique vide.
+    all_vals = list(valeur_port)
+    if benchmark is not None:
+        all_vals += list(benchmark)
+    ymin = min(all_vals)
+    ymax = max(all_vals)
+    marge = (ymax - ymin) * 0.15 if ymax > ymin else ymax * 0.05
+    y_range_min = ymin - marge
+    y_range_max = ymax + marge * 0.5
+
+    # Fill style TradingView : trace de sol invisible pour que le fill
+    # parte du bas de la zone visible (pas de y=0 qui gaspille l'espace).
+    fig.add_trace(go.Scatter(
+        x=valeur_port.index,
+        y=[y_range_min] * len(valeur_port),
+        mode="lines", line_width=0,
+        showlegend=False, hoverinfo="skip",
+    ))
     fig.add_trace(go.Scatter(
         x=valeur_port.index, y=valeur_port,
         name="Portefeuille",
         mode="lines",
         line=dict(color=couleur_courbe, width=2.5, shape="spline", smoothing=0.4),
-        fill="tozeroy",
-        fillcolor=f"rgba({r},{g},{b},0.12)",
+        fill="tonexty",
+        fillcolor=f"rgba({r},{g},{b},0.15)",
         hovertemplate="<b>Portefeuille</b><br>%{y:,.0f} €<extra></extra>",
     ))
     if benchmark is not None:
@@ -312,8 +329,9 @@ def fig_evolution_portefeuille(
         xaxis_title="Jours de cotation",
         yaxis_title="Valeur (€)",
         hovermode="x unified",
+        yaxis=dict(range=[y_range_min, y_range_max]),
     )
-    return apply_qt_theme(fig, height=440)
+    return apply_qt_theme(fig, height=400)
 
 
 def html_metriques_jauges(metriques: Dict[str, float]) -> str:
