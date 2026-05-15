@@ -36,12 +36,12 @@ def render_topbar():
     <div class="qt-brand-hero">
         <div class="qt-brand-hero-logo">{big_logo}</div>
         <div class="qt-brand-hero-text">
-            <div class="qt-brand-hero-title">Quant Terminal</div>
-            <div class="qt-brand-hero-sub">
-                Simulateur d&rsquo;investissement &mdash; Yahoo Finance &amp; IA
+            <div class="qt-brand-hero-titlerow">
+                <span class="qt-brand-hero-title">Quant Terminal</span>
+                <span class="qt-brand-hero-badge">V2.0 &middot; BETA</span>
             </div>
+            <div class="qt-brand-hero-sub">Simulateur d&rsquo;investissement pédagogique</div>
         </div>
-        <span class="qt-brand-hero-badge">v2.0 &middot; beta</span>
     </div>
     """, unsafe_allow_html=True)
 
