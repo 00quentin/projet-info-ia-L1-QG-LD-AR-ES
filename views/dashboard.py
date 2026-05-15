@@ -213,24 +213,35 @@ def afficher_dashboard(res, params, key_prefix="main"):
             infl_l = macro_l.get("inflation", 0)
             taux_l = macro_l.get("taux_directeurs", 0)
 
+            # Badge VS flottant entre les deux colonnes
+            card_style = (
+                'flex:1; padding:20px 24px; border-radius:14px; '
+                'border:1px solid var(--border);'
+            )
+            label_style = (
+                'font-size:0.72em; font-weight:700; text-transform:uppercase; '
+                'letter-spacing:0.07em; margin-bottom:14px; '
+                'display:flex; align-items:center; gap:6px;'
+            )
             html_macro = (
-                '<div style="display:flex; gap:2px; border-radius:14px; overflow:hidden; '
-                'border:1px solid var(--border); margin-top:4px;">'
+                '<div style="display:flex; align-items:stretch; gap:0; '
+                'margin-top:8px; position:relative;">'
                 # Colonne Calibrée
-                '<div style="flex:1; padding:16px 20px; background:rgba(128,90,213,0.07);">'
-                '<div style="font-size:0.72em; font-weight:700; text-transform:uppercase; '
-                'letter-spacing:0.07em; color:#805ad5; margin-bottom:12px;">🎯 Calibrée (ancrage historique)</div>'
+                f'<div style="{card_style} background:rgba(128,90,213,0.06);">'
+                f'<div style="{label_style} color:#805ad5;">🎯 Calibrée — ancrage historique</div>'
                 + _macro_row("Inflation", infl_c)
                 + _macro_row("Taux directeurs", taux_c) +
                 '</div>'
-                # Séparateur VS
-                '<div style="display:flex; align-items:center; padding:0 10px; '
-                'background:var(--card); font-size:0.75em; font-weight:700; '
-                'color:var(--text-muted); writing-mode:vertical-rl;">VS</div>'
+                # Badge VS centré
+                '<div style="display:flex; align-items:center; justify-content:center; '
+                'padding:0 14px; flex-shrink:0;">'
+                '<div style="background:var(--card); border:1px solid var(--border); '
+                'border-radius:999px; padding:6px 10px; font-size:0.72em; font-weight:800; '
+                'color:var(--text-muted); letter-spacing:0.04em;">VS</div>'
+                '</div>'
                 # Colonne Libre
-                '<div style="flex:1; padding:16px 20px; background:rgba(49,130,206,0.07);">'
-                '<div style="font-size:0.72em; font-weight:700; text-transform:uppercase; '
-                'letter-spacing:0.07em; color:#3182ce; margin-bottom:12px;">🤖 Libre (projection IA pure)</div>'
+                f'<div style="{card_style} background:rgba(49,130,206,0.06);">'
+                f'<div style="{label_style} color:#3182ce;">🤖 Libre — projection IA pure</div>'
                 + _macro_row("Inflation", infl_l)
                 + _macro_row("Taux directeurs", taux_l) +
                 '</div>'

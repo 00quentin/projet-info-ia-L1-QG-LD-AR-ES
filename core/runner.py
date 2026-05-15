@@ -85,13 +85,13 @@ def lancer_simulation_scenario(
     if not chocs or ("actifs" not in chocs and "macro" not in chocs):
         return None, "L'IA n'a pas pu lier ce scénario à la finance."
 
-    # On injecte toujours "S&P 500" dans la simulation pour pouvoir afficher
-    # un benchmark, même si l'utilisateur ne l'a pas sélectionné dans son
-    # portefeuille. Il sera exclu de perf_df ci-dessous.
-    BENCHMARK_KEY = "S&P 500"
+    # On injecte toujours S&P 500 et MSCI_World comme benchmarks, même si
+    # l'utilisateur ne les a pas sélectionnés. Ils sont exclus de perf_df.
+    BENCHMARKS_FIXES = ["S&P 500", "MSCI_World"]
     actifs_a_simuler = list(actifs_selectionnes)
-    if BENCHMARK_KEY not in actifs_a_simuler:
-        actifs_a_simuler.append(BENCHMARK_KEY)
+    for bm in BENCHMARKS_FIXES:
+        if bm not in actifs_a_simuler:
+            actifs_a_simuler.append(bm)
 
     mc_data = None
     if monte_carlo:
