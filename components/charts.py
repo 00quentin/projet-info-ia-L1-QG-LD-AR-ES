@@ -256,12 +256,12 @@ def fig_evolution_portefeuille(
     capital: float,
     benchmark: Optional[pd.Series] = None,
     titre_benchmark: str = "S&P 500 (benchmark)",
+    benchmarks_extra: Optional[Dict[str, pd.Series]] = None,
 ) -> go.Figure:
-    """Evolution du portefeuille vs benchmark optionnel, style TradingView.
+    """Evolution du portefeuille vs un ou plusieurs benchmarks, style TradingView.
 
-    La courbe portefeuille prend la couleur success/danger selon le sens
-    de la performance finale, avec un gradient subtil sous la ligne (signature
-    TradingView). Le benchmark reste en pointille neutre.
+    benchmark       : courbe principale (S&P 500 en pointillés gris)
+    benchmarks_extra: dict {nom: Series} pour benchmarks additionnels (MSCI World…)
     """
     fig = go.Figure()
 
@@ -308,6 +308,17 @@ def fig_evolution_portefeuille(
             mode="lines",
             line=dict(color="#94a3b8", width=1.8, dash="dot"),
             hovertemplate=f"<b>{titre_benchmark}</b><br>%{{y:,.0f}} €<extra></extra>",
+        ))
+    # Benchmarks supplémentaires (ex: MSCI World) en tirets colorés
+    _extra_colors = ["#f59e0b", "#8b5cf6", "#06b6d4"]
+    for idx, (nom_bm, serie_bm) in enumerate((benchmarks_extra or {}).items()):
+        col_bm = _extra_colors[idx % len(_extra_colors)]
+        fig.add_trace(go.Scatter(
+            x=serie_bm.index, y=serie_bm,
+            name=nom_bm,
+            mode="lines",
+            line=dict(color=col_bm, width=1.6, dash="dashdot"),
+            hovertemplate=f"<b>{nom_bm}</b><br>%{{y:,.0f}} €<extra></extra>",
         ))
     c = get_theme_colors()
     fig.add_hline(

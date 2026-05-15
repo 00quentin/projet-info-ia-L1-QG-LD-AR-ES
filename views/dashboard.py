@@ -192,25 +192,51 @@ def afficher_dashboard(res, params, key_prefix="main"):
             actifs_c = chocs.get("actifs", {}) or {}
             actifs_l = chocs_libre.get("actifs", {}) or {}
 
-            col_c, col_l = st.columns(2)
-            with col_c:
-                st.markdown(
-                    '<div style="background:#805ad5; color:white; padding:6px 12px; '
-                    'border-radius:6px; text-align:center; font-weight:600; '
-                    'font-size:0.92em; margin-bottom:8px;">CALIBRÉE (ancrée historique)</div>',
-                    unsafe_allow_html=True
+            # Carte côte à côte Calibrée / Libre — HTML compact
+            def _macro_val(v: float) -> str:
+                col = "#16c784" if v >= 0 else "#ef454a"
+                sign = "+" if v >= 0 else ""
+                return (f'<span style="color:{col}; font-weight:700; '
+                        f'font-size:1.35em;">{sign}{v:.2f}%</span>')
+
+            def _macro_row(label: str, val: float) -> str:
+                return (
+                    f'<div style="display:flex; justify-content:space-between; '
+                    f'align-items:center; padding:10px 0; '
+                    f'border-bottom:1px solid var(--border);">'
+                    f'<span style="font-size:0.88em; color:var(--text-muted);">{label}</span>'
+                    f'{_macro_val(val)}</div>'
                 )
-                st.metric("Inflation", f"{macro_c.get('inflation', 0):+.2f} %")
-                st.metric("Taux directeurs", f"{macro_c.get('taux_directeurs', 0):+.2f} %")
-            with col_l:
-                st.markdown(
-                    '<div style="background:#3182ce; color:white; padding:6px 12px; '
-                    'border-radius:6px; text-align:center; font-weight:600; '
-                    'font-size:0.92em; margin-bottom:8px;">LIBRE (projection IA pure)</div>',
-                    unsafe_allow_html=True
-                )
-                st.metric("Inflation", f"{macro_l.get('inflation', 0):+.2f} %")
-                st.metric("Taux directeurs", f"{macro_l.get('taux_directeurs', 0):+.2f} %")
+
+            infl_c = macro_c.get("inflation", 0)
+            taux_c = macro_c.get("taux_directeurs", 0)
+            infl_l = macro_l.get("inflation", 0)
+            taux_l = macro_l.get("taux_directeurs", 0)
+
+            html_macro = (
+                '<div style="display:flex; gap:2px; border-radius:14px; overflow:hidden; '
+                'border:1px solid var(--border); margin-top:4px;">'
+                # Colonne Calibrée
+                '<div style="flex:1; padding:16px 20px; background:rgba(128,90,213,0.07);">'
+                '<div style="font-size:0.72em; font-weight:700; text-transform:uppercase; '
+                'letter-spacing:0.07em; color:#805ad5; margin-bottom:12px;">🎯 Calibrée (ancrage historique)</div>'
+                + _macro_row("Inflation", infl_c)
+                + _macro_row("Taux directeurs", taux_c) +
+                '</div>'
+                # Séparateur VS
+                '<div style="display:flex; align-items:center; padding:0 10px; '
+                'background:var(--card); font-size:0.75em; font-weight:700; '
+                'color:var(--text-muted); writing-mode:vertical-rl;">VS</div>'
+                # Colonne Libre
+                '<div style="flex:1; padding:16px 20px; background:rgba(49,130,206,0.07);">'
+                '<div style="font-size:0.72em; font-weight:700; text-transform:uppercase; '
+                'letter-spacing:0.07em; color:#3182ce; margin-bottom:12px;">🤖 Libre (projection IA pure)</div>'
+                + _macro_row("Inflation", infl_l)
+                + _macro_row("Taux directeurs", taux_l) +
+                '</div>'
+                '</div>'
+            )
+            st.markdown(html_macro, unsafe_allow_html=True)
 
             # Tableau comparatif des actifs : on prend les actifs du portefeuille
             # uniquement (sinon trop bruyant), et on calcule l'ecart absolu en points.
@@ -317,35 +343,63 @@ def afficher_dashboard(res, params, key_prefix="main"):
     for alerte in evaluer_alertes_risque(metriques):
         render_alerte_risque(alerte.severite, alerte.titre, alerte.message)
 
-    # === Évolution du portefeuille vs benchmark S&P 500 ===
+    # === Évolution du portefeuille vs benchmarks ===
     st.markdown('<hr class="qt-divider">', unsafe_allow_html=True)
     st.markdown('<div class="qt-section-title">Évolution du portefeuille vs marché</div>',
                 unsafe_allow_html=True)
-    st.caption("Votre portefeuille comparé au S&P 500 sur la même période simulée. "
-               "L'alpha mesure votre surperformance par rapport au marché.")
+    st.caption("Votre portefeuille comparé au S&P 500 et au MSCI World sur la même période simulée.")
 
     cap = params["capital"]
-    benchmark = None
-    if "S&P 500" in df.columns:
-        benchmark = (df["S&P 500"] / df["S&P 500"].iloc[0]) * cap
+    valeur_finale = float(valeur_port.iloc[-1])
+    perf_p = (valeur_finale - cap) / cap * 100 if cap > 0 else 0
 
-    fig_evo = fig_evolution_portefeuille(valeur_port, cap, benchmark)
+    benchmark_sp = None
+    if "S&P 500" in df.columns:
+        benchmark_sp = (df["S&P 500"] / df["S&P 500"].iloc[0]) * cap
+
+    benchmark_msci = None
+    if "MSCI_World" in df.columns:
+        benchmark_msci = (df["MSCI_World"] / df["MSCI_World"].iloc[0]) * cap
+
+    fig_evo = fig_evolution_portefeuille(
+        valeur_port, cap, benchmark_sp,
+        benchmarks_extra={"MSCI World": benchmark_msci} if benchmark_msci is not None else None,
+    )
     st.plotly_chart(fig_evo, use_container_width=True, key=f"{key_prefix}_evolution")
 
-    if benchmark is not None:
-        valeur_finale = float(valeur_port.iloc[-1])
-        perf_p = (valeur_finale - cap) / cap * 100 if cap > 0 else 0
-        perf_b = (float(benchmark.iloc[-1]) - cap) / cap * 100 if cap > 0 else 0
-        alpha = perf_p - perf_b
-        couleur_alpha = "#2f855a" if alpha >= 0 else "#c53030"
-        st.markdown(
-            f'<div style="background:{couleur_alpha}; color:white; padding:14px 20px; '
-            f'border-radius:10px; text-align:center; margin:18px 0; font-size:1em;">'
-            f'Alpha vs S&P 500 : <strong>{alpha:+.2f} points</strong>'
-            f' ({"surperformance" if alpha >= 0 else "sous-performance"})'
-            f'</div>',
-            unsafe_allow_html=True
+    # Carte de comparaison des performances côte à côte
+    def _perf_card(nom: str, val_fin: float, couleur_fond: str, emoji: str) -> str:
+        perf = (val_fin - cap) / cap * 100 if cap > 0 else 0
+        up = perf >= 0
+        col_perf = "#16c784" if up else "#ef454a"
+        sign = "+" if up else ""
+        arrow = "▲" if up else "▼"
+        return (
+            f'<div style="flex:1; padding:18px 20px; background:{couleur_fond}; '
+            f'border-radius:12px; text-align:center;">'
+            f'<div style="font-size:0.78em; font-weight:600; text-transform:uppercase; '
+            f'letter-spacing:0.06em; color:var(--text-muted); margin-bottom:6px;">'
+            f'{emoji} {nom}</div>'
+            f'<div style="font-size:1.9em; font-weight:800; color:var(--text); '
+            f'letter-spacing:-0.02em;">{val_fin:,.0f} €</div>'
+            f'<div style="font-size:1em; font-weight:700; color:{col_perf}; margin-top:4px;">'
+            f'{arrow} {sign}{perf:.2f}%</div>'
+            f'</div>'
         )
+
+    cartes = [_perf_card("Mon portefeuille", valeur_finale,
+                         "color-mix(in srgb, var(--accent) 8%, var(--card))", "💼")]
+    if benchmark_sp is not None:
+        cartes.append(_perf_card("S&P 500", float(benchmark_sp.iloc[-1]),
+                                 "var(--card)", "🇺🇸"))
+    if benchmark_msci is not None:
+        cartes.append(_perf_card("MSCI World", float(benchmark_msci.iloc[-1]),
+                                 "var(--card)", "🌍"))
+
+    st.markdown(
+        f'<div style="display:flex; gap:12px; margin:16px 0;">{"".join(cartes)}</div>',
+        unsafe_allow_html=True
+    )
 
     # === Graphiques par catégorie ===
     st.markdown('<hr class="qt-divider">', unsafe_allow_html=True)
