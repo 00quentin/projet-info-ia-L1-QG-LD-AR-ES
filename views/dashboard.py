@@ -16,7 +16,7 @@ from core.risk_alerts import evaluer_alertes_risque
 from components.charts import (
     fig_courbes_categorie, construire_graphiques_par_categorie,
     fig_heatmap_performance, html_metriques_jauges,
-    fig_evolution_portefeuille,
+    fig_evolution_portefeuille, html_cartes_performance,
 )
 from components.empty_states import render_empty_dashboard
 from components.notifications import notify_error, notify_success, render_alerte_risque
@@ -384,39 +384,16 @@ def afficher_dashboard(res, params, key_prefix="main"):
     )
     st.plotly_chart(fig_evo, use_container_width=True, key=f"{key_prefix}_evolution")
 
-    # Carte de comparaison des performances côte à côte
-    def _perf_card(nom: str, val_fin: float, couleur_fond: str, emoji: str) -> str:
-        perf = (val_fin - cap) / cap * 100 if cap > 0 else 0
-        up = perf >= 0
-        col_perf = "#16c784" if up else "#ef454a"
-        sign = "+" if up else ""
-        arrow = "▲" if up else "▼"
-        return (
-            f'<div style="flex:1; padding:18px 20px; background:{couleur_fond}; '
-            f'border-radius:12px; text-align:center;">'
-            f'<div style="font-size:0.78em; font-weight:600; text-transform:uppercase; '
-            f'letter-spacing:0.06em; color:var(--text-muted); margin-bottom:6px;">'
-            f'{emoji} {nom}</div>'
-            f'<div style="font-size:1.9em; font-weight:800; color:var(--text); '
-            f'letter-spacing:-0.02em;">{val_fin:,.0f} €</div>'
-            f'<div style="font-size:1em; font-weight:700; color:{col_perf}; margin-top:4px;">'
-            f'{arrow} {sign}{perf:.2f}%</div>'
-            f'</div>'
-        )
-
-    cartes = [_perf_card("Mon portefeuille", valeur_finale,
-                         "color-mix(in srgb, var(--accent) 8%, var(--card))", "💼")]
+    # Cartes de comparaison des performances côte à côte (helper partagé)
+    items_perf = [{"nom": "Mon portefeuille", "valeur_finale": valeur_finale,
+                   "emoji": "💼", "principal": True}]
     if benchmark_sp is not None:
-        cartes.append(_perf_card("S&P 500", float(benchmark_sp.iloc[-1]),
-                                 "var(--card)", "🇺🇸"))
+        items_perf.append({"nom": "S&P 500", "emoji": "🇺🇸",
+                           "valeur_finale": float(benchmark_sp.iloc[-1])})
     if benchmark_msci is not None:
-        cartes.append(_perf_card("MSCI World", float(benchmark_msci.iloc[-1]),
-                                 "var(--card)", "🌍"))
-
-    st.markdown(
-        f'<div style="display:flex; gap:12px; margin:16px 0;">{"".join(cartes)}</div>',
-        unsafe_allow_html=True
-    )
+        items_perf.append({"nom": "MSCI World", "emoji": "🌍",
+                           "valeur_finale": float(benchmark_msci.iloc[-1])})
+    st.markdown(html_cartes_performance(items_perf, cap), unsafe_allow_html=True)
 
     # === Graphiques par catégorie ===
     st.markdown('<hr class="qt-divider">', unsafe_allow_html=True)

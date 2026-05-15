@@ -346,6 +346,38 @@ def fig_evolution_portefeuille(
     return apply_qt_theme(fig, height=400)
 
 
+def html_cartes_performance(items: List[dict], capital: float) -> str:
+    """Cartes de performance côte à côte (portefeuille + benchmarks).
+
+    items : liste de dicts {nom, valeur_finale, emoji, principal(bool optionnel)}.
+    Remplace les anciens bandeaux "alpha" par une comparaison visuelle uniforme.
+    """
+    cartes = []
+    for it in items:
+        val_fin = float(it["valeur_finale"])
+        perf = (val_fin - capital) / capital * 100 if capital > 0 else 0.0
+        up = perf >= 0
+        col_perf = "#16c784" if up else "#ef454a"
+        sign = "+" if up else ""
+        arrow = "▲" if up else "▼"
+        fond = ("color-mix(in srgb, var(--accent) 9%, var(--card))"
+                if it.get("principal") else "var(--card)")
+        cartes.append(
+            f'<div style="flex:1; padding:18px 20px; background:{fond}; '
+            f'border-radius:12px; text-align:center; border:1px solid var(--border);">'
+            f'<div style="font-size:0.78em; font-weight:600; text-transform:uppercase; '
+            f'letter-spacing:0.06em; color:var(--text-muted); margin-bottom:6px;">'
+            f'{it.get("emoji", "")} {it["nom"]}</div>'
+            f'<div style="font-size:1.85em; font-weight:800; color:var(--text); '
+            f'letter-spacing:-0.02em;">{val_fin:,.0f} €</div>'
+            f'<div style="font-size:1em; font-weight:700; color:{col_perf}; margin-top:4px;">'
+            f'{arrow} {sign}{perf:.2f}%</div>'
+            f'</div>'
+        )
+    return (f'<div style="display:flex; gap:12px; margin:16px 0; flex-wrap:wrap;">'
+            f'{"".join(cartes)}</div>')
+
+
 def html_metriques_jauges(metriques: Dict[str, float]) -> str:
     """Génère le HTML des 4 cartes métriques avec jauges circulaires SVG animées."""
 

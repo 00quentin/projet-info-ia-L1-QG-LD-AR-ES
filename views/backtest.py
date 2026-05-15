@@ -18,6 +18,7 @@ from core.risk_alerts import evaluer_alertes_risque
 from components.charts import (
     fig_courbes_categorie, construire_graphiques_par_categorie,
     fig_heatmap_performance, fig_evolution_portefeuille, html_metriques_jauges,
+    html_cartes_performance,
 )
 from components.empty_states import render_empty_backtest
 from components.notifications import notify_warn, notify_error, notify_success, render_alerte_risque
@@ -172,7 +173,14 @@ def render_page_backtest_detail():
     if "S&P 500" in df.columns:
         benchmark = (df["S&P 500"] / df["S&P 500"].iloc[0]) * cap
 
-    fig = fig_evolution_portefeuille(valeur_port, cap, benchmark)
+    benchmark_msci = None
+    if "MSCI_World" in df.columns:
+        benchmark_msci = (df["MSCI_World"] / df["MSCI_World"].iloc[0]) * cap
+
+    fig = fig_evolution_portefeuille(
+        valeur_port, cap, benchmark,
+        benchmarks_extra={"MSCI World": benchmark_msci} if benchmark_msci is not None else None,
+    )
     st.plotly_chart(fig, use_container_width=True, key="bt_evolution")
 
     # Bilan
@@ -181,23 +189,17 @@ def render_page_backtest_detail():
     perf_g = (gains / cap) * 100 if cap > 0 else 0
 
     st.markdown('<hr class="qt-divider">', unsafe_allow_html=True)
-    c1, c2, c3 = st.columns(3)
-    c1.metric("Capital initial", f"{cap:,.0f} €")
-    c2.metric("Valeur finale", f"{valeur_finale:,.2f} €", f"{gains:,.0f} €")
-    c3.metric("Performance globale", f"{perf_g:+.2f} %")
 
-    # Alpha vs benchmark
+    # Cartes de comparaison portefeuille vs benchmarks (helper partagé)
+    items_perf = [{"nom": "Mon portefeuille", "valeur_finale": valeur_finale,
+                   "emoji": "💼", "principal": True}]
     if benchmark is not None:
-        perf_bench = (float(benchmark.iloc[-1]) - cap) / cap * 100
-        alpha = perf_g - perf_bench
-        couleur_alpha = "#2f855a" if alpha >= 0 else "#c53030"
-        st.markdown(
-            f'<div style="background:{couleur_alpha}; color:white; padding:18px 24px; '
-            f'border-radius:10px; text-align:center; margin:24px 0; font-size:1.05em;">'
-            f'Votre alpha vs S&P 500 : <strong>{alpha:+.2f} points</strong>'
-            f' ({"surperformance" if alpha >= 0 else "sous-performance"})</div>',
-            unsafe_allow_html=True
-        )
+        items_perf.append({"nom": "S&P 500", "emoji": "🇺🇸",
+                           "valeur_finale": float(benchmark.iloc[-1])})
+    if benchmark_msci is not None:
+        items_perf.append({"nom": "MSCI World", "emoji": "🌍",
+                           "valeur_finale": float(benchmark_msci.iloc[-1])})
+    st.markdown(html_cartes_performance(items_perf, cap), unsafe_allow_html=True)
 
     # Détail par actif
     st.markdown('<div class="qt-section-title">Performance par actif</div>',

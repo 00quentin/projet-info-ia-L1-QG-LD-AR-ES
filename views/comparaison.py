@@ -10,7 +10,6 @@ avec le second.
 
 from datetime import datetime
 
-import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
@@ -107,22 +106,56 @@ def render_page_comparaison():
     apply_qt_theme(fig, height=440)
     st.plotly_chart(fig, use_container_width=True, key="compare_port_chart")
 
-    # === Tableau comparatif des metriques ===
+    # === Tableau comparatif des metriques (HTML, meilleur surligné) ===
     st.markdown('<div class="qt-section-title">Comparatif des métriques de risque</div>',
                 unsafe_allow_html=True)
-    data_tab = {"Métrique": ["Volatilité annualisée (%)", "Sharpe Ratio",
-                              "Max Drawdown (%)", "VaR 95% (%)", "Performance (%)"]}
-    for label in labels_dispo:
-        m = metriques[label]
-        data_tab[f"Scénario {label}"] = [
-            f"{m['vol_ann']:.2f}",
-            f"{m['sharpe']:.2f}",
-            f"-{m['max_dd']:.2f}",
-            f"{m['var_95']:.2f}",
-            f"{perfs[label]:+.2f}",
-        ]
-    comp_df = pd.DataFrame(data_tab)
-    st.dataframe(comp_df, use_container_width=True, hide_index=True)
+    st.caption("La valeur la plus favorable de chaque ligne est surlignée en vert.")
+
+    # (label, valeurs brutes par scénario, format, plus_grand_est_mieux)
+    lignes_def = [
+        ("Volatilité annualisée", {l: metriques[l]["vol_ann"] for l in labels_dispo},
+         lambda v: f"{v:.2f}%", False),
+        ("Sharpe Ratio", {l: metriques[l]["sharpe"] for l in labels_dispo},
+         lambda v: f"{v:.2f}", True),
+        ("Max Drawdown", {l: metriques[l]["max_dd"] for l in labels_dispo},
+         lambda v: f"−{v:.2f}%", False),
+        ("VaR 95%", {l: abs(metriques[l]["var_95"]) for l in labels_dispo},
+         lambda v: f"−{v:.2f}%", False),
+        ("Performance", {l: perfs[l] for l in labels_dispo},
+         lambda v: f"{v:+.2f}%", True),
+    ]
+
+    h_style = ('padding:10px 14px; font-size:0.78em; font-weight:600; '
+               'text-transform:uppercase; letter-spacing:0.05em; '
+               'color:var(--text-muted); background:var(--card); '
+               'border-bottom:2px solid var(--border);')
+    entetes = (f'<th style="{h_style} text-align:left;">Métrique</th>'
+               + "".join(f'<th style="{h_style} text-align:center;">Scénario {l}</th>'
+                         for l in labels_dispo))
+
+    lignes_html = ""
+    for label, vals, fmt, plus_haut_mieux in lignes_def:
+        meilleur = (max(vals.values()) if plus_haut_mieux else min(vals.values()))
+        cells = (f'<td style="padding:11px 14px; font-weight:500; color:var(--text); '
+                 f'border-bottom:1px solid var(--border);">{label}</td>')
+        for l in labels_dispo:
+            est_best = abs(vals[l] - meilleur) < 1e-9
+            base = ('padding:11px 14px; text-align:center; '
+                    'border-bottom:1px solid var(--border);')
+            if est_best and len(labels_dispo) > 1:
+                cells += (f'<td style="{base} background:rgba(22,199,132,0.1);">'
+                          f'<strong style="color:#16c784;">{fmt(vals[l])}</strong></td>')
+            else:
+                cells += f'<td style="{base} color:var(--text);">{fmt(vals[l])}</td>'
+        lignes_html += f'<tr>{cells}</tr>'
+
+    st.markdown(
+        '<div style="border-radius:12px; overflow:hidden; border:1px solid var(--border);">'
+        '<table style="width:100%; border-collapse:collapse; background:var(--bg);">'
+        f'<thead><tr>{entetes}</tr></thead><tbody>{lignes_html}</tbody>'
+        '</table></div>',
+        unsafe_allow_html=True
+    )
 
     # === Classement detaille (uniquement si N>=3) ===
     if len(labels_dispo) >= 3:
