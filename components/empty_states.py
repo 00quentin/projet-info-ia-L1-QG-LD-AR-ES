@@ -266,17 +266,67 @@ def render_empty_portefeuille():
     )
 
 
+def _on_activer_comparaison(nb: int):
+    """Active le mode comparaison en réglant le nombre de scénarios."""
+    st.session_state.nb_scenarios = nb
+
+
 def render_empty_comparaison():
     """Empty state de la Comparaison multi-scenarios."""
     _hero_empty(
         "⚖️",
         "Comparez 2 ou 3 scénarios côte à côte",
-        "Réglez le curseur <strong>Nombre de scénarios à comparer</strong> "
-        "dans la barre latérale (2 ou 3), rédigez vos scénarios, puis lancez "
-        "la simulation. Vous verrez ici les courbes superposées, un comparatif "
-        "des métriques de risque et le classement.",
+        "Lancez la simulation avec 2 ou 3 scénarios différents pour voir "
+        "les courbes superposées, le comparatif de métriques et le classement.",
         illu_kind="comparaison",
     )
+
+    # Guide 3 étapes + boutons d'activation rapide
+    st.markdown(
+        '<div style="background:var(--card); border:1px solid var(--border); '
+        'border-radius:14px; padding:20px 24px; margin:16px 0;">'
+        '<div style="font-weight:700; font-size:1em; color:var(--primary); margin-bottom:14px;">'
+        '📋 Comment activer la comparaison ?</div>'
+        '<div style="display:flex; gap:0; flex-wrap:wrap;">'
+
+        '<div style="flex:1; min-width:160px; padding:10px 14px; '
+        'border-left:3px solid var(--accent);">'
+        '<div style="font-weight:700; color:var(--accent); margin-bottom:4px;">① Sidebar</div>'
+        '<div style="font-size:0.86em; color:var(--text-muted);">'
+        'Réglez le curseur <strong>"Nombre de scénarios"</strong> sur 2 ou 3.</div></div>'
+
+        '<div style="flex:1; min-width:160px; padding:10px 14px; '
+        'border-left:3px solid #06b6d4;">'
+        '<div style="font-weight:700; color:#06b6d4; margin-bottom:4px;">② Scénarios</div>'
+        '<div style="font-size:0.86em; color:var(--text-muted);">'
+        'Rédigez un scénario <strong>différent</strong> pour chaque lettre (A, B, C).</div></div>'
+
+        '<div style="flex:1; min-width:160px; padding:10px 14px; '
+        'border-left:3px solid #16c784;">'
+        '<div style="font-weight:700; color:#16c784; margin-bottom:4px;">③ Lancer</div>'
+        '<div style="font-size:0.86em; color:var(--text-muted);">'
+        'Cliquez sur <strong>"Lancer la simulation"</strong> — les résultats s\'affichent ici.</div></div>'
+
+        '</div></div>',
+        unsafe_allow_html=True
+    )
+
+    col_a, col_b, col_c = st.columns(3)
+    with col_a:
+        if st.button("⚔ Comparer 2 scénarios", use_container_width=True,
+                     on_click=_on_activer_comparaison, args=(2,), type="primary"):
+            pass
+    with col_b:
+        if st.button("🏆 Tournoi 3 scénarios", use_container_width=True,
+                     on_click=_on_activer_comparaison, args=(3,)):
+            pass
+    with col_c:
+        st.markdown(
+            '<p style="font-size:0.82em; color:var(--text-muted); '
+            'margin:10px 0 0 0; text-align:center;">'
+            'Ces boutons règlent le curseur sidebar et affichent les champs de texte.</p>',
+            unsafe_allow_html=True
+        )
 
 
 def render_empty_historique():

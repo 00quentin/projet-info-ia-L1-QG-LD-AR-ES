@@ -20,6 +20,7 @@ from components.charts import (
 )
 from components.empty_states import render_empty_dashboard
 from components.notifications import notify_error, notify_success, render_alerte_risque
+import streamlit.components.v1 as components
 from ia_bot import generer_rapport_complet_ia
 from pdf_generator import generer_rapport_pdf
 from logger import get_logger
@@ -506,6 +507,24 @@ def afficher_dashboard(res, params, key_prefix="main"):
             key=f"{key_prefix}_pdf_dl"
         )
 
+    # === Partage via URL ===
+    st.markdown('<hr class="qt-divider">', unsafe_allow_html=True)
+    st.markdown('<div class="qt-section-title">Partager cette simulation</div>',
+                unsafe_allow_html=True)
+    st.caption("L'URL de la page contient déjà votre scénario — il suffit de la copier et de l'envoyer.")
+    components.html("""
+    <button onclick="
+        navigator.clipboard.writeText(window.parent.location.href)
+          .then(function(){ this.textContent = '✓ Lien copié dans le presse-papiers !';
+                            this.style.background = '#16c784'; }.bind(this))
+          .catch(function(){ this.textContent = 'Copiez manuellement la barre d\\'adresse'; }.bind(this));
+    " style="
+        background:#6366f1; color:white; border:none; border-radius:8px;
+        padding:10px 20px; font-size:0.9em; font-weight:600; cursor:pointer;
+        width:100%; transition:background 0.2s ease;
+    ">🔗 Copier le lien de partage</button>
+    """, height=48)
+
 
 def render_page_dashboard():
     """Point d'entrée de la page Dashboard."""
@@ -522,6 +541,20 @@ def render_page_dashboard():
             f'<div class="qt-callout"><strong>Scénario :</strong> {res["scenario"]}</div>',
             unsafe_allow_html=True
         )
+        # Hint comparaison (uniquement si l'utilisateur n'a pas encore activé le multi-scénario)
+        if st.session_state.nb_scenarios == 1:
+            col_hint, col_btn = st.columns([3, 1])
+            with col_hint:
+                st.markdown(
+                    '<p style="font-size:0.85em; color:var(--text-muted); margin:4px 0 12px 0;">'
+                    '💡 Envie de comparer ce scénario avec un autre ? Activez le mode comparaison.</p>',
+                    unsafe_allow_html=True
+                )
+            with col_btn:
+                if st.button("⚔ Comparer", key="dash_hint_compare", use_container_width=True,
+                             help="Passe en mode 2 scénarios pour comparer côte à côte."):
+                    st.session_state.nb_scenarios = 2
+                    st.rerun()
         afficher_dashboard(res, st.session_state.params_sim, key_prefix="dash_main")
         return
 

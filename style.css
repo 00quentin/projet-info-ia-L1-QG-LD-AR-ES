@@ -1100,6 +1100,35 @@ div[data-testid="metric-container"]:hover::before {
     /* Sidebar : largeur auto sur mobile (drawer Streamlit) */
     [data-testid="stSidebar"] { padding: 0.5rem; }
     [data-testid="stSidebar"] .stMarkdown h1 { font-size: 1.3em !important; }
+
+    /* Bouton hamburger sidebar plus visible sur mobile */
+    [data-testid="collapsedControl"] {
+        background: var(--accent) !important;
+        border-radius: 10px !important;
+        padding: 6px !important;
+        box-shadow: 0 2px 8px rgba(99,102,241,0.4) !important;
+        animation: sidebarPulse 2.5s ease-in-out 3;
+    }
+    [data-testid="collapsedControl"] svg {
+        fill: white !important;
+        color: white !important;
+    }
+    @keyframes sidebarPulse {
+        0%, 100% { box-shadow: 0 2px 8px rgba(99,102,241,0.4); }
+        50%       { box-shadow: 0 2px 20px rgba(99,102,241,0.75); }
+    }
+
+    /* Sidebar intérieure : form elements plus grands pour le tactile */
+    [data-testid="stSidebar"] .stCheckbox label,
+    [data-testid="stSidebar"] .stSelectbox label,
+    [data-testid="stSidebar"] .stTextArea label {
+        font-size: 0.95em !important;
+    }
+    [data-testid="stSidebar"] .stCheckbox > label {
+        min-height: 40px;
+        display: flex;
+        align-items: center;
+    }
 }
 
 /* Mobile (600px) */

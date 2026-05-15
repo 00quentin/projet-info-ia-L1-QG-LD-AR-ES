@@ -65,6 +65,30 @@ def init_session_state():
 
 
 init_session_state()
+
+
+def _appliquer_params_url():
+    """Lit les query params URL et pré-remplit les champs (une seule fois par session)."""
+    if st.session_state.get("_url_params_appliques"):
+        return
+    st.session_state["_url_params_appliques"] = True
+    p = st.query_params
+    if "s" in p:
+        st.session_state.event_text_A = p["s"][:500]
+    if "s2" in p:
+        st.session_state.event_text_B = p["s2"][:500]
+    if "s3" in p:
+        st.session_state.event_text_C = p["s3"][:500]
+    if "nb" in p:
+        try:
+            nb = int(p["nb"])
+            if 1 <= nb <= 3:
+                st.session_state.nb_scenarios = nb
+        except ValueError:
+            pass
+
+
+_appliquer_params_url()
 appliquer_styles()
 
 
@@ -112,6 +136,18 @@ else:
 if config["lancer"]:
     if config["mode_app"] == "Simulation prospective":
         handler_simulation(config)
+        # Encode les paramètres dans l'URL pour permettre le partage du lien
+        try:
+            nb = st.session_state.nb_scenarios
+            st.query_params["s"] = st.session_state.get("event_text_A", "")[:400]
+            st.query_params["p"] = config.get("profil_risque", "")
+            if nb > 1:
+                st.query_params["nb"] = str(nb)
+                st.query_params["s2"] = st.session_state.get("event_text_B", "")[:400]
+            if nb > 2:
+                st.query_params["s3"] = st.session_state.get("event_text_C", "")[:400]
+        except Exception:
+            pass
     else:
         handler_backtest(config)
 
