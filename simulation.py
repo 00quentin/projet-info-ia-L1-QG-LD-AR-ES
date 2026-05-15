@@ -5,7 +5,7 @@ ACTIFS_PRO = {
     "S&P 500":              {"prix": 5200,   "volatilite": 0.012},
     "NASDAQ":               {"prix": 18200,  "volatilite": 0.016},
     "CAC 40":               {"prix": 8100,   "volatilite": 0.014},
-    "MSCI_World":           {"prix": 3500,   "volatilite": 0.011},
+    "MSCI_World":           {"prix": 3500,   "volatilite": 0.008},
     "Emerging_Markets":     {"prix": 1100,   "volatilite": 0.018},
     "Bons_Tresor_US_10Y":   {"prix": 100,    "volatilite": 0.003},
     "Bund_10Y":             {"prix": 100,    "volatilite": 0.002},

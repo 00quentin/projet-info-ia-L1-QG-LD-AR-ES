@@ -85,6 +85,15 @@ def lancer_simulation_scenario(
     if not chocs or ("actifs" not in chocs and "macro" not in chocs):
         return None, "L'IA n'a pas pu lier ce scénario à la finance."
 
+    # MSCI_World benchmark : si l'IA ne l'a pas calibré (choc ≈ 0 par défaut Pydantic),
+    # on hérite du choc S&P 500 × 0.85 (corrélation historique ~85%).
+    # Sans ça, MSCI_World random-walk autour de 0% pendant que le portefeuille dérive.
+    actifs_ia = chocs.get("actifs", {})
+    sp500_choc = actifs_ia.get("S&P 500", 0.0)
+    msci_choc = actifs_ia.get("MSCI_World", 0.0)
+    if abs(msci_choc) < 0.001 and abs(sp500_choc) > 0.001:
+        chocs.setdefault("actifs", {})["MSCI_World"] = round(sp500_choc * 0.85, 4)
+
     # On injecte toujours S&P 500 et MSCI_World comme benchmarks, même si
     # l'utilisateur ne les a pas sélectionnés. Ils sont exclus de perf_df.
     BENCHMARKS_FIXES = ["S&P 500", "MSCI_World"]
