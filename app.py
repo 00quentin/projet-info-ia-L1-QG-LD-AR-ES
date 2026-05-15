@@ -157,3 +157,16 @@ with tab_apropos:
 
 render_footer()
 render_toasts()
+
+# Auto-scroll vers le haut + activation du tab Dashboard après simulation
+if st.session_state.pop("_just_simulated", False) or st.session_state.pop("_just_backtested", False):
+    import streamlit.components.v1 as components
+    components.html("""
+    <script>
+    setTimeout(function() {
+        window.parent.scrollTo({top: 0, behavior: "smooth"});
+        var tabs = window.parent.document.querySelectorAll('[data-baseweb="tab"]');
+        if (tabs.length > 0) tabs[0].click();
+    }, 350);
+    </script>
+    """, height=0)

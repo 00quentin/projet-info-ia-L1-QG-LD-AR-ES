@@ -104,7 +104,8 @@ def render_page_comparaison():
     fig.update_layout(xaxis_title="Jours de cotation",
                       yaxis_title="Valeur du portefeuille (€)")
     apply_qt_theme(fig, height=440)
-    st.plotly_chart(fig, use_container_width=True, key="compare_port_chart")
+    st.plotly_chart(fig, use_container_width=True, key="compare_port_chart",
+                    config={"scrollZoom": False})
 
     # === Tableau comparatif des metriques (HTML, meilleur surligné) ===
     st.markdown('<div class="qt-section-title">Comparatif des métriques de risque</div>',

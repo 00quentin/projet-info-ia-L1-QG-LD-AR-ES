@@ -69,11 +69,37 @@ def _render_section_simulation() -> Dict[str, Any]:
             st.markdown(f"**Scénario {label}**")
             st.text_area(f"Scénario {label}", height=100,
                          key=f"event_text_{label}", label_visibility="collapsed")
+            texte_label = st.session_state.get(f"event_text_{label}", "").strip()
+            if 0 < len(texte_label) < 10:
+                st.markdown(
+                    '<p style="color:#ea3943; font-size:0.82em; margin:-8px 0 6px 0;">'
+                    '⚠ Scénario trop court — soyez plus précis (min. 10 caractères).</p>',
+                    unsafe_allow_html=True
+                )
+            elif len(texte_label) == 0:
+                st.markdown(
+                    '<p style="color:var(--text-muted); font-size:0.82em; margin:-8px 0 6px 0;">'
+                    'Décrivez un événement économique à simuler.</p>',
+                    unsafe_allow_html=True
+                )
     else:
         st.markdown("**Événement à simuler**")
         st.caption("💡 Conseil : soyez précis et détaillé pour que l'analyste IA soit performant. "
                    "Mentionnez le pays, le secteur, l'ampleur, la durée si possible.")
         st.text_area("Événement", height=120, key="event_text_A", label_visibility="collapsed")
+        texte_a = st.session_state.get("event_text_A", "").strip()
+        if 0 < len(texte_a) < 10:
+            st.markdown(
+                '<p style="color:#ea3943; font-size:0.82em; margin:-8px 0 6px 0;">'
+                '⚠ Scénario trop court — soyez plus précis (min. 10 caractères).</p>',
+                unsafe_allow_html=True
+            )
+        elif len(texte_a) == 0:
+            st.markdown(
+                '<p style="color:var(--text-muted); font-size:0.82em; margin:-8px 0 6px 0;">'
+                'Décrivez un événement économique à simuler.</p>',
+                unsafe_allow_html=True
+            )
 
     st.markdown("---")
     with st.expander("Options avancées", expanded=False):

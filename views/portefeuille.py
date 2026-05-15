@@ -12,6 +12,32 @@ from components.charts import fig_camembert_repartition
 from components.empty_states import render_empty_portefeuille
 
 
+def _html_grille_actifs(poids: dict, cap: float, perf_par_actif: dict) -> tuple[str, float]:
+    """Génère la grille HTML des cartes actifs. Retourne (html, valeur_finale)."""
+    cards = []
+    valeur_finale = 0.0
+    for sk, pct in poids.items():
+        nom = NOM_AFFICHAGE.get(sk, sk.replace("_", " ").replace("EUR USD", "EUR/USD"))
+        montant = cap * pct
+        rend = perf_par_actif.get(sk, 0) / 100
+        final = montant * (1 + rend)
+        valeur_finale += final
+        couleur = "#16c784" if rend >= 0 else "#ea3943"
+        signe = "+" if rend >= 0 else ""
+        cards.append(
+            f'<div class="qt-asset-card">'
+            f'<div class="qt-asset-header">'
+            f'<span class="qt-asset-name">{nom}</span>'
+            f'<span class="qt-asset-pct">{pct*100:.0f}%</span>'
+            f'</div>'
+            f'<div class="qt-asset-value">{final:,.0f} €</div>'
+            f'<div class="qt-asset-rend" style="color:{couleur};">{signe}{rend*100:.2f}%</div>'
+            f'<div class="qt-asset-initial">Base · {montant:,.0f} €</div>'
+            f'</div>'
+        )
+    return '<div class="qt-asset-grid">' + "".join(cards) + '</div>', valeur_finale
+
+
 def afficher_portefeuille(res, params, key_prefix="main"):
     """Affiche le détail du portefeuille pour un résultat de simulation."""
     cap = params["capital"]
@@ -24,16 +50,8 @@ def afficher_portefeuille(res, params, key_prefix="main"):
     st.markdown(f"<p style='text-align:center; color:var(--text-muted); margin-bottom:28px;'>Profil : <strong>{profil}</strong></p>",
                 unsafe_allow_html=True)
 
-    valeur_finale = 0
-    cols_port = st.columns(4)
-    for i, (sk, pct) in enumerate(poids.items()):
-        nom = NOM_AFFICHAGE.get(sk, sk.replace("_", " ").replace("EUR USD", "EUR/USD"))
-        montant = cap * pct
-        rend = (res["perf"].get(sk, 0)) / 100
-        final = montant * (1 + rend)
-        valeur_finale += final
-        with cols_port[i % 4]:
-            st.metric(f"{nom} ({pct*100:.1f}%)", f"{final:,.0f} €", f"{rend*100:+.2f}%")
+    html_grille, valeur_finale = _html_grille_actifs(poids, cap, res["perf"])
+    st.markdown(html_grille, unsafe_allow_html=True)
 
     st.markdown('<hr class="qt-divider">', unsafe_allow_html=True)
 
@@ -41,7 +59,8 @@ def afficher_portefeuille(res, params, key_prefix="main"):
         col_pie, col_bilan = st.columns(2)
         with col_pie:
             fig_pie = fig_camembert_repartition(poids)
-            st.plotly_chart(fig_pie, use_container_width=True, key=f"{key_prefix}_pie")
+            st.plotly_chart(fig_pie, use_container_width=True, key=f"{key_prefix}_pie",
+                            config={"scrollZoom": False})
 
         with col_bilan:
             st.markdown("<br><br>", unsafe_allow_html=True)

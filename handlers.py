@@ -139,55 +139,65 @@ def handler_simulation(config: Dict[str, Any]) -> None:
             notify_warn(f"Données Yahoo Finance indisponibles pour : {noms}.")
 
     skeleton_ph = render_skeleton_dashboard()
-    with st.spinner(_message_attente_simulation(config)):
-        try:
-            for label, scenario_txt in textes.items():
-                result, err = lancer_simulation_scenario(
-                    scenario_txt, config["actifs_selectionnes"], config["duree"],
-                    config["modele_simu"], config["mode_monte_carlo"],
-                    prix_reels, vols_reelles, config["calibration_historique"],
-                    actifs_extras=actifs_extras,
-                    custom_tickers=custom_tickers_ia,
-                )
-                if err:
-                    notify_error(f"Scénario {label} : {err}")
-                else:
-                    st.session_state.simulations[label] = result
+    nb_labels = len(textes)
+    progress_ph = st.progress(0, text="Démarrage de l'analyse IA…")
+    try:
+        for i, (label, scenario_txt) in enumerate(textes.items()):
+            if nb_labels > 1:
+                step_txt = f"Scénario {label} ({i+1}/{nb_labels}) — analyse IA en cours…"
+            else:
+                step_txt = _message_attente_simulation(config)
+            progress_ph.progress(i / nb_labels, text=step_txt)
 
-            st.session_state.params_sim = construire_params_sim_simulation(config, nb)
+            result, err = lancer_simulation_scenario(
+                scenario_txt, config["actifs_selectionnes"], config["duree"],
+                config["modele_simu"], config["mode_monte_carlo"],
+                prix_reels, vols_reelles, config["calibration_historique"],
+                actifs_extras=actifs_extras,
+                custom_tickers=custom_tickers_ia,
+            )
+            if err:
+                notify_error(f"Scénario {label} : {err}")
+            else:
+                st.session_state.simulations[label] = result
 
-            for label in labels_actifs:
-                res = st.session_state.simulations[label]
-                if res is None:
-                    continue
-                valeur_finale = calculer_valeur_finale(
-                    config["profil_risque"],
-                    config["actifs_selectionnes"],
-                    config["allocations_custom"],
-                    res["perf"],
-                    config["capital_initial"],
-                )
-                _enregistrer_historique(
-                    scenario=res["scenario"],
-                    profil=config["profil_risque"],
-                    capital=config["capital_initial"],
-                    valeur_finale=valeur_finale,
-                    monte_carlo=config["mode_monte_carlo"],
-                    nb_actifs=len(config["actifs_selectionnes"]),
-                    type_op="Simulation",
-                    label_compare=label if nb > 1 else None,
-                )
-            if any(st.session_state.simulations[lab] for lab in labels_actifs):
-                st.session_state["_just_simulated"] = True
+        progress_ph.progress(1.0, text="✓ Analyse terminée")
 
-        except (ValueError, KeyError, TypeError) as e:
-            log.error("Erreur simulation (donnees) : %s", e, exc_info=True)
-            notify_error(f"Erreur technique : {e}")
-        except Exception as e:  # noqa: BLE001 — derniere ligne de defense UI
-            log.error("Erreur simulation (inattendue) : %s", e, exc_info=True)
-            notify_error(f"Erreur technique : {e}")
-        finally:
-            skeleton_ph.empty()
+        st.session_state.params_sim = construire_params_sim_simulation(config, nb)
+
+        for label in labels_actifs:
+            res = st.session_state.simulations[label]
+            if res is None:
+                continue
+            valeur_finale = calculer_valeur_finale(
+                config["profil_risque"],
+                config["actifs_selectionnes"],
+                config["allocations_custom"],
+                res["perf"],
+                config["capital_initial"],
+            )
+            _enregistrer_historique(
+                scenario=res["scenario"],
+                profil=config["profil_risque"],
+                capital=config["capital_initial"],
+                valeur_finale=valeur_finale,
+                monte_carlo=config["mode_monte_carlo"],
+                nb_actifs=len(config["actifs_selectionnes"]),
+                type_op="Simulation",
+                label_compare=label if nb > 1 else None,
+            )
+        if any(st.session_state.simulations[lab] for lab in labels_actifs):
+            st.session_state["_just_simulated"] = True
+
+    except (ValueError, KeyError, TypeError) as e:
+        log.error("Erreur simulation (donnees) : %s", e, exc_info=True)
+        notify_error(f"Erreur technique : {e}")
+    except Exception as e:  # noqa: BLE001 — derniere ligne de defense UI
+        log.error("Erreur simulation (inattendue) : %s", e, exc_info=True)
+        notify_error(f"Erreur technique : {e}")
+    finally:
+        progress_ph.empty()
+        skeleton_ph.empty()
 
 
 def handler_backtest(config: Dict[str, Any]) -> None:

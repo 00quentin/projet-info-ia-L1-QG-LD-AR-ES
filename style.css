@@ -305,7 +305,7 @@ div[data-testid="metric-container"]:hover::before {
 
 /* Tabs — style pro : underline minimaliste, pas de pilule colorée saturée */
 .stTabs [data-baseweb="tab-list"] {
-    background-color: transparent !important;
+    background-color: var(--bg-page, rgba(248,250,252,0.97)) !important;
     border-radius: 0;
     padding: 0;
     box-shadow: none;
@@ -313,6 +313,11 @@ div[data-testid="metric-container"]:hover::before {
     border: none;
     border-bottom: 1px solid var(--border);
     gap: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 .stTabs [data-baseweb="tab"] {
     flex-grow: 0;
@@ -1331,14 +1336,14 @@ div[data-testid="metric-container"]:hover::before {
 /* === EMPTY STATES — avec illustration SVG animée === */
 .qt-empty-state {
     text-align: center;
-    padding: 32px 20px 24px 20px;
+    padding: 14px 20px 8px 20px;
     margin-bottom: 12px;
     animation: fadeInUp 0.6s ease-out;
 }
 .qt-empty-state-illu {
     width: 100%;
-    max-width: 240px;
-    margin: 0 auto 18px auto;
+    max-width: 110px;
+    margin: 0 auto 8px auto;
     animation: emptyFloat 4s ease-in-out infinite;
 }
 .qt-empty-state-illu svg {
@@ -1360,9 +1365,9 @@ div[data-testid="metric-container"]:hover::before {
 }
 .qt-empty-state-title {
     color: var(--primary) !important;
-    font-size: 1.7em !important;
+    font-size: 1.35em !important;
     font-weight: 800 !important;
-    margin: 0 0 10px 0 !important;
+    margin: 0 0 8px 0 !important;
     letter-spacing: -0.3px;
 }
 .qt-empty-state-subtitle {
@@ -1371,6 +1376,71 @@ div[data-testid="metric-container"]:hover::before {
     max-width: 640px;
     margin: 0 auto !important;
     line-height: 1.55;
+}
+
+/* === ASSET GRID (onglet Portefeuille) === */
+.qt-asset-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+}
+.qt-asset-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.qt-asset-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+.qt-asset-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.qt-asset-name {
+    font-size: 0.82em;
+    font-weight: 600;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 72%;
+}
+.qt-asset-pct {
+    font-size: 0.73em;
+    font-weight: 700;
+    color: var(--accent);
+    background: rgba(99,102,241,0.1);
+    padding: 2px 7px;
+    border-radius: 20px;
+    flex-shrink: 0;
+}
+.qt-asset-value {
+    font-size: 1.4em;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 4px;
+    letter-spacing: -0.5px;
+}
+.qt-asset-rend {
+    font-size: 0.9em;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+.qt-asset-initial {
+    font-size: 0.73em;
+    color: var(--text-muted);
+}
+@media (max-width: 900px) {
+    .qt-asset-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+    .qt-asset-grid { grid-template-columns: 1fr; }
 }
 
 /* === PRESET CARDS (empty dashboard) — NOUVEAU DESIGN ÉLABORÉ ===
@@ -1394,7 +1464,7 @@ div[data-testid="metric-container"]:hover::before {
     transform-style: preserve-3d;
     cursor: pointer;
     /* Hauteur fixe pour alignement parfait sur la grille */
-    height: 340px;
+    height: 240px;
 }
 .qt-preset-card::after {
     /* Lueur d'accent qui apparaît au hover */

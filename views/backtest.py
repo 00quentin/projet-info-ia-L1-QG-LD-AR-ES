@@ -76,12 +76,14 @@ def render_page_backtest_dashboard():
                     titre_cat, actifs_dispo, df_norm,
                     suffixe_titre=" · Données réelles"
                 )
-                st.plotly_chart(fig, use_container_width=True, key=f"bt_cat_{titre_cat}")
+                st.plotly_chart(fig, use_container_width=True, key=f"bt_cat_{titre_cat}",
+                                config={"scrollZoom": False})
 
     # === Heatmap ===
     st.markdown('<hr class="qt-divider">', unsafe_allow_html=True)
     fig_bar = fig_heatmap_performance(bt["perf_df"], titre="Performance réelle par actif")
-    st.plotly_chart(fig_bar, use_container_width=True, key="bt_heatmap")
+    st.plotly_chart(fig_bar, use_container_width=True, key="bt_heatmap",
+                    config={"scrollZoom": False})
 
     # === Exports ===
     st.markdown('<hr class="qt-divider">', unsafe_allow_html=True)
@@ -181,7 +183,8 @@ def render_page_backtest_detail():
         valeur_port, cap, benchmark,
         benchmarks_extra={"MSCI World": benchmark_msci} if benchmark_msci is not None else None,
     )
-    st.plotly_chart(fig, use_container_width=True, key="bt_evolution")
+    st.plotly_chart(fig, use_container_width=True, key="bt_evolution",
+                    config={"scrollZoom": False})
 
     # Bilan
     valeur_finale = float(valeur_port.iloc[-1])

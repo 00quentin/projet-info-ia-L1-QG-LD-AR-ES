@@ -390,7 +390,8 @@ def afficher_dashboard(res, params, key_prefix="main"):
         valeur_port, cap, benchmark_sp,
         benchmarks_extra={"MSCI World": benchmark_msci} if benchmark_msci is not None else None,
     )
-    st.plotly_chart(fig_evo, use_container_width=True, key=f"{key_prefix}_evolution")
+    st.plotly_chart(fig_evo, use_container_width=True, key=f"{key_prefix}_evolution",
+                    config={"scrollZoom": False})
 
     # Cartes de comparaison des performances côte à côte (helper partagé)
     items_perf = [{"nom": "Mon portefeuille", "valeur_finale": valeur_finale,
@@ -428,7 +429,8 @@ def afficher_dashboard(res, params, key_prefix="main"):
                     mc_bas_norm, mc_haut_norm, suffixe
                 )
                 st.plotly_chart(fig, use_container_width=True,
-                                key=f"{key_prefix}_cat_{titre_cat}")
+                                key=f"{key_prefix}_cat_{titre_cat}",
+                                config={"scrollZoom": False})
 
     # === Heatmap performance ===
     st.markdown('<hr class="qt-divider">', unsafe_allow_html=True)
@@ -439,7 +441,8 @@ def afficher_dashboard(res, params, key_prefix="main"):
         "Trié du plus faible au plus fort pour repérer immédiatement les points faibles."
     ), unsafe_allow_html=True)
     fig_bar = fig_heatmap_performance(res["perf_df"])
-    st.plotly_chart(fig_bar, use_container_width=True, key=f"{key_prefix}_heatmap")
+    st.plotly_chart(fig_bar, use_container_width=True, key=f"{key_prefix}_heatmap",
+                    config={"scrollZoom": False})
 
     # === Exports ===
     st.markdown('<hr class="qt-divider">', unsafe_allow_html=True)
