@@ -151,6 +151,62 @@ div[data-testid="metric-container"]:hover {
 .stApp { background-color: var(--bg) !important; }
 .stMarkdown, .stText, p, li, label, span, div { color: var(--text); }
 
+/* ============ DIALOG / MODAL (st.dialog) ============
+   Streamlit injecte un fond blanc par défaut — on force le thème sombre. */
+[data-testid="stDialog"] > div,
+[data-testid="stDialog"] [data-baseweb="dialog"],
+[data-testid="stDialog"] > div > div {
+    background-color: var(--card) !important;
+    color: var(--text) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.4) !important;
+}
+/* Tous les textes dans le dialog */
+[data-testid="stDialog"] p,
+[data-testid="stDialog"] span,
+[data-testid="stDialog"] label,
+[data-testid="stDialog"] div,
+[data-testid="stDialog"] h1,
+[data-testid="stDialog"] h2,
+[data-testid="stDialog"] h3 {
+    color: var(--text) !important;
+}
+/* Titre du dialog */
+[data-testid="stDialog"] h2 {
+    color: var(--primary) !important;
+    font-size: 1.1em !important;
+    font-weight: 700 !important;
+}
+/* Bouton X de fermeture */
+[data-testid="stDialog"] button[aria-label="Close"],
+[data-testid="stDialog"] button[kind="header"] {
+    color: var(--text-muted) !important;
+    background: transparent !important;
+}
+/* Boutons à l'intérieur du dialog */
+[data-testid="stDialog"] .stButton button {
+    background: var(--bg) !important;
+    color: var(--text) !important;
+    border: 1px solid var(--border) !important;
+}
+[data-testid="stDialog"] .stButton button:hover {
+    border-color: var(--accent) !important;
+    color: var(--accent) !important;
+    background: color-mix(in srgb, var(--accent) 6%, var(--bg)) !important;
+}
+/* Chat input dans le dialog */
+[data-testid="stDialog"] [data-testid="stChatInput"] textarea,
+[data-testid="stDialog"] [data-testid="stChatInputContainer"] {
+    background: var(--bg) !important;
+    color: var(--text) !important;
+    border-color: var(--border) !important;
+}
+/* Messages chat */
+[data-testid="stDialog"] [data-testid="stChatMessage"] {
+    background: var(--bg) !important;
+}
+
 /* ============ HIÉRARCHIE TYPOGRAPHIQUE ============ */
 /* Échelle modulaire (ratio 1.25) : 0.8 / 1.0 / 1.25 / 1.563 / 1.953 / 2.441 */
 h1, h2, h3, h4, h5, h6 {
