@@ -20,8 +20,17 @@ def _show_onboarding():
 def render_topbar():
     """Topbar : boutons utilitaires à droite, puis hero logo full-width."""
 
-    # --- Ligne utilitaire (boutons tout en haut à droite) ---
-    col_sp, col_dark, col_guide = st.columns([10, 1, 1])
+    # --- Ligne utilitaire : info projet à gauche, boutons à droite ---
+    col_info, col_dark, col_guide = st.columns([10, 1, 1])
+    with col_info:
+        st.markdown(
+            '<div class="qt-topbar-meta">'
+            '<span class="qt-topbar-tag">L1 MIASHS · Paris Nanterre · 2026</span>'
+            '<span class="qt-topbar-sep">·</span>'
+            '<span class="qt-topbar-tag">Q. Geldreich &nbsp;·&nbsp; L. Doazan &nbsp;·&nbsp; E. Saadi &nbsp;·&nbsp; A. Ruimy</span>'
+            '</div>',
+            unsafe_allow_html=True,
+        )
     with col_dark:
         icon = "☀" if st.session_state.dark_mode else "🌙"
         st.button(icon, help="Mode clair / sombre",

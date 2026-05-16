@@ -2582,6 +2582,25 @@ button[data-testid*="empty_preset"],
     color: var(--accent);
 }
 
+/* Barre méta projet (université, équipe) — à gauche dans la topbar */
+.qt-topbar-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    flex-wrap: wrap;
+}
+.qt-topbar-tag {
+    font-size: 0.75em;
+    color: var(--text-muted);
+    font-weight: 500;
+    letter-spacing: 0.2px;
+}
+.qt-topbar-sep {
+    font-size: 0.75em;
+    color: var(--border-strong);
+}
+
 /* ============================================================
    HERO TOPBAR (grand logo permanent, full-width, hors colonnes)
    ============================================================ */
@@ -3016,8 +3035,11 @@ button[data-testid*="empty_preset"],
 [data-testid="stDeployButton"]        { display: none !important; }
 [data-testid="stStatusWidget"]        { display: none !important; }
 .stDeployButton                       { display: none !important; }
-[data-testid="stHeader"]              { background: transparent !important;
-                                        border-bottom: none !important; }
+/* stHeader masqué entièrement — la sidebar toggle (collapsedControl) est
+   hors du stHeader dans le DOM Streamlit, elle reste accessible. */
+[data-testid="stHeader"]              { display: none !important; }
+[data-testid="stAppToolbar"]          { display: none !important; }
+[data-testid="stToolbar"]             { display: none !important; }
 
 /* 2. Radio buttons → pill segmented control */
 [data-testid="stRadio"] > div > div[role="radiogroup"] {
