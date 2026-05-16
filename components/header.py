@@ -215,7 +215,7 @@ def render_bande_marche():
         actifs_strip = ["S&P 500", "VIX", "Or", "Petrole", "Bitcoin", "EUR_USD"]
         donnees = get_prix_avec_variation(actifs_strip)
 
-        items_html = '<div class="market-strip-tag"><span class="qt-live-dot"></span>LIVE</div>'
+        items_html = '<span class="market-strip-title">Marchés en direct</span><div class="market-strip-tag"><span class="qt-live-dot"></span>LIVE</div>'
         labels_courts = {
             "S&P 500": "S&P 500", "VIX": "VIX",
             "Or": "OR", "Petrole": "WTI",
@@ -251,7 +251,7 @@ def render_bande_marche():
         try:
             actifs_strip = ["S&P 500", "VIX", "Or", "Petrole", "Bitcoin", "EUR_USD"]
             prix, _ = get_prix_actuels(actifs_strip)
-            items_html = '<div class="market-strip-tag"><span class="qt-live-dot"></span>LIVE</div>'
+            items_html = '<span class="market-strip-title">Marchés en direct</span><div class="market-strip-tag"><span class="qt-live-dot"></span>LIVE</div>'
             formats = {"S&P 500": "{:,.0f}", "VIX": "{:.2f}", "Or": "{:,.0f}",
                        "Petrole": "{:.2f}", "Bitcoin": "{:,.0f}", "EUR_USD": "{:.4f}"}
             labels = {"S&P 500": "S&P 500", "VIX": "VIX", "Or": "OR",

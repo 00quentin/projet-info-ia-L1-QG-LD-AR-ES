@@ -305,7 +305,7 @@ div[data-testid="metric-container"]:hover::before {
 
 /* Tabs — style pro : underline minimaliste, pas de pilule colorée saturée */
 .stTabs [data-baseweb="tab-list"] {
-    background-color: var(--bg-page, rgba(248,250,252,0.97)) !important;
+    background-color: var(--bg) !important;
     border-radius: 0;
     padding: 0;
     box-shadow: none;
@@ -680,6 +680,16 @@ div[data-testid="metric-container"]:hover::before {
 .qt-spark {
     flex-shrink: 0;
     vertical-align: middle;
+}
+.market-strip-title {
+    font-size: 0.72em;
+    font-weight: 600;
+    color: var(--text-muted) !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    margin-right: 4px;
+    flex-shrink: 0;
 }
 /* Tag LIVE avec dot qui pulse rouge */
 .market-strip-tag {

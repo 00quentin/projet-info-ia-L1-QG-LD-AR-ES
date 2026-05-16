@@ -152,3 +152,14 @@ def appliquer_styles():
         )
     except FileNotFoundError:
         st.warning("Fichier style.css introuvable - le design ne s'appliquera pas correctement.")
+
+    # Couleur des onglets injectée directement depuis Python (contourne les problèmes
+    # de cascade CSS avec les composants BaseUI de Streamlit qui réécrivent la couleur).
+    dark = st.session_state.get("dark_mode", False)
+    tab_bg = "#0b0e11" if dark else "#fafafa"
+    st.markdown(f"""<style>
+div[data-testid="stAppViewContainer"] .stTabs [data-baseweb="tab-list"] {{
+    background-color: {tab_bg} !important;
+    background: {tab_bg} !important;
+}}
+</style>""", unsafe_allow_html=True)
