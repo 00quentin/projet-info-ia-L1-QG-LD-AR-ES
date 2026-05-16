@@ -3029,17 +3029,20 @@ button[data-testid*="empty_preset"],
    qui trahissent le framework.
    ================================================================ */
 
-/* 1. Chrome Streamlit : barre de déco, toolbar, footer, deploy btn */
-[data-testid="stDecoration"]          { display: none !important; }
-[data-testid="stToolbar"]             { display: none !important; }
-[data-testid="stDeployButton"]        { display: none !important; }
-[data-testid="stStatusWidget"]        { display: none !important; }
-.stDeployButton                       { display: none !important; }
-/* stHeader masqué entièrement — la sidebar toggle (collapsedControl) est
-   hors du stHeader dans le DOM Streamlit, elle reste accessible. */
-[data-testid="stHeader"]              { display: none !important; }
-[data-testid="stAppToolbar"]          { display: none !important; }
-[data-testid="stToolbar"]             { display: none !important; }
+/* 1. Chrome Streamlit : tout ce qui trahit le framework */
+[data-testid="stDecoration"],
+[data-testid="stToolbar"],
+[data-testid="stDeployButton"],
+[data-testid="stStatusWidget"],
+[data-testid="stAppToolbar"],
+[data-testid="stHeader"],
+[data-testid="stMainMenuPopover"],
+[class*="StatusWidget"],
+[class*="ToolbarActions"],
+[class*="AppToolbar"],
+.stDeployButton,
+#MainMenu,
+footer { display: none !important; }
 
 /* 2. Radio buttons → pill segmented control */
 [data-testid="stRadio"] > div > div[role="radiogroup"] {
