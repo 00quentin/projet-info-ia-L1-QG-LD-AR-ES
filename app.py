@@ -24,6 +24,7 @@ from components.styling import appliquer_styles
 from components.header import render_header_complet
 from components.sidebar import render_sidebar
 from components.footer import render_footer, render_toasts
+from components.chat_bubble import render_chat_bubble
 
 from views.dashboard import render_page_dashboard
 from views.portefeuille import render_page_portefeuille
@@ -31,7 +32,6 @@ from views.comparaison import render_page_comparaison
 from views.backtest import render_page_backtest_dashboard, render_page_backtest_detail
 from views.historique import render_page_historique
 from views.academie import render_page_academie
-from views.chat import render_page_chat
 from views.apropos import render_page_apropos
 
 log = get_logger("app")
@@ -45,6 +45,7 @@ def init_session_state():
     """Initialise toutes les variables de session si elles n'existent pas."""
     defaults = {
         "messages_chat": [],
+        "show_chat": False,
         "event_text_A": SCENARIO_A_DEFAUT,
         "event_text_B": SCENARIO_B_DEFAUT,
         "event_text_C": SCENARIO_C_DEFAUT,
@@ -105,25 +106,25 @@ if st.session_state.pop("_auto_launch", False) and config["mode_app"] == "Simula
 
 
 # ==========================================
-# 3. ONGLETS (dépend du mode)
+# 3. ONGLETS (dépend du mode) — sans Analyste IA (→ bulle flottante)
 # ==========================================
 
 if config["mode_app"] == "Simulation prospective":
     nb_sc = st.session_state.nb_scenarios
     if nb_sc > 1:
         nom_compare = f"Comparaison {nb_sc} scénarios"
-        tab_dashboard, tab_portefeuille, tab_compare, tab_hist, tab_academie, tab_chat, tab_apropos = st.tabs([
-            "Dashboard", "Portefeuille", nom_compare, "Historique", "Académie", "Analyste IA", "À propos"
+        tab_dashboard, tab_portefeuille, tab_compare, tab_hist, tab_academie, tab_apropos = st.tabs([
+            "Dashboard", "Portefeuille", nom_compare, "Historique", "Académie", "À propos"
         ])
     else:
-        tab_dashboard, tab_portefeuille, tab_hist, tab_academie, tab_chat, tab_apropos = st.tabs([
-            "Dashboard", "Portefeuille", "Historique", "Académie", "Analyste IA", "À propos"
+        tab_dashboard, tab_portefeuille, tab_hist, tab_academie, tab_apropos = st.tabs([
+            "Dashboard", "Portefeuille", "Historique", "Académie", "À propos"
         ])
         tab_compare = None
     tab_backtest = None
 else:
-    tab_dashboard, tab_backtest, tab_hist, tab_academie, tab_chat, tab_apropos = st.tabs([
-        "Dashboard", "Backtest", "Historique", "Académie", "Analyste IA", "À propos"
+    tab_dashboard, tab_backtest, tab_hist, tab_academie, tab_apropos = st.tabs([
+        "Dashboard", "Backtest", "Historique", "Académie", "À propos"
     ])
     tab_portefeuille = None
     tab_compare = None
@@ -180,17 +181,15 @@ with tab_hist:
 with tab_academie:
     render_page_academie()
 
-with tab_chat:
-    render_page_chat()
-
 with tab_apropos:
     render_page_apropos()
 
 
 # ==========================================
-# 6. FOOTER + TOASTS
+# 6. BULLE CHAT + FOOTER + TOASTS
 # ==========================================
 
+render_chat_bubble()
 render_footer()
 render_toasts()
 
