@@ -3139,6 +3139,15 @@ button[data-testid*="empty_preset"],
 #MainMenu,
 footer { display: none !important; }
 
+/* 1b-bis. Bouton Streamlit caché pour déclencher le rerun du chat bubble */
+button[title="__qt_hidden__"],
+[data-testid="stButton"]:has(button[title="__qt_hidden__"]) {
+    position: absolute !important;
+    width: 1px !important; height: 1px !important;
+    opacity: 0 !important; overflow: hidden !important;
+    pointer-events: none !important;
+}
+
 /* 1b. Streamlit 1.56+ a renommé stHorizontalBlock → stHorizontal,
    stVerticalBlock → stVertical. Forcer fond transparent pour éviter
    les rectangles blancs sur fond sombre. */

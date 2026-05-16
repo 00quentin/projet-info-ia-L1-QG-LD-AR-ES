@@ -1,12 +1,13 @@
 """
 components/chat_bubble.py
 =========================
-Bulle de chat flottante fixée en bas à droite, toujours visible.
+Bulle 💬 flottante fixée en bas à droite + dialog chat plein écran.
 
-Streamlit bloque position:fixed via overflow:hidden sur ses conteneurs.
-Solution : on injecte le bouton directement dans window.parent.document
-via components.html(), et on le fait cliquer un bouton Streamlit caché
-qui déclenche le rerun + toggle de session_state.
+Architecture :
+- Un bouton Streamlit vide, caché par CSS via title="__qt_hidden__"
+- Un components.html() qui injecte la bulle dans window.parent.document
+  et clique ce bouton caché au clic → rerun → dialog s'ouvre
+- st.dialog() pour le panel chat (natif Streamlit, modal propre)
 """
 
 import streamlit as st
@@ -14,123 +15,174 @@ import streamlit.components.v1 as components_v1
 from ia_bot import discuter_avec_ia
 
 
-def render_chat_bubble():
-    """Bulle 💬 fixée viewport + panel chat Streamlit sous les onglets."""
+EXEMPLES = [
+    "Pourquoi l'Or monte-t-il en période de crise ?",
+    "Qu'est-ce que le VIX et à quoi sert-il ?",
+    "Comment interpréter le ratio de Sharpe ?",
+    "Quel est l'impact d'une hausse des taux sur les obligations ?",
+    "Pourquoi le pétrole et le dollar sont-ils liés ?",
+    "Qu'est-ce que la corrélation actions / obligations ?",
+]
 
+
+@st.dialog("🤖  Analyste IA", width="large")
+def _dialog_chat():
+    """Interface chat en modal plein écran."""
+    col_pres, col_sep, col_chat = st.columns([1, 0.04, 1.4])
+
+    # ── Colonne gauche : présentation + exemples ──────────────────────────
+    with col_pres:
+        st.markdown("""
+        <div style="text-align:center; padding: 12px 0 20px 0;">
+            <div style="font-size:3.2em; margin-bottom:8px;">🤖</div>
+            <div style="font-size:1.1em; font-weight:700; color:var(--text);">
+                Analyste Financier IA
+            </div>
+            <div style="font-size:0.82em; color:var(--text-muted); margin-top:6px; line-height:1.5;">
+                Posez vos questions sur les marchés,<br>
+                la macro-économie, ou votre simulation.
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown(
+            '<div style="font-size:0.78em; font-weight:600; text-transform:uppercase; '
+            'letter-spacing:.7px; color:var(--text-muted); margin-bottom:8px;">'
+            'Questions fréquentes</div>',
+            unsafe_allow_html=True,
+        )
+        for q in EXEMPLES:
+            if st.button(q, use_container_width=True, key=f"ex_{hash(q)}"):
+                st.session_state.messages_chat.append({"role": "user", "content": q})
+                with st.spinner("L'analyste rédige…"):
+                    rep = discuter_avec_ia(st.session_state.messages_chat)
+                st.session_state.messages_chat.append({"role": "assistant", "content": rep})
+                st.rerun()
+
+        st.markdown('<hr style="border-color:var(--border);margin:14px 0;">', unsafe_allow_html=True)
+        if st.button("✕  Fermer le chat", use_container_width=True):
+            st.session_state.show_chat = False
+            st.rerun()
+
+    # Séparateur vertical
+    with col_sep:
+        st.markdown(
+            '<div style="height:480px; border-left:1px solid var(--border); margin:0 auto;"></div>',
+            unsafe_allow_html=True,
+        )
+
+    # ── Colonne droite : historique + input ──────────────────────────────
+    with col_chat:
+        if not st.session_state.messages_chat:
+            st.markdown("""
+            <div style="text-align:center; padding:60px 20px; color:var(--text-muted);">
+                <div style="font-size:2em; margin-bottom:10px;">💬</div>
+                <div style="font-size:0.9em;">
+                    Aucune question posée pour l'instant.<br>
+                    Utilisez les exemples à gauche ou tapez ci-dessous.
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            for msg in st.session_state.messages_chat[-12:]:
+                with st.chat_message(msg["role"]):
+                    st.markdown(msg["content"])
+
+        question = st.chat_input(
+            "Tapez votre question ici…",
+            key="qt_chat_dialog_input",
+        )
+        if question:
+            st.session_state.messages_chat.append({"role": "user", "content": question})
+            with st.chat_message("user"):
+                st.markdown(question)
+            with st.chat_message("assistant"):
+                with st.spinner("Analyse en cours…"):
+                    rep = discuter_avec_ia(st.session_state.messages_chat)
+                    st.markdown(rep)
+            st.session_state.messages_chat.append({"role": "assistant", "content": rep})
+            st.rerun()
+
+
+def render_chat_bubble():
+    """Bulle fixée + dialog. À appeler une seule fois dans app.py."""
     show = st.session_state.get("show_chat", False)
 
-    # ── Bouton Streamlit caché — son clic déclenche le rerun ──────────────
-    # On l'entoure d'un div avec un id connu pour que le JS puisse le trouver.
-    st.markdown('<div id="qt-chat-hidden-toggle" style="display:none">', unsafe_allow_html=True)
-    if st.button("__toggle_chat__", key="qt_chat_toggle"):
+    # ── Bouton Streamlit caché (title="__qt_hidden__" → ciblé par CSS) ───
+    # C'est ce bouton que le JS clique pour déclencher le rerun Streamlit.
+    if st.button("", key="qt_chat_toggle", help="__qt_hidden__"):
         st.session_state.show_chat = not show
         st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
 
     # ── Injection JS : bulle fixée dans window.parent.document ────────────
     icon = "✕" if show else "💬"
-    first_visit = not show and not st.session_state.messages_chat
-    tooltip_js = (
-        """
-        var tip = pdoc.createElement('div');
-        tip.id = 'qt-bubble-tip';
-        tip.innerHTML = '<strong>Analyste IA</strong><br>Posez vos questions sur votre simulation ou les marchés.';
-        tip.style.cssText = [
-            'position:fixed','bottom:96px','right:28px','z-index:2147483646',
-            'background:#1e222d','border:1px solid #2a2e39','border-radius:12px',
-            'padding:10px 14px','font-size:13px','color:#d1d4dc',
-            'max-width:220px','text-align:center','line-height:1.5',
-            'box-shadow:0 4px 16px rgba(0,0,0,0.3)','pointer-events:none'
-        ].join(';');
-        pdoc.body.appendChild(tip);
-        setTimeout(function(){ if(tip.parentNode) tip.parentNode.removeChild(tip); }, 6000);
-        """
-        if first_visit else ""
-    )
-
     components_v1.html(f"""
 <script>
 (function() {{
     var pdoc = window.parent.document;
 
-    // Supprimer l'ancienne bulle si elle existe déjà
-    ['qt-fixed-bubble','qt-bubble-tip'].forEach(function(id){{
-        var el = pdoc.getElementById(id);
-        if (el) el.remove();
-    }});
+    // Supprimer l'ancienne bulle
+    var old = pdoc.getElementById('qt-fixed-bubble');
+    if (old) old.remove();
 
-    // Créer le bouton fixé dans le DOM parent
+    // Trouver et masquer le bouton Streamlit caché (title="__qt_hidden__")
+    function hideToggleBtn() {{
+        var btns = pdoc.querySelectorAll('button[title="__qt_hidden__"]');
+        btns.forEach(function(b) {{
+            var wrap = b.closest('[data-testid="stButton"]') || b.parentElement;
+            if (wrap) wrap.style.cssText =
+                'position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none;';
+        }});
+    }}
+    hideToggleBtn();
+    setTimeout(hideToggleBtn, 300);
+    setTimeout(hideToggleBtn, 800);
+
+    // Créer la bulle fixée
     var btn = pdoc.createElement('button');
     btn.id = 'qt-fixed-bubble';
-    btn.textContent = '{icon}';
     btn.title = 'Analyste IA — poser une question';
+    btn.innerHTML = '{icon}';
     btn.style.cssText = [
         'position:fixed','bottom:28px','right:28px','z-index:2147483647',
-        'width:58px','height:58px','border-radius:50%',
+        'width:60px','height:60px','border-radius:50%',
         'background:#6366f1','color:white','font-size:26px',
         'border:none','cursor:pointer','outline:none',
-        'box-shadow:0 4px 20px rgba(99,102,241,0.5)',
-        'transition:transform 0.18s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.18s ease',
-        'display:flex','align-items:center','justify-content:center'
+        'box-shadow:0 4px 24px rgba(99,102,241,0.55)',
+        'transition:transform .2s cubic-bezier(.34,1.56,.64,1),box-shadow .2s ease',
+        'display:flex','align-items:center','justify-content:center',
+        'font-family:sans-serif'
     ].join(';');
 
-    btn.onmouseenter = function(){{
-        btn.style.transform = 'scale(1.1)';
-        btn.style.boxShadow = '0 6px 28px rgba(99,102,241,0.7)';
+    btn.onmouseenter = function() {{
+        this.style.transform = 'scale(1.12)';
+        this.style.boxShadow = '0 6px 32px rgba(99,102,241,0.75)';
     }};
-    btn.onmouseleave = function(){{
-        btn.style.transform = 'scale(1)';
-        btn.style.boxShadow = '0 4px 20px rgba(99,102,241,0.5)';
+    btn.onmouseleave = function() {{
+        this.style.transform = 'scale(1)';
+        this.style.boxShadow = '0 4px 24px rgba(99,102,241,0.55)';
     }};
 
     btn.onclick = function() {{
-        // Cliquer le bouton Streamlit caché pour déclencher le rerun
-        var container = pdoc.getElementById('qt-chat-hidden-toggle');
-        if (container) {{
-            var hiddenBtn = container.querySelector('button');
-            if (hiddenBtn) {{ hiddenBtn.click(); return; }}
-        }}
-        // Fallback : chercher par contenu
-        var allBtns = pdoc.querySelectorAll('button');
-        for (var i = 0; i < allBtns.length; i++) {{
-            if (allBtns[i].textContent.trim() === '__toggle_chat__') {{
-                allBtns[i].click(); return;
-            }}
+        var found = false;
+        var targets = pdoc.querySelectorAll('button[title="__qt_hidden__"]');
+        targets.forEach(function(b) {{ b.click(); found = true; }});
+        if (!found) {{
+            // Fallback : chercher le bouton vide caché
+            var all = pdoc.querySelectorAll('button');
+            all.forEach(function(b) {{
+                if (!found && b.textContent.trim() === '' && b.title === '__qt_hidden__') {{
+                    b.click(); found = true;
+                }}
+            }});
         }}
     }};
 
     pdoc.body.appendChild(btn);
-    {tooltip_js}
 }})();
 </script>
 """, height=0)
 
-    # ── Panel chat Streamlit (dans le flux normal, en bas de page) ─────────
+    # ── Ouvrir le dialog si show_chat=True ────────────────────────────────
     if show:
-        st.markdown("---")
-        st.markdown(
-            '<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">'
-            '<span style="font-size:1.6em;">🤖</span>'
-            '<div><div style="font-weight:700;font-size:1em;color:var(--text)">Analyste IA</div>'
-            '<div style="font-size:0.8em;color:var(--text-muted)">Analyste financier senior · répond en temps réel</div>'
-            '</div></div>',
-            unsafe_allow_html=True,
-        )
-        st.caption("Posez vos questions sur votre simulation, les marchés ou la macro-économie.")
-
-        for message in st.session_state.messages_chat:
-            with st.chat_message(message["role"]):
-                st.markdown(message["content"])
-
-        question = st.chat_input(
-            "Ex : Pourquoi l'Or monte-t-il en période de crise ?",
-            key="qt_chat_input_bubble",
-        )
-        if question:
-            st.chat_message("user").markdown(question)
-            st.session_state.messages_chat.append({"role": "user", "content": question})
-            with st.chat_message("assistant"):
-                with st.spinner("L'analyste rédige…"):
-                    reponse = discuter_avec_ia(st.session_state.messages_chat)
-                    st.markdown(reponse)
-            st.session_state.messages_chat.append({"role": "assistant", "content": reponse})
+        _dialog_chat()
