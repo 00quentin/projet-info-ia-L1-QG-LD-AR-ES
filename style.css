@@ -1314,7 +1314,9 @@ div[data-testid="metric-container"]:hover::before {
 /* === BOUTONS HEADER (Mode sombre/clair, Guide) === */
 /* Force les boutons à avoir une taille identique et un look cohérent */
 [data-testid="stHorizontalBlock"] [data-testid="stColumn"]:nth-child(2) .stButton > button,
-[data-testid="stHorizontalBlock"] [data-testid="stColumn"]:nth-child(3) .stButton > button {
+[data-testid="stHorizontalBlock"] [data-testid="stColumn"]:nth-child(3) .stButton > button,
+[data-testid="stHorizontal"] [data-testid="stColumn"]:nth-child(2) .stButton > button,
+[data-testid="stHorizontal"] [data-testid="stColumn"]:nth-child(3) .stButton > button {
     min-height: 38px;
     height: 38px;
     padding: 0 14px;
@@ -3043,6 +3045,30 @@ button[data-testid*="empty_preset"],
 .stDeployButton,
 #MainMenu,
 footer { display: none !important; }
+
+/* 1b. Streamlit 1.56+ a renommé stHorizontalBlock → stHorizontal,
+   stVerticalBlock → stVertical. Forcer fond transparent pour éviter
+   les rectangles blancs sur fond sombre. */
+[data-testid="stHorizontal"],
+[data-testid="stHorizontalBlock"],
+[data-testid="stVertical"],
+[data-testid="stVerticalBlock"],
+[data-testid="stColumn"] {
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+/* 1c. Sidebar toggle (collapsedControl) — style sombre sur desktop aussi */
+[data-testid="collapsedControl"] {
+    background: var(--card) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 8px !important;
+    box-shadow: var(--shadow-sm) !important;
+}
+[data-testid="collapsedControl"] svg {
+    fill: var(--text-muted) !important;
+    color: var(--text-muted) !important;
+}
 
 /* 2. Radio buttons → pill segmented control */
 [data-testid="stRadio"] > div > div[role="radiogroup"] {
