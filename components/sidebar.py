@@ -144,12 +144,12 @@ def _render_actif_perso_form() -> None:
     st.caption("Ajoutez n'importe quel actif coté via son ticker Yahoo Finance "
                "(ex: TSLA, MSFT, BTC-USD).")
 
-    col_input, col_btn = st.columns([3, 1])
+    col_input, col_btn = st.columns([2, 1])
     with col_input:
         ticker = st.text_input("Ticker", key="custom_ticker_input",
                                 label_visibility="collapsed", placeholder="TSLA")
     with col_btn:
-        ajouter = st.button("Ajouter", key="btn_add_custom", use_container_width=True,
+        ajouter = st.button("+ Ajouter", key="btn_add_custom", use_container_width=True,
                             on_click=_mark_actifs_expander_open)
 
     if ajouter and ticker:
@@ -233,9 +233,6 @@ def _render_selection_actifs() -> List[str]:
 
 def _render_portefeuille(actifs_selectionnes: List[str]) -> Tuple[float, str, Dict[str, int]]:
     """Section Portefeuille : capital, profil, allocation custom."""
-    st.markdown('<div class="qt-sidebar-section">💼 Portefeuille</div>',
-                unsafe_allow_html=True)
-
     capital_initial = st.number_input(
         "Capital de départ (€)",
         min_value=CAPITAL_MIN, max_value=CAPITAL_MAX,
