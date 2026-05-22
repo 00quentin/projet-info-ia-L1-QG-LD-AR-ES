@@ -3355,14 +3355,17 @@ footer { display: none !important; }
     background: var(--card) !important;
     color: var(--text) !important;
     border-radius: 8px !important;
-    padding: 8px 12px !important;
-    font-size: 0.88em !important;
+    padding: 0 12px !important;
+    font-size: 0.82em !important;
     font-weight: 500 !important;
-    justify-content: flex-start !important;
-    text-align: left !important;
-    min-height: 36px !important;
+    justify-content: center !important;
+    text-align: center !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
     box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
     white-space: nowrap !important;
+    overflow: hidden !important;
 }
 [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:has(input[type="radio"]:checked) {
     background: var(--accent) !important;
