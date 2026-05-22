@@ -1,10 +1,10 @@
-# Quant Terminal
+# Quant Terminal — V2.0
 
 > Simulateur d'investissement pédagogique — testez l'impact d'un événement économique ou géopolitique sur un portefeuille, à partir des **vrais prix de marché** récupérés en direct via Yahoo Finance.
 
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://projet-info-ia-l1-qg-ld-ar-es-24txsmohu4twfu9mwemqkt.streamlit.app/)
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://quant-terminal-l1.streamlit.app/)
 
-### 👉 [Cliquer ici pour ouvrir l'application](https://projet-info-ia-l1-qg-ld-ar-es-24txsmohu4twfu9mwemqkt.streamlit.app/)
+### 👉 [Cliquer ici pour ouvrir l'application](https://quant-terminal-l1.streamlit.app/)
 
 ---
 
@@ -14,11 +14,12 @@ Vous décrivez un scénario — *"krach boursier façon 2008"*, *"guerre majeure
 
 Concrètement :
 
-- **Prix réels** : récupération en direct via Yahoo Finance (S&P 500, NASDAQ, or, pétrole, Bitcoin, obligations, etc.).
-- **Analyse IA** : un modèle GPT-4 interprète votre scénario en s'inspirant des grandes crises historiques (1973, 2000, 2008, COVID 2020, hausse FED 2022…).
+- **Prix réels** : récupération en direct via Yahoo Finance (S&P 500, NASDAQ, or, pétrole, Bitcoin, obligations, etc.) avec bande de cotations live en temps réel.
+- **Analyse IA** : un modèle GPT-4o interprète votre scénario en s'inspirant des grandes crises historiques (1973, 2000, 2008, COVID 2020, hausse FED 2022…).
 - **Moteur de simulation** : application des chocs estimés sur 100 jours de cotation, avec mode Monte-Carlo (50 trajectoires possibles).
 - **Métriques institutionnelles** : Volatilité annualisée, Sharpe Ratio, Max Drawdown, VaR 95% — les indicateurs utilisés par les gérants de fonds.
 - **Backtest historique** : rejouez les vraies données passées (2008, COVID, Brexit…) pour voir comment votre portefeuille s'en serait sorti.
+- **Analyste IA intégré** : bulle de chat flottante (💬) accessible à tout moment pour poser vos questions financières sans quitter l'interface.
 
 ---
 
@@ -32,10 +33,22 @@ Concrètement :
 | **Backtest** | Rejouez une vraie crise historique sur votre portefeuille |
 | **Historique** | Retrouvez vos anciennes simulations |
 | **Académie** | Explications pédagogiques (volatilité, Sharpe, drawdown…) |
-| **Analyste IA** | Chat libre avec un modèle financier expert |
+| **À propos** | Présentation du projet et de l'équipe |
 
-Profils d'investisseur disponibles : *Prudent*, *Équilibré*, *Agressif*, *Personnalisé*.
+**Analyste IA** : accessible via la bulle 💬 en bas à droite — chat libre avec un expert financier IA, questions exemples incluses, sans quitter la page.
+
+Profils d'investisseur disponibles : *Prudent*, *Équilibré*, *Agressif*, *Personnalisé*.  
 Vous pouvez aussi ajouter **n'importe quel ticker Yahoo** (TSLA, NVDA, BTC-USD…) à votre portefeuille.
+
+---
+
+## Nouveautés V2.0
+
+- Interface entièrement redesignée (palette Linear/Vercel, mode sombre 🌙)
+- Bande de marchés en direct avec sparklines et variations en temps réel
+- Analyste IA en bulle flottante (plus ergonomique qu'un onglet dédié)
+- Onglets pleine largeur, navigation améliorée
+- Comparaison multi-scénarios jusqu'à 3 portefeuilles simultanés
 
 ---
 
@@ -64,12 +77,12 @@ L'application s'ouvre automatiquement dans votre navigateur sur `http://localhos
 
 ## Stack technique
 
-- **Frontend** : [Streamlit](https://streamlit.io/) + CSS custom
+- **Frontend** : [Streamlit](https://streamlit.io/) + CSS custom (design system Linear/Vercel)
 - **Graphiques** : [Plotly](https://plotly.com/python/)
-- **Données de marché** : [yfinance](https://github.com/ranaroussi/yfinance)
-- **IA** : OpenAI GPT-4o-mini (analyse macro) + GPT-3.5-turbo (chat & rapports)
-- **Validation** : Pydantic v2
+- **Données de marché** : [yfinance](https://github.com/ranaroussi/yfinance) (cache 1h + fallback snapshot)
+- **IA** : OpenAI GPT-4o-mini (analyse macro + chat) — validation Pydantic v2
 - **Export** : ReportLab (rapports PDF)
+- **Déploiement** : Streamlit Community Cloud + GitHub Actions (keep-alive automatique)
 
 ---
 
