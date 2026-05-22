@@ -153,13 +153,61 @@ def appliquer_styles():
     except FileNotFoundError:
         st.warning("Fichier style.css introuvable - le design ne s'appliquera pas correctement.")
 
-    # Couleur des onglets injectée directement depuis Python (contourne les problèmes
+    # Couleurs injectées directement depuis Python (contourne les problèmes
     # de cascade CSS avec les composants BaseUI de Streamlit qui réécrivent la couleur).
     dark = st.session_state.get("dark_mode", False)
-    tab_bg = "#0b0e11" if dark else "#fafafa"
+    tab_bg   = "#0b0e11" if dark else "#fafafa"
+    card_bg  = "#1e222d" if dark else "#ffffff"
+    border_c = "#2a2e39" if dark else "#e4e4e7"
+    text_c   = "#d1d4dc" if dark else "#27272a"
     st.markdown(f"""<style>
+/* Onglets */
 div[data-testid="stAppViewContainer"] .stTabs [data-baseweb="tab-list"] {{
     background-color: {tab_bg} !important;
     background: {tab_bg} !important;
 }}
+/* Bouton sidebar collapsed (top-left) */
+[data-testid="collapsedControl"] {{
+    background: {card_bg} !important;
+    background-color: {card_bg} !important;
+    border: 1px solid {border_c} !important;
+    border-radius: 8px !important;
+}}
+[data-testid="collapsedControl"] svg,
+[data-testid="collapsedControl"] button svg {{
+    fill: {text_c} !important;
+    color: {text_c} !important;
+}}
+/* Header Streamlit — masqué ET camouflé (double stratégie) */
+header[data-testid="stHeader"],
+div[data-testid="stHeader"],
+[data-testid="stHeader"],
+[data-testid="stHeader"] > *,
+[data-testid="stToolbar"],
+[data-testid="stAppToolbar"],
+[data-testid="stDeployButton"],
+[data-testid="stStatusWidget"],
+[data-testid="stDecoration"],
+header {{
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    overflow: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    background: {tab_bg} !important;
+    background-color: {tab_bg} !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}}
+/* App container */
+[data-testid="stAppViewContainer"] > [data-testid="stVerticalBlock"]:first-child,
+[data-testid="stMain"] {{
+    background: transparent !important;
+}}
 </style>""", unsafe_allow_html=True)
+

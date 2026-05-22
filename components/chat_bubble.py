@@ -63,6 +63,38 @@ def _dialog_chat():
             '<div style="height:500px;border-left:1px solid var(--border);margin:0 auto;"></div>',
             unsafe_allow_html=True)
 
+    # Intercepte le clic sur le ✕ natif du dialog pour resynchroniser show_chat
+    components_v1.html("""
+<script>
+(function() {
+    function interceptCloseBtn() {
+        var pdoc = window.parent.document;
+        var dialog = pdoc.querySelector('[data-testid="stDialog"]');
+        if (!dialog) { setTimeout(interceptCloseBtn, 150); return; }
+        var closeBtn = dialog.querySelector('button[aria-label="Close"]')
+                    || dialog.querySelector('button[data-testid="baseButton-header"]')
+                    || dialog.querySelector('button[kind="header"]');
+        if (!closeBtn) { setTimeout(interceptCloseBtn, 150); return; }
+        if (closeBtn._qt_intercepted) return;
+        closeBtn._qt_intercepted = true;
+        closeBtn.addEventListener('click', function() {
+            var btns = pdoc.querySelectorAll('button');
+            for (var i = 0; i < btns.length; i++) {
+                if (btns[i].textContent.trim() === 'QT_CHAT_TRIGGER') {
+                    var wrap = btns[i].closest('[data-testid="stButton"]') || btns[i].parentElement;
+                    if (wrap) wrap.style.pointerEvents = 'auto';
+                    btns[i].click();
+                    if (wrap) setTimeout(function(){ wrap.style.pointerEvents = 'none'; }, 100);
+                    break;
+                }
+            }
+        }, true);
+    }
+    setTimeout(interceptCloseBtn, 300);
+})();
+</script>
+""", height=0)
+
     with col_chat:
         if not st.session_state.messages_chat:
             st.markdown("""
@@ -127,7 +159,47 @@ def render_chat_bubble():
         }}
     }}
 
+    function killStreamlitHeader() {{
+        // 1. Par testid connus
+        var ids = ['stHeader','stToolbar','stAppToolbar','stDeployButton','stDecoration','stStatusWidget'];
+        ids.forEach(function(id) {{
+            var el = pdoc.querySelector('[data-testid="' + id + '"]');
+            if (el) el.style.cssText += ';display:none!important;height:0!important;overflow:hidden!important;';
+        }});
+        // 2. Balise <header> HTML native
+        Array.prototype.forEach.call(pdoc.querySelectorAll('header'), function(h) {{
+            h.style.cssText += ';display:none!important;height:0!important;overflow:hidden!important;';
+        }});
+        // 3. Scan universel : tout élément en haut avec fond blanc → camouflage + masquage
+        try {{
+            var win = window.parent;
+            var found = [];
+            Array.prototype.forEach.call(pdoc.querySelectorAll('*'), function(el) {{
+                var r = el.getBoundingClientRect();
+                if (r.top >= 0 && r.top < 200 && r.height > 0 && r.height < 150 && r.width > 50) {{
+                    var s = win.getComputedStyle(el);
+                    var bg = s.backgroundColor;
+                    var isWhite = (bg === 'rgb(255, 255, 255)' || bg === 'rgba(255, 255, 255, 1)');
+                    if (isWhite) {{
+                        found.push(el.tagName + '#' + el.id + '.' + el.className.split(' ')[0] +
+                                   '[dt=' + (el.getAttribute('data-testid')||'?') + ']' +
+                                   ' ' + Math.round(r.width) + 'x' + Math.round(r.height) +
+                                   '@' + Math.round(r.top) + ',' + Math.round(r.left));
+                        el.style.setProperty('background-color', 'transparent', 'important');
+                        el.style.setProperty('background', 'transparent', 'important');
+                        el.style.setProperty('border', 'none', 'important');
+                        el.style.setProperty('box-shadow', 'none', 'important');
+                        el.style.setProperty('display', 'none', 'important');
+                    }}
+                }}
+            }});
+            if (found.length) pdoc.title = 'QT-DBG: ' + found.join(' | ');
+        }} catch(e) {{}}
+    }}
+
     function setup() {{
+        killStreamlitHeader();
+
         // Supprimer ancienne bulle
         var old = pdoc.getElementById('qt-fixed-bubble');
         if (old) old.remove();
@@ -177,6 +249,7 @@ def render_chat_bubble():
     // Lancer après que Streamlit a rendu le bouton
     setTimeout(setup, 200);
     setTimeout(setup, 600);
+    setTimeout(killStreamlitHeader, 1500);
 }})();
 </script>
 """, height=0)

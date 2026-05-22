@@ -1,0 +1,21 @@
+name: Keep app awake
+
+on:
+  schedule:
+    # Toutes les 6 heures (Streamlit dort après 12h)
+    - cron: '0 */6 * * *'
+  workflow_dispatch: # permet de lancer manuellement aussi
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Quant Terminal
+        run: |
+          curl -L \
+            -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0 Safari/537.36" \
+            -H "Accept: text/html,application/xhtml+xml" \
+            --max-time 60 \
+            --retry 3 \
+            https://quant-terminal-l1.streamlit.app/ \
+            -o /dev/null -s -w "Status: %{http_code}\n"

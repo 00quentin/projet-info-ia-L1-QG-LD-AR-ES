@@ -10,7 +10,7 @@ font = "sans serif"
 
 [client]
 showErrorDetails = false
-toolbarMode = "viewer"
+toolbarMode = "hidden"
 
 [browser]
 gatherUsageStats = false
