@@ -187,8 +187,7 @@ div[data-testid="stHeader"],
 [data-testid="stAppToolbar"],
 [data-testid="stDeployButton"],
 [data-testid="stStatusWidget"],
-[data-testid="stDecoration"],
-header {{
+[data-testid="stDecoration"] {{
     display: none !important;
     visibility: hidden !important;
     height: 0 !important;
