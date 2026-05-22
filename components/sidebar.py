@@ -4,6 +4,9 @@ components/sidebar.py
 Sidebar de configuration : mode, scénarios, actifs, profil portefeuille.
 """
 
+import base64
+import os
+
 import streamlit as st
 from datetime import datetime
 from typing import Dict, List, Tuple, Any
@@ -282,8 +285,21 @@ def render_sidebar() -> Dict[str, Any]:
     """
     with st.sidebar:
         # ── En-tête ──────────────────────────────────────────
-        st.markdown("""
+        # Logo inline dans le header
+        _logo_b64 = ""
+        try:
+            with open("logo.png", "rb") as _f:
+                _logo_b64 = base64.b64encode(_f.read()).decode()
+        except Exception:
+            pass
+        _logo_html = (
+            f'<img src="data:image/png;base64,{_logo_b64}" '
+            f'style="width:36px;height:36px;border-radius:8px;flex-shrink:0;">'
+            if _logo_b64 else '<span style="font-size:1.6em;">📈</span>'
+        )
+        st.markdown(f"""
         <div class="qt-sb-header">
+            {_logo_html}
             <div>
                 <div class="qt-sb-title">Quant Terminal</div>
                 <div class="qt-sb-subtitle">Configurez votre simulation</div>

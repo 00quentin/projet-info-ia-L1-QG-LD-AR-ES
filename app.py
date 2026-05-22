@@ -72,13 +72,6 @@ def init_session_state():
 
 init_session_state()
 
-# Logo en haut de la sidebar
-try:
-    st.logo("logo.png", size="medium")
-except Exception:
-    pass
-
-
 def _appliquer_params_url():
     """Lit les query params URL et pré-remplit les champs (une seule fois par session)."""
     if st.session_state.get("_url_params_appliques"):
