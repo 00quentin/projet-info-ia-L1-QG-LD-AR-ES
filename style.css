@@ -2481,7 +2481,7 @@ button[data-testid*="empty_preset"],
     transition: border-color var(--duration-base) var(--ease-out);
 }
 [data-testid="stSidebar"] details[open] {
-    border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
+    border-color: var(--border);
 }
 [data-testid="stSidebar"] details summary {
     font-weight: 600 !important;
@@ -3340,6 +3340,12 @@ footer { display: none !important; }
 /* Masque le cercle radio natif */
 [data-testid="stRadio"] [data-baseweb="radio"] > div:first-child { display: none !important; }
 [data-testid="stRadio"] input[type="radio"] { display: none !important; }
+
+/* Cache le label du widget radio dans la sidebar (label_visibility=collapsed pas toujours fiable) */
+[data-testid="stSidebar"] [data-testid="stRadio"] > div > label,
+[data-testid="stSidebar"] [data-testid="stRadio"] > div > div:not([role="radiogroup"]) > label {
+    display: none !important;
+}
 
 /* Dans la sidebar : radio vertical — une carte par option */
 [data-testid="stSidebar"] [data-testid="stRadio"] > div > div[role="radiogroup"] {
