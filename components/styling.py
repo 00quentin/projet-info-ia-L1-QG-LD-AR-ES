@@ -203,10 +203,26 @@ div[data-testid="stAppViewContainer"] .stTabs [data-baseweb="tab-list"] {{
 [data-testid="stMain"] {{
     background: transparent !important;
 }}
-/* Sidebar : largeur fixe quand ouverte */
-[data-testid="stSidebar"][aria-expanded="true"] {{
+/* === FORCE SIDEBAR TOUJOURS OUVERTE === */
+[data-testid="stSidebar"] {{
+    transform: none !important;
+    visibility: visible !important;
+    margin-left: 0 !important;
     min-width: 244px !important;
     width: 244px !important;
+}}
+[data-testid="stSidebar"][aria-expanded="false"] {{
+    transform: translateX(0) !important;
+    visibility: visible !important;
+    margin-left: 0 !important;
+}}
+/* Cache le bouton de fermeture interne à la sidebar */
+[data-testid="stSidebarCollapseButton"],
+[data-testid="stSidebarCollapsedControl"],
+button[kind="headerNoPadding"],
+[data-testid="stSidebarHeader"] button[kind="header"],
+[data-testid="stSidebar"] [data-testid="baseButton-headerNoPadding"] {{
+    display: none !important;
 }}
 </style>""", unsafe_allow_html=True)
 
