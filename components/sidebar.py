@@ -302,7 +302,7 @@ def render_sidebar() -> Dict[str, Any]:
             <span class="qt-sb-step-num">1</span>
             <span class="qt-sb-step-label">Mode</span>
         </div>""", unsafe_allow_html=True)
-        mode_app = st.radio(
+        mode_app = st.selectbox(
             "Mode",
             ["Simulation prospective", "Backtest historique"],
             label_visibility="collapsed",
