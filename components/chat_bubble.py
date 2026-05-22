@@ -126,7 +126,9 @@ def render_chat_bubble():
     show = st.session_state.get("show_chat", False)
     icon = "✕" if show else "💬"
     dark = st.session_state.get("dark_mode", False)
-    bg_top = "#0b0e11" if dark else "#fafafa"
+    bg_top   = "#0b0e11" if dark else "#fafafa"
+    border_c = "#2a2e39" if dark else "#e4e4e7"
+    text_c   = "#d1d4dc" if dark else "#27272a"
 
     # ── Bouton Streamlit caché, trouvé par le JS via son texte unique ─────
     if st.button(_TRIGGER, key="qt_chat_toggle"):
@@ -162,15 +164,26 @@ def render_chat_bubble():
     }}
 
     function killStreamlitHeader() {{
-        // 1. Par testid connus
+        // Uniquement par testid précis — pas de sélecteur générique 'header'
         var ids = ['stHeader','stToolbar','stAppToolbar','stDeployButton','stDecoration','stStatusWidget'];
         ids.forEach(function(id) {{
             var el = pdoc.querySelector('[data-testid="' + id + '"]');
             if (el) el.style.cssText += ';display:none!important;height:0!important;overflow:hidden!important;';
         }});
-        // 2. Balise <header> HTML native
-        Array.prototype.forEach.call(pdoc.querySelectorAll('header'), function(h) {{
-            h.style.cssText += ';display:none!important;height:0!important;overflow:hidden!important;';
+    }}
+
+    function styleCollapsedControl() {{
+        // Force les couleurs du bouton sidebar toggle (probablement le "rectangle blanc")
+        var el = pdoc.querySelector('[data-testid="collapsedControl"]');
+        if (!el) return;
+        el.style.setProperty('background', '{bg_top}', 'important');
+        el.style.setProperty('background-color', '{bg_top}', 'important');
+        el.style.setProperty('border', '1px solid {border_c}', 'important');
+        el.style.setProperty('border-radius', '8px', 'important');
+        el.style.setProperty('box-shadow', 'none', 'important');
+        Array.prototype.forEach.call(el.querySelectorAll('svg, button'), function(child) {{
+            child.style.setProperty('color', '{text_c}', 'important');
+            child.style.setProperty('fill', '{text_c}', 'important');
         }});
     }}
 
@@ -223,31 +236,16 @@ def render_chat_bubble():
         pdoc.body.appendChild(bubble);
     }}
 
-    // Masque fixe qui couvre la zone blanche en haut (indestructible)
-    function applyTopMask() {{
-        var pdoc = window.parent.document;
-        var id = 'qt-top-mask';
-        var el = pdoc.getElementById(id);
-        if (!el) {{
-            el = pdoc.createElement('div');
-            el.id = id;
-            pdoc.body.appendChild(el);
-        }}
-        el.style.cssText = [
-            'position:fixed', 'top:0', 'left:0', 'right:0',
-            'height:60px',
-            'background-color:{bg_top}',
-            'z-index:9999998',
-            'pointer-events:none'
-        ].join('!important;') + '!important';
-    }}
+    // Supprimer l'ancien masque s'il existe (nettoyage)
+    var oldMask = pdoc.getElementById('qt-top-mask');
+    if (oldMask) oldMask.remove();
 
     // Lancer après que Streamlit a rendu le bouton
     setTimeout(setup, 200);
     setTimeout(setup, 600);
     setTimeout(killStreamlitHeader, 1500);
-    applyTopMask();
-    setTimeout(applyTopMask, 300);
+    setTimeout(styleCollapsedControl, 400);
+    setTimeout(styleCollapsedControl, 1000);
 }})();
 </script>
 """, height=0)
