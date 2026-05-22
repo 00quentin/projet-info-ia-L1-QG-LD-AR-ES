@@ -125,18 +125,14 @@ def render_chat_bubble():
     """Bulle fixée + dialog. À appeler une seule fois dans app.py."""
     show = st.session_state.get("show_chat", False)
     icon = "✕" if show else "💬"
-    dark = st.session_state.get("dark_mode", False)
-    bg_top      = "#0b0e11" if dark else "#fafafa"
-    collapsed_bg = "#1e222d" if dark else "#e4e4e7"
-    border_c    = "#2a2e39" if dark else "#d4d4d8"
-    text_c      = "#d1d4dc" if dark else "#27272a"
 
     # ── Bouton Streamlit caché, trouvé par le JS via son texte unique ─────
     if st.button(_TRIGGER, key="qt_chat_toggle"):
         st.session_state.show_chat = not show
         st.rerun()
 
-    # ── Injection JS : crée la bulle fixée + masque + câble le clic ───────
+    # ── Injection JS minimale : crée la bulle + câble le clic ──────────────
+    # NE TOUCHE PAS au header / sidebar / toolbar (géré 100% en CSS dans styling.py).
     components_v1.html(f"""
 <script>
 (function() {{
@@ -164,33 +160,7 @@ def render_chat_bubble():
         }}
     }}
 
-    function killStreamlitHeader() {{
-        // Uniquement par testid précis — pas de sélecteur générique 'header'
-        var ids = ['stToolbar','stAppToolbar','stDeployButton','stDecoration','stStatusWidget'];
-        ids.forEach(function(id) {{
-            var el = pdoc.querySelector('[data-testid="' + id + '"]');
-            if (el) el.style.cssText += ';display:none!important;height:0!important;overflow:hidden!important;';
-        }});
-    }}
-
-    function styleCollapsedControl() {{
-        // Force les couleurs du bouton sidebar toggle (probablement le "rectangle blanc")
-        var el = pdoc.querySelector('[data-testid="collapsedControl"]');
-        if (!el) return;
-        el.style.setProperty('background', '{collapsed_bg}', 'important');
-        el.style.setProperty('background-color', '{collapsed_bg}', 'important');
-        el.style.setProperty('border', '1px solid {border_c}', 'important');
-        el.style.setProperty('border-radius', '8px', 'important');
-        el.style.setProperty('box-shadow', 'none', 'important');
-        Array.prototype.forEach.call(el.querySelectorAll('svg, button'), function(child) {{
-            child.style.setProperty('color', '{text_c}', 'important');
-            child.style.setProperty('fill', '{text_c}', 'important');
-        }});
-    }}
-
     function setup() {{
-        killStreamlitHeader();
-
         // Supprimer ancienne bulle
         var old = pdoc.getElementById('qt-fixed-bubble');
         if (old) old.remove();
@@ -237,16 +207,9 @@ def render_chat_bubble():
         pdoc.body.appendChild(bubble);
     }}
 
-    // Supprimer l'ancien masque s'il existe (nettoyage)
-    var oldMask = pdoc.getElementById('qt-top-mask');
-    if (oldMask) oldMask.remove();
-
     // Lancer après que Streamlit a rendu le bouton
     setTimeout(setup, 200);
     setTimeout(setup, 600);
-    setTimeout(killStreamlitHeader, 1500);
-    setTimeout(styleCollapsedControl, 400);
-    setTimeout(styleCollapsedControl, 1000);
 }})();
 </script>
 """, height=0)
