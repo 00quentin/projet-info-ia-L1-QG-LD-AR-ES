@@ -200,7 +200,6 @@ def _render_actif_perso_form() -> None:
 
 def _render_selection_actifs() -> List[str]:
     """Cases à cocher des actifs à inclure (regroupées dans un accordéon parent)."""
-    st.markdown("---")
 
     actifs_perso = st.session_state.get(ACTIFS_PERSO_KEY, {})
 
@@ -245,7 +244,6 @@ def _render_selection_actifs() -> List[str]:
 
 def _render_portefeuille(actifs_selectionnes: List[str]) -> Tuple[float, str, Dict[str, int]]:
     """Section Portefeuille : capital, profil, allocation custom."""
-    st.markdown("---")
     st.markdown('<div class="qt-sidebar-section">💼 Portefeuille</div>',
                 unsafe_allow_html=True)
 

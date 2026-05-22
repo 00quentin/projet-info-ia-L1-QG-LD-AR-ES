@@ -2379,8 +2379,15 @@ button[data-testid*="empty_preset"],
 [data-testid="stSidebar"] hr {
     border: 0 !important;
     border-top: 1px solid var(--border) !important;
-    margin: 14px 0 !important;
+    margin: 6px 0 !important;
     opacity: 0.7;
+}
+/* Textarea sidebar : texte toujours entier, jamais coupé au bord */
+[data-testid="stSidebar"] textarea {
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    white-space: pre-wrap !important;
+    overflow-y: auto !important;
 }
 [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] strong {
     color: var(--text) !important;
