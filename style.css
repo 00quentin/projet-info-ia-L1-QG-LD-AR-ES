@@ -1348,6 +1348,12 @@ div[data-testid="metric-container"]:hover::before {
     color: var(--text-muted);
 }
 
+/* Cache le label du selectbox Mode (label_visibility="collapsed" ne suffit pas toujours) */
+[data-testid="stSidebar"] [data-testid="stSelectbox"]:first-of-type [data-testid="stWidgetLabel"],
+[data-testid="stSidebar"] [data-testid="stSelectbox"]:first-of-type label {
+    display: none !important;
+}
+
 /* Séparateur fin entre étapes */
 .qt-sb-hr {
     border: none;
