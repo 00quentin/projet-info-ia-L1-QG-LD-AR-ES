@@ -3212,29 +3212,19 @@ footer { display: none !important; }
     background-color: transparent !important;
 }
 
-/* 1c. stHeader : transparent, overflow visible pour ne pas clipper collapsedControl */
+/* 1c. stHeader : transparent + overflow visible pour ne pas clipper collapsedControl */
 [data-testid="stHeader"] {
     background: transparent !important;
     background-color: transparent !important;
     overflow: visible !important;
 }
 
-/* 1d. collapsedControl : position fixed — échappe au parent quelle que soit sa taille */
+/* 1d. Sidebar toggle (collapsedControl) — style sombre sur desktop aussi */
 [data-testid="collapsedControl"] {
-    position: fixed !important;
-    top: 0.5rem !important;
-    left: 0.5rem !important;
-    z-index: 999990 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    visibility: visible !important;
-    opacity: 1 !important;
     background: var(--card) !important;
     border: 1px solid var(--border) !important;
     border-radius: 8px !important;
     box-shadow: var(--shadow-sm) !important;
-    pointer-events: auto !important;
 }
 [data-testid="collapsedControl"] svg {
     fill: var(--text-muted) !important;

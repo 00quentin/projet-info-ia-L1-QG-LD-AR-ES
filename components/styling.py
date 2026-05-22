@@ -190,23 +190,13 @@ div[data-testid="stAppViewContainer"] .stTabs [data-baseweb="tab-list"] {{
 [data-testid="stDecoration"] {{
     display: none !important;
 }}
-/* collapsedControl : position fixed pour échapper au parent, toujours visible */
+/* collapsedControl : visible avec overflow:visible sur le parent (stHeader) */
 [data-testid="collapsedControl"] {{
-    position: fixed !important;
-    top: 0.5rem !important;
-    left: 0.5rem !important;
-    z-index: 999990 !important;
     display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
     visibility: visible !important;
     opacity: 1 !important;
     pointer-events: auto !important;
-}}
-[data-testid="collapsedControl"] * {{
-    visibility: visible !important;
-    opacity: 1 !important;
-    pointer-events: auto !important;
+    z-index: 999990 !important;
 }}
 /* App container */
 [data-testid="stAppViewContainer"] > [data-testid="stVerticalBlock"]:first-child,
