@@ -27,18 +27,9 @@ def _set_event_A(t: str):
 
 
 def _render_bouton_recharger():
-    """Bouton pour vider le cache Yahoo Finance + libellé explicatif."""
-    st.markdown(
-        '<div class="qt-sidebar-info">'
-        '<span class="qt-sidebar-info-icon">↻</span>'
-        '<span class="qt-sidebar-info-text">'
-        '<strong>Prix de marché</strong> mis en cache <strong>1h</strong>.'
-        '<br>Force un rafraîchissement immédiat depuis Yahoo Finance.'
-        '</span></div>',
-        unsafe_allow_html=True,
-    )
+    """Bouton pour vider le cache Yahoo Finance."""
     if st.button("↻  Rafraîchir les prix Yahoo", use_container_width=True,
-                 help="Vide le cache et re-télécharge les derniers prix de S&P, Or, Bitcoin, etc."):
+                 help="Prix mis en cache 1h. Cliquez pour forcer un rechargement immédiat depuis Yahoo Finance."):
         get_prix_actuels.clear()
         get_volatilites_historiques.clear()
         # On vide aussi le cache des sparklines/variations
@@ -101,8 +92,7 @@ def _render_section_simulation() -> Dict[str, Any]:
                 unsafe_allow_html=True
             )
 
-    st.markdown("---")
-    with st.expander("Options avancées", expanded=False):
+    with st.expander("⚙  Options avancées", expanded=False):
         options["modele_simu"] = st.selectbox(
             "Comportement du marché",
             ["Probabiliste (Réaliste)", "Historique (Chocs violents)", "Machine Learning (Tendance)"]
@@ -131,7 +121,6 @@ def _render_section_backtest() -> Dict[str, Any]:
     st.markdown(f'<div class="qt-callout"><strong>{event_choisi}</strong><br>'
                 f'<span style="font-size:0.9em;">{info_event["description"]}</span></div>',
                 unsafe_allow_html=True)
-    st.markdown("---")
     st.markdown("**Période personnalisée (optionnel)**")
     options["event_choisi"] = event_choisi
     options["date_debut_custom"] = st.date_input(
@@ -298,31 +287,66 @@ def render_sidebar() -> Dict[str, Any]:
     - lancer : bool (True si bouton cliqué)
     """
     with st.sidebar:
-        st.markdown("### Paramètres")
-        _render_bouton_recharger()
-        st.markdown("---")
+        # ── En-tête ──────────────────────────────────────────
+        st.markdown("""
+        <div class="qt-sb-header">
+            <span class="qt-sb-header-icon">📈</span>
+            <div>
+                <div class="qt-sb-title">Quant Terminal</div>
+                <div class="qt-sb-subtitle">Configurez votre simulation</div>
+            </div>
+        </div>""", unsafe_allow_html=True)
 
+        # ── Étape 1 : Mode ───────────────────────────────────
+        st.markdown("""<div class="qt-sb-step">
+            <span class="qt-sb-step-num">1</span>
+            <span class="qt-sb-step-label">Mode</span>
+        </div>""", unsafe_allow_html=True)
         mode_app = st.radio(
             "Mode du terminal",
             ["Simulation prospective", "Backtest historique"],
-            help="Simulation : teste un scénario fictif. Backtest : rejoue les vraies données passées."
+            help="Simulation : teste un scénario fictif. Backtest : rejoue les vraies données passées.",
+            label_visibility="collapsed",
         )
-        st.markdown("---")
 
+        # ── Étape 2 : Scénario ───────────────────────────────
+        st.markdown('<hr class="qt-sb-hr">', unsafe_allow_html=True)
+        st.markdown("""<div class="qt-sb-step">
+            <span class="qt-sb-step-num">2</span>
+            <span class="qt-sb-step-label">Scénario</span>
+        </div>""", unsafe_allow_html=True)
         if mode_app == "Simulation prospective":
             options = _render_section_simulation()
         else:
             options = _render_section_backtest()
 
+        # ── Étape 3 : Actifs ─────────────────────────────────
+        st.markdown('<hr class="qt-sb-hr">', unsafe_allow_html=True)
+        st.markdown("""<div class="qt-sb-step">
+            <span class="qt-sb-step-num">3</span>
+            <span class="qt-sb-step-label">Actifs à analyser</span>
+        </div>""", unsafe_allow_html=True)
         actifs_selectionnes = _render_selection_actifs()
+
+        # ── Étape 4 : Portefeuille ───────────────────────────
+        st.markdown('<hr class="qt-sb-hr">', unsafe_allow_html=True)
+        st.markdown("""<div class="qt-sb-step">
+            <span class="qt-sb-step-num">4</span>
+            <span class="qt-sb-step-label">Portefeuille</span>
+        </div>""", unsafe_allow_html=True)
         capital_initial, profil_risque, allocations_custom = _render_portefeuille(actifs_selectionnes)
 
-        st.markdown("<br>", unsafe_allow_html=True)
+        # ── Bouton principal ─────────────────────────────────
+        st.markdown('<hr class="qt-sb-hr">', unsafe_allow_html=True)
         bouton_label = (
-            "Lancer la simulation" if mode_app == "Simulation prospective"
-            else "Lancer le backtest"
+            "🚀  Lancer la simulation" if mode_app == "Simulation prospective"
+            else "▶  Lancer le backtest"
         )
         lancer = st.button(bouton_label, use_container_width=True, type="primary")
+
+        # ── Rafraîchir les prix (action secondaire, discrète) ─
+        st.markdown('<hr class="qt-sb-hr">', unsafe_allow_html=True)
+        _render_bouton_recharger()
 
     return {
         "mode_app": mode_app,
