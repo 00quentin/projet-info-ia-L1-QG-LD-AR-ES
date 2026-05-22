@@ -166,7 +166,7 @@ def render_chat_bubble():
 
     function killStreamlitHeader() {{
         // Uniquement par testid précis — pas de sélecteur générique 'header'
-        var ids = ['stHeader','stToolbar','stAppToolbar','stDeployButton','stDecoration','stStatusWidget'];
+        var ids = ['stToolbar','stAppToolbar','stDeployButton','stDecoration','stStatusWidget'];
         ids.forEach(function(id) {{
             var el = pdoc.querySelector('[data-testid="' + id + '"]');
             if (el) el.style.cssText += ';display:none!important;height:0!important;overflow:hidden!important;';
