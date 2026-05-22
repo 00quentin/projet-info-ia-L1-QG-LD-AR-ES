@@ -125,6 +125,8 @@ def render_chat_bubble():
     """Bulle fixée + dialog. À appeler une seule fois dans app.py."""
     show = st.session_state.get("show_chat", False)
     icon = "✕" if show else "💬"
+    dark = st.session_state.get("dark_mode", False)
+    bg_top = "#0b0e11" if dark else "#fafafa"
 
     # ── Bouton Streamlit caché, trouvé par le JS via son texte unique ─────
     if st.button(_TRIGGER, key="qt_chat_toggle"):
@@ -246,10 +248,31 @@ def render_chat_bubble():
         pdoc.body.appendChild(bubble);
     }}
 
+    // Masque fixe qui couvre la zone blanche en haut (indestructible)
+    function applyTopMask() {{
+        var pdoc = window.parent.document;
+        var id = 'qt-top-mask';
+        var el = pdoc.getElementById(id);
+        if (!el) {{
+            el = pdoc.createElement('div');
+            el.id = id;
+            pdoc.body.appendChild(el);
+        }}
+        el.style.cssText = [
+            'position:fixed', 'top:0', 'left:0', 'right:0',
+            'height:60px',
+            'background-color:{bg_top}',
+            'z-index:9999998',
+            'pointer-events:none'
+        ].join('!important;') + '!important';
+    }}
+
     // Lancer après que Streamlit a rendu le bouton
     setTimeout(setup, 200);
     setTimeout(setup, 600);
     setTimeout(killStreamlitHeader, 1500);
+    applyTopMask();
+    setTimeout(applyTopMask, 300);
 }})();
 </script>
 """, height=0)
