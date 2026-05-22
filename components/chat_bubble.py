@@ -54,8 +54,8 @@ def _dialog_chat():
                 st.rerun()
 
         st.markdown('<hr style="border-color:var(--border);margin:14px 0;">', unsafe_allow_html=True)
-        if st.button("✕  Fermer", use_container_width=True):
-            st.session_state.show_chat = False
+        if st.button("🗑  Effacer l'historique", use_container_width=True):
+            st.session_state.messages_chat = []
             st.rerun()
 
     with col_sep:

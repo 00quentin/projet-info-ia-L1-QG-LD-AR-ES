@@ -203,28 +203,10 @@ div[data-testid="stAppViewContainer"] .stTabs [data-baseweb="tab-list"] {{
 [data-testid="stMain"] {{
     background: transparent !important;
 }}
-/* === FORCE SIDEBAR TOUJOURS OUVERTE ===
-   Évite le bug Streamlit où le bouton de réouverture disparaît
-   après collapse. La sidebar reste visible en permanence. */
-[data-testid="stSidebar"] {{
-    transform: none !important;
-    visibility: visible !important;
-    margin-left: 0 !important;
+/* Sidebar : largeur fixe quand ouverte */
+[data-testid="stSidebar"][aria-expanded="true"] {{
     min-width: 244px !important;
     width: 244px !important;
-}}
-[data-testid="stSidebar"][aria-expanded="false"] {{
-    transform: translateX(0) !important;
-    visibility: visible !important;
-    margin-left: 0 !important;
-}}
-/* Cache le bouton de fermeture/collapse interne à la sidebar */
-[data-testid="stSidebarCollapseButton"],
-[data-testid="stSidebarCollapsedControl"],
-button[kind="headerNoPadding"],
-[data-testid="stSidebarHeader"] button[kind="header"],
-[data-testid="stSidebar"] [data-testid="baseButton-headerNoPadding"] {{
-    display: none !important;
 }}
 </style>""", unsafe_allow_html=True)
 
