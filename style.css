@@ -3341,6 +3341,12 @@ footer { display: none !important; }
 [data-testid="stRadio"] [data-baseweb="radio"] > div:first-child { display: none !important; }
 [data-testid="stRadio"] input[type="radio"] { display: none !important; }
 
+/* Cache le label "Mode" au-dessus du radiogroup dans la sidebar */
+[data-testid="stSidebar"] [data-testid="stRadio"] [data-testid="stWidgetLabel"],
+[data-testid="stSidebar"] [data-testid="stRadio"] > div > div:first-child:not([role="radiogroup"]) {
+    display: none !important;
+}
+
 /* Dans la sidebar : radio vertical — une carte par option */
 [data-testid="stSidebar"] [data-testid="stRadio"] > div > div[role="radiogroup"] {
     flex-direction: column !important;
@@ -3356,14 +3362,13 @@ footer { display: none !important; }
     color: var(--text) !important;
     border-radius: 8px !important;
     padding: 10px 12px !important;
-    font-size: 0.80em !important;
+    font-size: 0.76em !important;
     font-weight: 500 !important;
     justify-content: center !important;
     text-align: center !important;
     box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
     white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
+    overflow: visible !important;
 }
 /* Forcer nowrap aussi sur le texte interne (p, span) */
 [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label p,
