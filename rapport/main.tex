@@ -1,0 +1,861 @@
+\documentclass[a4paper, 12pt, twoside]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[francais]{babel}
+\usepackage{lmodern}
+\usepackage{ae,aecompl}
+\usepackage[top=2.5cm, bottom=2cm,
+            left=3cm, right=2.5cm,
+            headheight=15pt]{geometry}
+\usepackage{graphicx}
+\usepackage{eso-pic}
+\usepackage{array}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{eurosym}
+\input{pagedegarde}
+
+\title{Quant Terminal : Simulateur d'impact d'événements économiques sur un portefeuille financier}
+\entreprise{Université Paris Nanterre --- L1 Double Licence MIASHS \& Économie-Gestion}
+\datedebut{3 avril 2026}
+\datefin{23 mai 2026}
+
+\membrea{Quentin Geldreich --- 45009207}
+\membreb{Lucas Doazan --- 45004502}
+\membrec{Evan Saadi --- 45019089}
+\membred{Alex Ruimy --- 45015710}
+
+\begin{document}
+\pagedegarde
+
+% ============================================================
+\section*{Remerciements}
+% ============================================================
+
+Nous tenons à remercier notre professeur pour ce cours d'informatique qui nous a permis
+de découvrir la programmation en Python et de mener à bien ce projet.
+
+Nous remercions également les équipes derrière les outils que nous avons utilisés :
+Streamlit, OpenAI et Yahoo Finance, sans lesquels ce projet n'aurait pas été possible.
+
+Enfin, nous remercions l'intelligence artificielle Claude, développée par Anthropic,
+qui a joué un rôle central dans le développement de ce projet. Nous tenons à être
+transparents là-dessus : Claude a été bien plus qu'un simple correcteur de syntaxe.
+C'est avec lui qu'on a débogué les simulations irréalistes, géré les bugs de sidebar,
+et construit l'architecture du projet. Ce rapport parle d'un projet de programmation
+assistée par IA, et c'est vraiment ce que c'était.
+
+\newpage
+\tableofcontents
+\newpage
+
+% ============================================================
+\section{Introduction}
+% ============================================================
+
+\subsection*{Contexte}
+
+Aujourd'hui, les marchés financiers sont au cœur de l'économie mondiale. Les crises,
+les décisions des banques centrales ou les avancées technologiques ont des répercussions
+directes sur la valeur des actifs financiers. Pourtant, comprendre et anticiper ces
+impacts reste difficile pour quelqu'un qui n'est pas expert en finance.
+
+En tant qu'étudiants en première année de double licence MIASHS et Économie-Gestion
+à l'Université Paris Nanterre, nous avons un intérêt commun pour l'investissement et
+la finance de marché. Ce projet est né de l'envie de combiner nos deux domaines
+d'étude : les mathématiques et l'informatique d'un côté, l'économie et la finance
+de l'autre.
+
+\subsection*{Problématique}
+
+Comment permettre à un étudiant ou à un particulier, sans connaissances avancées en
+finance, de simuler l'impact d'un événement économique sur un portefeuille
+d'investissement de manière réaliste et pédagogique ?
+
+\subsection*{Notre solution : Quant Terminal}
+
+Quant Terminal est une application web interactive développée en Python avec le
+framework Streamlit. L'utilisateur décrit un événement économique en langage naturel
+(une hausse des taux directeurs, une crise technologique, un choc géopolitique) et
+observe l'impact simulé sur un portefeuille financier personnalisé.
+
+L'application s'appuie sur l'intelligence artificielle (OpenAI GPT) pour analyser le
+scénario et estimer les chocs sur chaque actif, sur Yahoo Finance pour récupérer les
+vrais prix de marché en temps réel, et sur des modèles mathématiques (mouvement
+brownien géométrique, Monte-Carlo) pour simuler l'évolution du portefeuille jour
+après jour.
+
+\subsection*{Plan du rapport}
+
+Ce rapport présente d'abord notre environnement de travail et les outils utilisés,
+puis l'architecture et le fonctionnement du projet avec les modèles mathématiques
+sous-jacents. Nous détaillons ensuite les fonctionnalités réalisées, les difficultés
+rencontrées, et nous terminons par un bilan de cette expérience.
+
+\newpage
+
+% ============================================================
+\section{Environnement de travail}
+% ============================================================
+
+\subsection{Outils de développement}
+
+Nous avons développé le projet en Python 3.10 sous Visual Studio Code. La gestion
+des dépendances se fait via un fichier \texttt{requirements.txt}, et la clé API
+OpenAI est stockée dans un fichier \texttt{.env} pour des raisons de sécurité.
+Ce fichier n'est jamais envoyé sur GitHub.
+
+L'outil qui a le plus accompagné notre développement est \textbf{Claude Code}
+(Anthropic), un assistant IA intégré directement dans Visual Studio Code. Nous avons
+ouvert notre dossier de projet entier dans Claude Code, ce qui lui permettait d'avoir
+une vision globale du code. En pratique, on décrivait une fonctionnalité en français,
+Claude proposait un code, on testait, ça ne marchait pas toujours, on corrigeait
+ensemble. C'est ce cycle qui a structuré tout notre développement.
+
+\subsection{Collaboration et versionnage}
+
+Nous avons utilisé \textbf{Git} et \textbf{GitHub} pour gérer les versions du projet.
+Le dépôt est public et accessible à l'adresse suivante :
+
+\begin{center}
+\url{https://github.com/00quentin/projet-info-ia-L1-QG-LD-AR-ES}
+\end{center}
+
+Les commits étaient principalement réalisés par les membres chargés du développement.
+Les décisions importantes étaient discutées collectivement par les quatre membres.
+
+\subsection{Déploiement}
+
+L'application est déployée en ligne via \textbf{Streamlit Cloud}, accessible
+gratuitement depuis n'importe quel navigateur. Un problème de mise en veille
+automatique après quelques minutes d'inactivité a été résolu grâce à
+\textbf{Uptime Robot}, un service qui envoie une requête au site toutes les cinq
+minutes pour le maintenir actif.
+
+\subsection{Organisation du groupe}
+
+Le groupe est composé de quatre membres. La collaboration s'est organisée en deux
+phases : plusieurs séances en présentiel durant les TD pour définir les objectifs et
+répartir le travail, puis une longue phase de développement à distance, avec une
+réunion finale pour tout mettre en forme.
+
+\newpage
+
+% ============================================================
+\section{Description du projet et objectifs}
+% ============================================================
+
+\subsection{Cahier des charges initial}
+
+L'idée de départ était simple : permettre à un utilisateur de saisir un événement
+économique et d'observer son impact sur un portefeuille. En cours de développement,
+nous avons progressivement enrichi le projet avec de nombreuses fonctionnalités
+supplémentaires qui n'étaient pas prévues au départ.
+
+Les fonctionnalités prévues dès le début étaient :
+
+\begin{itemize}
+    \item Saisie d'un événement économique en langage naturel
+    \item Analyse de l'événement par intelligence artificielle
+    \item Simulation de l'impact sur un portefeuille personnalisable
+    \item Visualisation des résultats sous forme de graphiques interactifs
+    \item Affichage de métriques financières (rendement, risque)
+\end{itemize}
+
+\subsection{Architecture du projet}
+
+Le projet est organisé en modules distincts pour séparer clairement la logique métier
+de l'interface utilisateur. La règle principale que nous avons suivie : le dossier
+\texttt{core/} ne doit jamais importer Streamlit. Cela permet de tester la logique
+indépendamment de l'interface, et d'éviter que tout le projet s'effondre quand
+Streamlit change de version.
+
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{|l|p{9cm}|}
+\hline
+\textbf{Fichier / Dossier} & \textbf{Rôle} \\
+\hline
+\texttt{app.py} & Point d'entrée principal, orchestre les onglets et la navigation \\
+\hline
+\texttt{core/} & Logique métier pure (calculs, métriques, historique) sans import Streamlit \\
+\hline
+\texttt{components/} & Composants d'interface réutilisables (sidebar, graphiques, notifications) \\
+\hline
+\texttt{views/} & Un fichier par onglet (dashboard, portefeuille, comparaison, etc.) \\
+\hline
+\texttt{handlers.py} & Orchestration des lancements de simulation et de backtest \\
+\hline
+\texttt{ia\_bot.py} & Appels à l'API OpenAI avec validation des réponses \\
+\hline
+\texttt{market\_data.py} & Récupération des prix via Yahoo Finance avec mise en cache \\
+\hline
+\texttt{simulation.py} & Moteur de simulation (probabiliste, historique, Monte-Carlo) \\
+\hline
+\texttt{schemas.py} & Validation des réponses de l'IA via Pydantic \\
+\hline
+\texttt{config.py} & Toutes les constantes du projet (actifs, profils, bornes) \\
+\hline
+\end{tabular}
+\end{center}
+\caption{Architecture modulaire de Quant Terminal}
+\end{table}
+
+\subsection{Fonctionnement général}
+
+Voici les étapes qu'un utilisateur suit pour réaliser une simulation :
+
+\begin{enumerate}
+    \item Choisir le mode : \textit{Simulation prospective} (scénario fictif) ou
+    \textit{Backtest historique} (crise réelle passée)
+    \item Décrire un événement économique en langage naturel dans la sidebar
+    \item Sélectionner les actifs à inclure (jusqu'à 23 actifs disponibles)
+    \item Définir le capital de départ et le profil d'investisseur
+    \item Cliquer sur \textit{Lancer la simulation}
+    \item L'IA analyse le scénario et estime les chocs sur chaque actif,
+    validés par Pydantic pour éviter les valeurs aberrantes
+    \item Le moteur calcule l'évolution du portefeuille jour après jour
+    \item Les résultats s'affichent : graphiques, métriques, analyse IA, alertes
+\end{enumerate}
+
+\subsection{Le mouvement brownien géométrique}
+
+Le moteur de simulation repose sur le \textbf{mouvement brownien géométrique} (GBM),
+un modèle standard en finance quantitative, utilisé notamment dans la formule de
+Black-Scholes pour la valorisation des options. L'équation différentielle stochastique
+qui le décrit est :
+
+\begin{equation}
+dS_t = \mu \, S_t \, dt + \sigma \, S_t \, dW_t
+\end{equation}
+
+où $S_t$ est la valeur de l'actif au temps $t$, $\mu$ le drift (tendance directionnelle
+imposée par le choc estimé par l'IA), $\sigma$ la volatilité historique annualisée
+récupérée via Yahoo Finance sur 12 mois, et $dW_t$ un processus de Wiener représentant
+le bruit aléatoire du marché.
+
+En pratique, à chaque jour de cotation simulé, la variation de chaque actif est
+calculée via la solution exacte du GBM :
+
+\begin{equation}
+S_{t+1} = S_t \cdot \exp\!\left[\left(\mu - \frac{\sigma^2}{2}\right)\Delta t
++ \sigma \sqrt{\Delta t} \cdot \varepsilon\right]
+\end{equation}
+
+où $\varepsilon \sim \mathcal{N}(0,1)$ est un nombre aléatoire tiré d'une loi normale
+standard (généré via NumPy). Le terme $-\sigma^2/2$ est une correction d'Itô qui
+compense le biais introduit par la nature multiplicative du processus.
+
+Nous avons choisi ce modèle pour trois raisons : il garantit que les prix restent
+toujours positifs (contrairement à un modèle additif), il est calibrable directement
+à partir des données Yahoo Finance, et c'est le modèle de référence académique en
+finance stochastique.
+
+\textbf{Mode Monte-Carlo :} en activant ce mode, le processus est répété 50 fois avec
+des tirages $\varepsilon$ différents. On obtient ainsi une enveloppe de trajectoires
+possibles plutôt qu'une courbe unique. Les zones colorées sur les graphiques
+représentent les percentiles 5\% et 95\% de ces 50 simulations.
+
+\newpage
+
+% ============================================================
+\section{Bibliothèques, Outils et technologies}
+% ============================================================
+
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{|l|p{5.5cm}|p{4cm}|}
+\hline
+\textbf{Bibliothèque} & \textbf{Rôle dans le projet} & \textbf{Pourquoi ce choix} \\
+\hline
+Streamlit & Framework principal pour l'interface web & Simple en Python pur, déploiement gratuit \\
+\hline
+OpenAI API & Analyse des scénarios par IA & GPT comprend le langage naturel en contexte financier \\
+\hline
+yfinance & Prix réels via Yahoo Finance & Gratuit, fiable, supporte tous nos actifs \\
+\hline
+Plotly & Graphiques interactifs & Rendu professionnel, natif dans Streamlit \\
+\hline
+Pydantic & Validation des réponses de l'IA & Évite les valeurs aberrantes type Or +1 000 000\% \\
+\hline
+NumPy & Calculs du GBM et Monte-Carlo & Référence pour les maths scientifiques en Python \\
+\hline
+Pandas & Séries temporelles journalières & Facilite la manipulation des données de marché \\
+\hline
+ReportLab & Génération du rapport PDF & Création de PDF directement en Python \\
+\hline
+python-dotenv & Gestion de la clé API & Sécurise la clé OpenAI hors du code source \\
+\hline
+\end{tabular}
+\end{center}
+\caption{Bibliothèques utilisées dans Quant Terminal}
+\end{table}
+
+\subsection{Note sur Streamlit}
+
+Streamlit est une bibliothèque Python qui transforme automatiquement chaque widget
+Python (bouton, slider, graphique) en composant web interactif, sans avoir besoin
+d'écrire du HTML ou du JavaScript. C'est ce qui nous a permis, avec notre niveau de
+L1, de créer une vraie application web.
+
+Sa limite principale : Streamlit recrée entièrement la page à chaque interaction
+utilisateur. Ça simplifie beaucoup de choses, mais ça rend certains comportements
+d'interface très difficiles à contrôler, comme on l'a découvert avec le bouton
+de la sidebar.
+
+\subsection{Note sur la validation Pydantic}
+
+Pydantic est une bibliothèque de validation de données en Python. Dans notre projet,
+elle sert à vérifier que les chocs estimés par l'IA sont dans des plages réalistes
+avant d'être injectés dans le GBM. Par exemple, le schéma de validation pour le
+S\&P 500 impose une borne entre -55\% et +45\%, calibrée sur les pires crises
+historiques (2008 : -57\% sur 18 mois). Si l'IA dépasse ces bornes, Pydantic lève
+une erreur, la valeur est corrigée et un avertissement est affiché.
+
+\newpage
+
+% ============================================================
+\section{Travail réalisé}
+% ============================================================
+
+\subsection{Fonctionnalités réalisées}
+
+\begin{itemize}
+    \item[$\checkmark$] \textbf{Simulation prospective} : saisie d'un événement fictif,
+    analyse IA, simulation GBM sur 1 à 3 scénarios comparables simultanément
+    \item[$\checkmark$] \textbf{Backtest historique} : rejouer de vraies crises
+    (COVID-19, 2008, Choc pétrolier 1973, etc.) avec les données réelles Yahoo Finance
+    \item[$\checkmark$] \textbf{Mode comparaison} : graphique d'évolution comparée et
+    tableau de métriques côte à côte pour 2 ou 3 scénarios
+    \item[$\checkmark$] \textbf{Mode Monte-Carlo} : 50 simulations GBM parallèles avec
+    enveloppe probabiliste (percentiles 5-95\%)
+    \item[$\checkmark$] \textbf{Calibration historique IA} : l'IA s'inspire des
+    amplitudes réelles de crises passées pour calibrer ses estimations de chocs
+    \item[$\checkmark$] \textbf{Portefeuille personnalisable} : capital, profil
+    d'investisseur (Prudent / Équilibré / Agressif / Personnalisé), allocation manuelle
+    \item[$\checkmark$] \textbf{Actifs personnalisés} : ajout de n'importe quel actif
+    via son ticker Yahoo Finance (TSLA, BTC-USD, etc.)
+    \item[$\checkmark$] \textbf{Prix en temps réel} : vrais prix Yahoo Finance avec
+    cache d'une heure et bouton de rafraîchissement manuel
+    \item[$\checkmark$] \textbf{Métriques institutionnelles} : Volatilité annualisée,
+    Sharpe Ratio, Max Drawdown, VaR 95\% avec alertes automatiques
+    \item[$\checkmark$] \textbf{Historique des simulations} : sauvegarde automatique
+    des 10 dernières simulations en JSON, persistante entre les sessions
+    \item[$\checkmark$] \textbf{Export CSV} : données journalières brutes par actif
+    \item[$\checkmark$] \textbf{Export PDF} : rapport complet rédigé par l'IA avec
+    analyse, métriques et recommandations
+    \item[$\checkmark$] \textbf{Chatbot IA} : analyste financier conversationnel
+    accessible via une bulle flottante
+    \item[$\checkmark$] \textbf{Académie pédagogique} : 7 modules sur la finance de
+    marché (lecture des données, macro-économie, cas historiques, stratégies, etc.)
+    \item[$\checkmark$] \textbf{Mode sombre / clair} : interface adaptable
+    \item[$\checkmark$] \textbf{Partage par URL} : paramètres de simulation encodés
+    dans l'URL pour partager une configuration
+    \item[$\checkmark$] \textbf{Ticker en direct} : S\&P 500, VIX, Or, Pétrole,
+    BTC, EUR/USD mis à jour en temps réel
+\end{itemize}
+
+\subsection{Fonctionnalités non réalisées}
+
+Certaines idées ont été abandonnées en cours de route. Nous voulions une interface
+visuellement plus proche des plateformes fintech professionnelles, mais les contraintes
+de Streamlit nous en ont empêchés. Chaque effet visuel avancé nécessitait des
+contournements CSS complexes qu'on n'avait pas anticipés.
+
+Des fonctionnalités plus ambitieuses comme l'authentification utilisateur ou une base
+de données pour l'historique ont été écartées : elles dépassaient le cadre d'un projet
+de première année et le temps disponible.
+
+\subsection{Répartition réelle du travail}
+
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{|l|p{10cm}|}
+\hline
+\textbf{Membre} & \textbf{Tâches réalisées} \\
+\hline
+Quentin Geldreich & Développement principal : architecture générale, simulation GBM,
+intégration OpenAI et Yahoo Finance, interface Streamlit, déploiement en ligne \\
+\hline
+Lucas Doazan & Co-développement, tests réguliers, suggestions de fonctionnalités,
+participation aux décisions techniques et à la revue de code \\
+\hline
+Evan Saadi & Rédaction du rapport, recherches sur les concepts financiers (GBM,
+métriques de risque), tests fonctionnels de l'application, retours utilisateur \\
+\hline
+Alex Ruimy & Rédaction du rapport, tests de l'application sur différents scénarios,
+retours sur l'expérience utilisateur, suggestions d'amélioration de l'interface \\
+\hline
+\end{tabular}
+\end{center}
+\caption{Répartition réelle du travail au sein du groupe}
+\end{table}
+
+Toutes les décisions importantes (fonctionnalités à ajouter, scénarios à tester,
+orientation du projet) étaient discutées collectivement. Les membres chargés du
+rapport ont aussi joué un rôle de testeurs réguliers, en signalant les bugs et en
+vérifiant que les résultats de simulation semblaient cohérents.
+
+\newpage
+
+% ============================================================
+\section{Difficultés rencontrées}
+% ============================================================
+
+\subsection{Les limitations de Streamlit}
+
+La principale difficulté technique du projet a été de travailler avec Streamlit sur
+des interfaces un peu avancées. Le framework est excellent pour démarrer rapidement,
+mais il montre vite ses limites quand on veut personnaliser le comportement de
+certains composants.
+
+Le cas le plus frustrant a été le bouton d'ouverture et de fermeture de la sidebar.
+Ce bouton fonctionnait parfaitement au départ, puis disparaissait définitivement
+après le premier clic de fermeture, rendant la sidebar totalement inaccessible.
+On a mis plusieurs jours à comprendre pourquoi : Streamlit réécrit entièrement le
+DOM (la structure de la page web) en JavaScript à chaque interaction, écrasant
+systématiquement nos modifications CSS. On a essayé plusieurs approches : injecter
+du JavaScript pour intercepter le clic, cibler le bouton par différents sélecteurs
+CSS, modifier le comportement via les query params. Rien ne tenait sur la durée.
+La solution finale a été de forcer la sidebar à rester toujours visible via du CSS
+\texttt{!important} et de cacher le bouton de fermeture. Ce n'est pas élégant, mais
+c'est la seule approche stable qu'on ait trouvée.
+
+En fait, chaque effet visuel un peu avancé nécessitait des contournements qu'on
+n'avait pas anticipés au départ. Le design qu'on imaginait au début aurait
+probablement nécessité de travailler avec React ou une autre technologie.
+
+\subsection{La fiabilité des simulations financières}
+
+Lors des premières simulations, l'IA renvoyait des valeurs complètement irréalistes.
+L'exemple le plus marquant : dans l'une de nos premières versions, l'Or affichait
+une variation de \textbf{+1 222 891\%} lors d'un scénario de crise. Ce genre de
+résultat rendait l'application absurde et inutilisable.
+
+Comprendre pourquoi ça arrivait a pris du temps. Le problème venait du fait qu'on
+demandait à l'IA d'estimer des pourcentages de variation sans lui donner de cadre de
+référence. Sans contrainte, GPT optimisait pour la "dramatisation" du scénario plutôt
+que pour le réalisme. On a résolu ça en deux étapes : d'abord en précisant dans le
+prompt les ordres de grandeur attendus, puis en ajoutant une validation Pydantic avec
+des bornes calibrées sur les vraies crises historiques. Depuis, les simulations
+produisent des résultats cohérents.
+
+\subsection{Le déploiement sur Streamlit Cloud}
+
+Le déploiement a posé plusieurs problèmes qu'on n'avait pas anticipés. Le principal :
+l'application se mettait en veille automatiquement après quelques minutes d'inactivité,
+obligeant les visiteurs à attendre 30 secondes à chaque rechargement. On a contourné
+ça avec Uptime Robot, un service gratuit qui envoie une requête au site toutes les
+cinq minutes.
+
+La configuration de la clé API OpenAI a aussi nécessité une manipulation spécifique :
+sur Streamlit Cloud, le fichier \texttt{.env} local n'existe pas. Il faut renseigner
+les secrets directement dans l'interface de déploiement.
+
+\subsection{Le comportement du chatbot}
+
+Au départ, le chatbot répondait à n'importe quelle question sans se limiter à la
+finance. On a dû modifier le prompt système pour le recadrer sur son domaine. Ce
+travail de "prompt engineering" (la manière dont on formule les instructions données
+à un modèle de langage) a été plus complexe qu'attendu : trop restrictif, le chatbot
+refusait des questions légitimes ; trop permissif, il dérivait vers des sujets sans
+rapport. On a fini par trouver un équilibre qui fonctionne bien.
+
+\newpage
+
+% ============================================================
+\section{Bilan}
+% ============================================================
+
+\subsection{Conclusion}
+
+Honnêtement, on ne pensait pas arriver à un résultat comme celui-là quand on a
+commencé. L'idée de départ était simple : saisir un événement, voir l'impact sur un
+portefeuille. Un mois et demi plus tard on a une application déployée en ligne avec
+17 fonctionnalités, des graphiques interactifs, un modèle Monte-Carlo et un chatbot
+IA intégré. C'est difficile de ne pas en être fiers.
+
+On a appris des tas de choses sans vraiment s'en rendre compte. Au détour d'un bug
+à corriger on comprenait comment fonctionne le cache en Python ; en essayant de rendre
+les simulations réalistes on s'est retrouvés à lire des articles sur les crises de
+1973 et sur le modèle de Black-Scholes ; en déployant sur Streamlit Cloud on a
+découvert ce qu'est une variable d'environnement et pourquoi on ne commit jamais une
+clé API sur GitHub. C'est ce genre d'apprentissage concret qu'on n'aurait pas eu en
+restant sur des exercices académiques.
+
+Sur l'IA : Claude a été un vrai partenaire de développement, pas juste un
+autocorrecteur. Ce n'est pas "l'IA a fait le projet à notre place". C'est plus proche
+de : l'IA nous a permis d'aller bien au-delà de notre niveau technique actuel. Sans
+elle, on aurait probablement produit un script Python basique. Avec elle, on a produit
+une vraie application. Mais sans notre direction, nos tests et nos corrections, et il
+y en a eu beaucoup, Claude aurait généré des simulations avec l'or à +1 222 891\% et
+une sidebar qui disparaît au premier clic.
+
+Si on devait refaire ce projet, on passerait davantage de temps à planifier
+l'architecture avant de commencer à coder. On a beaucoup ajouté de fonctionnalités
+au fil de l'eau, ce qui a parfois créé des incohérences qu'on a dû corriger ensuite.
+On choisirait aussi probablement une technologie plus flexible que Streamlit pour le
+design.
+
+\subsection{Perspectives}
+
+On a envie de continuer ce projet après le cours. Ce qui manque le plus au modèle
+actuel, c'est la corrélation entre actifs : aujourd'hui chaque actif est simulé
+indépendamment, alors que dans la réalité l'or et le dollar bougent souvent en sens
+inverse, tout comme les obligations par rapport aux actions. Ce serait la prochaine
+étape logique côté maths. On aimerait aussi remplacer la sauvegarde en JSON par une
+vraie base de données, avec un système d'authentification pour que chaque utilisateur
+garde son propre historique. Et si on recommençait depuis zéro, on choisirait
+probablement une technologie plus flexible que Streamlit pour l'interface.
+
+\newpage
+
+% ============================================================
+\section{Bibliographie}
+% ============================================================
+
+\renewcommand{\bibname}{}
+\renewcommand{\refname}{}
+\begin{thebibliography}{9}
+   \bibitem[BLACK73]{bs} F. Black, M. Scholes,
+   {\it The Pricing of Options and Corporate Liabilities},
+   Journal of Political Economy, Vol. 81, No. 3, 1973
+   \bibitem[HULL]{hull} J. Hull,
+   {\it Options, Futures, and Other Derivatives}, 11e édition, Pearson, 2022
+   \bibitem[ITO]{ito} K. Itô,
+   {\it On Stochastic Differential Equations},
+   Memoirs of the American Mathematical Society, 1951
+\end{thebibliography}
+
+\newpage
+
+% ============================================================
+\section{Webographie}
+% ============================================================
+
+\begin{thebibliography}{9}
+   \bibitem[ST]{st} Documentation officielle Streamlit,
+   \url{https://docs.streamlit.io}
+   \bibitem[OAI]{oai} Documentation OpenAI API,
+   \url{https://platform.openai.com/docs}
+   \bibitem[YF]{yf} yfinance sur PyPI,
+   \url{https://pypi.org/project/yfinance}
+   \bibitem[PD]{pd} Documentation Pydantic v2,
+   \url{https://docs.pydantic.dev}
+   \bibitem[PL]{pl} Documentation Plotly Python,
+   \url{https://plotly.com/python}
+   \bibitem[GBM]{gbm} Wikipédia, Mouvement brownien géométrique,
+   \url{https://fr.wikipedia.org/wiki/Mouvement_brownien_g\%C3\%A9om\%C3\%A9trique}
+   \bibitem[GH]{gh} Dépôt GitHub du projet,
+   \url{https://github.com/00quentin/projet-info-ia-L1-QG-LD-AR-ES}
+   \bibitem[UR]{ur} Uptime Robot, monitoring de disponibilité,
+   \url{https://uptimerobot.com}
+\end{thebibliography}
+
+\newpage
+
+% ============================================================
+\appendix
+\makeatletter
+\def\@seccntformat#1{Annexe~\csname the#1\endcsname:\quad}
+\makeatother
+
+% ---- ANNEXE A ----
+\section{Cahier des charges}
+
+Le cahier des charges initial comprenait les fonctionnalités suivantes :
+
+\begin{itemize}
+    \item Saisie d'un événement économique en langage naturel
+    \item Analyse de l'événement par intelligence artificielle (OpenAI GPT)
+    \item Sélection des actifs et du profil d'investisseur
+    \item Simulation de l'évolution d'un portefeuille sur un horizon défini
+    \item Affichage de graphiques interactifs et de métriques financières
+\end{itemize}
+
+Les fonctionnalités suivantes ont été ajoutées hors cahier des charges initial, au fil
+du développement : mode backtest historique, comparaison de scénarios, Monte-Carlo,
+calibration historique IA, export CSV/PDF, chatbot IA, académie pédagogique, mode
+sombre, partage par URL, ticker en direct, actifs personnalisés via ticker Yahoo.
+
+% ---- ANNEXE B ----
+\section{Exemple d'exécution du projet}
+
+Cette annexe présente une session complète d'utilisation de Quant Terminal.
+Nous avons simulé deux scénarios économiques opposés sur le même portefeuille
+de 15 000\euro{} avec un profil Agressif, 20 actifs sélectionnés, un horizon de
+130 jours de cotation et le mode Monte-Carlo activé (50 simulations parallèles).
+
+\textbf{Scénario A (Stagflation européenne) :} la BCE monte ses taux à 5,5\%
+malgré une récession, l'euro chute, les marchés actions européens s'effondrent
+mais l'or et le pétrole résistent en valeur refuge.
+
+\textbf{Scénario B (Boom IA et semi-conducteurs asiatiques) :} la Chine lève ses
+restrictions sur les semi-conducteurs, les valeurs tech explosent, les actifs
+risqués surperforment massivement.
+
+Résultats : Scénario A perd \textbf{-10,81\%} (13 379\euro{}),
+Scénario B gagne \textbf{+24,32\%} (18 648\euro{}). L'écart de 35,12 points entre
+les deux trajectoires illustre la puissance de la fonctionnalité de comparaison.
+
+\bigskip
+\noindent\textbf{Étape 1 : Page d'accueil et configuration}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.85\textwidth]{fig_accueil1.png}
+\caption{Page d'accueil en mode sombre. Le ticker en haut affiche les prix en direct
+(S\&P 500, VIX, Or, BTC) et un guide en 4 étapes explique comment démarrer}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.85\textwidth]{fig_accueil2.png}
+\caption{Dashboard vide avant la première simulation, avec presets de scénarios
+pour aider l'utilisateur à démarrer}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.85\textwidth]{fig_accueil3.png}
+\caption{Scénarios rapides prêts à l'emploi. Un clic charge la configuration complète
+sans avoir à remplir le formulaire manuellement}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.45\textwidth]{fig_sidebar1.png}
+\caption{Sidebar de configuration : mode Simulation prospective, 2 scénarios à
+comparer, saisie des événements A et B. Le conseil en jaune incite à détailler le
+scénario pour améliorer la qualité de l'analyse}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.45\textwidth]{fig_sidebar2.png}
+\caption{Options avancées : Monte-Carlo activé (50 simulations), horizon de 130 jours,
+prix réels Yahoo Finance, calibration historique IA activée}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.45\textwidth]{fig_sidebar3.png}
+\caption{Sélection des actifs (20 sur 23) et paramètres du portefeuille : capital de
+15 000\euro{}, profil Agressif}
+\end{figure}
+
+\bigskip
+\noindent\textbf{Étape 2 : Résultats du Dashboard}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.85\textwidth]{fig_dashboard_1.png}
+\caption{Dashboard après simulation du Scénario A : valeur finale 13 379\euro{}
+(-10,81\%), calibré sur le Choc pétrolier de 1973}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.85\textwidth]{fig_analyseIA.png}
+\caption{Analyse macroéconomique rédigée par l'IA. GPT explique les mécanismes de
+transmission du scénario avec les estimations d'impact (inflation +8,52\%, taux
+directeurs +5,53\%)}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.85\textwidth]{fig_evo_vs_marche.png}
+\caption{Évolution du portefeuille sur 130 jours comparée au S\&P 500 (-16,18\%)
+et au MSCI World (-16,44\%). Notre portefeuille (-10,81\%) surperforme les indices
+grâce à la présence d'or et de pétrole}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.85\textwidth]{fig_metriques_portefeuille.png}
+\caption{Métriques de risque : Volatilité 9,4\% (FAIBLE), Sharpe -2,54 (MAUVAIS),
+Max Drawdown -11,6\% (MODÉRÉ), VaR 95\% -1,0\%/jour. L'alerte rouge signale
+le rendement/risque défavorable}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.85\textwidth]{fig_comparaison_cali.png}
+\caption{Comparaison calibration historique vs projection IA libre par actif. Un écart
+supérieur à 15 points indique un scénario peu couvert par les données historiques}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.85\textwidth]{fig_graphiques.png}
+\caption{Simulations Monte-Carlo par catégorie (50 trajectoires). Les zones colorées
+montrent l'enveloppe des scénarios possibles. Les actions ont une dispersion bien plus
+large que les obligations}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.85\textwidth]{fig_graphique_grand.png}
+\caption{Monte-Carlo cryptomonnaies : Bitcoin, Ethereum, XRP et Solana sur 130 jours.
+La ligne pointillée blanche est la médiane des 50 simulations}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.85\textwidth]{fig_performance_actifs.png}
+\caption{Performance par actif : Or +15\%, Pétrole +12\%, Défense +7\% en vert,
+contre CAC 40 -16\%, S\&P 500 -16\%, NASDAQ -20\% en rouge}
+\end{figure}
+
+\bigskip
+\noindent\textbf{Étape 3 : Onglet Portefeuille}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.85\textwidth]{fig_portefeuille_1.png}
+\caption{Détail par actif : chaque carte affiche la valeur finale et la performance.
+Le contraste est net entre Pétrole (+11,85\%) et NASDAQ (-20,33\%)}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.85\textwidth]{fig_portefeuille_2.png}
+\caption{Allocation (donut) et bilan net : S\&P 500 à 30\%, Bitcoin à 20\%, NASDAQ
+à 15\%. Résultat final : 13 379\euro{} soit -1 620\euro{} sur les 15 000\euro{}
+initiaux}
+\end{figure}
+
+\bigskip
+\noindent\textbf{Étape 4 : Comparaison des deux scénarios}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.85\textwidth]{fig_comparatifs_portefeuilles.png}
+\caption{Évolution comparée : Scénario B (vert, +24,32\%) contre Scénario A (bleu,
+-10,81\%). Les trajectoires divergent dès les premiers jours}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.85\textwidth]{fig_comparatif_metriques.png}
+\caption{Métriques A vs B : Sharpe -2,54 contre +3,99, Max Drawdown -11,60\% contre
+-3,50\%. Le scénario B domine sur tous les indicateurs}
+\end{figure}
+
+\bigskip
+\noindent\textbf{Étape 5 : Export, Historique et fonctionnalités annexes}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.85\textwidth]{fig_export_pdf.png}
+\caption{Section export : données brutes en CSV, rapport PDF généré par l'IA, bouton
+de partage qui copie un lien URL avec tous les paramètres de simulation}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.85\textwidth]{fig_historique.png}
+\caption{Onglet Historique : les deux simulations sont sauvegardées avec date, profil
+et performance. L'historique persiste entre les sessions via un fichier JSON}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.85\textwidth]{fig_academie_1.png}
+\caption{Académie, module Stratégies d'investissement. Le portefeuille 60/40
+(actions/obligations) est présenté comme référence institutionnelle depuis les
+années 1950}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.85\textwidth]{fig_academie_2.png}
+\caption{Exemple d'allocation équilibrée : 40\% actions, 25\% obligations, 15\% or,
+10\% crypto, 10\% cash}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.85\textwidth]{fig_academie_3.png}
+\caption{Cas historique de la Crise de 2008 : contexte subprimes, déclenchement,
+chute de -57\% sur le S\&P 500 et enseignements}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.85\textwidth]{fig_anlyste_ia.png}
+\caption{Chatbot IA répondant à \og{}Pourquoi l'Or monte-t-il en période de crise ?\fg{}
+Les questions fréquentes à gauche permettent de démarrer sans connaissances préalables}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.85\textwidth]{fig_apropos_1.png}
+\caption{Page À propos : présentation du projet et contexte académique (L1 MIASHS,
+double licence Économie-Gestion, Université Paris Nanterre)}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.85\textwidth]{fig_apropos_2.png}
+\caption{Stack technique en trois piliers : Frontend/Backend, IA/Données, Hébergement}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.85\textwidth]{fig_apropos_3.png}
+\caption{Liste des fonctionnalités et section \og{}Sources et limites assumées\fg{} :
+Quant Terminal est un outil pédagogique utilisant un GBM avec volatilités supposées
+constantes et actifs indépendants}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.85\textwidth]{fig_donnees_brut.png}
+\caption{Export CSV dans Excel : une colonne par actif, une ligne par jour simulé}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.85\textwidth]{fig_pdf.png}
+\caption{Rapport PDF généré (4 pages) : scénario, paramètres, synthèse macro de l'IA,
+impacts par actif et métriques de risque}
+\end{figure}
+
+% ---- ANNEXE C ----
+\section{Manuel utilisateur}
+
+\subsection*{Prérequis pour lancer en local}
+
+\begin{itemize}
+    \item Python 3.10 ou supérieur installé sur la machine
+    \item Un fichier \texttt{.env} à la racine du projet contenant :
+    \texttt{OPENAI\_API\_KEY=sk-...}
+    \item Dépendances installées via : \texttt{pip install -r requirements.txt}
+    \item Lancer l'application avec : \texttt{streamlit run app.py}
+\end{itemize}
+
+L'application est accessible directement en ligne (sans installation) à :
+\url{https://quant-terminal.streamlit.app}
+
+\subsection*{Guide des onglets}
+
+\begin{itemize}
+    \item \textbf{Dashboard} : résultats principaux, valeur finale, analyse IA,
+    graphiques d'évolution, Monte-Carlo par catégorie, métriques de risque, alertes
+    \item \textbf{Portefeuille} : détail par actif avec performance individuelle et
+    donut d'allocation
+    \item \textbf{Comparaison} : disponible si 2 ou 3 scénarios sont lancés,
+    graphique d'évolution comparée et tableau de métriques côte à côte
+    \item \textbf{Historique} : 10 dernières simulations sauvegardées automatiquement,
+    persistantes entre les sessions
+    \item \textbf{Académie} : 7 modules pédagogiques sur la finance de marché,
+    conçus pour être lus dans l'ordre
+    \item \textbf{À propos} : présentation du projet, de l'équipe et de la stack
+    technique
+    \item \textbf{Chatbot IA} : accessible via la bulle violette en bas à droite,
+    pour poser des questions financières en langage naturel
+\end{itemize}
+
+\end{document}
