@@ -171,7 +171,7 @@ def render_onboarding():
     col_btn, col_tip = st.columns([1, 2])
     with col_btn:
         if st.button(
-            "Démarrer →",
+            "✓  J'ai compris, fermer le guide",
             key="btn_hide_onboarding",
             use_container_width=True,
             type="primary",
