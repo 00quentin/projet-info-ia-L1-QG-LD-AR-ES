@@ -172,31 +172,6 @@ def render_chat_bubble():
         Array.prototype.forEach.call(pdoc.querySelectorAll('header'), function(h) {{
             h.style.cssText += ';display:none!important;height:0!important;overflow:hidden!important;';
         }});
-        // 3. Scan universel : tout élément en haut avec fond blanc → camouflage + masquage
-        try {{
-            var win = window.parent;
-            var found = [];
-            Array.prototype.forEach.call(pdoc.querySelectorAll('*'), function(el) {{
-                var r = el.getBoundingClientRect();
-                if (r.top >= 0 && r.top < 200 && r.height > 0 && r.height < 150 && r.width > 50) {{
-                    var s = win.getComputedStyle(el);
-                    var bg = s.backgroundColor;
-                    var isWhite = (bg === 'rgb(255, 255, 255)' || bg === 'rgba(255, 255, 255, 1)');
-                    if (isWhite) {{
-                        found.push(el.tagName + '#' + el.id + '.' + el.className.split(' ')[0] +
-                                   '[dt=' + (el.getAttribute('data-testid')||'?') + ']' +
-                                   ' ' + Math.round(r.width) + 'x' + Math.round(r.height) +
-                                   '@' + Math.round(r.top) + ',' + Math.round(r.left));
-                        el.style.setProperty('background-color', 'transparent', 'important');
-                        el.style.setProperty('background', 'transparent', 'important');
-                        el.style.setProperty('border', 'none', 'important');
-                        el.style.setProperty('box-shadow', 'none', 'important');
-                        el.style.setProperty('display', 'none', 'important');
-                    }}
-                }}
-            }});
-            if (found.length) pdoc.title = 'QT-DBG: ' + found.join(' | ');
-        }} catch(e) {{}}
     }}
 
     function setup() {{
