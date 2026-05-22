@@ -3302,6 +3302,7 @@ footer { display: none !important; }
 }
 
 /* 2. Radio buttons → pill segmented control */
+/* Radio pills horizontaux (hors sidebar) */
 [data-testid="stRadio"] > div > div[role="radiogroup"] {
     display: flex !important;
     flex-direction: row !important;
@@ -3339,6 +3340,40 @@ footer { display: none !important; }
 /* Masque le cercle radio natif */
 [data-testid="stRadio"] [data-baseweb="radio"] > div:first-child { display: none !important; }
 [data-testid="stRadio"] input[type="radio"] { display: none !important; }
+
+/* Dans la sidebar : radio vertical — une carte par option */
+[data-testid="stSidebar"] [data-testid="stRadio"] > div > div[role="radiogroup"] {
+    flex-direction: column !important;
+    gap: 5px !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+}
+[data-testid="stSidebar"] [data-testid="stRadio"] label {
+    border: 1px solid var(--border) !important;
+    background: var(--card) !important;
+    color: var(--text) !important;
+    border-radius: 8px !important;
+    padding: 10px 14px !important;
+    font-size: 0.88em !important;
+    font-weight: 500 !important;
+    justify-content: flex-start !important;
+    text-align: left !important;
+    min-height: 40px !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
+}
+[data-testid="stSidebar"] [data-testid="stRadio"] label:has(input[type="radio"]:checked) {
+    background: var(--accent) !important;
+    border-color: var(--accent) !important;
+    color: white !important;
+    font-weight: 600 !important;
+    box-shadow: 0 2px 8px rgba(99,102,241,0.35) !important;
+}
+[data-testid="stSidebar"] [data-testid="stRadio"] label:not(:has(input:checked)):hover {
+    border-color: var(--accent) !important;
+    background: var(--hover-tint) !important;
+    color: var(--accent) !important;
+}
 
 /* 3. Checkboxes → carré arrondi accent */
 [data-testid="stCheckbox"] [data-baseweb="checkbox"] {
