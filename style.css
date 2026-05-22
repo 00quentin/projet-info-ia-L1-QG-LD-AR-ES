@@ -3349,27 +3349,29 @@ footer { display: none !important; }
     border: none !important;
     padding: 0 !important;
 }
-[data-testid="stSidebar"] [data-testid="stRadio"] label {
+/* Cibler UNIQUEMENT les labels d'options (dans radiogroup), pas le label du widget */
+[data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label {
     border: 1px solid var(--border) !important;
     background: var(--card) !important;
     color: var(--text) !important;
     border-radius: 8px !important;
-    padding: 10px 14px !important;
+    padding: 8px 12px !important;
     font-size: 0.88em !important;
     font-weight: 500 !important;
     justify-content: flex-start !important;
     text-align: left !important;
-    min-height: 40px !important;
+    min-height: 36px !important;
     box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
+    white-space: nowrap !important;
 }
-[data-testid="stSidebar"] [data-testid="stRadio"] label:has(input[type="radio"]:checked) {
+[data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:has(input[type="radio"]:checked) {
     background: var(--accent) !important;
     border-color: var(--accent) !important;
     color: white !important;
     font-weight: 600 !important;
     box-shadow: 0 2px 8px rgba(99,102,241,0.35) !important;
 }
-[data-testid="stSidebar"] [data-testid="stRadio"] label:not(:has(input:checked)):hover {
+[data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:not(:has(input:checked)):hover {
     border-color: var(--accent) !important;
     background: var(--hover-tint) !important;
     color: var(--accent) !important;
