@@ -284,7 +284,6 @@ def render_sidebar() -> Dict[str, Any]:
         # ── En-tête ──────────────────────────────────────────
         st.markdown("""
         <div class="qt-sb-header">
-            <span class="qt-sb-header-icon">📈</span>
             <div>
                 <div class="qt-sb-title">Quant Terminal</div>
                 <div class="qt-sb-subtitle">Configurez votre simulation</div>
