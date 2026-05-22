@@ -126,9 +126,10 @@ def render_chat_bubble():
     show = st.session_state.get("show_chat", False)
     icon = "✕" if show else "💬"
     dark = st.session_state.get("dark_mode", False)
-    bg_top   = "#0b0e11" if dark else "#fafafa"
-    border_c = "#2a2e39" if dark else "#e4e4e7"
-    text_c   = "#d1d4dc" if dark else "#27272a"
+    bg_top      = "#0b0e11" if dark else "#fafafa"
+    collapsed_bg = "#1e222d" if dark else "#e4e4e7"
+    border_c    = "#2a2e39" if dark else "#d4d4d8"
+    text_c      = "#d1d4dc" if dark else "#27272a"
 
     # ── Bouton Streamlit caché, trouvé par le JS via son texte unique ─────
     if st.button(_TRIGGER, key="qt_chat_toggle"):
@@ -176,8 +177,8 @@ def render_chat_bubble():
         // Force les couleurs du bouton sidebar toggle (probablement le "rectangle blanc")
         var el = pdoc.querySelector('[data-testid="collapsedControl"]');
         if (!el) return;
-        el.style.setProperty('background', '{bg_top}', 'important');
-        el.style.setProperty('background-color', '{bg_top}', 'important');
+        el.style.setProperty('background', '{collapsed_bg}', 'important');
+        el.style.setProperty('background-color', '{collapsed_bg}', 'important');
         el.style.setProperty('border', '1px solid {border_c}', 'important');
         el.style.setProperty('border-radius', '8px', 'important');
         el.style.setProperty('box-shadow', 'none', 'important');

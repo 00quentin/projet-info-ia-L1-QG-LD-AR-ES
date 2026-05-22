@@ -145,9 +145,7 @@ def appliquer_styles():
             "\n<link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap\" rel=\"stylesheet\">"
             "\n<link href=\"https://fonts.googleapis.com/icon?family=Material+Icons\" rel=\"stylesheet\">"
             "\n<link href=\"https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0&display=block\" rel=\"stylesheet\">"
-            # Skip link : invisible jusqu'au focus clavier (Tab dès le chargement)
-            "\n<a href='#main-content' class='qt-skip-link'>Aller au contenu principal</a>"
-            "\n<span id='main-content' class='sr-only' tabindex='-1'>Contenu principal</span>",
+            "",
             unsafe_allow_html=True
         )
     except FileNotFoundError:
