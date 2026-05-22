@@ -3355,17 +3355,24 @@ footer { display: none !important; }
     background: var(--card) !important;
     color: var(--text) !important;
     border-radius: 8px !important;
-    padding: 0 12px !important;
-    font-size: 0.82em !important;
+    padding: 10px 12px !important;
+    font-size: 0.80em !important;
     font-weight: 500 !important;
     justify-content: center !important;
     text-align: center !important;
-    height: 40px !important;
-    min-height: 40px !important;
-    max-height: 40px !important;
     box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
     white-space: nowrap !important;
     overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+/* Forcer nowrap aussi sur le texte interne (p, span) */
+[data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label p,
+[data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label span,
+[data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label div {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    line-height: 1.2 !important;
 }
 [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:has(input[type="radio"]:checked) {
     background: var(--accent) !important;
