@@ -176,30 +176,23 @@ div[data-testid="stAppViewContainer"] .stTabs [data-baseweb="tab-list"] {{
     fill: {text_c} !important;
     color: {text_c} !important;
 }}
-/* Header Streamlit — masqué ET camouflé (double stratégie) */
-header[data-testid="stHeader"],
-div[data-testid="stHeader"],
-[data-testid="stHeader"],
-[data-testid="stHeader"] > *,
+/* Toolbar Streamlit — cache uniquement les outils dev, PAS le bouton sidebar */
 [data-testid="stToolbar"],
 [data-testid="stAppToolbar"],
 [data-testid="stDeployButton"],
 [data-testid="stStatusWidget"],
 [data-testid="stDecoration"] {{
     display: none !important;
-    visibility: hidden !important;
-    height: 0 !important;
-    min-height: 0 !important;
-    max-height: 0 !important;
-    overflow: hidden !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-    background: {tab_bg} !important;
-    background-color: {tab_bg} !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
+}}
+/* Le bouton sidebar doit rester visible même si stHeader est stylé */
+[data-testid="collapsedControl"],
+[data-testid="collapsedControl"] * {{
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    height: auto !important;
+    overflow: visible !important;
+    pointer-events: auto !important;
 }}
 /* App container */
 [data-testid="stAppViewContainer"] > [data-testid="stVerticalBlock"]:first-child,
