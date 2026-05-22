@@ -303,9 +303,8 @@ def render_sidebar() -> Dict[str, Any]:
             <span class="qt-sb-step-label">Mode</span>
         </div>""", unsafe_allow_html=True)
         mode_app = st.radio(
-            "Mode du terminal",
+            "Mode",
             ["Simulation prospective", "Backtest historique"],
-            help="Simulation : teste un scénario fictif. Backtest : rejoue les vraies données passées.",
             label_visibility="collapsed",
         )
 
