@@ -144,13 +144,10 @@ def _render_actif_perso_form() -> None:
     st.caption("Ajoutez n'importe quel actif coté via son ticker Yahoo Finance "
                "(ex: TSLA, MSFT, BTC-USD).")
 
-    col_input, col_btn = st.columns([2, 1])
-    with col_input:
-        ticker = st.text_input("Ticker", key="custom_ticker_input",
-                                label_visibility="collapsed", placeholder="TSLA")
-    with col_btn:
-        ajouter = st.button("+ Ajouter", key="btn_add_custom", use_container_width=True,
-                            on_click=_mark_actifs_expander_open)
+    ticker = st.text_input("Ticker", key="custom_ticker_input",
+                            label_visibility="collapsed", placeholder="ex: TSLA, MSFT, BTC-USD")
+    ajouter = st.button("+ Ajouter cet actif", key="btn_add_custom", use_container_width=True,
+                        on_click=_mark_actifs_expander_open)
 
     if ajouter and ticker:
         with st.spinner(f"Calibration de {ticker.upper()}..."):
