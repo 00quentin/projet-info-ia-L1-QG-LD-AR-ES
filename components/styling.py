@@ -176,6 +176,12 @@ div[data-testid="stAppViewContainer"] .stTabs [data-baseweb="tab-list"] {{
     fill: {text_c} !important;
     color: {text_c} !important;
 }}
+/* stHeader : transparent + overflow visible pour ne pas clipper collapsedControl */
+[data-testid="stHeader"] {{
+    background: transparent !important;
+    background-color: transparent !important;
+    overflow: visible !important;
+}}
 /* Toolbar Streamlit — cache uniquement les outils dev, PAS le bouton sidebar */
 [data-testid="stToolbar"],
 [data-testid="stAppToolbar"],
@@ -184,14 +190,22 @@ div[data-testid="stAppViewContainer"] .stTabs [data-baseweb="tab-list"] {{
 [data-testid="stDecoration"] {{
     display: none !important;
 }}
-/* Le bouton sidebar doit rester visible même si stHeader est stylé */
-[data-testid="collapsedControl"],
-[data-testid="collapsedControl"] * {{
+/* collapsedControl : position fixed pour échapper au parent, toujours visible */
+[data-testid="collapsedControl"] {{
+    position: fixed !important;
+    top: 0.5rem !important;
+    left: 0.5rem !important;
+    z-index: 999990 !important;
     display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     visibility: visible !important;
     opacity: 1 !important;
-    height: auto !important;
-    overflow: visible !important;
+    pointer-events: auto !important;
+}}
+[data-testid="collapsedControl"] * {{
+    visibility: visible !important;
+    opacity: 1 !important;
     pointer-events: auto !important;
 }}
 /* App container */
