@@ -80,11 +80,11 @@ CSS_VARS_CLAIR = """
     --secondary:     var(--slate-700);
     --accent:        var(--indigo-600);         /* unique accent (boutons primary, focus) */
     --accent-soft:   var(--indigo-100);
-    --bg:            var(--slate-50);
+    --bg:            #f0f2f5;           /* fond légèrement plus foncé = cartes blanches ressortent */
     --bg-2:          #ffffff;
     --card:          #ffffff;
-    --border:        var(--slate-200);
-    --border-strong: var(--slate-300);
+    --border:        var(--slate-300);  /* bordures plus visibles en clair */
+    --border-strong: var(--slate-400);
     --text:          var(--slate-800);
     --text-muted:    var(--slate-600);
     --muted:         var(--slate-500);
