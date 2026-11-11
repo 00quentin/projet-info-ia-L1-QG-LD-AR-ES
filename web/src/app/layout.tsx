@@ -1,5 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { EnTete } from "@/components/EnTete";
+import { BandeMarches } from "@/components/BandeMarches";
+import { BulleChat } from "@/components/chat/BulleChat";
+import { FournisseurMouvement } from "@/components/motion/FournisseurMouvement";
 
 export const metadata: Metadata = {
   title: "Quant Terminal — Simulateur d'investissement",
@@ -23,7 +27,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <script dangerouslySetInnerHTML={{ __html: SCRIPT_THEME }} />
       </head>
-      <body className="min-h-full">{children}</body>
+      <body className="min-h-full">
+        <FournisseurMouvement>
+          <a href="#contenu" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-surface focus:px-3 focus:py-2">
+            Aller au contenu
+          </a>
+          {/* En-tete et cours restent visibles au defilement sur grand ecran */}
+          <div className="z-30 lg:sticky lg:top-0">
+            <EnTete />
+            <BandeMarches />
+          </div>
+          <div id="contenu">{children}</div>
+          <BulleChat />
+        </FournisseurMouvement>
+      </body>
     </html>
   );
 }

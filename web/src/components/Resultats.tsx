@@ -1,87 +1,13 @@
 "use client";
 
-import { CircleAlert, CircleCheck, Info, TriangleAlert } from "lucide-react";
-import type { Alerte, Metriques, ParametresSimulation, ReponseSimulation, ResultatScenario } from "@/lib/api";
-import { euros, eurosCompacts, nombreSigne, pourcent, pourcentSigne } from "@/lib/format";
+import { TriangleAlert } from "lucide-react";
+import type { ParametresSimulation, ReponseSimulation, ResultatScenario } from "@/lib/api";
+import { euros, eurosCompacts, pourcent, pourcentSigne } from "@/lib/format";
+import { ListeAlertes, TuilesRisque } from "@/components/resultats/Risque";
+import { DetailPortefeuille } from "@/components/resultats/DetailPortefeuille";
 import { Carte, Pastille, TitreCarte } from "@/components/ui/Carte";
 import { GraphiqueLignes, Legende, type SerieLigne } from "@/components/charts/GraphiqueLignes";
 import { BarresPerformance } from "@/components/charts/BarresPerformance";
-
-type Niveau = { libelle: string; ton: "gain" | "neutre" | "alerte" | "perte" };
-
-// Memes seuils que core/risk_alerts.py (standards de l'industrie).
-function niveauVolatilite(v: number): Niveau {
-  if (v < 15) return { libelle: "Modérée", ton: "gain" };
-  if (v < 25) return { libelle: "Normale", ton: "neutre" };
-  if (v < 35) return { libelle: "Élevée", ton: "alerte" };
-  return { libelle: "Très élevée", ton: "perte" };
-}
-function niveauSharpe(s: number, qualite: string): Niveau {
-  return { libelle: qualite, ton: s < 0 ? "perte" : s < 1 ? "neutre" : "gain" };
-}
-function niveauDrawdown(d: number): Niveau {
-  if (d < 10) return { libelle: "Limité", ton: "gain" };
-  if (d < 25) return { libelle: "Modéré", ton: "neutre" };
-  if (d < 40) return { libelle: "Sévère", ton: "alerte" };
-  return { libelle: "Critique", ton: "perte" };
-}
-function niveauVar(v: number): Niveau {
-  const abs = Math.abs(v);
-  if (abs < 2) return { libelle: "Faible", ton: "gain" };
-  if (abs < 4) return { libelle: "Modérée", ton: "neutre" };
-  return { libelle: "Élevée", ton: "perte" };
-}
-
-function Tuile({ titre, valeur, niveau, explication }: { titre: string; valeur: string; niveau: Niveau; explication: string }) {
-  return (
-    <div className="rounded-xl border border-line bg-surface p-4">
-      <div className="flex items-start justify-between gap-2">
-        <span className="text-xs font-medium text-muted">{titre}</span>
-        <Pastille ton={niveau.ton}>{niveau.libelle}</Pastille>
-      </div>
-      <div className="mt-2 text-2xl font-semibold tracking-tight">{valeur}</div>
-      <p className="mt-1.5 text-xs leading-relaxed text-ink-2">{explication}</p>
-    </div>
-  );
-}
-
-function TuilesRisque({ m }: { m: Metriques }) {
-  return (
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-      <Tuile titre="Volatilité annualisée" valeur={pourcent(m.vol_ann)} niveau={niveauVolatilite(m.vol_ann)} explication="L'ampleur habituelle des variations sur un an. Plus elle est haute, plus le parcours est agité." />
-      <Tuile titre="Ratio de Sharpe" valeur={nombreSigne(m.sharpe)} niveau={niveauSharpe(m.sharpe, m.qualite_sharpe)} explication="Le rendement obtenu pour chaque unité de risque prise. Au-dessus de 1, le risque est bien payé." />
-      <Tuile titre="Perte maximale (drawdown)" valeur={`−${pourcent(m.max_dd).replace("-", "")}`} niveau={niveauDrawdown(m.max_dd)} explication="La pire chute entre un sommet et le creux qui suit, en cours de route." />
-      <Tuile titre="VaR 95 % sur 1 jour" valeur={pourcentSigne(m.var_95, 2)} niveau={niveauVar(m.var_95)} explication="Un jour sur vingt, la perte quotidienne dépasse ce seuil." />
-    </div>
-  );
-}
-
-const ICONES_ALERTE = { error: CircleAlert, warning: TriangleAlert, success: CircleCheck, info: Info };
-const TONS_ALERTE = {
-  error: "border-loss/30 bg-loss-soft text-loss",
-  warning: "border-warn/30 bg-warn-soft text-warn",
-  success: "border-gain/30 bg-gain-soft text-gain",
-  info: "border-line bg-surface-2 text-ink-2",
-};
-
-function ListeAlertes({ alertes }: { alertes: Alerte[] }) {
-  if (alertes.length === 0) return null;
-  return (
-    <ul className="flex flex-col gap-2">
-      {alertes.map((a) => {
-        const Icone = ICONES_ALERTE[a.severite];
-        return (
-          <li key={a.titre} className={`flex gap-3 rounded-xl border px-4 py-3 text-sm ${TONS_ALERTE[a.severite]}`}>
-            <Icone className="mt-0.5 size-4 shrink-0" aria-hidden />
-            <span className="text-ink">
-              <strong className="font-semibold">{a.titre}.</strong> {a.message}
-            </span>
-          </li>
-        );
-      })}
-    </ul>
-  );
-}
 
 function Synthese({ s, p }: { s: ResultatScenario; p: ParametresSimulation }) {
   const pf = s.portefeuille;
@@ -256,61 +182,6 @@ function Evolution({ s, p }: { s: ResultatScenario; p: ParametresSimulation }) {
   );
 }
 
-function DetailPortefeuille({ s }: { s: ResultatScenario }) {
-  const lignes = [...s.allocations].sort((a, b) => b.poids - a.poids);
-  return (
-    <Carte className="p-6">
-      <TitreCarte aide="Ce que devient chaque ligne de votre portefeuille dans ce scénario.">Détail du portefeuille</TitreCarte>
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[34rem] text-sm">
-          <thead className="text-xs text-muted">
-            <tr>
-              <th className="pb-2 text-left font-medium">Actif</th>
-              <th className="pb-2 text-left font-medium">Part</th>
-              <th className="pb-2 text-right font-medium">Investi</th>
-              <th className="pb-2 text-right font-medium">Valeur finale</th>
-              <th className="pb-2 text-right font-medium">Performance</th>
-            </tr>
-          </thead>
-          <tbody className="tabular-nums">
-            {lignes.map((l) => (
-              <tr key={l.cle} className="border-t border-line">
-                <td className="py-2.5 pr-3">{l.nom}</td>
-                <td className="py-2.5 pr-3">
-                  <span className="flex items-center gap-2">
-                    <span className="h-1.5 w-16 overflow-hidden rounded-full bg-surface-2" aria-hidden>
-                      <span className="block h-full rounded-full bg-accent" style={{ width: `${l.poids * 100}%` }} />
-                    </span>
-                    <span className="text-ink-2">{pourcent(l.poids * 100, 0)}</span>
-                  </span>
-                </td>
-                <td className="py-2.5 text-right text-ink-2">{euros(l.investi)}</td>
-                <td className="py-2.5 text-right font-medium">{euros(l.final)}</td>
-                <td className="py-2.5 text-right font-medium">
-                  <span aria-hidden className={l.performance_pct >= 0 ? "text-gain" : "text-loss"}>
-                    {l.performance_pct >= 0 ? "▲ " : "▼ "}
-                  </span>
-                  {pourcentSigne(l.performance_pct)}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-          <tfoot className="tabular-nums">
-            <tr className="border-t border-line-strong font-semibold">
-              <td className="pt-3" colSpan={2}>
-                Total
-              </td>
-              <td className="pt-3 text-right">{euros(s.portefeuille.capital)}</td>
-              <td className="pt-3 text-right">{euros(s.portefeuille.valeur_finale)}</td>
-              <td className="pt-3 text-right">{pourcentSigne(s.portefeuille.performance_pct)}</td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
-    </Carte>
-  );
-}
-
 export function Resultats({ reponse, scenario }: { reponse: ReponseSimulation; scenario: ResultatScenario }) {
   const p = reponse.parametres;
   return (
@@ -343,7 +214,12 @@ export function Resultats({ reponse, scenario }: { reponse: ReponseSimulation; s
         <BarresPerformance lignes={scenario.actifs.map((a) => ({ cle: a.cle, nom: a.nom, valeur: a.performance_pct }))} />
       </Carte>
 
-      <DetailPortefeuille s={scenario} />
+      <DetailPortefeuille
+        allocations={scenario.allocations}
+        capital={scenario.portefeuille.capital}
+        valeurFinale={scenario.portefeuille.valeur_finale}
+        performancePct={scenario.portefeuille.performance_pct}
+      />
 
       <p className="px-1 text-xs leading-relaxed text-muted">
         Outil pédagogique : ces résultats sont des estimations issues d&apos;un modèle et d&apos;une IA, pas un conseil en investissement. La réalité peut fortement diverger.

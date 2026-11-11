@@ -65,10 +65,49 @@ export type ReponseSimulation = {
   scenarios: (ResultatScenario | ScenarioEnErreur)[];
 };
 
-export type DemandeSimulation = {
-  scenarios: string[]; actifs: string[]; profil: string; allocations: Record<string, number>;
+export type DemandePortefeuille = {
+  actifs: string[]; profil: string; allocations: Record<string, number>;
   capital: number; tickers_perso: string[]; convertir_eur: boolean;
-  duree: number; modele: string; monte_carlo: boolean; prix_reels: boolean; calibration: boolean;
+};
+
+export type DemandeSimulation = DemandePortefeuille & {
+  scenarios: string[]; duree: number; modele: string; monte_carlo: boolean; prix_reels: boolean; calibration: boolean;
+};
+
+/** Evenement du catalogue, ou periode libre (date_debut + date_fin au format AAAA-MM-JJ). */
+export type DemandeBacktest = DemandePortefeuille & {
+  evenement?: string | null; date_debut?: string | null; date_fin?: string | null;
+};
+
+export type ReponseBacktest = {
+  date: string;
+  evenement: string | null;
+  description: string | null;
+  date_debut: string;
+  date_fin: string;
+  /** Une date (AAAA-MM-JJ) par point des series ci-dessous. */
+  dates: string[];
+  parametres: { profil: string; capital: number; duree: number; convertir_eur: boolean; nb_actifs: number };
+  /** Actifs coches mais qui ne cotaient pas encore au debut de la periode. */
+  actifs_indisponibles: { cle: string; nom: string }[];
+  portefeuille: Portefeuille; metriques: Metriques; alertes: Alerte[];
+  allocations: LigneAllocation[]; actifs: SerieActif[]; benchmarks: Benchmark[]; converti_eur: boolean;
+};
+
+export type ActifPerso = { cle: string; ticker: string; nom: string; devise: string | null; prix: number; volatilite: number };
+
+export type MessageChat = { role: "user" | "assistant"; content: string };
+
+/** Contenu du rapport PDF (miroir de DemandeRapport dans api/modeles.py). */
+export type DemandeRapport = {
+  type_rapport: "Simulation" | "Backtest";
+  scenario: string; profil: string; capital: number; valeur_finale: number; duree: number;
+  monte_carlo: boolean; prix_reels: boolean; calibration: boolean; nb_actifs: number;
+  inflation: number; taux_directeurs: number; explication: string; evenement_reference: string | null;
+  performances: { nom: string; performance: number }[];
+  allocations: { nom: string; poids: number; investi: number; final: number; rendement: number }[];
+  vol_ann: number; sharpe: number; max_dd: number; var_95: number;
+  avec_analyse_ia: boolean;
 };
 
 export function estReussi(s: ResultatScenario | ScenarioEnErreur): s is ResultatScenario {
@@ -109,3 +148,33 @@ export const lireCatalogue = () => appeler<Catalogue>("/api/catalogue");
 export const lireMarches = () => appeler<Marches>("/api/marches");
 export const lancerSimulation = (demande: DemandeSimulation) =>
   appeler<ReponseSimulation>("/api/simulations", { method: "POST", body: JSON.stringify(demande) });
+export const lancerBacktest = (demande: DemandeBacktest) =>
+  appeler<ReponseBacktest>("/api/backtests", { method: "POST", body: JSON.stringify(demande) });
+export const lireActifPerso = (ticker: string) => appeler<ActifPerso>(`/api/actifs-perso/${encodeURIComponent(ticker.trim())}`);
+export const discuter = (messages: MessageChat[]) =>
+  appeler<{ reponse: string }>("/api/chat", { method: "POST", body: JSON.stringify({ messages }) });
+
+/** Genere le rapport PDF (15-30 s avec l'analyse IA) et renvoie le fichier. */
+export async function telechargerRapportPdf(demande: DemandeRapport): Promise<Blob> {
+  let reponse: Response;
+  try {
+    reponse = await fetch(`${API_URL}/api/rapports/pdf`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(demande),
+    });
+  } catch {
+    throw new ErreurApi("Impossible de joindre le serveur. Vérifiez votre connexion puis réessayez.", 0);
+  }
+  if (!reponse.ok) {
+    let detail = "Le rapport n'a pas pu être généré.";
+    try {
+      const corps = await reponse.json();
+      if (typeof corps.detail === "string") detail = corps.detail;
+    } catch {
+      /* corps non JSON */
+    }
+    throw new ErreurApi(detail, reponse.status);
+  }
+  return reponse.blob();
+}

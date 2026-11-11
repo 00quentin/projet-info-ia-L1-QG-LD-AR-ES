@@ -1,16 +1,11 @@
-import { BandeMarches } from "@/components/BandeMarches";
-import { EnTete } from "@/components/EnTete";
+import { Suspense } from "react";
 import { Simulateur } from "@/components/Simulateur";
 
 export default function Accueil() {
+  // Suspense : le simulateur lit l'adresse (lien de partage) cote client.
   return (
-    <>
-      {/* En-tete et cours restent visibles au defilement sur grand ecran */}
-      <div className="z-30 lg:sticky lg:top-0">
-        <EnTete />
-        <BandeMarches />
-      </div>
+    <Suspense>
       <Simulateur />
-    </>
+    </Suspense>
   );
 }

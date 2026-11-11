@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { motion } from "motion/react";
+import { EASE_SORTIE } from "@/components/motion/transitions";
 import { scaleLinear } from "d3-scale";
 import { area, line } from "d3-shape";
 
@@ -28,6 +30,7 @@ type Props = {
 };
 
 const MARGE = { haut: 16, droite: 16, bas: 28, gauche: 56 };
+const DUREE_TRACE = 1.2;
 
 function graduations(min: number, max: number, nb: number): number[] {
   return scaleLinear().domain([min, max]).nice(nb).ticks(nb);
@@ -83,6 +86,8 @@ export function GraphiqueLignes({ series, bande, etiquettesX, formatY, formatVal
   }
 
   const principale = series.find((s) => s.principale) ?? series[0];
+  // Nouvelle cle a chaque nouveau jeu de donnees : les courbes se redessinent.
+  const cleTrace = `${n}-${principale.valeurs[0]}-${principale.valeurs[n - 1]}`;
   const derniere = principale.valeurs[n - 1];
   const bulleAGauche = survol != null && x(survol) > largeur * 0.6;
 
@@ -126,18 +131,61 @@ export function GraphiqueLignes({ series, bande, etiquettesX, formatY, formatVal
           <line x1={MARGE.gauche} x2={largeur - MARGE.droite} y1={y(reference.valeur)} y2={y(reference.valeur)} stroke="var(--muted)" strokeWidth={1} />
         )}
 
-        {tracerBande && <path d={tracerBande(Array.from({ length: n }, (_, i) => i)) ?? undefined} fill={principale.couleur} opacity={0.12} />}
+        <g key={cleTrace}>
+          {/* La zone se deploie depuis la gauche pendant que les courbes se dessinent. */}
+          {tracerBande && (
+            <motion.path
+              d={tracerBande(Array.from({ length: n }, (_, i) => i)) ?? undefined}
+              fill={principale.couleur}
+              initial={{ opacity: 0, clipPath: "inset(0 100% 0 0)" }}
+              animate={{ opacity: 0.12, clipPath: "inset(0 0% 0 0)" }}
+              transition={{ duration: DUREE_TRACE, ease: EASE_SORTIE }}
+            />
+          )}
 
-        {series
-          .filter((s) => !s.principale)
-          .map((s) => (
-            <path key={s.nom} d={tracer(s.valeurs) ?? undefined} fill="none" stroke={s.couleur} strokeWidth={1.5} strokeLinejoin="round" strokeLinecap="round" />
-          ))}
-        <path d={tracer(principale.valeurs) ?? undefined} fill="none" stroke={principale.couleur} strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" />
+          {series
+            .filter((s) => !s.principale)
+            .map((s, i) => (
+              <motion.path
+                key={s.nom}
+                d={tracer(s.valeurs) ?? undefined}
+                fill="none"
+                stroke={s.couleur}
+                strokeWidth={1.5}
+                strokeLinejoin="round"
+                strokeLinecap="round"
+                initial={{ pathLength: 0, opacity: 0 }}
+                animate={{ pathLength: 1, opacity: 1 }}
+                transition={{ duration: DUREE_TRACE, ease: EASE_SORTIE, delay: 0.1 + i * 0.08 }}
+              />
+            ))}
+          <motion.path
+            d={tracer(principale.valeurs) ?? undefined}
+            fill="none"
+            stroke={principale.couleur}
+            strokeWidth={2.5}
+            strokeLinejoin="round"
+            strokeLinecap="round"
+            initial={{ pathLength: 0 }}
+            animate={{ pathLength: 1 }}
+            transition={{ duration: DUREE_TRACE, ease: EASE_SORTIE }}
+          />
 
-        {derniere != null && survol == null && (
-          <circle cx={x(n - 1)} cy={y(derniere)} r={4.5} fill={principale.couleur} stroke="var(--surface)" strokeWidth={2} />
-        )}
+          {derniere != null && survol == null && (
+            <motion.circle
+              cx={x(n - 1)}
+              cy={y(derniere)}
+              r={4.5}
+              fill={principale.couleur}
+              stroke="var(--surface)"
+              strokeWidth={2}
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 500, damping: 18, delay: DUREE_TRACE * 0.85 }}
+              style={{ transformBox: "fill-box", transformOrigin: "center" }}
+            />
+          )}
+        </g>
 
         {survol != null && (
           <g>
@@ -164,7 +212,7 @@ export function GraphiqueLignes({ series, bande, etiquettesX, formatY, formatVal
 
       {survol != null && (
         <div
-          className="pointer-events-none absolute top-2 z-10 min-w-44 rounded-lg border border-line bg-surface px-3 py-2 text-xs shadow-card"
+          className="pointer-events-none absolute top-2 z-10 min-w-44 rounded-lg border border-line bg-surface/95 px-3 py-2 text-xs shadow-card backdrop-blur transition-[left,right] duration-75 ease-out"
           style={bulleAGauche ? { right: largeur - x(survol) + 12 } : { left: x(survol) + 12 }}
         >
           <div className="mb-1.5 font-medium text-ink-2">{etiquettesX[survol]}</div>

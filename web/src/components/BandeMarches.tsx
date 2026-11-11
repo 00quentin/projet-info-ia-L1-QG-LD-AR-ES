@@ -32,7 +32,7 @@ function Tendance({ points, hausse }: { points: number[]; hausse: boolean }) {
 function Cours({ c, nom }: { c: CoursMarche; nom: string }) {
   const hausse = c.variation_pct >= 0;
   return (
-    <li className="flex shrink-0 items-center gap-2.5 px-4 first:pl-0">
+    <li className="flex shrink-0 items-center gap-2.5 px-4">
       <span className="text-xs text-muted">{nom}</span>
       <span className="text-sm font-semibold tabular-nums">{prix(c.prix)}</span>
       <Tendance points={c.sparkline} hausse={hausse} />
@@ -80,11 +80,18 @@ export function BandeMarches() {
                 Données de secours{marches.date ? ` du ${dateFr(marches.date)}` : ""}
               </span>
             )}
-            <ul className="relative flex min-w-0 flex-1 items-center divide-x divide-line overflow-x-auto [scrollbar-width:none]">
-              {cours.map((c) => (
-                <Cours key={c.cle} c={c} nom={ACTIFS_AFFICHES[c.cle]} />
-              ))}
-            </ul>
+            {/* Bandeau qui defile en continu (s'arrete au survol ou au focus) */}
+            <div className="defilement relative min-w-0 flex-1 overflow-hidden [mask-image:linear-gradient(90deg,transparent,#000_3%,#000_97%,transparent)]">
+              <div className="defilement-piste flex w-max">
+                {[0, 1].map((copie) => (
+                  <ul key={copie} aria-hidden={copie === 1 || undefined} className="flex shrink-0 items-center divide-x divide-line pr-4">
+                    {cours.map((c) => (
+                      <Cours key={c.cle} c={c} nom={ACTIFS_AFFICHES[c.cle]} />
+                    ))}
+                  </ul>
+                ))}
+              </div>
+            </div>
           </>
         ) : (
           <div className="h-4 w-full max-w-xl animate-pulse rounded bg-surface-2" aria-label="Chargement des cours" />

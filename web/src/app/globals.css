@@ -108,6 +108,54 @@ body {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+  /* Pas de defilement automatique : le bandeau se fait defiler a la main. */
+  .defilement-piste,
+  .chargement::after {
+    animation: none !important;
+  }
+  .defilement {
+    overflow-x: auto;
+  }
+}
+
+/* Bandeau des cours : la piste contient deux copies, on la decale d'une copie. */
+@keyframes defilement {
+  to {
+    transform: translateX(-50%);
+  }
+}
+.defilement-piste {
+  animation: defilement 45s linear infinite;
+}
+.defilement:hover .defilement-piste,
+.defilement:focus-within .defilement-piste {
+  animation-play-state: paused;
+}
+
+/* Fondu enchaine du changement de theme (View Transitions API). */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.35s;
+}
+
+/* Reflet qui balaie les blocs en cours de chargement. */
+@keyframes reflet {
+  to {
+    transform: translateX(100%);
+  }
+}
+.chargement {
+  position: relative;
+  overflow: hidden;
+  background: var(--surface-2);
+}
+.chargement::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--surface) 60%, transparent), transparent);
+  animation: reflet 1.4s ease-in-out infinite;
 }
 
 @keyframes apparition {
