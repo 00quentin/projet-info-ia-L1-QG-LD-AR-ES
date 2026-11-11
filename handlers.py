@@ -61,6 +61,7 @@ def _enregistrer_historique(scenario: str, profil: str, capital: float,
     }
     st.session_state.historique_simus = ajouter_entree(
         st.session_state.historique_simus, entree, HISTORIQUE_TAILLE_MAX,
+        utilisateur=st.session_state.get("visiteur_id"),
     )
 
 

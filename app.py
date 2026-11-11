@@ -19,10 +19,13 @@ st.set_page_config(
 )
 
 # --- Imports locaux ---
-from config import SCENARIO_A_DEFAUT, SCENARIO_B_DEFAUT, SCENARIO_C_DEFAUT, LABELS_SCENARIOS
+from config import (
+    SCENARIO_A_DEFAUT, SCENARIO_B_DEFAUT, SCENARIO_C_DEFAUT, LABELS_SCENARIOS,
+    COOKIE_VISITEUR, COOKIE_VISITEUR_DUREE_JOURS,
+)
 from logger import get_logger
 
-from core.history_store import charger_historique
+from core.history_store import charger_historique, identifiant_valide, nouvel_identifiant
 from handlers import handler_simulation, handler_backtest
 
 from components.styling import appliquer_styles
@@ -65,9 +68,22 @@ def init_session_state():
         if key not in st.session_state:
             st.session_state[key] = default
 
+    # Identifiant anonyme du visiteur : lu dans son cookie s'il revient, sinon
+    # cree et depose en fin de script. Il isole son historique de celui des
+    # autres visiteurs (le serveur est partage sur Streamlit Cloud).
+    if "visiteur_id" not in st.session_state:
+        cookie = st.context.cookies.get(COOKIE_VISITEUR)
+        if identifiant_valide(cookie):
+            st.session_state.visiteur_id = cookie
+        else:
+            st.session_state.visiteur_id = nouvel_identifiant()
+            st.session_state["_poser_cookie_visiteur"] = True
+
     # Historique : recharge depuis disque uniquement la 1ere fois (cold start)
     if "historique_simus" not in st.session_state:
-        st.session_state.historique_simus = charger_historique()
+        st.session_state.historique_simus = charger_historique(
+            utilisateur=st.session_state.visiteur_id
+        )
 
 
 init_session_state()
@@ -196,6 +212,16 @@ with tab_apropos:
 render_chat_bubble()
 render_footer()
 render_toasts()
+
+# Depose le cookie d'identifiant visiteur (une seule fois, a la 1ere visite)
+if st.session_state.pop("_poser_cookie_visiteur", False):
+    import streamlit.components.v1 as components
+    components.html(
+        "<script>window.parent.document.cookie = "
+        f"'{COOKIE_VISITEUR}={st.session_state.visiteur_id}; "
+        f"max-age={COOKIE_VISITEUR_DUREE_JOURS * 86400}; path=/; SameSite=Lax';</script>",
+        height=0,
+    )
 
 # Auto-scroll vers le haut + activation du tab Dashboard après simulation
 if st.session_state.pop("_just_simulated", False) or st.session_state.pop("_just_backtested", False):

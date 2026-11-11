@@ -46,6 +46,9 @@ class FakeSessionState:
     def __contains__(self, key):
         return key in self.__dict__
 
+    def get(self, key, default=None):
+        return self.__dict__.get(key, default)
+
 
 @pytest.fixture
 def warns(monkeypatch):
@@ -149,7 +152,7 @@ def stub_ajouter(monkeypatch):
     """Remplace ajouter_entree (qui ecrit sur disque) par un stub in-memory."""
     captured = []
 
-    def fake_ajouter(historique, entree, taille_max, repertoire=None):
+    def fake_ajouter(historique, entree, taille_max, repertoire=None, utilisateur=None):
         captured.append({"entree": entree, "taille_max": taille_max,
                           "historique_avant": list(historique)})
         return [entree] + historique

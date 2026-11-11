@@ -154,3 +154,30 @@ def test_chemin_par_defaut_est_dans_home(monkeypatch, tmp_path):
     chemin = _chemin_fichier_historique()
     assert chemin.name == "historique.json"
     assert chemin.parent.name == ".quant_terminal"
+
+
+# === Historique separe par visiteur ========================================
+
+
+def test_historiques_de_deux_visiteurs_sont_isoles(tmp_path):
+    from core.history_store import nouvel_identifiant
+    alice, bob = nouvel_identifiant(), nouvel_identifiant()
+    ajouter_entree([], {"scenario": "secret d'Alice"}, 10, repertoire=tmp_path, utilisateur=alice)
+
+    assert charger_historique(repertoire=tmp_path, utilisateur=bob) == []
+    assert charger_historique(repertoire=tmp_path) == []
+    assert charger_historique(repertoire=tmp_path, utilisateur=alice) == [
+        {"scenario": "secret d'Alice"}
+    ]
+
+    effacer_historique(repertoire=tmp_path, utilisateur=bob)
+    assert len(charger_historique(repertoire=tmp_path, utilisateur=alice)) == 1
+
+
+def test_identifiant_malveillant_ne_sort_pas_du_repertoire(tmp_path):
+    from core.history_store import identifiant_valide
+    for mauvais in ["../../etc/passwd", "a" * 31, "A" * 32, "", None, 42, "x/../y"]:
+        assert not identifiant_valide(mauvais)
+    sauvegarder_historique([{"a": 1}], repertoire=tmp_path, utilisateur="../../evasion")
+    # Identifiant refuse -> fichier par defaut, rien n'est ecrit ailleurs
+    assert [p.name for p in tmp_path.iterdir()] == ["historique.json"]

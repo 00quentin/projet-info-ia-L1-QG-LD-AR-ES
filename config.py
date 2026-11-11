@@ -183,6 +183,9 @@ CAPITAL_STEP = 500
 # AFFICHAGE
 # ==========================================
 HISTORIQUE_TAILLE_MAX = 10
+# Cookie anonyme qui rattache un visiteur a son propre historique
+COOKIE_VISITEUR = "qt_visiteur"
+COOKIE_VISITEUR_DUREE_JOURS = 365
 HAUTEUR_GRAPHIQUE = 380
 TAUX_SANS_RISQUE_ANNUEL = 0.02  # Pour le calcul du Sharpe Ratio
 

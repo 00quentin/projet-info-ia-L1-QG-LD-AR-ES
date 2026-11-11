@@ -18,11 +18,17 @@ Robustesse :
 Pour les deploiements ephemeres (Streamlit Cloud), le fichier est ecrase
 a chaque cold start -- le comportement est alors equivalent a l'ancien
 session_state, donc aucune regression.
+
+Confidentialite : sur un serveur partage, chaque visiteur a son propre
+fichier (historique_<identifiant>.json). Sans identifiant, on retombe sur
+le fichier unique historique.json (usage local mono-utilisateur).
 """
 
 from __future__ import annotations
 
 import json
+import re
+import uuid
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
@@ -31,13 +37,32 @@ from logger import get_logger
 log = get_logger("history_store")
 
 
-def _chemin_fichier_historique(repertoire: Optional[Path] = None) -> Path:
+# Un identifiant visiteur finit dans un nom de fichier : format strict
+# (32 caracteres hexadecimaux) pour interdire toute traversee de repertoire.
+_FORMAT_IDENTIFIANT = re.compile(r"^[0-9a-f]{32}$")
+
+
+def nouvel_identifiant() -> str:
+    """Genere un identifiant visiteur anonyme et aleatoire."""
+    return uuid.uuid4().hex
+
+
+def identifiant_valide(identifiant: Any) -> bool:
+    """True si l'identifiant a le format attendu (donc sur pour un nom de fichier)."""
+    return isinstance(identifiant, str) and bool(_FORMAT_IDENTIFIANT.match(identifiant))
+
+
+def _chemin_fichier_historique(repertoire: Optional[Path] = None,
+                               utilisateur: Optional[str] = None) -> Path:
     """Resout le chemin du fichier historique (par defaut : ~/.quant_terminal/)."""
     base = repertoire if repertoire is not None else Path.home() / ".quant_terminal"
+    if identifiant_valide(utilisateur):
+        return base / f"historique_{utilisateur}.json"
     return base / "historique.json"
 
 
-def charger_historique(repertoire: Optional[Path] = None) -> List[Dict[str, Any]]:
+def charger_historique(repertoire: Optional[Path] = None,
+                       utilisateur: Optional[str] = None) -> List[Dict[str, Any]]:
     """
     Charge l'historique depuis le fichier JSON. Retourne [] si absent ou corrompu.
 
@@ -48,7 +73,7 @@ def charger_historique(repertoire: Optional[Path] = None) -> List[Dict[str, Any]
     Returns:
         Liste des entrees historiques (eventuellement vide).
     """
-    fichier = _chemin_fichier_historique(repertoire)
+    fichier = _chemin_fichier_historique(repertoire, utilisateur)
     if not fichier.exists():
         return []
 
@@ -67,6 +92,7 @@ def charger_historique(repertoire: Optional[Path] = None) -> List[Dict[str, Any]
 def sauvegarder_historique(
     historique: List[Dict[str, Any]],
     repertoire: Optional[Path] = None,
+    utilisateur: Optional[str] = None,
 ) -> bool:
     """
     Ecrit l'historique sur disque. Retourne True si ok, False sinon.
@@ -80,7 +106,7 @@ def sauvegarder_historique(
         disque plein...). On ne leve jamais d'exception : une perte de
         persistance ne doit pas crasher l'app.
     """
-    fichier = _chemin_fichier_historique(repertoire)
+    fichier = _chemin_fichier_historique(repertoire, utilisateur)
     try:
         fichier.parent.mkdir(parents=True, exist_ok=True)
         with fichier.open("w", encoding="utf-8") as f:
@@ -96,6 +122,7 @@ def ajouter_entree(
     entree: Dict[str, Any],
     taille_max: int,
     repertoire: Optional[Path] = None,
+    utilisateur: Optional[str] = None,
 ) -> List[Dict[str, Any]]:
     """
     Ajoute une entree en tete, tronque a taille_max, persiste sur disque.
@@ -111,16 +138,17 @@ def ajouter_entree(
     """
     nouveau = [entree] + historique
     nouveau = nouveau[:taille_max]
-    sauvegarder_historique(nouveau, repertoire)
+    sauvegarder_historique(nouveau, repertoire, utilisateur)
     return nouveau
 
 
-def effacer_historique(repertoire: Optional[Path] = None) -> bool:
+def effacer_historique(repertoire: Optional[Path] = None,
+                       utilisateur: Optional[str] = None) -> bool:
     """
     Supprime le fichier historique du disque. Retourne True si ok ou si
     le fichier n'existait deja pas.
     """
-    fichier = _chemin_fichier_historique(repertoire)
+    fichier = _chemin_fichier_historique(repertoire, utilisateur)
     try:
         fichier.unlink(missing_ok=True)
         return True
