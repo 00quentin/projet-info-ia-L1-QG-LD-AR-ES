@@ -75,6 +75,22 @@ L'application s'ouvre automatiquement dans votre navigateur sur `http://localhos
 
 ---
 
+## Nouveau site web (en cours de migration)
+
+Un nouveau site (Next.js + Tailwind + Motion, dossier `web/`) remplace progressivement l'interface Streamlit, avec le même moteur Python :
+
+```bash
+# Terminal 1 — l'API (racine du dépôt)
+uvicorn api.main:app --reload --port 8000
+
+# Terminal 2 — le site
+cd web
+npm install
+npm run dev            # http://localhost:3000
+```
+
+Déploiement prévu : le site sur **Vercel** (dossier racine `web`, variable `NEXT_PUBLIC_API_URL` = adresse de l'API) et l'API sur **Render** (`render.yaml`).
+
 ## API web (en préparation du nouveau site)
 
 Le moteur Python est aussi exposé par une API [FastAPI](https://fastapi.tiangolo.com/), qui servira le futur site Next.js :
