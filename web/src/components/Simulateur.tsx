@@ -10,6 +10,7 @@ import {
 } from "@/lib/api";
 import { Conjoncture } from "@/components/resultats/Conjoncture";
 import { ajouterEntree } from "@/lib/historique";
+import { contexteSimulation, definirContexteChat } from "@/lib/contexteChat";
 import { decoderReglages, encoderReglages, lienDePartage, type ReglagesPartages } from "@/lib/partage";
 import { Carte } from "@/components/ui/Carte";
 import { notifier } from "@/components/ui/Notifications";
@@ -337,6 +338,7 @@ export function Simulateur() {
       setOnglet(rep.scenarios.length > 1 ? "comparaison" : rep.scenarios[0].label);
       const nb = rep.scenarios.length;
       const nbReussis = rep.scenarios.filter(estReussi).length;
+      if (nbReussis > 0) definirContexteChat(contexteSimulation(rep.scenarios.filter(estReussi), rep.parametres.profil, rep.parametres.duree));
       if (nbReussis > 0) notifier(nb > 1 ? `Comparaison terminée : ${nbReussis} scénarios analysés.` : "Simulation terminée avec succès.");
       for (const s of rep.scenarios) {
         if (!estReussi(s)) continue;

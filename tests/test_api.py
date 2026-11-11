@@ -218,7 +218,7 @@ def test_actif_perso(monkeypatch):
 
 def test_chat(monkeypatch):
     recu = {}
-    def faux_chat(messages):
+    def faux_chat(messages, contexte=None):
         recu["messages"] = messages
         return "Le ratio de Sharpe mesure..."
     monkeypatch.setattr(ia_bot, "discuter_avec_ia", faux_chat)
@@ -270,7 +270,7 @@ def test_conjoncture():
 
 
 def test_chat_erreur_ia_renvoie_une_vraie_erreur(monkeypatch):
-    monkeypatch.setattr(ia_bot, "discuter_avec_ia", lambda m: "❌ L'analyste IA n'a pas répondu à temps. Réessayez.")
+    monkeypatch.setattr(ia_bot, "discuter_avec_ia", lambda m, contexte=None: "❌ L'analyste IA n'a pas répondu à temps. Réessayez.")
     r = client.post("/api/chat", json={"messages": [{"role": "user", "content": "Sharpe ?"}]})
     assert r.status_code == 502
     assert r.json()["detail"].startswith("L'analyste IA")
@@ -305,3 +305,16 @@ def test_backtest_personnalise_redistribue_la_part_d_un_actif_indisponible(monke
     assert [a["cle"] for a in data["allocations"]] == ["S&P 500"]
     assert data["portefeuille"]["valeur_finale"] == pytest.approx(data["portefeuille"]["valeurs"][-1])
     assert data["portefeuille"]["valeur_finale"] == pytest.approx(8000)
+
+
+def test_chat_transmet_le_contexte_du_resultat(monkeypatch):
+    recu = {}
+    def faux_chat(messages, contexte=None):
+        recu["contexte"] = contexte
+        return "Votre portefeuille perd 9 %..."
+    monkeypatch.setattr(ia_bot, "discuter_avec_ia", faux_chat)
+    r = client.post("/api/chat", json={"messages": [{"role": "user", "content": "Explique ce résultat"}],
+                                       "contexte": "Scénario : krach. Performance : -9 %"})
+    assert r.status_code == 200 and recu["contexte"].startswith("Scénario")
+    assert client.post("/api/chat", json={"messages": [{"role": "user", "content": "x"}],
+                                          "contexte": "x" * 5000}).status_code == 422

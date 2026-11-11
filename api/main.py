@@ -134,7 +134,7 @@ def creer_backtest(demande: DemandeBacktest) -> dict:
 @app.post("/api/chat", tags=["IA"], dependencies=[limite_ia])
 def discuter(demande: DemandeChat) -> dict:
     """Pose une question à l'analyste IA."""
-    reponse = services.repondre_chat([m.model_dump() for m in demande.messages])
+    reponse = services.repondre_chat([m.model_dump() for m in demande.messages], demande.contexte)
     return {"reponse": reponse}
 
 

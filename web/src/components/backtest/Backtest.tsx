@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { ErreurApi, lancerBacktest, lireCatalogue, type Catalogue, type ReponseBacktest } from "@/lib/api";
 import { ajouterEntree } from "@/lib/historique";
+import { contexteBacktest, definirContexteChat } from "@/lib/contexteChat";
 import { euros, pourcentSigne } from "@/lib/format";
 import { Carte } from "@/components/ui/Carte";
 import { DUREE, EASE_SORTIE } from "@/components/motion/transitions";
@@ -66,6 +67,7 @@ export function Backtest() {
       });
       compteur.current += 1;
       setResultat({ id: compteur.current, reponse });
+      definirContexteChat(contexteBacktest(reponse, libelleBacktest(reponse)));
       ajouterEntree({
         type: "Backtest",
         scenario: scenarioBacktest(reponse),

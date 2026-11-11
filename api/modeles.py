@@ -10,7 +10,7 @@ from typing import Dict, List, Literal, Optional
 from pydantic import BaseModel, Field, field_validator, model_validator
 
 from config import (
-    API_ACTIFS_MAX, API_BACKTEST_JOURS_MAX, API_CHAT_LONGUEUR_MAX,
+    API_ACTIFS_MAX, API_BACKTEST_JOURS_MAX, API_CHAT_CONTEXTE_LONGUEUR_MAX, API_CHAT_LONGUEUR_MAX,
     API_CHAT_MESSAGES_MAX, API_SCENARIO_LONGUEUR_MAX, API_TICKERS_PERSO_MAX,
     CAPITAL_DEFAUT, CAPITAL_MAX, CAPITAL_MIN,
     HORIZON_DEFAUT, HORIZON_MAX, HORIZON_MIN,
@@ -91,6 +91,8 @@ class MessageChat(BaseModel):
 
 class DemandeChat(BaseModel):
     messages: List[MessageChat] = Field(min_length=1, max_length=API_CHAT_MESSAGES_MAX)
+    # Resume du resultat que le visiteur regarde (simulation, backtest) : facultatif.
+    contexte: Optional[str] = Field(default=None, max_length=API_CHAT_CONTEXTE_LONGUEUR_MAX)
 
 
 class LignePerformance(BaseModel):

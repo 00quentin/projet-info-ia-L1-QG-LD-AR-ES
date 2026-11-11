@@ -161,8 +161,9 @@ export const lancerSimulation = (demande: DemandeSimulation) =>
 export const lancerBacktest = (demande: DemandeBacktest) =>
   appeler<ReponseBacktest>("/api/backtests", { method: "POST", body: JSON.stringify(demande) });
 export const lireActifPerso = (ticker: string) => appeler<ActifPerso>(`/api/actifs-perso/${encodeURIComponent(ticker.trim())}`);
-export const discuter = (messages: MessageChat[]) =>
-  appeler<{ reponse: string }>("/api/chat", { method: "POST", body: JSON.stringify({ messages }) });
+/** `contexte` : resume du resultat affiche, pour que l'analyste puisse l'expliquer. */
+export const discuter = (messages: MessageChat[], contexte?: string | null) =>
+  appeler<{ reponse: string }>("/api/chat", { method: "POST", body: JSON.stringify(contexte ? { messages, contexte } : { messages }) });
 
 /** Genere le rapport PDF (15-30 s avec l'analyse IA) et renvoie le fichier. */
 export async function telechargerRapportPdf(demande: DemandeRapport): Promise<Blob> {

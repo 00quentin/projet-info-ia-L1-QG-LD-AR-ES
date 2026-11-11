@@ -4,6 +4,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { BotMessageSquare } from "lucide-react";
 import { discuter, ErreurApi } from "@/lib/api";
+import { retirerContexteChat, useContexteChat } from "@/lib/contexteChat";
 import { RESSORT } from "@/components/motion/transitions";
 import {
   ajouterMessage,
@@ -25,6 +26,7 @@ const SANS_REPONSE = "La réponse à votre dernière question n'est pas arrivée
  */
 export function BulleChat() {
   const messages = useConversation();
+  const contexte = useContexteChat();
   const [ouvert, setOuvert] = useState(false);
   const [enAttente, setEnAttente] = useState(false);
   const [erreur, setErreur] = useState<string | null>(null);
@@ -59,7 +61,7 @@ export function BulleChat() {
     setEnAttente(true);
     setErreur(null);
     try {
-      const { reponse } = await discuter(messagesPourApi(conversation));
+      const { reponse } = await discuter(messagesPourApi(conversation), contexte?.texte);
       if (numero !== requete.current) return;
       if (typeof reponse !== "string" || !reponse.trim()) {
         setErreur(ERREUR_GENERIQUE);
@@ -159,6 +161,8 @@ export function BulleChat() {
             onReessayer={reessayer}
             onEffacer={effacer}
             onFermer={fermer}
+            contexte={contexte?.titre ?? null}
+            onRetirerContexte={retirerContexteChat}
           />
         )}
       </AnimatePresence>

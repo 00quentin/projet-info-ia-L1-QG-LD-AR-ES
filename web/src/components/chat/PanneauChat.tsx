@@ -2,7 +2,7 @@
 
 import { useEffect, useEffectEvent, useId, useRef, useState, useSyncExternalStore, type KeyboardEvent } from "react";
 import { AnimatePresence, motion, useReducedMotion, type Variants } from "motion/react";
-import { ArrowUpRight, Sparkles, Trash2, X } from "lucide-react";
+import { ArrowUpRight, ChartLine, Sparkles, Trash2, X } from "lucide-react";
 import type { MessageConversation } from "./conversation";
 import { BlocErreur, BulleMessage, IndicateurEcriture } from "./Message";
 import { Saisie } from "./Saisie";
@@ -17,6 +17,9 @@ const QUESTIONS_EXEMPLES = [
   "Pourquoi le pétrole et le dollar sont-ils liés ?",
   "C'est quoi la corrélation actions / obligations ?",
 ];
+
+/** Proposee en tete quand un resultat est transmis a l'analyste. */
+const QUESTION_CONTEXTE = "Explique-moi le résultat que j'ai sous les yeux";
 
 const REQUETE_MOBILE = "(max-width: 639.98px)";
 const DELAI_CONFIRMATION_MS = 4000;
@@ -62,9 +65,13 @@ type Props = {
   onReessayer: () => void;
   onEffacer: () => void;
   onFermer: () => void;
+  /** Titre du resultat transmis a l'analyste (null : aucun). */
+  contexte: string | null;
+  onRetirerContexte: () => void;
 };
 
-export function PanneauChat({ id, messages, enAttente, erreur, brouillon, onBrouillon, onPoser, onReessayer, onEffacer, onFermer }: Props) {
+export function PanneauChat({ id, messages, enAttente, erreur, brouillon, onBrouillon, onPoser, onReessayer, onEffacer, onFermer, contexte, onRetirerContexte }: Props) {
+  const questions = contexte ? [QUESTION_CONTEXTE, ...QUESTIONS_EXEMPLES] : QUESTIONS_EXEMPLES;
   const idTitre = useId();
   const mobile = useEstMobile();
   const reduit = useReducedMotion();
@@ -246,7 +253,7 @@ export function PanneauChat({ id, messages, enAttente, erreur, brouillon, onBrou
           </div>
           <p className="mb-2 mt-4 text-xs font-semibold uppercase tracking-wider text-muted">Questions fréquentes</p>
           <motion.ul variants={LISTE_EXEMPLES} initial="cache" animate="visible" className="flex flex-col gap-1.5">
-            {QUESTIONS_EXEMPLES.map((q) => (
+            {questions.map((q) => (
               <motion.li key={q} variants={EXEMPLE}>
                 <motion.button
                   type="button"
@@ -278,6 +285,27 @@ export function PanneauChat({ id, messages, enAttente, erreur, brouillon, onBrou
       </div>
 
       <div className="shrink-0 border-t border-line bg-surface px-3 pb-[max(0.625rem,env(safe-area-inset-bottom))] pt-3">
+        <AnimatePresence initial={false}>
+          {contexte && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: DUREE.rapide }}
+              className="overflow-hidden"
+            >
+              <div className="mb-2 flex items-center gap-2 rounded-lg bg-accent-soft px-2.5 py-1.5 text-xs text-accent-ink">
+                <ChartLine className="size-3.5 shrink-0" aria-hidden />
+                <span className="min-w-0 flex-1 truncate" title="L'analyste connaît les chiffres de ce résultat">
+                  Contexte : <strong className="font-semibold">{contexte}</strong>
+                </span>
+                <button type="button" onClick={onRetirerContexte} aria-label="Ne plus transmettre ce résultat à l'analyste" className="grid size-5 shrink-0 place-items-center rounded hover:bg-surface/60">
+                  <X className="size-3" aria-hidden />
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
         <Saisie valeur={brouillon} onChange={onBrouillon} onEnvoyer={() => onPoser(brouillon)} enAttente={enAttente} champRef={champRef} />
       </div>
     </motion.div>

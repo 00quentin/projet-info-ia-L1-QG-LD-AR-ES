@@ -478,8 +478,8 @@ def executer_backtest(demande: DemandeBacktest) -> Dict[str, Any]:
 _PREFIXE_ERREUR_CHAT = "❌"
 
 
-def repondre_chat(messages: List[Dict[str, str]]) -> str:
-    reponse = ia_bot.discuter_avec_ia(messages)
+def repondre_chat(messages: List[Dict[str, str]], contexte: Optional[str] = None) -> str:
+    reponse = ia_bot.discuter_avec_ia(messages, contexte=contexte)
     # discuter_avec_ia (partage avec Streamlit) renvoie ses erreurs sous forme de texte
     # "❌ ..." : l'API en fait une vraie erreur pour que le site propose de reessayer.
     if isinstance(reponse, str) and reponse.startswith(_PREFIXE_ERREUR_CHAT):

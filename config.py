@@ -337,6 +337,7 @@ API_ACTIFS_MAX = 40
 API_TICKERS_PERSO_MAX = 10
 API_CHAT_MESSAGES_MAX = 30
 API_CHAT_LONGUEUR_MAX = 4000
+API_CHAT_CONTEXTE_LONGUEUR_MAX = 4000   # resume du resultat affiche, transmis a l'analyste
 API_BACKTEST_JOURS_MAX = 3660          # ~10 ans
 API_FENETRE_LIMITE_SECONDES = 60
 API_LIMITE_APPELS_IA = 12              # simulations + rapports + chat, par minute et par IP
