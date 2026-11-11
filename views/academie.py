@@ -156,7 +156,7 @@ def _render_outils():
     dans lequel la vraie trajectoire a 90% de chances de se situer.
     
     **Pourquoi c'est essentiel ?** Parce qu'une simulation unique, c'est un coup de chance (ou de malchance). 
-    En moyennant 50 simulations, on obtient une vision **statistiquement robuste** de l'avenir. 
+    En moyennant 1 000 simulations, on obtient une vision **statistiquement robuste** de l'avenir. 
     Plus la bande est large, plus l'incertitude est grande sur cet actif.
     """)
 
@@ -225,16 +225,18 @@ def _render_modeles():
     """)
     st.markdown("**B. Modèle Historique (queues épaisses)**")
     st.write("""
-    Ajoute une probabilité de 2% par jour d'un choc violent (x5 la volatilité normale). 
-    Le modèle est globalement plus calme, mais déclenche régulièrement des mouvements brusques — 
-    c'est une approximation simple des *fat tails* de Mandelbrot. Idéal pour tester la résilience 
-    d'un portefeuille face aux cygnes noirs.
+    Au lieu de tirer des variations dans une loi théorique, on **rejoue de vraies séances de bourse** 
+    des deux dernières années, par blocs de 5 jours consécutifs piochés au hasard (*block bootstrap*). 
+    Les mouvements brusques et les jours où tout baisse en même temps sont donc ceux réellement 
+    observés — les *fat tails* de Mandelbrot sans avoir à les inventer. Idéal pour tester la résilience 
+    d'un portefeuille. (Si l'historique Yahoo manque, on utilise une loi de Student à queues épaisses.)
     """)
     st.markdown("**C. Modèle Machine Learning (momentum)**")
     st.write("""
     Inspiré des stratégies *trend-following* des hedge funds comme Renaissance Technologies 
     ou AQR. L'idée : quand une tendance est identifiée, elle s'auto-renforce (les investisseurs 
-    suivent le mouvement). Mathématiquement, on fait croître l'impact de la tendance avec le temps.
+    suivent le mouvement). Mathématiquement, chaque variation dépend un peu de celle de la veille 
+    (autocorrélation) et le choc estimé par l'IA se réalise de plus en plus vite avec le temps.
     """)
 
     st.markdown("#### 2.4 — La méthode Monte-Carlo")
@@ -989,17 +991,34 @@ def _render_methodologie():
     st.markdown("#### E. Mouvement Brownien Géométrique (modèle Probabiliste)")
     st.latex(r"\frac{dS_t}{S_t} = \mu \, dt + \sigma \, dW_t")
     st.write("En discrétisant sur un pas journalier :")
-    st.latex(r"S_{t+1} = S_t \times (1 + \mu + \sigma \cdot Z_t)")
+    st.latex(r"S_{t+1} = S_t \times \exp(\mu + \sigma \cdot Z_t)")
     st.write("""
-    Avec $Z_t \\sim \\mathcal{N}(0, 1)$ un tirage gaussien indépendant à chaque pas de temps. 
+    Avec $Z_t \\sim \\mathcal{N}(0, 1)$ un tirage gaussien à chaque pas de temps. 
     C'est exactement la formule utilisée dans le code de Quant Terminal pour le modèle "Probabiliste".
     
-    Le $\\mu$ (drift) est estimé par notre IA à partir du scénario macro-économique, tandis que 
-    le $\\sigma$ (volatilité) est calibré à partir des données historiques de chaque actif.
+    Le $\\mu$ (drift) vient du choc estimé par notre IA : il est réglé pour que la trajectoire 
+    **médiane** atteigne ce choc à la fin de l'horizon. Le $\\sigma$ (volatilité) est mesuré sur 
+    les vrais rendements de chaque actif.
+    
+    Les tirages $Z_t$ des différents actifs ne sont **pas indépendants** : on mesure la matrice de 
+    corrélation $C$ sur deux ans de vrais rendements, puis on corrèle les tirages grâce à sa 
+    décomposition de Cholesky ($C = L L^T$, $Z = L \\cdot \\varepsilon$). Ainsi, quand les actions 
+    chutent dans une simulation, le Nasdaq chute avec le S&P 500 et l'or réagit comme il le fait en réalité.
+    """)
+
+    st.markdown("#### E bis. Conversion en euros")
+    st.write("""
+    Votre capital est en euros, mais le S&P 500, l'or ou le Bitcoin cotent en dollars. La performance 
+    réellement vécue par un investisseur européen est donc :
+    """)
+    st.latex(r"1 + r_{EUR} = \frac{1 + r_{USD}}{1 + r_{EUR/USD}}")
+    st.write("""
+    En simulation, l'EUR/USD est lui-même simulé (choc estimé par l'IA, corrélé aux autres actifs). 
+    En backtest, on utilise les **taux de référence officiels de la Banque centrale européenne**, jour par jour.
     """)
 
     st.markdown("#### F. Méthode Monte-Carlo")
-    st.write("On simule $N=50$ trajectoires indépendantes. Pour chaque jour $t$ et chaque actif :")
+    st.write("On simule $N=1\\,000$ trajectoires. Pour chaque jour $t$ et chaque actif :")
     st.latex(r"\text{Médiane}_t = \text{percentile}_{50}(\{S_t^{(1)}, \ldots, S_t^{(N)}\})")
     st.latex(r"\text{Bas}_t = \text{percentile}_{5}(\{S_t^{(1)}, \ldots, S_t^{(N)}\})")
     st.latex(r"\text{Haut}_t = \text{percentile}_{95}(\{S_t^{(1)}, \ldots, S_t^{(N)}\})")
@@ -1007,9 +1026,13 @@ def _render_methodologie():
     L'intervalle [Bas, Haut] constitue la **bande de confiance à 90%** : dans 90% des cas simulés, 
     le prix à l'instant $t$ se trouve dans cette bande.
     
+    Les métriques de risque (volatilité, drawdown, VaR) sont calculées **sur chaque trajectoire du 
+    portefeuille**, pas sur la médiane : la médiane est une courbe lissée où le hasard s'annule, 
+    y mesurer le risque le sous-estimerait fortement.
+    
     La méthode Monte-Carlo converge en $O(1/\\sqrt{N})$ : pour doubler la précision, il faut 
-    quadrupler le nombre de simulations. Avec 50 simulations, la précision est typiquement 
-    de ±5% sur les percentiles — suffisant pour un outil éducatif. Les grandes banques utilisent 
+    quadrupler le nombre de simulations. Avec 1 000 simulations, la précision est typiquement 
+    de l'ordre de ±1% sur les percentiles — confortable pour un outil éducatif. Les grandes banques utilisent 
     couramment 10 000 à 1 000 000 de simulations pour leurs calculs réglementaires (Bâle III, FRTB).
     """)
 
@@ -1018,12 +1041,16 @@ def _render_methodologie():
                 '<strong>Pour l\'honnêteté intellectuelle</strong>, voici les limites de Quant Terminal :<br><br>'
                 '• Les volatilités sont supposées <strong>constantes</strong>, alors qu\'en réalité elles '
                 'se regroupent en clusters (effet GARCH).<br><br>'
-                '• Les actifs sont traités <strong>indépendamment</strong>, alors qu\'en crise toutes '
-                'les corrélations montent à 1 (voir 2008).<br><br>'
+                '• Les corrélations sont mesurées sur les <strong>2 dernières années</strong> et supposées '
+                'stables, alors qu\'en crise elles montent toutes vers 1 (voir 2008).<br><br>'
                 '• L\'IA fournit une estimation <strong>globale</strong> du choc, pas une trajectoire '
                 'fine dans le temps.<br><br>'
-                '• Les distributions restent <strong>gaussiennes</strong>, sauf dans le mode Historique. '
-                'La réalité a des queues encore plus épaisses.<br><br>'
+                '• Les distributions restent <strong>gaussiennes</strong>, sauf dans le mode Historique '
+                '(qui rejoue de vraies séances).<br><br>'
+                '• Les obligations sont représentées par des <strong>ETF obligataires</strong> et les indices '
+                'MSCI par des ETF : c\'est le prix de ces fonds qui est suivi.<br><br>'
+                '• En simulation, seule la conversion <strong>dollar → euro</strong> est modélisée '
+                '(yen et livre sont convertis uniquement en backtest).<br><br>'
                 '• Pas de prise en compte des <strong>coûts de transaction</strong>, des <strong>spreads bid-ask</strong>, '
                 'ni de la <strong>liquidité</strong>.<br><br>'
                 'Quant Terminal est un outil <strong>pédagogique</strong>. '

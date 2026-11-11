@@ -48,6 +48,7 @@ def valider_et_calibrer(ticker: str) -> Tuple[Optional[Dict], Optional[str]]:
             "nom":    str (longName Yahoo, ou ticker en fallback),
             "prix":   float (dernier close),
             "volatilite": float (ecart-type des rendements quotidiens),
+            "devise": str ou None (devise de cotation, ex "USD"),
         }
         (None, message) en cas d'echec.
     """
@@ -81,9 +82,11 @@ def valider_et_calibrer(ticker: str) -> Tuple[Optional[Dict], Optional[str]]:
 
         # longName parfois absent -> fallback ticker
         nom = ticker
+        devise = None
         try:
             info_yf = yf_ticker.info or {}
             nom = info_yf.get("longName") or info_yf.get("shortName") or ticker
+            devise = info_yf.get("currency")
         except Exception:
             pass
 
@@ -92,6 +95,7 @@ def valider_et_calibrer(ticker: str) -> Tuple[Optional[Dict], Optional[str]]:
             "nom":        nom,
             "prix":       prix,
             "volatilite": vol,
+            "devise":     devise.upper() if isinstance(devise, str) else None,
         }, None
 
     except Exception as e:
@@ -102,9 +106,10 @@ def valider_et_calibrer(ticker: str) -> Tuple[Optional[Dict], Optional[str]]:
 def vers_actifs_extras(actifs_perso: Dict[str, Dict]) -> Dict[str, Dict[str, float]]:
     """
     Convertit le dict de session vers le format attendu par simulation.py
-    (cle = sim_key, valeur = {"prix", "volatilite"}).
+    (cle = sim_key, valeur = {"prix", "volatilite", "devise"}).
     """
     return {
-        sim_key: {"prix": v["prix"], "volatilite": v["volatilite"]}
+        sim_key: {"prix": v["prix"], "volatilite": v["volatilite"],
+                  "devise": v.get("devise")}
         for sim_key, v in actifs_perso.items()
     }

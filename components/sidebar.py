@@ -16,7 +16,7 @@ from config import (
     ACTIFS_DISPONIBLES, ACTIFS_PAR_DEFAUT, EVENEMENTS_PRESETS, NOM_AFFICHAGE,
     HORIZON_MIN, HORIZON_MAX, HORIZON_DEFAUT, HORIZON_STEP,
     CAPITAL_MIN, CAPITAL_MAX, CAPITAL_DEFAUT, CAPITAL_STEP,
-    LABELS_SCENARIOS, NB_SCENARIOS_MAX,
+    LABELS_SCENARIOS, NB_SCENARIOS_MAX, NB_SIMULATIONS_MONTE_CARLO,
 )
 from core.custom_assets import (
     SESSION_KEY as ACTIFS_PERSO_KEY,
@@ -102,7 +102,8 @@ def _render_section_simulation() -> Dict[str, Any]:
         )
         options["duree"] = st.slider("Horizon (jours de cotation)",
                                       HORIZON_MIN, HORIZON_MAX, HORIZON_DEFAUT, HORIZON_STEP)
-        options["mode_monte_carlo"] = st.checkbox("Mode Monte-Carlo (50 simulations)", value=False)
+        options["mode_monte_carlo"] = st.checkbox(
+            f"Mode Monte-Carlo ({NB_SIMULATIONS_MONTE_CARLO} simulations)", value=False)
         options["utiliser_prix_reels"] = st.checkbox(
             "Utiliser les prix de marché actuels", value=True,
             help="Récupère les prix réels via Yahoo Finance comme point de départ."
@@ -110,6 +111,12 @@ def _render_section_simulation() -> Dict[str, Any]:
         options["calibration_historique"] = st.checkbox(
             "Calibration historique (IA)", value=True,
             help="L'IA s'inspire des amplitudes réelles de 2008, COVID, etc."
+        )
+        options["convertir_eur"] = st.checkbox(
+            "Convertir en euros", value=True, key="convertir_eur_simu",
+            help="Votre capital est en euros, mais la plupart des actifs cotent en dollars. "
+                 "Activé : la performance tient compte du taux de change (ce que vivrait "
+                 "réellement un investisseur européen)."
         )
     return options
 
@@ -131,6 +138,12 @@ def _render_section_backtest() -> Dict[str, Any]:
     )
     options["date_fin_custom"] = st.date_input(
         "Date fin", value=datetime.strptime(info_event["fin"], "%Y-%m-%d")
+    )
+    options["convertir_eur"] = st.checkbox(
+        "Convertir en euros (taux BCE)", value=True, key="convertir_eur_backtest",
+        help="Votre capital est en euros, mais la plupart des actifs cotent en dollars. "
+             "Activé : la performance tient compte du taux de change (ce que vivrait "
+             "réellement un investisseur européen)."
     )
     return options
 

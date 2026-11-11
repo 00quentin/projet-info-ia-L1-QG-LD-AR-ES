@@ -8,8 +8,8 @@ from datetime import datetime
 import pandas as pd
 import streamlit as st
 
-from config import NOM_AFFICHAGE, LABELS_SCENARIOS
-from core.metrics import calculer_metriques_risque
+from config import NOM_AFFICHAGE, LABELS_SCENARIOS, NB_SIMULATIONS_MONTE_CARLO
+from core.metrics import metriques_du_resultat
 from core.portfolio import calculer_poids, construire_allocations_finales, calculer_valeur_portefeuille
 from core.export_csv import generer_csv_simulation
 from core.risk_alerts import evaluer_alertes_risque
@@ -59,8 +59,11 @@ def _render_hero_dashboard(res, params):
     if params.get("calib") and chocs.get("evenement_reference"):
         ref = chocs["evenement_reference"]
         badges_html += f'<span class="qt-dash-hero-chip qt-dash-hero-chip-calib">Calibré : {ref}</span>'
-    if params.get("monte_carlo"):
-        badges_html += '<span class="qt-dash-hero-chip qt-dash-hero-chip-mc">Monte-Carlo · 50 simulations</span>'
+    if params.get("eur"):
+        badges_html += '<span class="qt-dash-hero-chip qt-dash-hero-chip-calib">Converti en €</span>'
+    if params.get("mc"):
+        badges_html += (f'<span class="qt-dash-hero-chip qt-dash-hero-chip-mc">'
+                        f'Monte-Carlo · {NB_SIMULATIONS_MONTE_CARLO} simulations</span>')
 
     st.markdown(
         f'<div class="qt-dash-hero">'
@@ -351,7 +354,7 @@ def afficher_dashboard(res, params, key_prefix="main"):
     # === Métriques de risque ===
     poids = calculer_poids(params["profil"], params["actifs_sim"], params["allocations"])
     valeur_port = calculer_valeur_portefeuille(df, poids, params["capital"])
-    metriques = calculer_metriques_risque(valeur_port)
+    metriques = metriques_du_resultat(res, valeur_port, poids, params["capital"])
 
     st.markdown('<hr class="qt-divider">', unsafe_allow_html=True)
     st.markdown(_section_tip(
@@ -362,6 +365,21 @@ def afficher_dashboard(res, params, key_prefix="main"):
     ), unsafe_allow_html=True)
 
     st.markdown(html_metriques_jauges(metriques), unsafe_allow_html=True)
+
+    # Distribution de la valeur finale (uniquement en Monte-Carlo)
+    if "proba_perte" in metriques:
+        def _eur(v):
+            return f"{v:,.0f} €".replace(",", " ")
+        st.markdown(
+            '<div class="qt-callout" style="margin-top:14px; line-height:1.6;">'
+            f'<strong>Sur {NB_SIMULATIONS_MONTE_CARLO} trajectoires simulées</strong> : '
+            f'probabilité de finir en perte <strong>{metriques["proba_perte"]:.0f} %</strong> · '
+            f'valeur finale entre <strong>{_eur(metriques["valeur_p5"])}</strong> (5 % pires cas) '
+            f'et <strong>{_eur(metriques["valeur_p95"])}</strong> (5 % meilleurs cas), '
+            f'médiane <strong>{_eur(metriques["valeur_mediane"])}</strong>.'
+            '</div>',
+            unsafe_allow_html=True,
+        )
 
     # Alertes automatiques sur les metriques (drawdown severe, Sharpe negatif...)
     for alerte in evaluer_alertes_risque(metriques):

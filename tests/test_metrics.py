@@ -116,3 +116,52 @@ def test_resultat_toujours_floats():
 ])
 def test_evaluer_qualite_sharpe(sharpe, attendu):
     assert evaluer_qualite_sharpe(sharpe) == attendu
+
+
+# === Metriques sur trajectoires Monte-Carlo ================================
+
+
+def _chemins_gaussiens(nb=400, jours=120, vol=0.01, graine=0):
+    rng = np.random.default_rng(graine)
+    r = rng.normal(0, vol, size=(nb, jours - 1, 2))
+    chemins = np.ones((nb, jours, 2)) * 100.0
+    chemins[:, 1:, :] = 100.0 * np.exp(np.cumsum(r, axis=1))
+    return chemins
+
+
+def test_metriques_monte_carlo_mesurent_le_vrai_risque():
+    from core.metrics import calculer_metriques_monte_carlo, calculer_metriques_risque
+    chemins = _chemins_gaussiens()
+    m = calculer_metriques_monte_carlo(chemins, ["A", "B"], {"A": 1.0}, 10_000)
+    # Vol annualisee attendue : 1% x sqrt(252) ~ 15.9%
+    assert m["vol_ann"] == pytest.approx(15.9, rel=0.08)
+    assert m["var_95"] == pytest.approx(-1.645, rel=0.1)
+    assert 30 < m["proba_perte"] < 70
+    assert m["valeur_p5"] < m["valeur_mediane"] < m["valeur_p95"]
+    # La trajectoire mediane, elle, sous-estime massivement la volatilite
+    mediane = np.median(chemins[:, :, 0], axis=0)
+    assert calculer_metriques_risque(mediane)["vol_ann"] < m["vol_ann"] / 3
+
+
+def test_metriques_monte_carlo_diversification():
+    from core.metrics import calculer_metriques_monte_carlo
+    chemins = _chemins_gaussiens()
+    seul = calculer_metriques_monte_carlo(chemins, ["A", "B"], {"A": 1.0}, 1000)
+    mixte = calculer_metriques_monte_carlo(chemins, ["A", "B"], {"A": 0.5, "B": 0.5}, 1000)
+    # Deux actifs independants : la vol du 50/50 est ~ vol / sqrt(2)
+    assert mixte["vol_ann"] == pytest.approx(seul["vol_ann"] / np.sqrt(2), rel=0.1)
+
+
+def test_metriques_du_resultat_choisit_la_bonne_methode():
+    from core.metrics import metriques_du_resultat
+    chemins = _chemins_gaussiens()
+    serie = chemins[0, :, 0]
+    sans_mc = metriques_du_resultat({"mc_data": None}, serie, {"A": 1.0}, 100)
+    assert "proba_perte" not in sans_mc
+    avec_mc = metriques_du_resultat(
+        {"mc_data": {"chemins": chemins, "colonnes": ["A", "B"]}}, serie, {"A": 1.0}, 100)
+    assert "proba_perte" in avec_mc
+    # Aucun actif du portefeuille dans les chemins -> repli sur la serie
+    repli = metriques_du_resultat(
+        {"mc_data": {"chemins": chemins, "colonnes": ["A", "B"]}}, serie, {"Z": 1.0}, 100)
+    assert "proba_perte" not in repli

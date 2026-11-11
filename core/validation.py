@@ -55,6 +55,7 @@ def construire_params_sim_simulation(config: Dict, nb_scenarios: int) -> Dict:
         "nb_scenarios": nb_scenarios,
         "prix_reels":   config["utiliser_prix_reels"],
         "calib":        config["calibration_historique"],
+        "eur":          bool(config.get("convertir_eur", False)),
     }
 
 
@@ -67,4 +68,5 @@ def construire_params_sim_backtest(config: Dict, actifs_disponibles: List[str]
         "allocations":  dict(config["allocations_custom"]),
         "profil":       config["profil_risque"],
         "capital":      config["capital_initial"],
+        "eur":          bool(config.get("convertir_eur", False)),
     }

@@ -14,10 +14,14 @@ from typing import Dict, Any
 
 import streamlit as st
 
-from config import HISTORIQUE_TAILLE_MAX, NOM_AFFICHAGE, LABELS_SCENARIOS
+from config import (
+    ACTIF_TAUX_EUR_USD, HISTORIQUE_TAILLE_MAX, NOM_AFFICHAGE, LABELS_SCENARIOS,
+    NB_SIMULATIONS_MONTE_CARLO,
+)
 from logger import get_logger
 from market_data import (
     get_prix_actuels, get_volatilites_historiques, get_historique,
+    get_rendements_historiques, source_fallback,
     EVENEMENTS_HISTORIQUES,
 )
 from core.runner import lancer_simulation_scenario, lancer_backtest
@@ -79,7 +83,7 @@ def _message_attente_simulation(config: Dict[str, Any]) -> str:
     if nb > 1:
         return f"Analyse comparative de {nb} scénarios en cours... (cela peut prendre {30*nb}-{60*nb} secondes)"
     if config["mode_monte_carlo"]:
-        return "Mode Monte-Carlo : 50 simulations en cours... (cela peut prendre 15-30 secondes)"
+        return f"Mode Monte-Carlo : {NB_SIMULATIONS_MONTE_CARLO} simulations en cours..."
     if config["calibration_historique"]:
         return "L'IA recherche des analogies historiques... (cela peut prendre quelques secondes)"
     return "L'analyste IA étudie votre scénario... (cela peut prendre quelques secondes)"
@@ -123,7 +127,8 @@ def handler_simulation(config: Dict[str, Any]) -> None:
         if sim_key in config["actifs_selectionnes"]
     ] or None
 
-    prix_reels = vols_reelles = None
+    convertir_eur = bool(config.get("convertir_eur", False))
+    prix_reels = vols_reelles = rendements_historiques = None
     if config["utiliser_prix_reels"]:
         # Pour Yahoo, on ne demande que les actifs du catalogue standard ;
         # les customs ont deja leur prix/vol calibres a l'ajout.
@@ -131,12 +136,22 @@ def handler_simulation(config: Dict[str, Any]) -> None:
             a for a in config["actifs_selectionnes"]
             if a not in (actifs_perso or {})
         ]
+        # Benchmarks et EUR/USD sont simules meme s'ils ne sont pas coches :
+        # ils doivent partir eux aussi de vrais prix et de vraies correlations.
+        actifs_marche = sorted(set(actifs_standards)
+                               | {"S&P 500", "MSCI_World", ACTIF_TAUX_EUR_USD})
         with st.spinner("Connexion à Yahoo Finance..."):
-            prix_reels, erreurs_yahoo = get_prix_actuels(actifs_standards)
-            vols_reelles = get_volatilites_historiques(actifs_standards)
-        if erreurs_yahoo:
-            noms = ", ".join(NOM_AFFICHAGE.get(e, e) for e in erreurs_yahoo)
-            notify_warn(f"Données Yahoo Finance indisponibles pour : {noms}.")
+            prix_reels, erreurs_yahoo = get_prix_actuels(actifs_marche)
+            vols_reelles = get_volatilites_historiques(actifs_marche)
+            rendements_historiques = get_rendements_historiques(actifs_marche)
+        erreurs_visibles = [e for e in erreurs_yahoo if e in actifs_standards]
+        if erreurs_visibles:
+            noms = ", ".join(NOM_AFFICHAGE.get(e, e) for e in erreurs_visibles)
+            date_secours = max(source_fallback(e)["date"] for e in erreurs_visibles)
+            notify_warn(
+                f"Yahoo Finance indisponible pour : {noms}. "
+                f"Prix de secours utilisés (dernière valeur connue au {date_secours})."
+            )
 
     skeleton_ph = render_skeleton_dashboard()
     nb_labels = len(textes)
@@ -155,6 +170,8 @@ def handler_simulation(config: Dict[str, Any]) -> None:
                 prix_reels, vols_reelles, config["calibration_historique"],
                 actifs_extras=actifs_extras,
                 custom_tickers=custom_tickers_ia,
+                rendements_historiques=rendements_historiques,
+                convertir_eur=convertir_eur,
             )
             if err:
                 notify_error(f"Scénario {label} : {err}")
@@ -215,6 +232,7 @@ def handler_backtest(config: Dict[str, Any]) -> None:
                 config["actifs_selectionnes"],
                 config["date_debut_custom"].strftime("%Y-%m-%d"),
                 config["date_fin_custom"].strftime("%Y-%m-%d"),
+                convertir_eur=bool(config.get("convertir_eur", False)),
             )
 
             if df_histo.empty:

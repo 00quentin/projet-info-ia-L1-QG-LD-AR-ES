@@ -42,7 +42,9 @@ def render_page_backtest_dashboard():
     # === Bandeau d'info ===
     st.markdown(f'<div class="qt-callout"><strong>Backtest : {bt["evenement"]}</strong><br>'
                 f'<span style="font-size:0.9em;">{bt["description"]}<br>'
-                f'Période : {bt["date_debut"]} → {bt["date_fin"]} · {len(bt["df"])} jours de cotation</span></div>',
+                f'Période : {bt["date_debut"]} → {bt["date_fin"]} · {len(bt["df"])} jours de cotation'
+                + (' · converti en € (taux BCE)' if params.get("eur") else '')
+                + '</span></div>',
                 unsafe_allow_html=True)
 
     if bt["actifs_indisponibles"]:
