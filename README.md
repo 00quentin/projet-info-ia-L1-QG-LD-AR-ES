@@ -75,6 +75,21 @@ L'application s'ouvre automatiquement dans votre navigateur sur `http://localhos
 
 ---
 
+## API web (en préparation du nouveau site)
+
+Le moteur Python est aussi exposé par une API [FastAPI](https://fastapi.tiangolo.com/), qui servira le futur site Next.js :
+
+```bash
+pip install -r requirements-dev.txt
+uvicorn api.main:app --reload --port 8000
+```
+
+Documentation interactive : `http://localhost:8000/docs`. Principales routes : `/api/catalogue`, `/api/marches`, `/api/simulations`, `/api/backtests`, `/api/chat`, `/api/rapports/pdf`.
+
+Déploiement prévu sur Render via `render.yaml` (clés `OPENAI_API_KEY` et `QT_ORIGINES_AUTORISEES` à saisir dans le tableau de bord Render).
+
+---
+
 ## Stack technique
 
 - **Frontend** : [Streamlit](https://streamlit.io/) + CSS custom (design system Linear/Vercel)

@@ -9,13 +9,13 @@ from pathlib import Path
 
 import pandas as pd
 import yfinance as yf
-import streamlit as st
 from datetime import datetime, timedelta
 
 from config import (
     ACTIFS_SECOURS, ACTIFS_COTES_7J, BACKTEST_TOLERANCE_DEBUT_SEANCES,
     DATE_PRIX_SECOURS, DEVISE_ACTIF, FENETRE_CALIBRATION_JOURS,
 )
+from core.cache import cache_ttl
 from core.devises import convertir_en_eur, telecharger_taux_bce
 from logger import get_logger
 
@@ -132,7 +132,7 @@ def _extraire_close(data: pd.DataFrame, ticker: str):
     return data["Close"] if "Close" in data.columns else None
 
 
-@st.cache_data(ttl=3600, show_spinner=False)
+@cache_ttl(3600)
 def get_prix_actuels(actifs_keys=None):
     """Recupere le dernier prix de cloture pour chaque actif demande.
 
@@ -211,7 +211,7 @@ def _entree_fallback(sim_key: str) -> dict:
             "sparkline": [], **source_fallback(sim_key)}
 
 
-@st.cache_data(ttl=3600, show_spinner=False)
+@cache_ttl(3600)
 def get_prix_avec_variation(actifs_keys=None):
     """Retourne pour chaque actif : {"prix", "variation_pct", "sparkline",
     "source", "date"}.
@@ -313,19 +313,22 @@ def _aligner_jours_de_bourse(df: pd.DataFrame, cles_7j: set) -> pd.DataFrame:
     return df[df.index.dayofweek < 5]
 
 
-@st.cache_data(ttl=86400, show_spinner=False)
+@cache_ttl(86400)
 def get_taux_bce() -> pd.DataFrame:
     """Taux de reference BCE (cache 24h : la BCE publie une fois par jour)."""
     return telecharger_taux_bce()
 
 
-@st.cache_data(ttl=21600, show_spinner=False)
-def get_historique(actifs_keys, date_debut, date_fin, convertir_eur=True):
+@cache_ttl(21600)
+def get_historique(actifs_keys, date_debut, date_fin, convertir_eur=True,
+                   avec_dates=False):
     """Prix historiques reels pour un backtest, en euros par defaut.
 
     Un actif qui ne cotait pas encore au debut de la periode est ecarte
     (au lieu d'etre prolonge en arriere avec un prix futur) ; lancer_backtest
     le signale alors comme indisponible.
+
+    avec_dates=True conserve l'index de dates (utile pour tracer un axe du temps).
     """
     log.info("Backtest Yahoo (batch): %d actifs, %s → %s",
              len(actifs_keys), date_debut, date_fin)
@@ -368,11 +371,12 @@ def get_historique(actifs_keys, date_debut, date_fin, convertir_eur=True):
         if non_convertis:
             log.warning("Conversion EUR impossible (taux BCE absents) : %s", non_convertis)
 
-    df_global = df_global.reset_index(drop=True)
+    if not avec_dates:
+        df_global = df_global.reset_index(drop=True)
     return df_global
 
 
-@st.cache_data(ttl=86400, show_spinner=False)
+@cache_ttl(86400)
 def get_rendements_historiques(actifs_keys, jours_calendaires=FENETRE_CALIBRATION_JOURS):
     """Rendements quotidiens reels (jours de bourse) des actifs demandes.
 
@@ -401,7 +405,7 @@ def get_rendements_historiques(actifs_keys, jours_calendaires=FENETRE_CALIBRATIO
     return prix.ffill(limit=3).pct_change(fill_method=None).dropna(how="all")
 
 
-@st.cache_data(ttl=86400, show_spinner=False)
+@cache_ttl(86400)
 def get_volatilites_historiques(actifs_keys, jours=252):
     fin = datetime.now()
     debut = fin - timedelta(days=jours * 2)

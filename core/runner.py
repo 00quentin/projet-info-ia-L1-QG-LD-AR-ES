@@ -12,7 +12,7 @@ import pandas as pd
 from simulation import simuler_marche_dynamique, simuler_monte_carlo
 from ia_bot import analyser_evenement_macro
 from config import (
-    ACTIF_TAUX_EUR_USD, DEVISE_ACTIF, NOM_AFFICHAGE, NB_SIMULATIONS_MONTE_CARLO,
+    ACTIF_TAUX_EUR_USD, BENCHMARKS, DEVISE_ACTIF, NOM_AFFICHAGE, NB_SIMULATIONS_MONTE_CARLO,
 )
 from core.custom_assets import PREFIXE_CUSTOM
 from logger import get_logger
@@ -107,7 +107,7 @@ def lancer_simulation_scenario(
 
     # On injecte toujours S&P 500 et MSCI_World comme benchmarks, même si
     # l'utilisateur ne les a pas sélectionnés. Ils sont exclus de perf_df.
-    BENCHMARKS_FIXES = ["S&P 500", "MSCI_World"]
+    BENCHMARKS_FIXES = BENCHMARKS
     actifs_a_simuler = list(actifs_selectionnes)
     for bm in BENCHMARKS_FIXES:
         if bm not in actifs_a_simuler:

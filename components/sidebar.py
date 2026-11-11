@@ -17,6 +17,7 @@ from config import (
     HORIZON_MIN, HORIZON_MAX, HORIZON_DEFAUT, HORIZON_STEP,
     CAPITAL_MIN, CAPITAL_MAX, CAPITAL_DEFAUT, CAPITAL_STEP,
     LABELS_SCENARIOS, NB_SCENARIOS_MAX, NB_SIMULATIONS_MONTE_CARLO,
+    MODELES_SIMULATION,
 )
 from core.custom_assets import (
     SESSION_KEY as ACTIFS_PERSO_KEY,
@@ -98,7 +99,7 @@ def _render_section_simulation() -> Dict[str, Any]:
     with st.expander("⚙  Options avancées", expanded=False):
         options["modele_simu"] = st.selectbox(
             "Comportement du marché",
-            ["Probabiliste (Réaliste)", "Historique (Chocs violents)", "Machine Learning (Tendance)"]
+            MODELES_SIMULATION
         )
         options["duree"] = st.slider("Horizon (jours de cotation)",
                                       HORIZON_MIN, HORIZON_MAX, HORIZON_DEFAUT, HORIZON_STEP)

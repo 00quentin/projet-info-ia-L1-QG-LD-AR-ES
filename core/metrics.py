@@ -136,3 +136,33 @@ def metriques_du_resultat(
         if metriques is not None:
             return metriques
     return calculer_metriques_risque(valeur_portefeuille)
+
+
+def bandes_portefeuille_monte_carlo(
+    chemins: np.ndarray,
+    colonnes: List[str],
+    poids: Dict[str, float],
+    capital: float,
+) -> Optional[Dict[str, np.ndarray]]:
+    """
+    Enveloppe 5%-95% de la valeur du portefeuille, jour par jour.
+
+    Calculee sur les trajectoires du portefeuille entier : additionner les
+    percentiles de chaque actif serait faux (les pires cas de tous les actifs
+    n'arrivent pas le meme jour).
+
+    Returns:
+        {"bas", "mediane", "haut"} : tableaux de longueur `jours`. None si
+        aucun actif du portefeuille n'est simule.
+    """
+    idx = [colonnes.index(k) for k in poids if k in colonnes]
+    if not idx or chemins is None or len(chemins) == 0:
+        return None
+    w = np.array([poids[colonnes[i]] for i in idx], dtype=float)
+    if w.sum() <= 0:
+        return None
+    w = w / w.sum()
+    prix = chemins[:, :, idx].astype(float)
+    valeurs = capital * (prix / prix[:, :1, :] * w).sum(axis=2)
+    bas, mediane, haut = np.percentile(valeurs, [5, 50, 95], axis=0)
+    return {"bas": bas, "mediane": mediane, "haut": haut}

@@ -155,6 +155,15 @@ HORIZON_DEFAUT = 100
 HORIZON_STEP = 10
 
 NB_SIMULATIONS_MONTE_CARLO = 1000
+
+# Modeles d'alea proposes (le moteur reconnait les mots Probabiliste / Historique)
+MODELES_SIMULATION = [
+    "Probabiliste (Réaliste)",
+    "Historique (Chocs violents)",
+    "Machine Learning (Tendance)",
+]
+PROFIL_PERSONNALISE = "Personnalisé"
+BENCHMARKS = ["S&P 500", "MSCI_World"]
 # Trajectoires gardees en memoire pour les metriques de risque (limite la RAM de session)
 NB_CHEMINS_CONSERVES = 400
 
@@ -314,3 +323,22 @@ ACTIFS_SECOURS = {
     "XRP":                  {"prix": 1.05,   "volatilite": 0.042},
     "Solana":               {"prix": 83,     "volatilite": 0.045},
 }
+
+
+
+# ==========================================
+# API WEB (FastAPI) — garde-fous
+# ------------------------------------------------------------------
+# L'API est publique et chaque analyse coute un appel OpenAI : on borne
+# la taille des demandes et le nombre d'appels par visiteur.
+# ==========================================
+API_SCENARIO_LONGUEUR_MAX = 1000
+API_ACTIFS_MAX = 40
+API_TICKERS_PERSO_MAX = 10
+API_CHAT_MESSAGES_MAX = 30
+API_CHAT_LONGUEUR_MAX = 4000
+API_BACKTEST_JOURS_MAX = 3660          # ~10 ans
+API_FENETRE_LIMITE_SECONDES = 60
+API_LIMITE_APPELS_IA = 12              # simulations + rapports + chat, par minute et par IP
+API_LIMITE_APPELS_DONNEES = 120        # prix, catalogue, backtests, par minute et par IP
+API_ORIGINES_PAR_DEFAUT = ["http://localhost:3000", "http://127.0.0.1:3000"]

@@ -1,15 +1,16 @@
+import functools
 import os
 import re
 import json
 import hashlib
 import random
-import streamlit as st
 from openai import OpenAI, APIError, APIConnectionError, APITimeoutError, RateLimitError
 from dotenv import load_dotenv
 
 from config import (
     IA_ANALYSE, IA_ANALYSE_SECOURS, IA_CHAT, IA_RAPPORT, IA_TIMEOUT_SECONDES,
 )
+from core.cache import cache_ttl
 from schemas import valider_reponse_ia
 from logger import get_logger
 
@@ -18,11 +19,22 @@ log = get_logger("ia_bot")
 load_dotenv()
 
 
-@st.cache_resource(show_spinner=False)
+def _cle_api() -> str:
+    """Cle OpenAI : variable d'environnement (.env, API web) sinon secrets Streamlit Cloud."""
+    cle = os.getenv("OPENAI_API_KEY")
+    if cle:
+        return cle
+    try:
+        import streamlit as st
+        return st.secrets.get("OPENAI_API_KEY", None)
+    except Exception:  # noqa: BLE001 — pas de Streamlit ou pas de fichier secrets
+        return None
+
+
+@functools.lru_cache(maxsize=1)
 def _get_openai_client() -> OpenAI:
-    """Singleton client OpenAI (evite la recreation a chaque rerun Streamlit)."""
-    api_key = os.getenv("OPENAI_API_KEY") or st.secrets.get("OPENAI_API_KEY", None)
-    return OpenAI(api_key=api_key, timeout=IA_TIMEOUT_SECONDES, max_retries=1)
+    """Singleton client OpenAI (evite la recreation a chaque appel)."""
+    return OpenAI(api_key=_cle_api(), timeout=IA_TIMEOUT_SECONDES, max_retries=1)
 
 
 # Bump this version when the prompt structure changes, to invalidate
@@ -77,7 +89,13 @@ def analyser_evenement_macro(evenement_utilisateur, calibration_historique=False
     )
 
 
-@st.cache_data(ttl=86400, show_spinner=False)
+def _est_une_analyse_valide(resultat) -> bool:
+    return isinstance(resultat, dict) and "erreur" not in resultat
+
+
+# Une erreur (timeout, quota) n'est pas memorisee : sinon le meme scenario
+# resterait en echec pendant 24h meme une fois OpenAI retabli.
+@cache_ttl(86400, garder=_est_une_analyse_valide)
 def _analyser_cache_impl(evenement_utilisateur, calibration_historique,
                           custom_tickers_key, prompt_version):
     """Implementation cachee 24h. NE PAS appeler directement, passer par
