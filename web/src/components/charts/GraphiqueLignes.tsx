@@ -11,8 +11,10 @@ export type SerieLigne = {
   /** Variable CSS de couleur, ex. "var(--series-1)" */
   couleur: string;
   valeurs: (number | null)[];
-  /** La serie principale est plus epaisse et porte l'etiquette de fin. */
+  /** La serie principale est plus epaisse. Sans serie principale, toutes ont le meme poids. */
   principale?: boolean;
+  /** Fourchette propre a cette serie (ex. 5 %–95 % Monte-Carlo d'un actif). */
+  bande?: { bas: (number | null)[]; haut: (number | null)[] };
 };
 
 type Props = {
@@ -55,6 +57,7 @@ export function GraphiqueLignes({ series, bande, etiquettesX, formatY, formatVal
     const toutes: number[] = [];
     for (const s of series) for (const v of s.valeurs) if (v != null) toutes.push(v);
     if (bande) for (const v of [...bande.bas, ...bande.haut]) if (v != null) toutes.push(v);
+    for (const s of series) if (s.bande) for (const v of [...s.bande.bas, ...s.bande.haut]) if (v != null) toutes.push(v);
     if (reference) toutes.push(reference.valeur);
     const min = Math.min(...toutes);
     const max = Math.max(...toutes);
@@ -65,9 +68,12 @@ export function GraphiqueLignes({ series, bande, etiquettesX, formatY, formatVal
   }, [series, bande, reference, n, largeur, hauteur]);
 
   const tracer = line<number | null>().defined((v) => v != null).x((_, i) => x(i)).y((v) => y(v as number));
-  const tracerBande = bande
-    ? area<number>().x((i) => x(i)).y0((i) => y(bande.bas[i] ?? 0)).y1((i) => y(bande.haut[i] ?? 0))
-    : null;
+  const zone = (b: { bas: (number | null)[]; haut: (number | null)[] }) =>
+    area<number>()
+      .defined((i) => b.bas[i] != null && b.haut[i] != null)
+      .x((i) => x(i))
+      .y0((i) => y(b.bas[i] as number))
+      .y1((i) => y(b.haut[i] as number))(Array.from({ length: n }, (_, i) => i)) ?? undefined;
 
   // Graduations "rondes" (0, 20, 40…) ; la derniere abscisse est toujours etiquetee.
   const rondes = x.ticks(largeur < 480 ? 3 : 6).filter((t) => Number.isInteger(t) && t <= n - 1 - Math.max(1, (n - 1) * 0.08));
@@ -85,10 +91,11 @@ export function GraphiqueLignes({ series, bande, etiquettesX, formatY, formatVal
     setSurvol((i) => Math.max(0, Math.min(n - 1, (i ?? n - 1) + (e.key === "ArrowRight" ? pas : -pas))));
   }
 
-  const principale = series.find((s) => s.principale) ?? series[0];
+  const principale = series.find((s) => s.principale);
+  const reference0 = principale ?? series[0];
   // Nouvelle cle a chaque nouveau jeu de donnees : les courbes se redessinent.
-  const cleTrace = `${n}-${principale.valeurs[0]}-${principale.valeurs[n - 1]}`;
-  const derniere = principale.valeurs[n - 1];
+  const cleTrace = `${n}-${series.length}-${reference0.valeurs[0]}-${reference0.valeurs[n - 1]}`;
+  const avecPointFinal = principale ? [principale] : series;
   const bulleAGauche = survol != null && x(survol) > largeur * 0.6;
 
   return (
@@ -132,26 +139,38 @@ export function GraphiqueLignes({ series, bande, etiquettesX, formatY, formatVal
         )}
 
         <g key={cleTrace}>
-          {/* La zone se deploie depuis la gauche pendant que les courbes se dessinent. */}
-          {tracerBande && (
+          {/* Les zones se deploient depuis la gauche pendant que les courbes se dessinent. */}
+          {bande && principale && (
             <motion.path
-              d={tracerBande(Array.from({ length: n }, (_, i) => i)) ?? undefined}
+              d={zone(bande)}
               fill={principale.couleur}
               initial={{ opacity: 0, clipPath: "inset(0 100% 0 0)" }}
               animate={{ opacity: 0.12, clipPath: "inset(0 0% 0 0)" }}
               transition={{ duration: DUREE_TRACE, ease: EASE_SORTIE }}
             />
           )}
+          {series.map((s) =>
+            s.bande ? (
+              <motion.path
+                key={`zone-${s.nom}`}
+                d={zone(s.bande)}
+                fill={s.couleur}
+                initial={{ opacity: 0, clipPath: "inset(0 100% 0 0)" }}
+                animate={{ opacity: 0.09, clipPath: "inset(0 0% 0 0)" }}
+                transition={{ duration: DUREE_TRACE, ease: EASE_SORTIE }}
+              />
+            ) : null,
+          )}
 
           {series
-            .filter((s) => !s.principale)
+            .filter((s) => s !== principale)
             .map((s, i) => (
               <motion.path
                 key={s.nom}
                 d={tracer(s.valeurs) ?? undefined}
                 fill="none"
                 stroke={s.couleur}
-                strokeWidth={1.5}
+                strokeWidth={principale ? 1.5 : 2}
                 strokeLinejoin="round"
                 strokeLinecap="round"
                 initial={{ pathLength: 0, opacity: 0 }}
@@ -159,32 +178,39 @@ export function GraphiqueLignes({ series, bande, etiquettesX, formatY, formatVal
                 transition={{ duration: DUREE_TRACE, ease: EASE_SORTIE, delay: 0.1 + i * 0.08 }}
               />
             ))}
-          <motion.path
-            d={tracer(principale.valeurs) ?? undefined}
-            fill="none"
-            stroke={principale.couleur}
-            strokeWidth={2.5}
-            strokeLinejoin="round"
-            strokeLinecap="round"
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ duration: DUREE_TRACE, ease: EASE_SORTIE }}
-          />
-
-          {derniere != null && survol == null && (
-            <motion.circle
-              cx={x(n - 1)}
-              cy={y(derniere)}
-              r={4.5}
-              fill={principale.couleur}
-              stroke="var(--surface)"
-              strokeWidth={2}
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ type: "spring", stiffness: 500, damping: 18, delay: DUREE_TRACE * 0.85 }}
-              style={{ transformBox: "fill-box", transformOrigin: "center" }}
+          {principale && (
+            <motion.path
+              d={tracer(principale.valeurs) ?? undefined}
+              fill="none"
+              stroke={principale.couleur}
+              strokeWidth={2.5}
+              strokeLinejoin="round"
+              strokeLinecap="round"
+              initial={{ pathLength: 0 }}
+              animate={{ pathLength: 1 }}
+              transition={{ duration: DUREE_TRACE, ease: EASE_SORTIE }}
             />
           )}
+
+          {survol == null &&
+            avecPointFinal.map((s) => {
+              const derniere = s.valeurs[n - 1];
+              return derniere == null ? null : (
+                <motion.circle
+                  key={`fin-${s.nom}`}
+                  cx={x(n - 1)}
+                  cy={y(derniere)}
+                  r={4.5}
+                  fill={s.couleur}
+                  stroke="var(--surface)"
+                  strokeWidth={2}
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 18, delay: DUREE_TRACE * 0.85 }}
+                  style={{ transformBox: "fill-box", transformOrigin: "center" }}
+                />
+              );
+            })}
         </g>
 
         {survol != null && (

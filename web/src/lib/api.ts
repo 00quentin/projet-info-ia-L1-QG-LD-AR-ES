@@ -46,6 +46,7 @@ export type Analyse = {
   fiabilite: { niveau?: string; raison?: string } | null;
   chocs: Record<string, number>;
   chocs_sans_calibration: Record<string, number> | null;
+  macro_sans_calibration: { inflation: number; taux_directeurs: number } | null;
 };
 
 export type ResultatScenario = {

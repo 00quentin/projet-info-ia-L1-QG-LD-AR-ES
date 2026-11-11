@@ -79,7 +79,7 @@ export function EnTete() {
           <Moon className="size-4 dark:hidden" aria-hidden />
         </motion.button>
       </div>
-      <Navigation className="overflow-x-auto px-3 pb-2 [scrollbar-width:none] md:hidden" />
+      <Navigation className="overflow-x-auto px-3 pb-2 [mask-image:linear-gradient(90deg,#000_88%,transparent)] [scrollbar-width:none] md:hidden" />
     </header>
   );
 }

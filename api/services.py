@@ -288,6 +288,11 @@ def _formater_simulation(label: str, res: Dict, demande: DemandeSimulation,
                  if k in demande.actifs}
                 if res.get("chocs_libre") else None
             ),
+            "macro_sans_calibration": (
+                {"inflation": _nombre((res["chocs_libre"].get("macro") or {}).get("inflation", 0.0)),
+                 "taux_directeurs": _nombre((res["chocs_libre"].get("macro") or {}).get("taux_directeurs", 0.0))}
+                if res.get("chocs_libre") else None
+            ),
         },
         **_bloc_portefeuille(df, res["perf"], poids, demande.capital, noms_perso, res),
         "actifs": _series_actifs(df, demande.actifs, noms_perso, res["perf"], mc),

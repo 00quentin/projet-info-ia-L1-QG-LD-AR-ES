@@ -84,6 +84,9 @@ def test_simulation_simple():
     assert s["label"] == "A" and s["erreur"] is None
     assert s["analyse"]["evenement_reference"] == "Crise 2008"
     assert set(s["analyse"]["chocs"]) == {"S&P 500", "CAC 40", "Or"}
+    # Calibration activee par defaut : l'estimation libre est aussi renvoyee
+    assert s["analyse"]["chocs_sans_calibration"] is not None
+    assert s["analyse"]["macro_sans_calibration"]["inflation"] == 1.3
     assert len(s["portefeuille"]["valeurs"]) == 60
     assert s["portefeuille"]["valeurs"][0] == pytest.approx(10000)
     assert {a["cle"] for a in s["actifs"]} == {"S&P 500", "CAC 40", "Or"}

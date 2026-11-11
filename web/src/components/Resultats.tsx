@@ -1,122 +1,79 @@
 "use client";
 
-import { TriangleAlert } from "lucide-react";
-import type { ParametresSimulation, ReponseSimulation, ResultatScenario } from "@/lib/api";
-import { euros, eurosCompacts, pourcent, pourcentSigne } from "@/lib/format";
-import { ListeAlertes, TuilesRisque } from "@/components/resultats/Risque";
-import { DetailPortefeuille } from "@/components/resultats/DetailPortefeuille";
-import { Carte, Pastille, TitreCarte } from "@/components/ui/Carte";
+import { motion } from "motion/react";
+import { GitCompareArrows, TriangleAlert } from "lucide-react";
+import type { DemandeRapport, ParametresSimulation, ReponseSimulation, ResultatScenario } from "@/lib/api";
+import { euros, eurosCompacts, pourcentSigne } from "@/lib/format";
+import { Carte, TitreCarte } from "@/components/ui/Carte";
 import { GraphiqueLignes, Legende, type SerieLigne } from "@/components/charts/GraphiqueLignes";
 import { BarresPerformance } from "@/components/charts/BarresPerformance";
+import { Apparition } from "@/components/motion/Apparition";
+import { NombreAnime } from "@/components/motion/NombreAnime";
+import { Synthese } from "@/components/resultats/Synthese";
+import { AnalyseIA } from "@/components/resultats/AnalyseIA";
+import { Repartition } from "@/components/resultats/Repartition";
+import { CourbesCategories } from "@/components/resultats/CourbesCategories";
+import { ListeAlertes, TuilesRisque } from "@/components/resultats/Risque";
+import { DetailPortefeuille } from "@/components/resultats/DetailPortefeuille";
+import { BoutonsExport } from "@/components/exports/BoutonsExport";
+import { colonnesPoches } from "@/lib/poches";
 
-function Synthese({ s, p }: { s: ResultatScenario; p: ParametresSimulation }) {
-  const pf = s.portefeuille;
-  const gain = pf.valeur_finale - pf.capital;
-  const hausse = gain >= 0;
-  const m = s.metriques;
-  return (
-    <Carte className="p-6 sm:p-7">
-      <div className="flex flex-wrap items-center gap-1.5">
-        {p.prix_reels && <Pastille ton="gain">● Prix réels</Pastille>}
-        {p.calibration && s.analyse.evenement_reference && <Pastille ton="accent">Calibré sur : {s.analyse.evenement_reference}</Pastille>}
-        {s.converti_eur && <Pastille>Converti en €</Pastille>}
-        {p.monte_carlo && <Pastille>Monte-Carlo · {p.nb_simulations.toLocaleString("fr-FR")} trajectoires</Pastille>}
-      </div>
-      <p className="mt-5 text-sm text-ink-2">
-        Valeur estimée de votre portefeuille dans <strong className="font-semibold text-ink">{p.duree} jours de bourse</strong>
-      </p>
-      <div className="mt-1.5 flex flex-wrap items-end gap-x-4 gap-y-2">
-        <span className="text-5xl font-semibold tracking-tight sm:text-6xl">{euros(pf.valeur_finale)}</span>
-        <span className={`mb-1.5 inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-base font-semibold ${hausse ? "bg-gain-soft text-gain" : "bg-loss-soft text-loss"}`}>
-          <span aria-hidden>{hausse ? "▲" : "▼"}</span>
-          {pourcentSigne(pf.performance_pct)}
-          <span className="font-medium opacity-80">
-            ({hausse ? "+" : "−"}
-            {euros(Math.abs(gain))})
-          </span>
-        </span>
-      </div>
-      <p className="mt-2 text-sm text-muted">
-        Capital de départ {euros(pf.capital)} · profil {p.profil.split(" (")[0].toLowerCase()} · {s.allocations.length} actif{s.allocations.length > 1 ? "s" : ""} en portefeuille
-      </p>
-      {m.proba_perte != null && m.valeur_p5 != null && m.valeur_p95 != null && (
-        <div className="mt-5 grid grid-cols-1 gap-3 border-t border-line pt-5 text-sm sm:grid-cols-3">
-          <div>
-            <div className="text-xs text-muted">Scénario défavorable (5 % des cas)</div>
-            <div className="mt-0.5 text-lg font-semibold">{euros(m.valeur_p5)}</div>
-          </div>
-          <div>
-            <div className="text-xs text-muted">Scénario favorable (5 % des cas)</div>
-            <div className="mt-0.5 text-lg font-semibold">{euros(m.valeur_p95)}</div>
-          </div>
-          <div>
-            <div className="text-xs text-muted">Probabilité de finir en perte</div>
-            <div className="mt-0.5 text-lg font-semibold">{pourcent(m.proba_perte, 0)}</div>
-          </div>
-        </div>
-      )}
-    </Carte>
-  );
+const COULEURS_BENCHMARKS = ["var(--series-2)", "var(--series-3)"];
+
+export const etiquettesJours = (n: number) => Array.from({ length: n }, (_, i) => (i === 0 ? "Aujourd'hui" : `Jour ${i}`));
+
+/** Contenu du rapport PDF d'un scenario simule. */
+export function rapportSimulation(s: ResultatScenario, p: ParametresSimulation): DemandeRapport {
+  return {
+    type_rapport: "Simulation",
+    scenario: s.scenario,
+    profil: p.profil,
+    capital: s.portefeuille.capital,
+    valeur_finale: s.portefeuille.valeur_finale,
+    duree: p.duree,
+    monte_carlo: p.monte_carlo,
+    prix_reels: p.prix_reels,
+    calibration: p.calibration,
+    nb_actifs: s.actifs.length,
+    inflation: s.analyse.inflation,
+    taux_directeurs: s.analyse.taux_directeurs,
+    explication: s.analyse.explication ?? "",
+    evenement_reference: s.analyse.evenement_reference,
+    performances: s.actifs.map((a) => ({ nom: a.nom, performance: a.performance_pct })),
+    allocations: s.allocations.map((a) => ({ nom: a.nom, poids: a.poids, investi: a.investi, final: a.final, rendement: a.performance_pct / 100 })),
+    vol_ann: s.metriques.vol_ann,
+    sharpe: s.metriques.sharpe,
+    max_dd: s.metriques.max_dd,
+    var_95: s.metriques.var_95,
+    avec_analyse_ia: true,
+  };
 }
 
-function AnalyseIA({ s, calibration }: { s: ResultatScenario; calibration: boolean }) {
-  const a = s.analyse;
-  const refs = a.references_historiques.filter((r) => r.evenement);
-  const fiabilites: Record<string, { libelle: string; ton: "gain" | "alerte" | "perte" }> = {
-    elevee: { libelle: "Fiabilité élevée", ton: "gain" },
-    moyenne: { libelle: "Fiabilité moyenne", ton: "alerte" },
-    faible: { libelle: "Fiabilité faible", ton: "perte" },
-  };
-  const fiab = a.fiabilite?.niveau ? fiabilites[a.fiabilite.niveau] : undefined;
+function CarteFinale({ nom, couleur, valeur, capital, principale }: { nom: string; couleur: string; valeur: number; capital: number; principale?: boolean }) {
+  const perf = (valeur / capital - 1) * 100;
   return (
-    <Carte className="p-6">
-      <TitreCarte>Analyse de l&apos;IA</TitreCarte>
-      <p className="text-[15px] leading-relaxed text-ink-2">{a.explication ?? "Analyse non disponible."}</p>
-      <dl className="mt-5 grid grid-cols-2 gap-4 border-t border-line pt-5">
-        <div>
-          <dt className="text-xs text-muted">Inflation (variation estimée)</dt>
-          <dd className="mt-0.5 text-xl font-semibold">{pourcentSigne(a.inflation, 2).replace(" %", " pt")}</dd>
-        </div>
-        <div>
-          <dt className="text-xs text-muted">Taux directeurs (variation estimée)</dt>
-          <dd className="mt-0.5 text-xl font-semibold">{pourcentSigne(a.taux_directeurs, 2).replace(" %", " pt")}</dd>
-        </div>
-      </dl>
-      {calibration && (refs.length > 0 || fiab) && (
-        <div className="mt-5 border-t border-line pt-5">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <span className="text-xs font-medium text-muted">Précédents historiques utilisés</span>
-            {fiab && <Pastille ton={fiab.ton}>{fiab.libelle}</Pastille>}
-          </div>
-          {refs.length > 0 && (
-            <ul className="mt-3 flex flex-col gap-2">
-              {refs.map((r) => (
-                <li key={r.evenement} className="grid grid-cols-[1fr_6rem_3rem] items-center gap-3 text-sm">
-                  <span className="truncate">{r.evenement}</span>
-                  <span className="h-1.5 overflow-hidden rounded-full bg-surface-2" aria-hidden>
-                    <span className="block h-full rounded-full bg-accent" style={{ width: `${Math.round((r.poids ?? 0) * 100)}%` }} />
-                  </span>
-                  <span className="text-right text-ink-2 tabular-nums">{Math.round((r.poids ?? 0) * 100)} %</span>
-                </li>
-              ))}
-            </ul>
-          )}
-          {a.fiabilite?.raison && <p className="mt-3 text-xs leading-relaxed text-muted">{a.fiabilite.raison}</p>}
-        </div>
-      )}
-    </Carte>
+    <div className={`rounded-xl border px-4 py-3 ${principale ? "border-accent/40 bg-accent-soft/40" : "border-line"}`}>
+      <div className="flex items-center gap-1.5 text-xs text-ink-2">
+        <span className="inline-block h-0.5 w-3 rounded-full" style={{ background: couleur }} />
+        {nom}
+      </div>
+      <NombreAnime valeur={valeur} depuis={capital} format={(v) => euros(v)} className="mt-1 block text-lg font-semibold" />
+      <div className={`text-xs font-medium ${perf >= 0 ? "text-gain" : "text-loss"}`}>
+        <span aria-hidden>{perf >= 0 ? "▲ " : "▼ "}</span>
+        {pourcentSigne(perf)}
+      </div>
+    </div>
   );
 }
 
 function Evolution({ s, p }: { s: ResultatScenario; p: ParametresSimulation }) {
   const pf = s.portefeuille;
-  const couleursBenchmarks = ["var(--series-2)", "var(--series-3)"];
   const series: SerieLigne[] = [
     { nom: "Votre portefeuille", couleur: "var(--series-1)", valeurs: pf.valeurs, principale: true },
-    ...s.benchmarks.map((b, i) => ({ nom: b.nom.split(" (")[0], couleur: couleursBenchmarks[i % 2], valeurs: b.valeurs })),
+    ...s.benchmarks.map((b, i) => ({ nom: b.nom.split(" (")[0], couleur: COULEURS_BENCHMARKS[i % 2], valeurs: b.valeurs })),
   ];
   const bande = pf.valeurs_bas && pf.valeurs_haut ? { bas: pf.valeurs_bas, haut: pf.valeurs_haut, nom: "90 % des trajectoires" } : undefined;
-  const etiquettes = pf.valeurs.map((_, i) => (i === 0 ? "Aujourd'hui" : `Jour ${i}`));
+  const etiquettes = etiquettesJours(pf.valeurs.length);
   const pas = Math.max(1, Math.round(pf.valeurs.length / 10));
   const lignesTableau = pf.valeurs.map((_, i) => i).filter((i) => i % pas === 0 || i === pf.valeurs.length - 1);
 
@@ -133,6 +90,11 @@ function Evolution({ s, p }: { s: ResultatScenario; p: ParametresSimulation }) {
           Évolution du portefeuille
         </TitreCarte>
         <Legende series={series} bande={bande ? { nom: bande.nom, couleur: "var(--series-1)" } : undefined} reference="Capital de départ" />
+      </div>
+      <div className="mb-5 grid grid-cols-1 gap-2 sm:grid-cols-3">
+        {series.map((se, i) => (
+          <CarteFinale key={se.nom} nom={se.nom} couleur={se.couleur} valeur={se.valeurs[se.valeurs.length - 1] ?? pf.capital} capital={pf.capital} principale={i === 0} />
+        ))}
       </div>
       <GraphiqueLignes
         series={series}
@@ -182,26 +144,56 @@ function Evolution({ s, p }: { s: ResultatScenario; p: ParametresSimulation }) {
   );
 }
 
-export function Resultats({ reponse, scenario }: { reponse: ReponseSimulation; scenario: ResultatScenario }) {
+type Props = {
+  reponse: ReponseSimulation;
+  scenario: ResultatScenario;
+  /** Nom d'affichage de chaque cle d'actif (catalogue + actifs personnalises). */
+  noms: Map<string, string>;
+  lienPartage?: string;
+  /** Propose de comparer avec un 2e scenario (affiche seulement s'il est fourni). */
+  onComparer?: () => void;
+};
+
+export function Resultats({ reponse, scenario, noms, lienPartage, onComparer }: Props) {
   const p = reponse.parametres;
+  const etiquettes = etiquettesJours(scenario.portefeuille.valeurs.length);
+
   return (
-    <div className="apparition flex flex-col gap-4">
-      <p className="text-sm leading-relaxed text-ink-2">
-        <span className="font-medium text-ink">Scénario :</span> {scenario.scenario}
-      </p>
+    <div className="flex flex-col gap-4">
+      <Apparition className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <p className="text-sm leading-relaxed text-ink-2">
+          <span className="font-medium text-ink">Scénario :</span> {scenario.scenario}
+        </p>
+        {onComparer && (
+          <motion.button
+            type="button"
+            onClick={onComparer}
+            whileHover={{ y: -1 }}
+            whileTap={{ scale: 0.97 }}
+            className="flex shrink-0 items-center gap-1.5 self-start rounded-lg border border-line bg-surface px-3 py-1.5 text-xs font-medium text-ink-2 transition-colors hover:border-accent hover:text-accent-ink"
+          >
+            <GitCompareArrows className="size-3.5" aria-hidden />
+            Comparer avec un autre scénario
+          </motion.button>
+        )}
+      </Apparition>
 
       {reponse.prix_de_secours.length > 0 && (
-        <div role="status" className="flex gap-3 rounded-xl border border-warn/30 bg-warn-soft px-4 py-3 text-sm">
+        <Apparition role="status" className="flex gap-3 rounded-xl border border-warn/30 bg-warn-soft px-4 py-3 text-sm">
           <TriangleAlert className="mt-0.5 size-4 shrink-0 text-warn" aria-hidden />
-          <span>
-            Yahoo Finance n&apos;a pas répondu pour {reponse.prix_de_secours.map((x) => x.nom).join(", ")} : les dernières valeurs connues ont été utilisées.
-          </span>
-        </div>
+          <span>Yahoo Finance n&apos;a pas répondu pour {reponse.prix_de_secours.map((x) => x.nom).join(", ")} : les dernières valeurs connues ont été utilisées.</span>
+        </Apparition>
       )}
 
-      <Synthese s={scenario} p={p} />
-      <AnalyseIA s={scenario} calibration={p.calibration} />
-      <Evolution s={scenario} p={p} />
+      <Apparition delai={0.05}>
+        <Synthese s={scenario} p={p} />
+      </Apparition>
+      <Apparition delai={0.12}>
+        <AnalyseIA s={scenario} calibration={p.calibration} noms={noms} />
+      </Apparition>
+      <Apparition auDefilement>
+        <Evolution s={scenario} p={p} />
+      </Apparition>
 
       <div className="flex flex-col gap-3">
         <h3 className="mt-2 text-[15px] font-semibold tracking-tight">Le risque de ce portefeuille</h3>
@@ -209,17 +201,40 @@ export function Resultats({ reponse, scenario }: { reponse: ReponseSimulation; s
         <ListeAlertes alertes={scenario.alertes} />
       </div>
 
-      <Carte className="p-6">
-        <TitreCarte aide={`Variation estimée de chaque actif sur ${p.duree} jours${scenario.converti_eur ? ", en euros" : ""}.`}>Performance par actif</TitreCarte>
-        <BarresPerformance lignes={scenario.actifs.map((a) => ({ cle: a.cle, nom: a.nom, valeur: a.performance_pct }))} />
-      </Carte>
+      <Apparition auDefilement>
+        <Repartition allocations={scenario.allocations} />
+      </Apparition>
 
-      <DetailPortefeuille
-        allocations={scenario.allocations}
-        capital={scenario.portefeuille.capital}
-        valeurFinale={scenario.portefeuille.valeur_finale}
-        performancePct={scenario.portefeuille.performance_pct}
-      />
+      <Apparition auDefilement>
+        <Carte className="p-6">
+          <TitreCarte aide={`Variation estimée de chaque actif sur ${p.duree} jours${scenario.converti_eur ? ", en euros" : ""}.`}>Performance par actif</TitreCarte>
+          <BarresPerformance lignes={scenario.actifs.map((a) => ({ cle: a.cle, nom: a.nom, valeur: a.performance_pct }))} />
+        </Carte>
+      </Apparition>
+
+      <CourbesCategories actifs={scenario.actifs} etiquettesX={etiquettes} />
+
+      <Apparition auDefilement>
+        <DetailPortefeuille
+          allocations={scenario.allocations}
+          capital={scenario.portefeuille.capital}
+          valeurFinale={scenario.portefeuille.valeur_finale}
+          performancePct={scenario.portefeuille.performance_pct}
+        />
+      </Apparition>
+
+      <Apparition auDefilement>
+        <BoutonsExport
+          csv={{
+            nomFichier: `quant_terminal_simulation${scenario.label !== "A" ? `_${scenario.label}` : ""}`,
+            titreColonneEtiquette: "jour",
+            etiquettes: scenario.portefeuille.valeurs.map((_, i) => String(i)),
+            colonnes: colonnesPoches(scenario.portefeuille, scenario.allocations, scenario.actifs),
+          }}
+          rapport={rapportSimulation(scenario, p)}
+          lienPartage={lienPartage}
+        />
+      </Apparition>
 
       <p className="px-1 text-xs leading-relaxed text-muted">
         Outil pédagogique : ces résultats sont des estimations issues d&apos;un modèle et d&apos;une IA, pas un conseil en investissement. La réalité peut fortement diverger.
