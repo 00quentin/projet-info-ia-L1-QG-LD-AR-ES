@@ -77,13 +77,23 @@ export function GraphiqueLignes({ series, bande, etiquettesX, formatY, formatVal
       .y0((i) => y(b.bas[i] as number))
       .y1((i) => y(b.haut[i] as number))(Array.from({ length: n }, (_, i) => i)) ?? undefined;
 
-  // Graduations "rondes" (0, 20, 40…), autant que la place le permet sans chevauchement
-  // (largeur estimee des libelles a 11 px) ; la derniere abscisse est toujours etiquetee.
-  const largeurLibelle = Math.max(...ticksCandidats(etiquettesX).map((t) => t.length)) * 6.4 + 18;
+  // Graduations "rondes" (0, 20, 40…) gardees de gauche a droite seulement si elles laissent
+  // assez de place a leurs voisines ; la derniere abscisse est toujours etiquetee.
+  // Largeur estimee des libelles (11 px, ~7 px par caractere) : prudent pour les dates longues.
+  const largeurLibelle = Math.max(...ticksCandidats(etiquettesX).map((t) => t.length)) * 7 + 16;
   const placeX = largeur - MARGE.gauche - MARGE.droite;
   const nbTicksX = Math.max(2, Math.min(6, Math.floor(placeX / largeurLibelle)));
-  const rondes = x.ticks(nbTicksX).filter((t) => Number.isInteger(t) && t >= 0 && x(n - 1) - x(t) >= largeurLibelle);
-  const ticksX = Array.from(new Set([...rondes, n - 1]));
+  const ticksX: number[] = [];
+  for (const t of x.ticks(nbTicksX)) {
+    if (!Number.isInteger(t) || t < 0 || t >= n - 1) continue;
+    const precedent = ticksX.at(-1);
+    // Le premier libelle est aligne a gauche et le dernier a droite, les autres sont centres :
+    // a cote d'une extremite il faut 1,5 largeur d'ecart, entre deux libelles centres 1 largeur.
+    if (precedent != null && x(t) - x(precedent) < largeurLibelle * (ticksX.length === 1 ? 1.5 : 1)) continue;
+    if (x(n - 1) - x(t) < largeurLibelle * 1.5) continue;
+    ticksX.push(t);
+  }
+  ticksX.push(n - 1);
 
   function surDeplacement(e: React.PointerEvent<SVGRectElement>) {
     const rect = e.currentTarget.getBoundingClientRect();

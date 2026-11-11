@@ -107,8 +107,9 @@ export function ContenuMacro() {
 
       <Section {...s("courbe-taux")}>
         <P>
-          Voici un secret bien gardé : depuis 1960 aux États-Unis, <G>chaque récession a été précédée par une inversion de la courbe des taux</G>. Cet
-          indicateur a 100% de précision sur 60 ans.
+          Depuis 1960 aux États-Unis, <G>chaque récession a été précédée par une inversion de la courbe des taux</G>. C&apos;est l&apos;un des
+          meilleurs signaux d&apos;alerte connus, mais pas un oracle : il a aussi donné de fausses alertes (en 1966, et l&apos;inversion de 2022-2023 n&apos;a
+          pas été suivie d&apos;une récession dans les délais habituels). Le délai entre inversion et récession varie lui aussi beaucoup.
         </P>
         <P>
           <G>La courbe des taux</G>, c’est le graphique qui montre le rendement des obligations d’État à différentes maturités (3 mois, 2 ans, 5 ans, 10

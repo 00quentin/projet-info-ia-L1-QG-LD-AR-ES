@@ -3,6 +3,7 @@
 Liste de contrôle de non-régression : chaque fonction de l'app Streamlit et son équivalent
 sur le nouveau site. Tenue à jour par l'agent `superviseur` (voir `.claude/agents/superviseur.md`).
 Légende : ✅ fait et vérifié · 🟡 partiel · ❌ manquant.
+Dernière vérification : 11/11/2026 (voir `docs/RAPPORT_AVANCEMENT.md`).
 
 **Règle** : on ne coupe l'app Streamlit que lorsque toutes les lignes sont ✅ et que le site est en ligne.
 
@@ -50,5 +51,5 @@ Légende : ✅ fait et vérifié · 🟡 partiel · ❌ manquant.
 |---|---|
 | Déployer l'API sur Render (`render.yaml`, clé OpenAI) | ❌ |
 | Déployer le site sur Vercel (`NEXT_PUBLIC_API_URL`) | ❌ |
-| Vérifier les photos de l'Académie (Wikimedia) en ligne | ❌ |
-| Faire relire 3.3 de l'Académie (courbe des taux : « 100 % de précision ») | ❌ |
+| Vérifier les photos de l'Académie (Wikimedia) en ligne (8 fichiers, `web/src/components/academie/Photo.tsx` ; Wikimedia injoignable depuis l'environnement de vérification du 11/11) | ❌ |
+| Faire relire 3.3 de l'Académie (courbe des taux : « 100 % de précision », toujours présent dans `web/src/contenu/academie/macro.tsx` l. 111) | ✅ corrigé (phrase nuancée) |

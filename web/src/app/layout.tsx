@@ -40,7 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <EnTete />
             <BandeMarches />
           </div>
-          <div id="contenu">{children}</div>
+          <main id="contenu">{children}</main>
           <PiedDePage />
           <BulleChat />
           <Guide />

@@ -385,6 +385,7 @@ export function Simulateur() {
 
   return (
     <div className="mx-auto grid max-w-[1400px] grid-cols-1 gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[23.5rem_minmax(0,1fr)] lg:items-start">
+      <h1 className="sr-only">Simulateur Quant Terminal : impact d&apos;un événement économique sur votre portefeuille</h1>
       <aside className="lg:sticky lg:top-[7.75rem] lg:max-h-[calc(100dvh-9.25rem)] lg:overflow-y-auto lg:rounded-2xl">
         <Carte className="p-5">
           <AnimatePresence>
@@ -407,7 +408,7 @@ export function Simulateur() {
         </Carte>
       </aside>
 
-      <main ref={zoneResultats} className="min-w-0 scroll-mt-4">
+      <section ref={zoneResultats} aria-label="Résultats de la simulation" className="min-w-0 scroll-mt-4">
         <AnimatePresence mode="wait">
           {etat === "attente" && (
             <motion.div key="attente" {...transitionEtat}>
@@ -468,7 +469,7 @@ export function Simulateur() {
             </motion.div>
           )}
         </AnimatePresence>
-      </main>
+      </section>
     </div>
   );
 }
