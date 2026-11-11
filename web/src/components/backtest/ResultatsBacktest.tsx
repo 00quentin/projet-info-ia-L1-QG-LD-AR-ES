@@ -402,12 +402,7 @@ export function ResultatsBacktest({ reponse: r, catalogue }: Props) {
       </Apparition>
 
       <Apparition auDefilement>
-        <Carte className="p-6">
-          <TitreCarte aide="CSV : la série jour par jour (portefeuille, chaque ligne, cours de chaque actif) pour Excel ou Python. PDF : un rapport complet rédigé par l'IA, avec l'analyse et les métriques.">
-            Exporter les résultats
-          </TitreCarte>
-          <BoutonsExport csv={csv} rapport={rapport} />
-        </Carte>
+        <BoutonsExport csv={csv} rapport={rapport} />
       </Apparition>
 
       <p className="px-1 text-xs leading-relaxed text-muted">

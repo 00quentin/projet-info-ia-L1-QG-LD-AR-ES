@@ -443,7 +443,10 @@ def executer_backtest(demande: DemandeBacktest) -> Dict[str, Any]:
         raise ServiceIndisponible("Aucune donnée disponible pour ces actifs sur cette période.")
 
     bt = lancer_backtest(df_complet[choisis], demande.actifs)
-    poids = calculer_poids(demande.profil, choisis, allocations)
+    # Un actif indisponible sur la periode sort du portefeuille : sa part est redistribuee
+    # (comme dans la courbe), au lieu de rester en liquidites a 0 % dans le bilan.
+    allocations_dispo = {k: v for k, v in allocations.items() if k in choisis}
+    poids = calculer_poids(demande.profil, choisis, allocations_dispo)
     # Sharpe d'une periode passee : taux sans risque moyen de l'epoque, pas celui du jour.
     taux_sans_risque = market_data.get_taux_sans_risque(debut.isoformat(), fin.isoformat())
     return {

@@ -32,6 +32,8 @@ type Props = {
 };
 
 const MARGE = { haut: 16, droite: 16, bas: 28, gauche: 56 };
+// Echantillon de libelles pour estimer leur largeur (sans mesurer le DOM).
+const ticksCandidats = (etiquettes: string[]) => (etiquettes.length ? [etiquettes[0], etiquettes[Math.floor(etiquettes.length / 2)], etiquettes[etiquettes.length - 1]] : [""]);
 const DUREE_TRACE = 1.2;
 
 function graduations(min: number, max: number, nb: number): number[] {
@@ -75,8 +77,12 @@ export function GraphiqueLignes({ series, bande, etiquettesX, formatY, formatVal
       .y0((i) => y(b.bas[i] as number))
       .y1((i) => y(b.haut[i] as number))(Array.from({ length: n }, (_, i) => i)) ?? undefined;
 
-  // Graduations "rondes" (0, 20, 40…) ; la derniere abscisse est toujours etiquetee.
-  const rondes = x.ticks(largeur < 480 ? 3 : 6).filter((t) => Number.isInteger(t) && t <= n - 1 - Math.max(1, (n - 1) * 0.08));
+  // Graduations "rondes" (0, 20, 40…), autant que la place le permet sans chevauchement
+  // (largeur estimee des libelles a 11 px) ; la derniere abscisse est toujours etiquetee.
+  const largeurLibelle = Math.max(...ticksCandidats(etiquettesX).map((t) => t.length)) * 6.4 + 18;
+  const placeX = largeur - MARGE.gauche - MARGE.droite;
+  const nbTicksX = Math.max(2, Math.min(6, Math.floor(placeX / largeurLibelle)));
+  const rondes = x.ticks(nbTicksX).filter((t) => Number.isInteger(t) && t >= 0 && x(n - 1) - x(t) >= largeurLibelle);
   const ticksX = Array.from(new Set([...rondes, n - 1]));
 
   function surDeplacement(e: React.PointerEvent<SVGRectElement>) {

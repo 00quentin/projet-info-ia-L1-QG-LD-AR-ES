@@ -293,3 +293,15 @@ def test_pdf_noms_non_echappes_dans_les_tableaux(monkeypatch):
     assert client.post("/api/rapports/pdf", json=demande).status_code == 200
     assert vus["actifs"] == ["S&P 500"]          # tableau : texte brut
     assert vus["scenario"] == "Krach &lt;b&gt;"  # paragraphe : echappe
+
+
+def test_backtest_personnalise_redistribue_la_part_d_un_actif_indisponible(monkeypatch):
+    monkeypatch.setattr(services.market_data, "get_historique", _faux_historique)
+    demande = {"actifs": ["S&P 500", "Bitcoin"], "profil": "Personnalisé",
+               "allocations": {"S&P 500": 50, "Bitcoin": 50}, "capital": 10000,
+               "evenement": "Krach 2008 (Lehman)"}
+    data = client.post("/api/backtests", json=demande).json()
+    # Bitcoin absent : tout le capital suit le S&P 500 (-20 %), bilan = fin de courbe
+    assert [a["cle"] for a in data["allocations"]] == ["S&P 500"]
+    assert data["portefeuille"]["valeur_finale"] == pytest.approx(data["portefeuille"]["valeurs"][-1])
+    assert data["portefeuille"]["valeur_finale"] == pytest.approx(8000)
