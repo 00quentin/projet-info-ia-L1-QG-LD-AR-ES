@@ -1,7 +1,8 @@
 "use client";
 
 import { motion } from "motion/react";
-import type { ResultatScenario } from "@/lib/api";
+import type { Conjoncture as TypeConjoncture, ResultatScenario } from "@/lib/api";
+import { Conjoncture } from "@/components/resultats/Conjoncture";
 import { pourcentSigne } from "@/lib/format";
 import { Carte, Pastille, TitreCarte } from "@/components/ui/Carte";
 import { EASE_SORTIE } from "@/components/motion/transitions";
@@ -95,7 +96,7 @@ function CalibreeVsLibre({ s, noms }: { s: ResultatScenario; noms: Map<string, s
   );
 }
 
-export function AnalyseIA({ s, calibration, noms }: { s: ResultatScenario; calibration: boolean; noms: Map<string, string> }) {
+export function AnalyseIA({ s, calibration, noms, conjoncture }: { s: ResultatScenario; calibration: boolean; noms: Map<string, string>; conjoncture?: TypeConjoncture }) {
   const a = s.analyse;
   const refs = a.references_historiques.filter((r) => r.evenement);
   const fiab = a.fiabilite?.niveau ? FIABILITES[a.fiabilite.niveau] : undefined;
@@ -103,6 +104,11 @@ export function AnalyseIA({ s, calibration, noms }: { s: ResultatScenario; calib
     <Carte className="p-6">
       <TitreCarte>Analyse de l&apos;IA</TitreCarte>
       <p className="text-[15px] leading-relaxed text-ink-2">{a.explication ?? "Analyse non disponible."}</p>
+      {conjoncture?.indicateurs.length ? (
+        <div className="mt-5 border-t border-line pt-5">
+          <Conjoncture conjoncture={conjoncture} compacte />
+        </div>
+      ) : null}
       <dl className="mt-5 grid grid-cols-2 gap-4 border-t border-line pt-5">
         <div>
           <dt className="text-xs text-muted">Inflation (variation estimée)</dt>

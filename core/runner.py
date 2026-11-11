@@ -43,6 +43,7 @@ def lancer_simulation_scenario(
     custom_tickers: Optional[List[Dict]] = None,
     rendements_historiques: Optional[pd.DataFrame] = None,
     convertir_eur: bool = False,
+    conjoncture: str = "",
 ) -> Tuple[Optional[Dict], Optional[str]]:
     """
     Lance une simulation complète pour un scénario donné.
@@ -52,6 +53,7 @@ def lancer_simulation_scenario(
             modele Historique). Optionnel.
         convertir_eur: exprime en euros les actifs cotes en dollars, via la
             trajectoire simulee de l'EUR/USD (choc estime par l'IA).
+        conjoncture: taux et inflation du moment, transmis a l'IA (texte).
 
     Returns:
         Tuple (resultat, erreur). Si succès, erreur est None.
@@ -70,10 +72,12 @@ def lancer_simulation_scenario(
             fut_calib = pool.submit(
                 analyser_evenement_macro, scenario,
                 calibration_historique=True, custom_tickers=custom_tickers,
+                conjoncture=conjoncture,
             )
             fut_libre = pool.submit(
                 analyser_evenement_macro, scenario,
                 calibration_historique=False, custom_tickers=custom_tickers,
+                conjoncture=conjoncture,
             )
             chocs = fut_calib.result()
             try:
@@ -89,6 +93,7 @@ def lancer_simulation_scenario(
             scenario,
             calibration_historique=False,
             custom_tickers=custom_tickers,
+            conjoncture=conjoncture,
         )
 
     if isinstance(chocs, dict) and "erreur" in chocs and len(chocs) == 1:

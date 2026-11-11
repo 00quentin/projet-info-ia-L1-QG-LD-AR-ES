@@ -4,6 +4,9 @@ import { EnTete } from "@/components/EnTete";
 import { BandeMarches } from "@/components/BandeMarches";
 import { BulleChat } from "@/components/chat/BulleChat";
 import { FournisseurMouvement } from "@/components/motion/FournisseurMouvement";
+import { PiedDePage } from "@/components/PiedDePage";
+import { Guide } from "@/components/Guide";
+import { ZoneNotifications } from "@/components/ui/Notifications";
 
 export const metadata: Metadata = {
   title: "Quant Terminal — Simulateur d'investissement",
@@ -38,7 +41,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <BandeMarches />
           </div>
           <div id="contenu">{children}</div>
+          <PiedDePage />
           <BulleChat />
+          <Guide />
+          <ZoneNotifications />
         </FournisseurMouvement>
       </body>
     </html>

@@ -43,6 +43,10 @@ def _sans_reseau(monkeypatch):
                         lambda actifs: {a: 0.01 for a in actifs})
     monkeypatch.setattr(services.market_data, "get_rendements_historiques",
                         lambda actifs: pd.DataFrame())
+    monkeypatch.setattr(services.market_data, "get_conjoncture", lambda: {
+        "indicateurs": [{"cle": "taux_bce", "nom": "Taux de dépôt BCE", "valeur": 2.5, "unite": "%",
+                         "date": "2026-11-11", "source": "FRED · ECBDFR"}], "date": "2026-11-11"})
+    monkeypatch.setattr(services.market_data, "get_taux_sans_risque", lambda debut=None, fin=None: 0.025 if debut is None else 0.04)
     import core.runner as runner
     monkeypatch.setattr(runner, "analyser_evenement_macro",
                         lambda *a, **kw: {**CHOCS, "actifs": dict(CHOCS["actifs"])})
@@ -94,6 +98,8 @@ def test_simulation_simple():
     assert {b["cle"] for b in s["benchmarks"]} == {"S&P 500", "MSCI_World"}
     assert set(s["metriques"]) >= {"vol_ann", "sharpe", "max_dd", "var_95", "qualite_sharpe"}
     assert data["parametres"]["nb_simulations"] == 1
+    assert data["parametres"]["taux_sans_risque_pct"] == 2.5
+    assert data["conjoncture"]["indicateurs"][0]["cle"] == "taux_bce"
 
 
 def test_simulation_monte_carlo_et_comparaison():
@@ -183,6 +189,8 @@ def test_backtest(monkeypatch):
     assert data["portefeuille"]["performance_pct"] == pytest.approx(-20.0)
     assert data["description"]
     assert len(data["benchmarks"]) == 2
+    # Taux sans risque de l'epoque du backtest, pas celui d'aujourd'hui
+    assert data["parametres"]["taux_sans_risque_pct"] == 4.0
 
 
 def test_backtest_periode_invalide():
@@ -238,3 +246,24 @@ def test_rapport_pdf(monkeypatch):
     assert r.status_code == 200, r.text
     assert r.headers["content-type"] == "application/pdf"
     assert r.content.startswith(b"%PDF")
+
+
+def test_rafraichir_les_prix_est_limite_dans_le_temps(monkeypatch):
+    def faux_prix(actifs):
+        return {a: {"prix": 10.0, "variation_pct": 0.0, "sparkline": [], "source": "yahoo",
+                    "date": "2026-11-10"} for a in actifs}
+    faux_prix.clear = lambda: None
+    monkeypatch.setattr(services.market_data, "get_prix_avec_variation", faux_prix)
+    vides = []
+    monkeypatch.setattr(services, "_dernier_rafraichissement", {"t": -1e9})
+    monkeypatch.setattr(services.market_data.get_prix_actuels, "clear", lambda: vides.append(1), raising=False)
+    assert client.get("/api/marches?rafraichir=true").json()["recharge"] is True
+    assert client.get("/api/marches?rafraichir=true").json()["recharge"] is False
+    assert client.get("/api/marches").json()["recharge"] is False
+    assert len(vides) == 1
+
+
+def test_conjoncture():
+    data = client.get("/api/conjoncture").json()
+    assert data["taux_sans_risque_pct"] == 2.5
+    assert data["indicateurs"][0]["source"].startswith("FRED")

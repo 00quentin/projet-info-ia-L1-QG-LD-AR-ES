@@ -21,7 +21,7 @@ from config import (
 from logger import get_logger
 from market_data import (
     get_prix_actuels, get_volatilites_historiques, get_historique,
-    get_rendements_historiques, source_fallback,
+    get_rendements_historiques, source_fallback, get_conjoncture,
     EVENEMENTS_HISTORIQUES,
 )
 from core.runner import lancer_simulation_scenario, lancer_backtest
@@ -31,6 +31,7 @@ from core.validation import (
     construire_params_sim_simulation, construire_params_sim_backtest,
 )
 from core.history_store import ajouter_entree
+from core.conjoncture import texte_pour_ia
 from core.custom_assets import SESSION_KEY as ACTIFS_PERSO_KEY, vers_actifs_extras
 from components.skeletons import render_skeleton_dashboard
 from components.notifications import notify_warn, notify_error
@@ -154,6 +155,9 @@ def handler_simulation(config: Dict[str, Any]) -> None:
                 f"Prix de secours utilisés (dernière valeur connue au {date_secours})."
             )
 
+    # Taux et inflation du moment (FRED) : point de depart transmis a l'IA
+    conjoncture = texte_pour_ia(get_conjoncture())
+
     skeleton_ph = render_skeleton_dashboard()
     nb_labels = len(textes)
     progress_ph = st.progress(0, text="Démarrage de l'analyse IA…")
@@ -173,6 +177,7 @@ def handler_simulation(config: Dict[str, Any]) -> None:
                 custom_tickers=custom_tickers_ia,
                 rendements_historiques=rendements_historiques,
                 convertir_eur=convertir_eur,
+                conjoncture=conjoncture,
             )
             if err:
                 notify_error(f"Scénario {label} : {err}")

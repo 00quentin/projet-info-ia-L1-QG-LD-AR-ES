@@ -50,11 +50,12 @@ function Tuile({ titre, valeur, format, niveau, explication }: { titre: string; 
 }
 
 /** Les 4 metriques de risque, chacune avec son niveau et une phrase d'explication. */
-export function TuilesRisque({ m }: { m: Metriques }) {
+export function TuilesRisque({ m, tauxSansRisquePct }: { m: Metriques; tauxSansRisquePct?: number }) {
+  const refSharpe = tauxSansRisquePct != null ? ` Calculé au-delà du taux sans risque de ${pourcent(tauxSansRisquePct, 2)} (taux de dépôt BCE).` : "";
   return (
     <Cascade auDefilement className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
       <Tuile titre="Volatilité annualisée" valeur={m.vol_ann} format={(v) => pourcent(v)} niveau={niveauVolatilite(m.vol_ann)} explication="L'ampleur habituelle des variations sur un an. Plus elle est haute, plus le parcours est agité." />
-      <Tuile titre="Ratio de Sharpe" valeur={m.sharpe} format={(v) => nombreSigne(v)} niveau={niveauSharpe(m.sharpe, m.qualite_sharpe)} explication="Le rendement obtenu pour chaque unité de risque prise. Au-dessus de 1, le risque est bien payé." />
+      <Tuile titre="Ratio de Sharpe" valeur={m.sharpe} format={(v) => nombreSigne(v)} niveau={niveauSharpe(m.sharpe, m.qualite_sharpe)} explication={`Le rendement obtenu pour chaque unité de risque prise. Au-dessus de 1, le risque est bien payé.${refSharpe}`} />
       <Tuile titre="Perte maximale (drawdown)" valeur={m.max_dd} format={(v) => `−${pourcent(Math.abs(v))}`} niveau={niveauDrawdown(m.max_dd)} explication="La pire chute entre un sommet et le creux qui suit, en cours de route." />
       <Tuile titre="VaR 95 % sur 1 jour" valeur={m.var_95} format={(v) => pourcentSigne(v, 2)} niveau={niveauVar(m.var_95)} explication="Un jour sur vingt, la perte quotidienne dépasse ce seuil." />
     </Cascade>

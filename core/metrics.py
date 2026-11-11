@@ -14,7 +14,10 @@ import pandas as pd
 from config import TAUX_SANS_RISQUE_ANNUEL
 
 
-def calculer_metriques_risque(valeur_portefeuille: Iterable[float]) -> Dict[str, float]:
+def calculer_metriques_risque(
+    valeur_portefeuille: Iterable[float],
+    taux_sans_risque: float = TAUX_SANS_RISQUE_ANNUEL,
+) -> Dict[str, float]:
     """
     Calcule les 4 métriques de risque institutionnelles à partir d'une série
     de valeurs de portefeuille jour par jour.
@@ -37,7 +40,7 @@ def calculer_metriques_risque(valeur_portefeuille: Iterable[float]) -> Dict[str,
 
     # Sharpe Ratio : (rendement - taux sans risque) / volatilité
     rendement_moyen_ann = rendements.mean() * 252
-    sharpe = (rendement_moyen_ann - TAUX_SANS_RISQUE_ANNUEL) / (vol_quotidienne * np.sqrt(252))
+    sharpe = (rendement_moyen_ann - taux_sans_risque) / (vol_quotidienne * np.sqrt(252))
 
     # Max Drawdown : pire chute depuis un plus-haut
     cummax = serie.cummax()
@@ -71,6 +74,7 @@ def calculer_metriques_monte_carlo(
     colonnes: List[str],
     poids: Dict[str, float],
     capital: float,
+    taux_sans_risque: float = TAUX_SANS_RISQUE_ANNUEL,
 ) -> Optional[Dict[str, float]]:
     """
     Metriques de risque calculees sur les trajectoires Monte-Carlo du portefeuille.
@@ -103,7 +107,7 @@ def calculer_metriques_monte_carlo(
     vol_ann = vol_q * np.sqrt(252)
     rend_ann = rendements.mean(axis=1) * 252
     with np.errstate(divide="ignore", invalid="ignore"):
-        sharpes = np.where(vol_ann > 0, (rend_ann - TAUX_SANS_RISQUE_ANNUEL) / vol_ann, 0.0)
+        sharpes = np.where(vol_ann > 0, (rend_ann - taux_sans_risque) / vol_ann, 0.0)
     plus_hauts = np.maximum.accumulate(valeurs, axis=1)
     max_dd = ((plus_hauts - valeurs) / plus_hauts).max(axis=1)
     finales = valeurs[:, -1]
@@ -125,17 +129,18 @@ def metriques_du_resultat(
     valeur_portefeuille: Iterable[float],
     poids: Dict[str, float],
     capital: float,
+    taux_sans_risque: float = TAUX_SANS_RISQUE_ANNUEL,
 ) -> Dict[str, float]:
     """Choisit le bon calcul : sur les trajectoires Monte-Carlo si le resultat
     en contient, sinon sur la serie de valeur du portefeuille."""
     mc = resultat.get("mc_data") if isinstance(resultat, dict) else None
     if mc and mc.get("chemins") is not None:
         metriques = calculer_metriques_monte_carlo(
-            mc["chemins"], list(mc["colonnes"]), poids, capital
+            mc["chemins"], list(mc["colonnes"]), poids, capital, taux_sans_risque
         )
         if metriques is not None:
             return metriques
-    return calculer_metriques_risque(valeur_portefeuille)
+    return calculer_metriques_risque(valeur_portefeuille, taux_sans_risque)
 
 
 def bandes_portefeuille_monte_carlo(

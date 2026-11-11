@@ -189,7 +189,7 @@ export function Resultats({ reponse, scenario, noms, lienPartage, onComparer }: 
         <Synthese s={scenario} p={p} />
       </Apparition>
       <Apparition delai={0.12}>
-        <AnalyseIA s={scenario} calibration={p.calibration} noms={noms} />
+        <AnalyseIA s={scenario} calibration={p.calibration} noms={noms} conjoncture={reponse.conjoncture} />
       </Apparition>
       <Apparition auDefilement>
         <Evolution s={scenario} p={p} />
@@ -197,7 +197,7 @@ export function Resultats({ reponse, scenario, noms, lienPartage, onComparer }: 
 
       <div className="flex flex-col gap-3">
         <h3 className="mt-2 text-[15px] font-semibold tracking-tight">Le risque de ce portefeuille</h3>
-        <TuilesRisque m={scenario.metriques} />
+        <TuilesRisque m={scenario.metriques} tauxSansRisquePct={p.taux_sans_risque_pct} />
         <ListeAlertes alertes={scenario.alertes} />
       </div>
 

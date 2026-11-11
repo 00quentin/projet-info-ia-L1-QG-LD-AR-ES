@@ -196,7 +196,7 @@ HISTORIQUE_TAILLE_MAX = 10
 COOKIE_VISITEUR = "qt_visiteur"
 COOKIE_VISITEUR_DUREE_JOURS = 365
 HAUTEUR_GRAPHIQUE = 380
-TAUX_SANS_RISQUE_ANNUEL = 0.02  # Pour le calcul du Sharpe Ratio
+TAUX_SANS_RISQUE_ANNUEL = 0.02  # Sharpe : valeur de secours si FRED est injoignable
 
 
 # ==========================================
@@ -342,3 +342,26 @@ API_FENETRE_LIMITE_SECONDES = 60
 API_LIMITE_APPELS_IA = 12              # simulations + rapports + chat, par minute et par IP
 API_LIMITE_APPELS_DONNEES = 120        # prix, catalogue, backtests, par minute et par IP
 API_ORIGINES_PAR_DEFAUT = ["http://localhost:3000", "http://127.0.0.1:3000"]
+# Un visiteur peut forcer le rechargement des prix, au plus une fois par periode
+# (protege Yahoo Finance d'un afflux de requetes).
+API_RAFRAICHISSEMENT_PRIX_MIN_SECONDES = 300
+
+
+# ==========================================
+# CONJONCTURE (FRED, Reserve federale de Saint-Louis — donnees publiques)
+# ------------------------------------------------------------------
+# Donne a l'IA les conditions de depart reelles (taux, inflation) et fournit
+# le taux sans risque du ratio de Sharpe (taux de depot BCE : investisseur en euros).
+# ==========================================
+SERIES_FRED = {
+    # cle: (identifiant FRED, libelle, nature) ; nature "taux" = niveau en %,
+    # "indice" = indice de prix dont on calcule la variation sur 12 mois.
+    "taux_fed":       ("DFF", "Taux directeur Fed (effectif)", "taux"),
+    "taux_bce":       ("ECBDFR", "Taux de dépôt BCE", "taux"),
+    "taux_10_ans_us": ("DGS10", "Taux à 10 ans États-Unis", "taux"),
+    "taux_10_ans_de": ("IRLTLT01DEM156N", "Taux à 10 ans Allemagne", "taux"),
+    "inflation_us":   ("CPIAUCSL", "Inflation États-Unis (sur 1 an)", "indice"),
+    "inflation_ze":   ("CP0000EZ19M086NEST", "Inflation zone euro (sur 1 an)", "indice"),
+}
+SERIE_TAUX_SANS_RISQUE = "taux_bce"
+CONJONCTURE_HISTORIQUE_ANNEES = 3

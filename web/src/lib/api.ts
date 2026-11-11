@@ -27,7 +27,11 @@ export type CoursMarche = {
   prix: number; variation_pct: number; sparkline: number[];
   source: "yahoo" | "snapshot" | "secours"; date: string | null;
 };
-export type Marches = { actifs: CoursMarche[]; en_direct: boolean; date: string | null };
+export type Marches = { actifs: CoursMarche[]; en_direct: boolean; date: string | null; recharge?: boolean };
+
+export type IndicateurConjoncture = { cle: string; nom: string; valeur: number; unite: string; date: string; source: string };
+/** Taux et inflation du moment (FRED). `indicateurs` est vide si FRED est injoignable. */
+export type Conjoncture = { indicateurs: IndicateurConjoncture[]; date: string | null; taux_sans_risque_pct?: number };
 
 export type Metriques = {
   vol_ann: number; sharpe: number; max_dd: number; var_95: number; qualite_sharpe: string;
@@ -59,10 +63,13 @@ export type ScenarioEnErreur = { label: string; scenario: string; erreur: string
 export type ParametresSimulation = {
   profil: string; capital: number; duree: number; modele: string; monte_carlo: boolean;
   prix_reels: boolean; calibration: boolean; convertir_eur: boolean; nb_actifs: number; nb_simulations: number;
+  /** Taux sans risque utilise pour le ratio de Sharpe (taux de depot BCE). */
+  taux_sans_risque_pct?: number;
 };
 export type ReponseSimulation = {
   date: string; parametres: ParametresSimulation;
   prix_de_secours: { cle: string; nom: string; date: string }[];
+  conjoncture?: Conjoncture;
   scenarios: (ResultatScenario | ScenarioEnErreur)[];
 };
 
@@ -88,7 +95,7 @@ export type ReponseBacktest = {
   date_fin: string;
   /** Une date (AAAA-MM-JJ) par point des series ci-dessous. */
   dates: string[];
-  parametres: { profil: string; capital: number; duree: number; convertir_eur: boolean; nb_actifs: number };
+  parametres: { profil: string; capital: number; duree: number; convertir_eur: boolean; nb_actifs: number; taux_sans_risque_pct?: number };
   /** Actifs coches mais qui ne cotaient pas encore au debut de la periode. */
   actifs_indisponibles: { cle: string; nom: string }[];
   portefeuille: Portefeuille; metriques: Metriques; alertes: Alerte[];
@@ -146,7 +153,9 @@ async function appeler<T>(chemin: string, init?: RequestInit): Promise<T> {
 }
 
 export const lireCatalogue = () => appeler<Catalogue>("/api/catalogue");
-export const lireMarches = () => appeler<Marches>("/api/marches");
+/** `rafraichir` recharge les prix depuis Yahoo (le serveur l'accepte au plus toutes les 5 minutes). */
+export const lireMarches = (rafraichir = false) => appeler<Marches>(`/api/marches${rafraichir ? "?rafraichir=true" : ""}`);
+export const lireConjoncture = () => appeler<Conjoncture>("/api/conjoncture");
 export const lancerSimulation = (demande: DemandeSimulation) =>
   appeler<ReponseSimulation>("/api/simulations", { method: "POST", body: JSON.stringify(demande) });
 export const lancerBacktest = (demande: DemandeBacktest) =>

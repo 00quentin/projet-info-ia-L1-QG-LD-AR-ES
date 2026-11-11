@@ -5,12 +5,14 @@ import { useSearchParams } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import { Check, CircleAlert, Link2, RotateCw } from "lucide-react";
 import {
-  ErreurApi, estReussi, lancerSimulation, lireCatalogue,
-  type Catalogue, type ReponseSimulation, type ResultatScenario,
+  ErreurApi, estReussi, lancerSimulation, lireCatalogue, lireConjoncture,
+  type Catalogue, type Conjoncture as TypeConjoncture, type ReponseSimulation, type ResultatScenario,
 } from "@/lib/api";
+import { Conjoncture } from "@/components/resultats/Conjoncture";
 import { ajouterEntree } from "@/lib/historique";
 import { decoderReglages, encoderReglages, lienDePartage, type ReglagesPartages } from "@/lib/partage";
 import { Carte } from "@/components/ui/Carte";
+import { notifier } from "@/components/ui/Notifications";
 import { FormulaireSimulation, reglagesInitiaux, type Reglages } from "@/components/FormulaireSimulation";
 import { PROFIL_PERSONNALISE } from "@/components/formulaire/ChoixPortefeuille";
 import { Resultats } from "@/components/Resultats";
@@ -139,6 +141,16 @@ function IllustrationAccueil() {
 }
 
 function EtatVide() {
+  const [conjoncture, setConjoncture] = useState<TypeConjoncture | null>(null);
+  useEffect(() => {
+    let actif = true;
+    lireConjoncture()
+      .then((c) => actif && setConjoncture(c))
+      .catch(() => undefined); // facultatif : l'accueil reste complet sans
+    return () => {
+      actif = false;
+    };
+  }, []);
   const etapes = [
     ["Décrivez", "un événement : krach, guerre, percée technologique, décision d'une banque centrale…"],
     ["Composez", "votre portefeuille : un profil type ou votre propre répartition."],
@@ -165,6 +177,11 @@ function EtatVide() {
             </motion.li>
           ))}
         </ol>
+        {conjoncture && (
+          <div className="mt-7 border-t border-line pt-5 text-left">
+            <Conjoncture conjoncture={conjoncture} titre="Conjoncture du jour" compacte />
+          </div>
+        )}
       </div>
     </Carte>
   );
@@ -306,6 +323,8 @@ export function Simulateur() {
       setReponse(rep);
       setOnglet(rep.scenarios.length > 1 ? "comparaison" : rep.scenarios[0].label);
       const nb = rep.scenarios.length;
+      const nbReussis = rep.scenarios.filter(estReussi).length;
+      if (nbReussis > 0) notifier(nb > 1 ? `Comparaison terminée : ${nbReussis} scénarios analysés.` : "Simulation terminée avec succès.");
       for (const s of rep.scenarios) {
         if (!estReussi(s)) continue;
         ajouterEntree({

@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { TriangleAlert } from "lucide-react";
+import { motion } from "motion/react";
+import { RotateCw, TriangleAlert } from "lucide-react";
+import { notifier } from "@/components/ui/Notifications";
 import { lireMarches, type CoursMarche, type Marches } from "@/lib/api";
 import { dateFr, pourcent, prix } from "@/lib/format";
 
@@ -47,6 +49,7 @@ function Cours({ c, nom }: { c: CoursMarche; nom: string }) {
 export function BandeMarches() {
   const [marches, setMarches] = useState<Marches | null>(null);
   const [echec, setEchec] = useState(false);
+  const [recharge, setRecharge] = useState(false);
 
   useEffect(() => {
     let actif = true;
@@ -57,6 +60,19 @@ export function BandeMarches() {
       actif = false;
     };
   }, []);
+
+  async function rafraichir() {
+    setRecharge(true);
+    try {
+      const m = await lireMarches(true);
+      setMarches(m);
+      notifier(m.recharge ? "Prix rechargés depuis Yahoo Finance." : "Prix déjà à jour (rechargement possible toutes les 5 minutes).", "info");
+    } catch {
+      notifier("Impossible de recharger les prix pour le moment.", "erreur");
+    } finally {
+      setRecharge(false);
+    }
+  }
 
   if (echec) return null;
 
@@ -92,6 +108,19 @@ export function BandeMarches() {
                 ))}
               </div>
             </div>
+            <motion.button
+              type="button"
+              onClick={rafraichir}
+              disabled={recharge}
+              whileTap={{ scale: 0.9 }}
+              aria-label="Recharger les prix depuis Yahoo Finance"
+              title="Recharger les prix"
+              className="grid size-7 shrink-0 place-items-center rounded-md text-muted transition-colors hover:bg-surface-2 hover:text-ink disabled:opacity-60"
+            >
+              <motion.span animate={recharge ? { rotate: 360 } : { rotate: 0 }} transition={recharge ? { repeat: Infinity, duration: 0.8, ease: "linear" } : { duration: 0 }} className="grid">
+                <RotateCw className="size-3.5" aria-hidden />
+              </motion.span>
+            </motion.button>
           </>
         ) : (
           <div className="h-4 w-full max-w-xl animate-pulse rounded bg-surface-2" aria-label="Chargement des cours" />

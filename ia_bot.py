@@ -39,7 +39,7 @@ def _get_openai_client() -> OpenAI:
 
 # Bump this version when the prompt structure changes, to invalidate
 # all old cached IA responses (they don't have the new fields).
-PROMPT_VERSION = "v6-modeles-2026-11"
+PROMPT_VERSION = "v7-conjoncture-2026-11"
 
 
 # Patterns qui ressemblent a une tentative d'injection de prompt.
@@ -75,17 +75,20 @@ def _sanitize_scenario(texte: str) -> str:
 
 
 def analyser_evenement_macro(evenement_utilisateur, calibration_historique=False,
-                              custom_tickers=None):
+                              custom_tickers=None, conjoncture=""):
     """Point d'entree public. Cache via _analyser_cache_impl.
     La PROMPT_VERSION est dans la cle pour invalider l'ancien cache a chaque
-    refonte du prompt."""
+    refonte du prompt.
+
+    conjoncture : resume des taux et de l'inflation du moment (core.conjoncture.texte_pour_ia).
+    Il fait partie de la cle de cache : une nouvelle conjoncture = une nouvelle analyse."""
     # Sanitize avant tout (et avant la cle de cache : un input malveillant
     # equivalent au texte propre doit hitter le meme cache).
     evenement_clean = _sanitize_scenario(evenement_utilisateur)
     # custom_tickers est une liste de dicts (non hashable) -> on serialise
     custom_key = json.dumps(custom_tickers, sort_keys=True) if custom_tickers else ""
     return _analyser_cache_impl(
-        evenement_clean, calibration_historique, custom_key, PROMPT_VERSION
+        evenement_clean, calibration_historique, custom_key, PROMPT_VERSION, conjoncture or ""
     )
 
 
@@ -97,15 +100,15 @@ def _est_une_analyse_valide(resultat) -> bool:
 # resterait en echec pendant 24h meme une fois OpenAI retabli.
 @cache_ttl(86400, garder=_est_une_analyse_valide)
 def _analyser_cache_impl(evenement_utilisateur, calibration_historique,
-                          custom_tickers_key, prompt_version):
+                          custom_tickers_key, prompt_version, conjoncture=""):
     """Implementation cachee 24h. NE PAS appeler directement, passer par
     analyser_evenement_macro."""
     custom_tickers = json.loads(custom_tickers_key) if custom_tickers_key else None
-    return _analyser_impl(evenement_utilisateur, calibration_historique, custom_tickers)
+    return _analyser_impl(evenement_utilisateur, calibration_historique, custom_tickers, conjoncture)
 
 
 def _analyser_impl(evenement_utilisateur, calibration_historique=False,
-                    custom_tickers=None):
+                    custom_tickers=None, conjoncture=""):
     """
     Analyse un scenario macro et estime les chocs sur chaque actif.
     Orchestrateur leger : delegue a _build_prompt_macro + _appel_openai_macro.
@@ -118,7 +121,7 @@ def _analyser_impl(evenement_utilisateur, calibration_historique=False,
             integrera a sa reponse avec une cle = sim_key.
     """
     prompt = _build_prompt_macro(
-        evenement_utilisateur, calibration_historique, custom_tickers
+        evenement_utilisateur, calibration_historique, custom_tickers, conjoncture
     )
     return _appel_openai_macro(
         prompt, evenement_utilisateur, calibration_historique, custom_tickers
@@ -126,7 +129,7 @@ def _analyser_impl(evenement_utilisateur, calibration_historique=False,
 
 
 def _build_prompt_macro(evenement_utilisateur, calibration_historique=False,
-                          custom_tickers=None) -> str:
+                          custom_tickers=None, conjoncture="") -> str:
     """Construit le prompt envoye a OpenAI. Pure fonction (testable sans reseau).
 
     Trois blocs concatenes :
@@ -221,6 +224,18 @@ def _build_prompt_macro(evenement_utilisateur, calibration_historique=False,
         bloc_custom_format = f""",
             {cles_custom_json}"""
 
+    # Chiffres FRED (source fiable, pas une saisie du visiteur) : le point de depart reel.
+    bloc_conjoncture = ""
+    if conjoncture:
+        bloc_conjoncture = f"""
+    CONJONCTURE DE DEPART (donnees reelles FRED, a prendre en compte) :
+{conjoncture}
+    Raisonne a partir de ce point de depart : marge de manoeuvre des banques centrales
+    (peuvent-elles encore baisser leurs taux ?), inflation deja elevee ou non, niveau des
+    taux longs (sensibilite des obligations). Les variations macro que tu renvoies
+    s'ajoutent a ces niveaux.
+"""
+
     prompt = f"""Tu es un analyste quantitatif institutionnel travaillant pour Quant Terminal.
     Ton role est d'estimer l'impact realiste et probable du scenario : "{evenement_utilisateur}".
 
@@ -230,6 +245,7 @@ def _build_prompt_macro(evenement_utilisateur, calibration_historique=False,
     suggere, sauf en cas de surprise totale (crise systemique, guerre, defaut majeur).
     Cas typique = mouvements de 3 a 15%. Cas extreme = 20-40%. Apocalyptique = au-dela.
     Quand tu hesites entre deux amplitudes, choisis la plus modeste.
+{bloc_conjoncture}
 
     CRITERE DE VALIDATION :
     - L'evenement doit avoir un impact plausible sur la production, la consommation,

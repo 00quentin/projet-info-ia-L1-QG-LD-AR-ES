@@ -5,6 +5,7 @@ Connexion aux données réelles via Yahoo Finance.
 """
 
 import json
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import pandas as pd
@@ -13,9 +14,11 @@ from datetime import datetime, timedelta
 
 from config import (
     ACTIFS_SECOURS, ACTIFS_COTES_7J, BACKTEST_TOLERANCE_DEBUT_SEANCES,
+    CONJONCTURE_HISTORIQUE_ANNEES, SERIE_TAUX_SANS_RISQUE, SERIES_FRED,
     DATE_PRIX_SECOURS, DEVISE_ACTIF, FENETRE_CALIBRATION_JOURS,
 )
 from core.cache import cache_ttl
+from core.conjoncture import construire_conjoncture, taux_sans_risque, telecharger_serie_fred
 from core.devises import convertir_en_eur, telecharger_taux_bce
 from logger import get_logger
 
@@ -437,6 +440,37 @@ def get_volatilites_historiques(actifs_keys, jours=252):
             rendements = serie.pct_change().dropna()
             vols[sim_key] = float(rendements.std())
     return vols
+
+
+def _serie_fred_non_vide(serie) -> bool:
+    return serie is not None and not serie.empty
+
+
+# Une serie vide (FRED injoignable) n'est pas memorisee : on retentera au prochain appel.
+@cache_ttl(21600, garder=_serie_fred_non_vide)
+def get_serie_fred(identifiant: str, depuis: str) -> pd.Series:
+    """Serie FRED en cache 6 h (les taux et l'inflation bougent au plus une fois par jour)."""
+    return telecharger_serie_fred(identifiant, depuis)
+
+
+def _depuis(annees: int) -> str:
+    return (datetime.now() - timedelta(days=365 * annees)).strftime("%Y-%m-%d")
+
+
+def get_conjoncture() -> dict:
+    """Taux directeurs, taux longs et inflation du moment (FRED). Indicateurs absents si FRED est injoignable."""
+    depuis = _depuis(CONJONCTURE_HISTORIQUE_ANNEES)
+    # Telechargements en parallele : 6 petites series, surtout de l'attente reseau.
+    with ThreadPoolExecutor(max_workers=len(SERIES_FRED)) as pool:
+        futures = {cle: pool.submit(get_serie_fred, identifiant, depuis) for cle, (identifiant, _, _) in SERIES_FRED.items()}
+    return construire_conjoncture({cle: f.result() for cle, f in futures.items()})
+
+
+def get_taux_sans_risque(debut=None, fin=None) -> float:
+    """Taux sans risque du Sharpe (decimal) : taux de depot BCE actuel, ou moyen sur une periode passee."""
+    identifiant = SERIES_FRED[SERIE_TAUX_SANS_RISQUE][0]
+    depuis = "1999-01-01" if debut is not None else _depuis(1)
+    return taux_sans_risque(get_serie_fred(identifiant, depuis), debut, fin)
 
 
 EVENEMENTS_HISTORIQUES = {

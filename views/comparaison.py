@@ -15,6 +15,7 @@ import streamlit as st
 
 from config import LABELS_SCENARIOS
 from core.metrics import metriques_du_resultat
+from market_data import get_taux_sans_risque
 from core.portfolio import calculer_poids, calculer_valeur_portefeuille
 from core.export_csv import generer_csv_comparaison
 from components.empty_states import render_empty_comparaison
@@ -41,7 +42,8 @@ def render_page_comparaison():
     # === Series quotidiennes + metriques pour chaque scenario ===
     series = {lab: calculer_valeur_portefeuille(simulations[lab]["df"], poids, cap)
               for lab in labels_dispo}
-    metriques = {lab: metriques_du_resultat(simulations[lab], series[lab], poids, cap)
+    taux_sans_risque = get_taux_sans_risque()
+    metriques = {lab: metriques_du_resultat(simulations[lab], series[lab], poids, cap, taux_sans_risque)
                  for lab in labels_dispo}
     valeurs = {lab: float(series[lab].iloc[-1]) for lab in labels_dispo}
     perfs = {lab: (valeurs[lab] - cap) / cap * 100 for lab in labels_dispo}

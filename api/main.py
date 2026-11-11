@@ -99,9 +99,18 @@ def lire_catalogue() -> dict:
 
 
 @app.get("/api/marches", tags=["Données"], dependencies=[limite_donnees])
-def lire_marches() -> dict:
-    """Dernière clôture de chaque actif, avec sa source et sa date."""
-    return services.marches()
+def lire_marches(rafraichir: bool = False) -> dict:
+    """Dernière clôture de chaque actif, avec sa source et sa date.
+
+    `rafraichir=true` recharge les prix depuis Yahoo (au plus une fois toutes les 5 minutes).
+    """
+    return services.marches(rafraichir)
+
+
+@app.get("/api/conjoncture", tags=["Données"], dependencies=[limite_donnees])
+def lire_conjoncture() -> dict:
+    """Taux directeurs, taux à 10 ans et inflation du moment (FRED), taux sans risque du Sharpe."""
+    return services.conjoncture()
 
 
 @app.get("/api/actifs-perso/{ticker}", tags=["Données"], dependencies=[limite_donnees])

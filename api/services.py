@@ -7,6 +7,7 @@ resultats serialisables en JSON pour le site web.
 """
 
 import math
+import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
@@ -20,6 +21,7 @@ import market_data
 from api.modeles import DemandeBacktest, DemandePortefeuille, DemandeRapport, DemandeSimulation
 from config import (
     ACTIF_TAUX_EUR_USD, ACTIFS_DISPONIBLES, ACTIFS_PAR_DEFAUT, BENCHMARKS,
+    API_RAFRAICHISSEMENT_PRIX_MIN_SECONDES,
     CAPITAL_DEFAUT, CAPITAL_MAX, CAPITAL_MIN, CAPITAL_STEP, DEVISE_ACTIF,
     EVENEMENTS_PRESETS, HORIZON_DEFAUT, HORIZON_MAX, HORIZON_MIN, HORIZON_STEP,
     LABELS_SCENARIOS, MODELES_SIMULATION, NB_SIMULATIONS_MONTE_CARLO,
@@ -27,6 +29,7 @@ from config import (
     SCENARIO_A_DEFAUT, SCENARIO_B_DEFAUT, SCENARIO_C_DEFAUT,
 )
 from core.cache import cache_ttl
+from core.conjoncture import texte_pour_ia
 from core.custom_assets import PREFIXE_CUSTOM, cle_simulation, valider_et_calibrer
 from core.metrics import (
     bandes_portefeuille_monte_carlo, calculer_metriques_risque,
@@ -126,8 +129,27 @@ def catalogue() -> Dict[str, Any]:
     }
 
 
-def marches() -> Dict[str, Any]:
+_dernier_rafraichissement = {"t": 0.0}
+
+
+def rafraichir_prix() -> bool:
+    """Vide le cache des prix si le dernier rechargement force date d'assez longtemps.
+
+    Returns:
+        True si les prix vont etre recharges depuis Yahoo, False si trop tot.
+    """
+    maintenant = time.monotonic()
+    if maintenant - _dernier_rafraichissement["t"] < API_RAFRAICHISSEMENT_PRIX_MIN_SECONDES:
+        return False
+    _dernier_rafraichissement["t"] = maintenant
+    market_data.get_prix_avec_variation.clear()
+    market_data.get_prix_actuels.clear()
+    return True
+
+
+def marches(rafraichir: bool = False) -> Dict[str, Any]:
     """Derniere cloture de tous les actifs du catalogue, avec source et date."""
+    recharge = rafraichir_prix() if rafraichir else False
     donnees = market_data.get_prix_avec_variation(list(market_data.TICKERS_YAHOO))
     actifs = [
         {
@@ -145,7 +167,13 @@ def marches() -> Dict[str, Any]:
         "actifs": actifs,
         "en_direct": sources == {"yahoo"},
         "date": max(dates) if dates else None,
+        "recharge": recharge,
     }
+
+
+def conjoncture() -> Dict[str, Any]:
+    """Taux directeurs, taux longs et inflation du moment (FRED) + taux sans risque utilise."""
+    return {**market_data.get_conjoncture(), "taux_sans_risque_pct": _nombre(market_data.get_taux_sans_risque() * 100)}
 
 
 @cache_ttl(3600, garder=lambda resultat: resultat[0] is not None)
@@ -196,11 +224,12 @@ def _preparer_portefeuille(demande: DemandePortefeuille) -> Tuple[Dict[str, Dict
 
 def _bloc_portefeuille(df: pd.DataFrame, perf: pd.Series, poids: Dict[str, float],
                        capital: float, noms_perso: Dict[str, str],
+                       taux_sans_risque: float,
                        resultat: Optional[Dict] = None) -> Dict[str, Any]:
     """Partie commune simulation/backtest : valeur, metriques, alertes, lignes par actif."""
     valeur_port = calculer_valeur_portefeuille(df, poids, capital)
-    metriques = (metriques_du_resultat(resultat, valeur_port, poids, capital)
-                 if resultat is not None else calculer_metriques_risque(valeur_port))
+    metriques = (metriques_du_resultat(resultat, valeur_port, poids, capital, taux_sans_risque)
+                 if resultat is not None else calculer_metriques_risque(valeur_port, taux_sans_risque))
     _, valeur_finale = construire_allocations_finales(perf, poids, capital)
 
     lignes = []
@@ -267,7 +296,8 @@ def _benchmarks(df: pd.DataFrame, capital: float) -> List[Dict[str, Any]]:
 
 
 def _formater_simulation(label: str, res: Dict, demande: DemandeSimulation,
-                         poids: Dict[str, float], noms_perso: Dict[str, str]) -> Dict[str, Any]:
+                         poids: Dict[str, float], noms_perso: Dict[str, str],
+                         taux_sans_risque: float) -> Dict[str, Any]:
     chocs = res["chocs_ia"]
     df, mc = res["df"], res["mc_data"]
     sortie = {
@@ -294,7 +324,7 @@ def _formater_simulation(label: str, res: Dict, demande: DemandeSimulation,
                 if res.get("chocs_libre") else None
             ),
         },
-        **_bloc_portefeuille(df, res["perf"], poids, demande.capital, noms_perso, res),
+        **_bloc_portefeuille(df, res["perf"], poids, demande.capital, noms_perso, taux_sans_risque, res),
         "actifs": _series_actifs(df, demande.actifs, noms_perso, res["perf"], mc),
         "benchmarks": _benchmarks(df, demande.capital),
         "converti_eur": res["converti_eur"],
@@ -336,12 +366,16 @@ def executer_simulation(demande: DemandeSimulation) -> Dict[str, Any]:
         rendements = market_data.get_rendements_historiques(actifs_marche)
         prix_de_secours = [e for e in erreurs_yahoo if e in standards]
 
+    conjoncture = market_data.get_conjoncture()
+    taux_sans_risque = market_data.get_taux_sans_risque()
+
     def _lancer(scenario: str):
         return lancer_simulation_scenario(
             scenario, demande.actifs, demande.duree, demande.modele,
             demande.monte_carlo, prix_reels, vols_reelles, demande.calibration,
             actifs_extras=actifs_extras, custom_tickers=custom_tickers,
             rendements_historiques=rendements, convertir_eur=demande.convertir_eur,
+            conjoncture=texte_pour_ia(conjoncture),
         )
 
     # Les scenarios sont independants : on les lance en parallele (l'essentiel
@@ -355,7 +389,7 @@ def executer_simulation(demande: DemandeSimulation) -> Dict[str, Any]:
         if err:
             scenarios.append({"label": label, "scenario": texte, "erreur": err})
         else:
-            scenarios.append(_formater_simulation(label, res, demande, poids, noms_perso))
+            scenarios.append(_formater_simulation(label, res, demande, poids, noms_perso, taux_sans_risque))
 
     if all(s["erreur"] for s in scenarios):
         raise ServiceIndisponible(scenarios[0]["erreur"])
@@ -368,7 +402,9 @@ def executer_simulation(demande: DemandeSimulation) -> Dict[str, Any]:
             "prix_reels": demande.prix_reels, "calibration": demande.calibration,
             "convertir_eur": demande.convertir_eur, "nb_actifs": len(demande.actifs),
             "nb_simulations": NB_SIMULATIONS_MONTE_CARLO if demande.monte_carlo else 1,
+            "taux_sans_risque_pct": _nombre(taux_sans_risque * 100),
         },
+        "conjoncture": conjoncture,
         "prix_de_secours": [
             {"cle": cle, "nom": NOM_AFFICHAGE.get(cle, cle),
              "date": market_data.source_fallback(cle)["date"]}
@@ -408,6 +444,8 @@ def executer_backtest(demande: DemandeBacktest) -> Dict[str, Any]:
 
     bt = lancer_backtest(df_complet[choisis], demande.actifs)
     poids = calculer_poids(demande.profil, choisis, allocations)
+    # Sharpe d'une periode passee : taux sans risque moyen de l'epoque, pas celui du jour.
+    taux_sans_risque = market_data.get_taux_sans_risque(debut.isoformat(), fin.isoformat())
     return {
         "date": datetime.now().isoformat(timespec="seconds"),
         "evenement": demande.evenement,
@@ -419,11 +457,12 @@ def executer_backtest(demande: DemandeBacktest) -> Dict[str, Any]:
             "profil": demande.profil, "capital": demande.capital,
             "duree": len(df_complet), "convertir_eur": demande.convertir_eur,
             "nb_actifs": len(choisis),
+            "taux_sans_risque_pct": _nombre(taux_sans_risque * 100),
         },
         "actifs_indisponibles": [
             {"cle": a, "nom": _nom(a, {})} for a in bt["actifs_indisponibles"]
         ],
-        **_bloc_portefeuille(bt["df"], bt["perf"], poids, demande.capital, {}),
+        **_bloc_portefeuille(bt["df"], bt["perf"], poids, demande.capital, {}, taux_sans_risque),
         "actifs": _series_actifs(bt["df"], choisis, {}, bt["perf"]),
         "benchmarks": _benchmarks(df_complet, demande.capital),
         "converti_eur": demande.convertir_eur,

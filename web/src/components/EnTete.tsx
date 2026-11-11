@@ -4,7 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "motion/react";
-import { Moon, Sun } from "lucide-react";
+import { CircleHelp, Moon, Sun } from "lucide-react";
+import { ouvrirGuide } from "@/components/Guide";
 import { RESSORT } from "@/components/motion/transitions";
 
 const PAGES = [
@@ -68,16 +69,28 @@ export function EnTete() {
           <span className="text-[15px] font-semibold tracking-tight">Quant Terminal</span>
         </Link>
         <Navigation className="hidden md:block" />
-        <motion.button
-          type="button"
-          onClick={basculerTheme}
-          whileTap={{ scale: 0.9, rotate: 20 }}
-          className="grid size-9 shrink-0 place-items-center rounded-lg border border-line bg-surface text-ink-2 transition-colors hover:text-ink"
-          aria-label="Basculer entre thème clair et thème sombre"
-        >
-          <Sun className="hidden size-4 dark:block" aria-hidden />
-          <Moon className="size-4 dark:hidden" aria-hidden />
-        </motion.button>
+        <div className="flex shrink-0 items-center gap-2">
+          <motion.button
+            type="button"
+            onClick={ouvrirGuide}
+            whileTap={{ scale: 0.9 }}
+            className="grid size-9 place-items-center rounded-lg border border-line bg-surface text-ink-2 transition-colors hover:text-ink"
+            aria-label="Ouvrir le guide d'utilisation"
+            title="Guide d'utilisation"
+          >
+            <CircleHelp className="size-4" aria-hidden />
+          </motion.button>
+          <motion.button
+            type="button"
+            onClick={basculerTheme}
+            whileTap={{ scale: 0.9, rotate: 20 }}
+            className="grid size-9 shrink-0 place-items-center rounded-lg border border-line bg-surface text-ink-2 transition-colors hover:text-ink"
+            aria-label="Basculer entre thème clair et thème sombre"
+          >
+            <Sun className="hidden size-4 dark:block" aria-hidden />
+            <Moon className="size-4 dark:hidden" aria-hidden />
+          </motion.button>
+        </div>
       </div>
       <Navigation className="overflow-x-auto px-3 pb-2 [mask-image:linear-gradient(90deg,#000_88%,transparent)] [scrollbar-width:none] md:hidden" />
     </header>

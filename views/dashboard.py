@@ -10,6 +10,7 @@ import streamlit as st
 
 from config import NOM_AFFICHAGE, LABELS_SCENARIOS, NB_SIMULATIONS_MONTE_CARLO
 from core.metrics import metriques_du_resultat
+from market_data import get_taux_sans_risque
 from core.portfolio import calculer_poids, construire_allocations_finales, calculer_valeur_portefeuille
 from core.export_csv import generer_csv_simulation
 from core.risk_alerts import evaluer_alertes_risque
@@ -355,7 +356,7 @@ def afficher_dashboard(res, params, key_prefix="main"):
     # === Métriques de risque ===
     poids = calculer_poids(params["profil"], params["actifs_sim"], params["allocations"])
     valeur_port = calculer_valeur_portefeuille(df, poids, params["capital"])
-    metriques = metriques_du_resultat(res, valeur_port, poids, params["capital"])
+    metriques = metriques_du_resultat(res, valeur_port, poids, params["capital"], get_taux_sans_risque())
 
     st.markdown('<hr class="qt-divider">', unsafe_allow_html=True)
     st.markdown(_section_tip(
