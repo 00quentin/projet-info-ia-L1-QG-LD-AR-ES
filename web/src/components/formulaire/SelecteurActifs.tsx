@@ -201,7 +201,7 @@ export function SelecteurActifs({ catalogue, actifs, actifsPerso, autoriserActif
           </div>
           {autoriserActifsPerso && (
             <AjoutTicker
-              suggestion={recherche}
+              suggestion={visibles.length === 0 ? recherche : ""}
               dejaPresents={perso}
               onAjout={(a) => {
                 setPerso((p) => [...p, a]);
