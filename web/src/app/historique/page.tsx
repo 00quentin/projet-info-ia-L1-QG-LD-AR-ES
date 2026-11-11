@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { EnConstruction } from "@/components/ui/EnConstruction";
+import { PageHistorique } from "@/components/historique/PageHistorique";
 
 export const metadata: Metadata = { title: "Historique — Quant Terminal" };
 
 export default function Page() {
-  return <EnConstruction titre="Historique" description="Retrouvez vos simulations précédentes." />;
+  return <PageHistorique />;
 }
