@@ -155,6 +155,16 @@ async function appeler<T>(chemin: string, init?: RequestInit): Promise<T> {
 export const lireCatalogue = () => appeler<Catalogue>("/api/catalogue");
 /** `rafraichir` recharge les prix depuis Yahoo (le serveur l'accepte au plus toutes les 5 minutes). */
 export const lireMarches = (rafraichir = false) => appeler<Marches>(`/api/marches${rafraichir ? "?rafraichir=true" : ""}`);
+
+let marchesEnCours: Promise<Marches> | null = null;
+/** Cours partages entre composants (bandeau, selecteur d'actifs) : une seule requete par page. */
+export function lireMarchesPartages(): Promise<Marches> {
+  marchesEnCours ??= lireMarches().catch((e) => {
+    marchesEnCours = null; // on pourra retenter
+    throw e;
+  });
+  return marchesEnCours;
+}
 export const lireConjoncture = () => appeler<Conjoncture>("/api/conjoncture");
 export const lancerSimulation = (demande: DemandeSimulation) =>
   appeler<ReponseSimulation>("/api/simulations", { method: "POST", body: JSON.stringify(demande) });
