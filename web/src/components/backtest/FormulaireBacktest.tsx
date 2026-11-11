@@ -111,7 +111,7 @@ function ChoixPeriode({ r, evenement, maj }: { r: ReglagesBacktest; evenement: E
 
   return (
     <div className="rounded-xl border border-line bg-surface">
-      <div className="px-3.5" aria-controls={idPanneau}>
+      <div className="px-3.5">
         <Interrupteur
           actif={r.periodePerso}
           // Pre-remplie avec les dates de l'evenement : on part de la crise pour l'elargir ou la resserrer.
