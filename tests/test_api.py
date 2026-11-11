@@ -267,3 +267,29 @@ def test_conjoncture():
     data = client.get("/api/conjoncture").json()
     assert data["taux_sans_risque_pct"] == 2.5
     assert data["indicateurs"][0]["source"].startswith("FRED")
+
+
+def test_chat_erreur_ia_renvoie_une_vraie_erreur(monkeypatch):
+    monkeypatch.setattr(ia_bot, "discuter_avec_ia", lambda m: "❌ L'analyste IA n'a pas répondu à temps. Réessayez.")
+    r = client.post("/api/chat", json={"messages": [{"role": "user", "content": "Sharpe ?"}]})
+    assert r.status_code == 502
+    assert r.json()["detail"].startswith("L'analyste IA")
+
+
+def test_pdf_noms_non_echappes_dans_les_tableaux(monkeypatch):
+    vus = {}
+    def faux_pdf(simu, params, metriques, allocations_finales, valeur_finale, type_rapport, analyse_senior):
+        vus["actifs"] = list(simu["perf_df"]["Actif"])
+        vus["scenario"] = simu["scenario"]
+        return b"%PDF-faux"
+    monkeypatch.setattr(services, "generer_rapport_pdf", faux_pdf)
+    demande = {
+        "scenario": "Krach <b>", "profil": "Équilibré (Normal)", "capital": 10000, "valeur_finale": 9000,
+        "duree": 100, "nb_actifs": 1, "avec_analyse_ia": False,
+        "performances": [{"nom": "S&P 500", "performance": -10.0}],
+        "allocations": [{"nom": "S&P 500", "poids": 1, "investi": 10000, "final": 9000, "rendement": -0.1}],
+        "vol_ann": 18.0, "sharpe": -1.0, "max_dd": 20.0, "var_95": -2.0,
+    }
+    assert client.post("/api/rapports/pdf", json=demande).status_code == 200
+    assert vus["actifs"] == ["S&P 500"]          # tableau : texte brut
+    assert vus["scenario"] == "Krach &lt;b&gt;"  # paragraphe : echappe

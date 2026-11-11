@@ -257,6 +257,8 @@ export function Simulateur() {
   const [essai, setEssai] = useState(0);
   const [reglages, setReglages] = useState<Reglages | null>(null);
   const [prerempli, setPrerempli] = useState(false);
+  const [chaineVue, setChaineVue] = useState<string | null>(null);
+  const [chaineEcrite, setChaineEcrite] = useState<string | null>(null);
   const [reponse, setReponse] = useState<ReponseSimulation | null>(null);
   const [lien, setLien] = useState<string | undefined>();
   const [onglet, setOnglet] = useState<string>("comparaison");
@@ -272,17 +274,26 @@ export function Simulateur() {
         if (!actif) return;
         setErreurCatalogue(null);
         setCatalogue(c);
-        const partage = decoderReglages(new URLSearchParams(params.toString()));
-        setReglages((r) => r ?? (partage ? appliquerPartage(reglagesInitiaux(c), partage, c) : reglagesInitiaux(c)));
-        if (partage) setPrerempli(true);
+        setReglages((r) => r ?? reglagesInitiaux(c));
       })
       .catch((e: unknown) => actif && setErreurCatalogue(e instanceof ErreurApi ? e.message : "Chargement impossible."));
     return () => {
       actif = false;
     };
-    // Le lien de partage n'est lu qu'au premier chargement.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [essai]);
+
+  // Lien de partage ou bouton « Relancer » de l'historique : on applique les reglages
+  // de l'adresse a chaque fois qu'elle change (la page reste montee entre deux visites),
+  // sauf quand c'est nous qui venons de l'ecrire apres une simulation.
+  const chaine = params.toString();
+  if (catalogue && reglages && chaine !== chaineVue) {
+    setChaineVue(chaine);
+    const partage = chaine && chaine !== chaineEcrite ? decoderReglages(new URLSearchParams(chaine)) : null;
+    if (partage) {
+      setReglages(appliquerPartage(reglagesInitiaux(catalogue), partage, catalogue));
+      setPrerempli(true);
+    }
+  }
 
   const noms = useMemo(() => {
     const m = new Map<string, string>();
@@ -317,7 +328,9 @@ export function Simulateur() {
       });
       // L'adresse de la page devient le lien de partage de cette simulation.
       const partage = versPartage(r);
-      window.history.replaceState(null, "", `?${encoderReglages(partage)}`);
+      const encode = encoderReglages(partage);
+      setChaineEcrite(encode);
+      window.history.replaceState(null, "", `?${encode}`);
       const lienCourant = lienDePartage(partage);
       setLien(lienCourant);
       setReponse(rep);

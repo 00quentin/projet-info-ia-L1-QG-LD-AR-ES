@@ -472,14 +472,23 @@ def executer_backtest(demande: DemandeBacktest) -> Dict[str, Any]:
 # === Chat et rapport PDF ===================================================
 
 
+_PREFIXE_ERREUR_CHAT = "❌"
+
+
 def repondre_chat(messages: List[Dict[str, str]]) -> str:
-    return ia_bot.discuter_avec_ia(messages)
+    reponse = ia_bot.discuter_avec_ia(messages)
+    # discuter_avec_ia (partage avec Streamlit) renvoie ses erreurs sous forme de texte
+    # "❌ ..." : l'API en fait une vraie erreur pour que le site propose de reessayer.
+    if isinstance(reponse, str) and reponse.startswith(_PREFIXE_ERREUR_CHAT):
+        raise ServiceIndisponible(reponse.lstrip(_PREFIXE_ERREUR_CHAT).strip())
+    return reponse
 
 
 def generer_pdf(demande: DemandeRapport) -> bytes:
     """Met en page en PDF un resultat deja affiche sur le site."""
     perf_df = pd.DataFrame({
-        "Actif": [escape(l.nom) for l in demande.performances],
+        # Cellules de tableau ReportLab = texte brut : pas d'echappement (sinon "S&amp;P 500")
+        "Actif": [l.nom for l in demande.performances],
         "Performance (%)": [l.performance for l in demande.performances],
     }).sort_values("Performance (%)")
     metriques = {"vol_ann": demande.vol_ann, "sharpe": demande.sharpe,
@@ -508,7 +517,7 @@ def generer_pdf(demande: DemandeRapport) -> bytes:
                 "calib": demande.calibration},
         metriques=metriques,
         allocations_finales=[
-            {"nom": escape(l.nom), "poids": l.poids, "investi": l.investi,
+            {"nom": l.nom, "poids": l.poids, "investi": l.investi,
              "final": l.final, "rendement": l.rendement}
             for l in demande.allocations
         ],

@@ -64,7 +64,7 @@ export function EnTete() {
       <div className="mx-auto flex h-14 max-w-[1400px] items-center justify-between gap-4 px-4 sm:px-6">
         <Link href="/" className="flex shrink-0 items-center gap-2.5">
           <motion.span whileHover={{ rotate: -6, scale: 1.06 }} transition={RESSORT} className="block">
-            <Image src="/logo.png" alt="" width={28} height={28} className="rounded-md" priority />
+            <Image src="/logo.png" alt="" width={28} height={28} className="size-7 rounded-md" priority />
           </motion.span>
           <span className="text-[15px] font-semibold tracking-tight">Quant Terminal</span>
         </Link>
