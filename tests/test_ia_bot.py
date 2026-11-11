@@ -146,3 +146,59 @@ def test_debruiter_pas_de_macro_no_op():
     res = {"actifs": {}}
     ia_bot._debruiter_macro(res, "scenario")
     assert res == {"actifs": {}}
+
+
+# === Appel OpenAI : modele principal puis repli (client simule) ============
+
+
+class _FauxClient:
+    """Imite client.chat.completions.create : echoue pour les modeles listes."""
+
+    def __init__(self, modeles_en_panne=(), contenu=None):
+        self.appels = []
+        self._panne = set(modeles_en_panne)
+        self._contenu = contenu or (
+            '{"macro": {"inflation": 1.3, "taux_directeurs": -0.4},'
+            ' "actifs": {"S&P 500": -0.2, "Or": 0.1}, "explication_courte": "test"}'
+        )
+        self.chat = self
+        self.completions = self
+
+    def create(self, **kwargs):
+        from types import SimpleNamespace
+        from openai import APIError
+        self.appels.append(kwargs)
+        if kwargs["model"] in self._panne:
+            raise APIError("modele indisponible", request=None, body=None)
+        message = SimpleNamespace(content=self._contenu)
+        return SimpleNamespace(choices=[SimpleNamespace(message=message)])
+
+
+def test_analyse_utilise_le_modele_principal(monkeypatch):
+    from config import IA_ANALYSE
+    client = _FauxClient()
+    monkeypatch.setattr(ia_bot, "_get_openai_client", lambda: client)
+    res = ia_bot._appel_openai_macro("prompt", "krach", False, None)
+    assert "erreur" not in res
+    assert res["actifs"]["S&P 500"] == -0.2
+    assert [a["model"] for a in client.appels] == [IA_ANALYSE["model"]]
+    # Les modeles a raisonnement refusent le parametre temperature
+    assert "temperature" not in client.appels[0]
+
+
+def test_analyse_se_replie_si_le_modele_principal_est_en_panne(monkeypatch):
+    from config import IA_ANALYSE, IA_ANALYSE_SECOURS
+    client = _FauxClient(modeles_en_panne=[IA_ANALYSE["model"]])
+    monkeypatch.setattr(ia_bot, "_get_openai_client", lambda: client)
+    res = ia_bot._appel_openai_macro("prompt", "krach", False, None)
+    assert "erreur" not in res
+    assert [a["model"] for a in client.appels] == [
+        IA_ANALYSE["model"], IA_ANALYSE_SECOURS["model"]]
+
+
+def test_analyse_renvoie_une_erreur_propre_si_tout_est_en_panne(monkeypatch):
+    from config import IA_ANALYSE, IA_ANALYSE_SECOURS
+    client = _FauxClient(modeles_en_panne=[IA_ANALYSE["model"], IA_ANALYSE_SECOURS["model"]])
+    monkeypatch.setattr(ia_bot, "_get_openai_client", lambda: client)
+    res = ia_bot._appel_openai_macro("prompt", "krach", False, None)
+    assert set(res) == {"erreur"}

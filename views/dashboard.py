@@ -51,6 +51,7 @@ def _render_hero_dashboard(res, params):
     val_str = f"{valeur_finale:,.2f}".replace(",", " ").replace(".", ",")
     var_str = f"{abs(variation):,.2f}".replace(",", " ").replace(".", ",")
     pct_str = f"{abs(variation_pct):.2f}".replace(".", ",")
+    cap_str = f"{capital:,.0f}".replace(",", " ")
 
     # Badges contextuels
     badges_html = ""
@@ -80,7 +81,7 @@ def _render_hero_dashboard(res, params):
         f'</span>'
         f'</div>'
         f'<div class="qt-dash-hero-sub">'
-        f'Capital initial : <strong>{capital:,.0f} €</strong>'.replace(",", " ")
+        f'Capital initial : <strong>{cap_str} €</strong>'
         + f' &middot; Horizon : <strong>{len(df)} jours</strong>'
         + f' &middot; {len(params["actifs_sim"])} actifs'
         + '</div>'

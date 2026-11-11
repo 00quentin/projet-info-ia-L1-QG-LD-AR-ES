@@ -191,6 +191,22 @@ TAUX_SANS_RISQUE_ANNUEL = 0.02  # Pour le calcul du Sharpe Ratio
 
 
 # ==========================================
+# MODELES D'IA (OpenAI)
+# ------------------------------------------------------------------
+# Chaque usage = parametres passes tels quels a chat.completions.create.
+# Les modeles a raisonnement (gamme GPT-6) refusent "temperature" : on regle
+# leur profondeur de reflexion avec "reasoning_effort" a la place.
+# Choix mesures sur le prompt reel : analyse ~12 s, chat ~4 s.
+# ==========================================
+IA_ANALYSE = {"model": "gpt-6.1-terra", "reasoning_effort": "low"}
+# Utilise si le modele d'analyse est indisponible (retire, surcharge, timeout)
+IA_ANALYSE_SECOURS = {"model": "gpt-5.4-mini", "temperature": 0.45}
+IA_CHAT = {"model": "gpt-5.4-mini", "temperature": 0.6}
+IA_RAPPORT = {"model": "gpt-5.4-mini", "temperature": 0.5, "max_completion_tokens": 1200}
+IA_TIMEOUT_SECONDES = 45.0
+
+
+# ==========================================
 # DEVISES — le portefeuille est en euros, les actifs non
 # ------------------------------------------------------------------
 # Devise de cotation de chaque actif. None = indicateur sans conversion

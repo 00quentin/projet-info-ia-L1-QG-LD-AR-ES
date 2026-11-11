@@ -7,6 +7,9 @@ import streamlit as st
 from openai import OpenAI, APIError, APIConnectionError, APITimeoutError, RateLimitError
 from dotenv import load_dotenv
 
+from config import (
+    IA_ANALYSE, IA_ANALYSE_SECOURS, IA_CHAT, IA_RAPPORT, IA_TIMEOUT_SECONDES,
+)
 from schemas import valider_reponse_ia
 from logger import get_logger
 
@@ -19,12 +22,12 @@ load_dotenv()
 def _get_openai_client() -> OpenAI:
     """Singleton client OpenAI (evite la recreation a chaque rerun Streamlit)."""
     api_key = os.getenv("OPENAI_API_KEY") or st.secrets.get("OPENAI_API_KEY", None)
-    return OpenAI(api_key=api_key, timeout=20.0, max_retries=1)
+    return OpenAI(api_key=api_key, timeout=IA_TIMEOUT_SECONDES, max_retries=1)
 
 
 # Bump this version when the prompt structure changes, to invalidate
 # all old cached IA responses (they don't have the new fields).
-PROMPT_VERSION = "v5-sanitize-2026-05"
+PROMPT_VERSION = "v6-modeles-2026-11"
 
 
 # Patterns qui ressemblent a une tentative d'injection de prompt.
@@ -347,12 +350,23 @@ def _appel_openai_macro(prompt: str, evenement_utilisateur: str,
     try:
         log.info("Appel OpenAI pour analyse macro (calibration=%s, %d custom)",
                  calibration_historique, len(custom_tickers or []))
-        reponse = _get_openai_client().chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.45,
-            response_format={"type": "json_object"}
-        )
+        messages = [{"role": "user", "content": prompt}]
+        try:
+            reponse = _get_openai_client().chat.completions.create(
+                messages=messages, response_format={"type": "json_object"},
+                **IA_ANALYSE,
+            )
+        except RateLimitError:
+            raise
+        except APIError as e:
+            # Modele principal indisponible : on retente avec le modele de secours
+            # plutot que de bloquer toute la simulation.
+            log.warning("Modele %s en echec (%s), repli sur %s",
+                        IA_ANALYSE["model"], str(e)[:80], IA_ANALYSE_SECOURS["model"])
+            reponse = _get_openai_client().chat.completions.create(
+                messages=messages, response_format={"type": "json_object"},
+                **IA_ANALYSE_SECOURS,
+            )
         contenu_brut = json.loads(reponse.choices[0].message.content)
 
         # VALIDATION PYDANTIC : normalise, borne, rejette si invalide
@@ -425,9 +439,7 @@ def discuter_avec_ia(historique_messages):
 
     try:
         reponse = _get_openai_client().chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=messages,
-            temperature=0.6
+            messages=messages, **IA_CHAT,
         )
         return reponse.choices[0].message.content
     except APITimeoutError:
@@ -496,13 +508,11 @@ CONTRAINTES :
 
     try:
         reponse = _get_openai_client().chat.completions.create(
-            model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": "Tu es un analyste financier senior expert."},
                 {"role": "user", "content": prompt}
             ],
-            temperature=0.5,
-            max_tokens=1200,
+            **IA_RAPPORT,
         )
         return reponse.choices[0].message.content
     except APITimeoutError:
