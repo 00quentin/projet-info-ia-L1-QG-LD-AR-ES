@@ -3,7 +3,7 @@
 Liste de contrôle de non-régression : chaque fonction de l'app Streamlit et son équivalent
 sur le nouveau site. Tenue à jour par l'agent `superviseur` (voir `.claude/agents/superviseur.md`).
 Légende : ✅ fait et vérifié · 🟡 partiel · ❌ manquant.
-Dernière vérification : 11/11/2026 (voir `docs/RAPPORT_AVANCEMENT.md`).
+Dernière vérification : 12/11/2026, version en ligne comprise (voir `docs/RAPPORT_AVANCEMENT.md`).
 
 **Règle** : on ne coupe l'app Streamlit que lorsque toutes les lignes sont ✅ et que le site est en ligne.
 
@@ -49,7 +49,7 @@ Dernière vérification : 11/11/2026 (voir `docs/RAPPORT_AVANCEMENT.md`).
 ## Reste à faire avant de couper Streamlit
 | Tâche | État |
 |---|---|
-| Déployer l'API sur Render (`render.yaml`, clé OpenAI) | ❌ |
-| Déployer le site sur Vercel (`NEXT_PUBLIC_API_URL`) | ❌ |
-| Vérifier les photos de l'Académie (Wikimedia) en ligne (8 fichiers, `web/src/components/academie/Photo.tsx` ; Wikimedia injoignable depuis l'environnement de vérification du 11/11) | ❌ |
-| Faire relire 3.3 de l'Académie (courbe des taux : « 100 % de précision », toujours présent dans `web/src/contenu/academie/macro.tsx` l. 111) | ✅ corrigé (phrase nuancée) |
+| Déployer l'API sur Render (`render.yaml`, clé OpenAI) | ✅ en ligne sur https://quant-terminal-api-baxq.onrender.com (vérifié le 12/11 : clé OpenAI active, CORS limité au site) |
+| Déployer le site sur Vercel (`NEXT_PUBLIC_API_URL`) | ✅ en ligne sur https://quant-terminal-qg-team.vercel.app (vérifié le 12/11 : simulation, comparaison, backtest, chat, PDF, CSV, historique) |
+| Vérifier les photos de l'Académie (Wikimedia) en ligne (8 fichiers, `web/src/components/academie/Photo.tsx`) | 🟡 le repli (légende + icône) s'affiche bien en ligne ; les photos elles-mêmes restent à regarder dans un navigateur normal (Wikimedia bloqué par le réseau de l'agent les 11 et 12/11) |
+| Faire relire 3.3 de l'Académie (courbe des taux : « 100 % de précision », `web/src/contenu/academie/macro.tsx` l. 111) | ✅ corrigé (phrase nuancée, `41e1b3d`, visible en ligne) |

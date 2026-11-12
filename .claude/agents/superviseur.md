@@ -14,8 +14,9 @@ honnêtement où en est la migration de l'app Streamlit (racine du dépôt) vers
    - `python -m pytest -q` à la racine ;
    - `cd web && npm install --no-audit --no-fund` (si `node_modules` absent), puis `npx tsc --noEmit`, `npx eslint src`, `npm run build` ;
    - `python -c "import sys, market_data, ia_bot, api.main; print('streamlit' in sys.modules)"` doit afficher `False` (le moteur ne doit pas dépendre de Streamlit).
-3. **Vérification du site** (si possible) : lance l'API (`uvicorn api.main:app --port 8010`) et le site
-   (`cd web && NEXT_PUBLIC_API_URL=http://localhost:8010 npx next start -p 3010` après le build),
+3. **Vérification du site** (si possible) : lance l'API (`uvicorn api.main:app --port 8010`) et le site.
+   `NEXT_PUBLIC_API_URL` est figée à la compilation : `cd web && NEXT_PUBLIC_API_URL=http://localhost:8010 npm run build`
+   puis `npx next start -p 3010` (et refais un `npm run build` normal à la fin, pour ne pas laisser un build pointant vers 8010),
    avec `QT_ORIGINES_AUTORISEES=http://localhost:3010` pour l'API. Avec Playwright (préinstallé :
    `require('playwright')`), ouvre chaque page (`/`, `/backtest`, `/historique`, `/academie`, `/a-propos`)
    en 1440×900 et 390×844 : note les erreurs console et les débordements horizontaux

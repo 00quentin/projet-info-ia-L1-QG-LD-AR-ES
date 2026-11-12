@@ -104,9 +104,9 @@ export function donneesCsv(r: ReponseBacktest): PropsExport["csv"] {
     if (!serie || !base) return [];
     return [{ nom: `${l.nom} — ligne du portefeuille (€)`, valeurs: serie.prix.map((p) => (p == null ? null : arrondi((l.investi * p) / base))) }];
   });
-  const jour = new Date().toISOString().slice(0, 10).replaceAll("-", "");
+  // L'horodatage est ajoute par BoutonsExport : pas de date ici.
   return {
-    nomFichier: `quant_terminal_backtest_${slug(libelleBacktest(r))}_${jour}`,
+    nomFichier: `quant_terminal_backtest_${slug(libelleBacktest(r))}`,
     titreColonneEtiquette: "Date",
     etiquettes: r.dates,
     colonnes: [

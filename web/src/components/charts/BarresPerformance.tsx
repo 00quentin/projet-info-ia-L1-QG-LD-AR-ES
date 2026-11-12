@@ -25,7 +25,7 @@ export function BarresPerformance({ lignes }: { lignes: Ligne[] }) {
             className="group grid grid-cols-[minmax(0,8rem)_1fr_5.75rem] items-center gap-3 text-sm sm:grid-cols-[minmax(0,13rem)_1fr_5.75rem]"
             title={`${l.nom} : ${pourcentSigne(l.valeur, 2)}`}
           >
-            <span className="truncate text-ink-2">{l.nom}</span>
+            <span className="line-clamp-2 text-sm leading-snug text-ink-2">{l.nom}</span>
             <span className="relative h-4" aria-hidden>
               <span className="absolute inset-y-0 left-1/2 w-px bg-line-strong" />
               {/* La barre pousse depuis le zero central, vers la droite ou la gauche selon le signe. */}
