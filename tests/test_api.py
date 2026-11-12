@@ -37,6 +37,7 @@ def _sans_reseau(monkeypatch):
     """Coupe tout acces externe et remet les compteurs a zero."""
     main.limiteur_ia.reinitialiser()
     main.limiteur_donnees.reinitialiser()
+    monkeypatch.setattr(ia_bot, "_cle_api", lambda: "cle-de-test")
     monkeypatch.setattr(services.market_data, "get_prix_actuels",
                         lambda actifs: ({a: 100.0 for a in actifs}, []))
     monkeypatch.setattr(services.market_data, "get_volatilites_historiques",
@@ -318,3 +319,10 @@ def test_chat_transmet_le_contexte_du_resultat(monkeypatch):
     assert r.status_code == 200 and recu["contexte"].startswith("Scénario")
     assert client.post("/api/chat", json={"messages": [{"role": "user", "content": "x"}],
                                           "contexte": "x" * 5000}).status_code == 422
+
+
+def test_ia_non_configuree_message_clair(monkeypatch):
+    monkeypatch.setattr(ia_bot, "_cle_api", lambda: None)
+    r = client.post("/api/chat", json={"messages": [{"role": "user", "content": "Bonjour"}]})
+    assert r.status_code == 502 and "clé OpenAI" in r.json()["detail"]
+    assert client.post("/api/simulations", json=DEMANDE).status_code == 502

@@ -57,6 +57,15 @@ class ServiceIndisponible(Exception):
     """Une source externe (IA, Yahoo) n'a pas pu repondre (-> HTTP 502)."""
 
 
+_MESSAGE_IA_NON_CONFIGUREE = "L'analyse par IA n'est pas encore configurée sur ce serveur (clé OpenAI manquante)."
+
+
+def _verifier_ia_configuree() -> None:
+    """Message clair plutot qu'une erreur interne quand la cle OpenAI n'est pas installee."""
+    if not ia_bot._cle_api():
+        raise ServiceIndisponible(_MESSAGE_IA_NON_CONFIGUREE)
+
+
 # === Mise en forme JSON ====================================================
 
 
@@ -340,6 +349,7 @@ def _formater_simulation(label: str, res: Dict, demande: DemandeSimulation,
 
 def executer_simulation(demande: DemandeSimulation) -> Dict[str, Any]:
     """Simule 1 a 3 scenarios sur le meme portefeuille."""
+    _verifier_ia_configuree()
     textes = dict(zip(LABELS_SCENARIOS, demande.scenarios))
     erreur = valider_scenarios_textes(textes)
     if erreur:
@@ -479,6 +489,7 @@ _PREFIXE_ERREUR_CHAT = "❌"
 
 
 def repondre_chat(messages: List[Dict[str, str]], contexte: Optional[str] = None) -> str:
+    _verifier_ia_configuree()
     reponse = ia_bot.discuter_avec_ia(messages, contexte=contexte)
     # discuter_avec_ia (partage avec Streamlit) renvoie ses erreurs sous forme de texte
     # "❌ ..." : l'API en fait une vraie erreur pour que le site propose de reessayer.
@@ -505,6 +516,7 @@ def generer_pdf(demande: DemandeRapport) -> bytes:
 
     analyse_senior = None
     if demande.avec_analyse_ia:
+        _verifier_ia_configuree()
         analyse_senior = ia_bot.generer_rapport_complet_ia(
             scenario=demande.scenario, chocs_ia={"explication_courte": demande.explication},
             perf_par_actif=perf_df, metriques=metriques,
