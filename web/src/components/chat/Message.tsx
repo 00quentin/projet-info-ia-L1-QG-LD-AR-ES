@@ -3,6 +3,9 @@
 import { memo, useEffect, useState } from "react";
 import { motion } from "motion/react";
 import Markdown, { type Components } from "react-markdown";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+import "katex/dist/katex.min.css";
 import { CircleAlert, RotateCcw } from "lucide-react";
 import type { MessageConversation } from "./conversation";
 import { DUREE, EASE_SORTIE, RESSORT } from "@/components/motion/transitions";
@@ -38,10 +41,20 @@ const composantsMarkdown: Components = {
   code: ({ children }) => <code className="rounded bg-surface px-1 py-0.5 font-mono text-[0.85em]">{children}</code>,
 };
 
+/**
+ * Les modeles ecrivent souvent les formules entre \[ \] ou \( \) : on les convertit
+ * en $$ $$ et $ $, les seuls delimiteurs que remark-math reconnait.
+ */
+const BLOC_LATEX = /\\\[([\s\S]+?)\\\]/g;
+const LIGNE_LATEX = /\\\(([\s\S]+?)\\\)/g;
+export function versDelimiteursDollar(texte: string): string {
+  return texte.replace(BLOC_LATEX, (_, f: string) => `\n$$\n${f.trim()}\n$$\n`).replace(LIGNE_LATEX, (_, f: string) => `$${f.trim()}$`);
+}
+
 const ContenuMarkdown = memo(function ContenuMarkdown({ texte }: { texte: string }) {
   return (
-    <Markdown components={composantsMarkdown} skipHtml>
-      {texte}
+    <Markdown components={composantsMarkdown} skipHtml remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+      {versDelimiteursDollar(texte)}
     </Markdown>
   );
 });
