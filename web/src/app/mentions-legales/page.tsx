@@ -114,7 +114,7 @@ export default function Page() {
         </ul>
         <P>
           La méthode de calcul (volatilités, corrélations, Monte-Carlo, métriques de risque) est détaillée dans la{" "}
-          <Lien href="/academie#methodologie">Méthodologie de l’Académie</Lien>.
+          <Lien href="/methodologie">page Méthodologie</Lien>.
         </P>
       </Rubrique>
 

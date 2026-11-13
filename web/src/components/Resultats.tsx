@@ -22,6 +22,7 @@ import { Infobulle } from "@/components/resultats/Infobulle";
 import { Depliable } from "@/components/resultats/Depliable";
 import { Sommaire, type EntreeSommaire } from "@/components/resultats/Sommaire";
 import { BoutonsExport } from "@/components/exports/BoutonsExport";
+import { Protection } from "@/components/resultats/Protection";
 import { colonnesPoches } from "@/lib/poches";
 
 const COULEURS_BENCHMARKS = ["var(--series-2)", "var(--series-3)"];
@@ -194,9 +195,11 @@ type Props = {
   lienPartage?: string;
   /** Propose de comparer avec un 2e scenario (affiche seulement s'il est fourni). */
   onComparer?: () => void;
+  /** Applique une repartition proposee par « Proteger mon portefeuille » (affiche seulement s'il est fourni). */
+  onAppliquerProtection?: (allocations: Record<string, number>) => void;
 };
 
-export function Resultats({ reponse, scenario, noms, lienPartage, onComparer }: Props) {
+export function Resultats({ reponse, scenario, noms, lienPartage, onComparer, onAppliquerProtection }: Props) {
   const p = reponse.parametres;
   const etiquettes = etiquettesJours(scenario.portefeuille.valeurs.length);
 
@@ -258,7 +261,11 @@ export function Resultats({ reponse, scenario, noms, lienPartage, onComparer }: 
           <ListeAlertes alertes={scenario.alertes} />
         </Partie>
 
-        {/* Protection : intégrée par la session principale */}
+        {onAppliquerProtection && (
+          <Apparition auDefilement>
+            <Protection reponse={reponse} scenario={scenario} onAppliquer={onAppliquerProtection} />
+          </Apparition>
+        )}
 
         <Partie id={PARTIES.repartition} libelle="Répartition du portefeuille">
           <Apparition auDefilement>

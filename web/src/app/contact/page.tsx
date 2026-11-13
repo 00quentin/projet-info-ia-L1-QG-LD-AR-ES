@@ -137,7 +137,7 @@ export default function Page() {
                   Questions fréquentes
                   <ArrowRight className="size-3.5" aria-hidden />
                 </Link>
-                <Link href="/academie#methodologie" className={BOUTON_SECONDAIRE}>
+                <Link href="/methodologie" className={BOUTON_SECONDAIRE}>
                   Méthodologie
                   <ArrowRight className="size-3.5" aria-hidden />
                 </Link>

@@ -499,6 +499,14 @@ export function Simulateur() {
     }
   }
 
+  /** « Proteger mon portefeuille » : passe en profil Personnalise avec la repartition proposee. */
+  function appliquerProtection(allocations: Record<string, number>) {
+    if (!reglages) return;
+    setReglages({ ...reglages, portefeuille: { ...reglages.portefeuille, profil: PROFIL_PERSONNALISE, actifs: Object.keys(allocations), allocations } });
+    notifier("Nouvelle répartition appliquée au formulaire : relancez la simulation pour la vérifier.");
+    requestAnimationFrame(() => document.getElementById("formulaire-simulation")?.scrollIntoView({ behavior: "smooth", block: "start" }));
+  }
+
   function comparer() {
     if (!reglages || !catalogue) return;
     setReglages({ ...reglages, scenarios: [reglages.scenarios[0], catalogue.scenarios_par_defaut[1] ?? ""] });
@@ -525,7 +533,7 @@ export function Simulateur() {
         nbTrajectoires={catalogue?.nb_simulations_monte_carlo}
       />
 
-      <aside aria-label="Paramètres" className="lg:sticky lg:top-(--haut-colle) lg:max-h-[calc(100dvh-var(--haut-colle)-1.5rem)] lg:overflow-y-auto lg:rounded-carte">
+      <aside id="formulaire-simulation" aria-label="Paramètres" className="scroll-mt-4 lg:sticky lg:top-(--haut-colle) lg:max-h-[calc(100dvh-var(--haut-colle)-1.5rem)] lg:overflow-y-auto lg:rounded-carte">
         {catalogue && reglages ? (
           <Carte className="p-(--marge-carte) [--marge-carte:1rem] sm:[--marge-carte:1.5rem]">
             <AnimatePresence>
@@ -628,7 +636,7 @@ export function Simulateur() {
                   {ongletCourant === "comparaison" ? (
                     <Comparaison scenarios={reussis} parametres={reponse.parametres} lienPartage={lien} onVoirDetail={setOnglet} />
                   ) : (
-                    scenarioAffiche && <Resultats reponse={reponse} scenario={scenarioAffiche} noms={noms} lienPartage={lien} onComparer={comparaison || !catalogue ? undefined : comparer} />
+                    scenarioAffiche && <Resultats reponse={reponse} scenario={scenarioAffiche} noms={noms} lienPartage={lien} onComparer={comparaison || !catalogue ? undefined : comparer} onAppliquerProtection={appliquerProtection} />
                   )}
                 </motion.div>
               </AnimatePresence>

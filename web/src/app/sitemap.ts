@@ -6,6 +6,8 @@ const PAGES: { chemin: string; priorite: number; frequence: "weekly" | "monthly"
   { chemin: "/", priorite: 1, frequence: "weekly" },
   { chemin: "/backtest", priorite: 0.8, frequence: "monthly" },
   { chemin: "/academie", priorite: 0.8, frequence: "monthly" },
+  { chemin: "/methodologie", priorite: 0.7, frequence: "monthly" },
+  { chemin: "/validation", priorite: 0.7, frequence: "monthly" },
   { chemin: "/faq", priorite: 0.6, frequence: "monthly" },
   { chemin: "/a-propos", priorite: 0.5, frequence: "monthly" },
   { chemin: "/contact", priorite: 0.4, frequence: "yearly" },

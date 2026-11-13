@@ -40,7 +40,7 @@ export const FAQ: ThemeFaq[] = [
           "Votre capital est en euros, mais beaucoup d’actifs cotent en dollars. Une hausse de 10 % du S&P 500 avec un dollar qui perd 10 % ne rapporte presque rien à un épargnant européen : le site tient donc compte du change.",
           "En simulation, l’euro-dollar est lui-même simulé (son choc est estimé par l’IA et corrélé aux autres actifs). En backtest, le site utilise les taux de référence publiés chaque jour par la BCE. La conversion peut être désactivée dans les options.",
         ],
-        liens: [{ href: "/academie#methodologie-euros", libelle: "La formule de conversion" }],
+        liens: [{ href: "/methodologie#euros", libelle: "La formule de conversion" }],
       },
     ],
   },
@@ -55,7 +55,7 @@ export const FAQ: ThemeFaq[] = [
           "Votre scénario est envoyé à un modèle d’OpenAI avec la conjoncture du moment (taux, inflation). L’IA renvoie, pour chaque actif, un choc estimé en pourcentage, ainsi qu’une inflation et des taux directeurs, un précédent historique comparable et un niveau de fiabilité.",
           "Avec la calibration historique, elle pondère les deux ou trois crises passées les plus proches de votre scénario (2008, COVID, choc pétrolier de 1973…) et s’appuie sur leurs vraies amplitudes. Chaque réponse est ensuite contrôlée : un choc hors des bornes réalistes de l’actif (par exemple entre −55 % et +45 % pour le S&P 500) est ramené dans ces bornes.",
         ],
-        liens: [{ href: "/academie#methodologie-pipeline", libelle: "Le pipeline complet" }],
+        liens: [{ href: "/methodologie#formules", libelle: "Le pipeline complet" }],
       },
       {
         id: "moteur",
@@ -73,7 +73,7 @@ export const FAQ: ThemeFaq[] = [
           "Au lieu d’une seule trajectoire, le moteur en tire 1 000, toutes différentes. Le graphique montre alors la trajectoire médiane et une bande qui contient 90 % des cas (du 5e au 95e centile), et le site calcule la probabilité de finir en perte.",
           "C’est la meilleure façon de voir l’incertitude : un même scénario peut bien ou mal finir selon le hasard des marchés. Les métriques de risque sont calculées sur chaque trajectoire, pas sur la médiane, qui lisse le hasard et sous-estimerait le risque.",
         ],
-        liens: [{ href: "/academie#methodologie-monte-carlo", libelle: "La méthode Monte-Carlo" }],
+        liens: [{ href: "/methodologie#monte-carlo", libelle: "La méthode Monte-Carlo" }],
       },
       {
         id: "resultats-changent",
@@ -90,7 +90,7 @@ export const FAQ: ThemeFaq[] = [
           "Ils donnent des ordres de grandeur pédagogiques, pas des prévisions. Le modèle fait des hypothèses simplificatrices : volatilités et corrélations constantes (alors qu’en crise elles s’envolent), aucun frais de transaction, obligations suivies via des ETF. L’IA, elle, peut se tromper ou inventer une référence.",
           "Le niveau de fiabilité affiché avec chaque analyse et les limites détaillées dans la Méthodologie aident à garder un regard critique. Le backtest, lui, repose sur les vrais cours passés, hors frais.",
         ],
-        liens: [{ href: "/academie#methodologie-limites", libelle: "Les limites du modèle" }],
+        liens: [{ href: "/methodologie#limites", libelle: "Les limites du modèle" }],
       },
       {
         id: "backtest",

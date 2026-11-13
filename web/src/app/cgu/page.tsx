@@ -68,7 +68,7 @@ export default function Page() {
         </Liste>
         <P>
           Les cours viennent de Yahoo Finance, les taux de change de la BCE, la conjoncture de la FRED ; l’impact des scénarios est estimé par des
-          modèles d’OpenAI puis simulé par notre moteur. La <Lien href="/academie#methodologie">Méthodologie</Lien> détaille les calculs.
+          modèles d’OpenAI puis simulé par notre moteur. La <Lien href="/methodologie">Méthodologie</Lien> détaille les calculs.
         </P>
       </Rubrique>
 
