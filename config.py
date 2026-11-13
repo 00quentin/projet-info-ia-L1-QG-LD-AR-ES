@@ -405,3 +405,20 @@ COUVERTURE_TOLERANCE_SOMME_POIDS = 0.01
 # Longueurs maximales des textes rediges par l'IA (au-dela : tronques).
 COUVERTURE_JUSTIFICATION_LONGUEUR_MAX = 280
 COUVERTURE_SYNTHESE_LONGUEUR_MAX = 320
+
+
+# ==========================================
+# L'IA À L'ÉPREUVE DE L'HISTOIRE (core/validation_ia.py, scripts/valider_ia_historique.py)
+# ==========================================
+# Sous ce mouvement réel (en points de %), le sens de variation n'est pas net :
+# l'actif n'entre pas dans le score « bon sens » (il reste dans l'erreur moyenne).
+SEUIL_SENS_PTS = 2.0
+# Taille minimale d'un échantillon pour calculer une corrélation.
+MIN_POINTS_CORRELATION = 3
+# Mots des noms de crises qui ne trahissent pas l'événement : tous les autres
+# mots du nom (Lehman, Brexit, COVID, Ukraine…) sont interdits dans la description.
+MOTS_GENERIQUES = {"krach", "crise", "bulle", "guerre", "petrolier", "petroliere"}
+# L'IA n'estime ni la livre ni le yen : ces actifs sont comparés dans leur devise.
+VALIDATION_DEVISES_EN_LOCAL = {"GBP", "JPY"}
+# Garde-fou de coût : nombre maximal d'appels IA par exécution.
+VALIDATION_MAX_APPELS = 14
