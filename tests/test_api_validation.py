@@ -148,6 +148,7 @@ def script(monkeypatch, tmp_path):
         return {"empreinte": module.empreinte(prompt), "date": "2026-11-13T00:00:00",
                 "modele": "modele-de-test", "reglages": {}, "scenario": scenario,
                 "chocs": chocs, "chocs_bruts": dict(chocs), "evenement_cite": "Crise test",
+                "fourchettes": {c: {"bas": v - 0.1, "central": v, "haut": v + 0.1} for c, v in chocs.items()},
                 "references": [], "explication": "Comme en 2008."}
 
     monkeypatch.setattr(module, "appeler_ia", fausse_ia)
@@ -166,6 +167,8 @@ def test_script_complet_puis_reutilise_les_estimations(script):
     assert "Indice : la période étudiée va du" in crise["estimation_avec_date"]["scenario"]
     assert "PRIORITAIRE SUR L'ETAPE 2" in script.appels[0]
     assert donnees["biais_connaissance"]["nb_crises"] == nb_crises
+    assert donnees["global"]["nb_fourchettes"] == donnees["global"]["nb_actifs"]
+    assert all("dans_fourchette" in a for a in crise["actifs"])
 
     # Rien n'a change : aucune nouvelle depense d'IA.
     assert script.main([]) == 0

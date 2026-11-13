@@ -39,6 +39,7 @@ from config import (  # noqa: E402
 )
 from core.validation_ia import (  # noqa: E402
     SEUIL_SENS_PTS, agreger, arrondir, comparer_actifs, convertir_estimations_en_euros,
+    convertir_fourchettes_en_euros,
     crise_reconnue, duree_en_mots, indice_date, metriques_ecart, performances_reelles,
     verifier_neutralite,
 )
@@ -49,7 +50,7 @@ log = get_logger("validation_ia")
 
 FICHIER_SORTIE = RACINE / "data" / "validation_ia.json"
 # Change quand la méthode de ce script change (pas le prompt du simulateur, suivi à part).
-VERSION_PROTOCOLE = "validation-v1"
+VERSION_PROTOCOLE = "validation-v2-fourchette"
 
 # Ce que l'on dit à l'IA : le mécanisme de la crise, sans nom, sans date, sans
 # chiffre de marché. Volontairement proche de ce qu'un visiteur taperait.
@@ -148,7 +149,14 @@ def empreinte(prompt: str) -> str:
 
 
 def _choc_normalise(valeur) -> float:
-    """Même convention que schemas.py : 25 → 0.25."""
+    """Même convention que schemas.py : 25 → 0.25. Une fourchette donne son central."""
+    if isinstance(valeur, dict):
+        try:
+            valeurs = [float(v) for v in valeur.values() if v is not None]
+            diviseur = 100.0 if any(abs(v) > 5 for v in valeurs) else 1.0
+            return float(valeur.get("central")) / diviseur
+        except (TypeError, ValueError):
+            return 0.0
     try:
         v = float(valeur)
     except (TypeError, ValueError):
@@ -190,6 +198,9 @@ def appeler_ia(prompt: str, scenario: str, compteur: CompteurAppels) -> dict:
         "chocs": {cle: float(v) for cle, v in valide["actifs"].items() if cle in BORNES_ACTIFS},
         "chocs_bruts": {cle: _choc_normalise(v) for cle, v in actifs_bruts.items()
                         if cle in BORNES_ACTIFS},
+        # {actif: {"bas", "central", "haut"}} en décimal, bornés comme le central.
+        "fourchettes": {cle: {k: float(x) for k, x in f.items()}
+                        for cle, f in (valide.get("fourchettes") or {}).items() if cle in BORNES_ACTIFS},
         "evenement_cite": valide.get("evenement_reference"),
         "references": valide.get("references_historiques") or [],
         "explication": valide.get("explication_courte") or "",
@@ -212,19 +223,28 @@ def obtenir_estimation(prompt: str, scenario: str, ancienne: dict | None,
 def comparer(estimation: dict, reels_eur: dict, reels_local: dict) -> tuple[list, list]:
     """Lignes de comparaison en euros (comme le backtest) et en devise d'origine."""
     chocs = estimation["chocs"]
-    en_euros = convertir_estimations_en_euros(chocs, DEVISE_ACTIF, chocs.get(ACTIF_TAUX_EUR_USD, 0.0))
-    estimes, reels = {}, {}
+    choc_eur_usd = chocs.get(ACTIF_TAUX_EUR_USD, 0.0)
+    en_euros = convertir_estimations_en_euros(chocs, DEVISE_ACTIF, choc_eur_usd)
+    # Bornes de la fourchette : même conversion que le central (EUR/USD central de l'IA).
+    bornes = {c: (f["bas"], f["haut"]) for c, f in (estimation.get("fourchettes") or {}).items()}
+    bornes_eur = convertir_fourchettes_en_euros(bornes, DEVISE_ACTIF, choc_eur_usd)
+    estimes, reels, fourchettes = {}, {}, {}
     for cle in reels_eur:
         if cle not in chocs:
             continue
         if DEVISE_ACTIF.get(cle) in VALIDATION_DEVISES_EN_LOCAL:
             if cle in reels_local:
                 estimes[cle], reels[cle] = chocs[cle] * 100, reels_local[cle]
+                if cle in bornes:
+                    fourchettes[cle] = tuple(b * 100 for b in bornes[cle])
         else:
             estimes[cle], reels[cle] = en_euros[cle] * 100, reels_eur[cle]
-    lignes_eur = comparer_actifs(estimes, reels)
+            if cle in bornes_eur:
+                fourchettes[cle] = tuple(b * 100 for b in bornes_eur[cle])
+    lignes_eur = comparer_actifs(estimes, reels, fourchettes_pct=fourchettes)
     lignes_local = comparer_actifs({c: v * 100 for c, v in chocs.items()},
-                                   {c: v for c, v in reels_local.items() if c in reels_eur})
+                                   {c: v for c, v in reels_local.items() if c in reels_eur},
+                                   fourchettes_pct={c: tuple(b * 100 for b in v) for c, v in bornes.items()})
     return lignes_eur, lignes_local
 
 
@@ -381,6 +401,7 @@ def _arrondir_fichier(resultat: dict) -> dict:
             if est:
                 est["chocs"] = arrondir(est["chocs"], 4)
                 est["chocs_bruts"] = arrondir(est["chocs_bruts"], 4)
+                est["fourchettes"] = arrondir(est.get("fourchettes") or {}, 4)
     for bloc in (resultat["global"], resultat["global_devise_locale"],
                  resultat["biais_connaissance"]["sans_date"], resultat["biais_connaissance"]["avec_date"]):
         _arrondir_metriques(bloc)
@@ -398,7 +419,8 @@ def _arrondir_metriques(m: dict) -> None:
     for cle, valeur in list(m.items()):
         if isinstance(valeur, float):
             m[cle] = arrondir(valeur, 3 if cle in ("correlation", "correlation_rangs",
-                                                   "part_sens_correct", "ratio_amplitude") else 2)
+                                                   "part_sens_correct", "ratio_amplitude",
+                                                   "part_dans_fourchette") else 2)
 
 
 def _afficher_resume(resultat: dict) -> None:
@@ -408,7 +430,9 @@ def _afficher_resume(resultat: dict) -> None:
         print(f"  {nom:<30} erreur {m['erreur_moyenne_pts']:6.1f} pts | bon sens "
               f"{m['nb_sens_corrects']:>2}/{m['nb_sens_comptes']:<2} ({(part or 0) * 100:3.0f} %) | "
               f"corrélation {corr if corr is not None else float('nan'):5.2f} | "
-              f"amplitude ×{m['ratio_amplitude'] or 0:.2f}")
+              f"amplitude ×{m['ratio_amplitude'] or 0:.2f} | fourchette "
+              f"{m['nb_dans_fourchette']}/{m['nb_fourchettes']} ({(m['part_dans_fourchette'] or 0) * 100:3.0f} %), "
+              f"largeur {m['largeur_moyenne_pts'] or 0:.1f} pts, plus forts {m['nb_sorties_plus_fortes']}")
     print("\nRésultats (en euros) :")
     for crise in resultat["crises"]:
         ligne(crise["nom"], crise["metriques"])

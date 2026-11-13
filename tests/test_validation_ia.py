@@ -11,7 +11,8 @@ import pandas as pd
 import pytest
 
 from core.validation_ia import (
-    agreger, arrondir, comparer_actifs, convertir_estimations_en_euros, correlation,
+    agreger, arrondir, comparer_actifs, convertir_estimations_en_euros,
+    convertir_fourchettes_en_euros, correlation, dans_fourchette, sortie_plus_forte,
     correlation_rangs, crise_reconnue, date_en_toutes_lettres, duree_en_mots, indice_date,
     metriques_ecart, performances_reelles, sens, sens_correct, verifier_neutralite,
 )
@@ -187,3 +188,42 @@ class TestNeutralite:
 def test_correlation_resiste_aux_flottants():
     xs = [0.1 * i for i in range(10)]
     assert math.isclose(correlation(xs, [2 * x + 1 for x in xs]), 1.0)
+
+
+class TestFourchette:
+    def test_dans_fourchette_bornes_incluses(self):
+        assert dans_fourchette(-30.0, -10.0, -10.0)
+        assert dans_fourchette(-10.0, -30.0, -20.0)  # bornes inversees
+        assert not dans_fourchette(-30.0, -10.0, -35.0)
+
+    def test_sortie_plus_forte_dans_le_sens_prevu(self):
+        assert sortie_plus_forte(-30.0, -20.0, -10.0, -45.0)
+        assert sortie_plus_forte(5.0, 10.0, 15.0, 40.0)
+        assert not sortie_plus_forte(-30.0, -20.0, -10.0, 5.0)  # sens inverse
+        assert not sortie_plus_forte(-30.0, -20.0, -10.0, -15.0)  # dedans
+
+    def test_bornes_converties_comme_le_central(self):
+        f = convertir_fourchettes_en_euros({"Or": (-0.1, 0.2), "CAC 40": (-0.2, 0.0)},
+                                           {"Or": "USD", "CAC 40": "EUR"}, -0.10)
+        assert f["Or"][0] == pytest.approx(0.9 / 0.9 - 1)
+        assert f["Or"][1] == pytest.approx(1.2 / 0.9 - 1)
+        assert f["CAC 40"] == (-0.2, 0.0)
+
+    def test_metriques_de_la_fourchette(self):
+        lignes = comparer_actifs(
+            {"A": -20.0, "B": 10.0, "C": 5.0},
+            {"A": -45.0, "B": 12.0, "C": -8.0},
+            fourchettes_pct={"A": (-10.0, -30.0), "B": (5.0, 15.0), "C": (0.0, 10.0)},
+        )
+        assert lignes[0]["bas_pct"] == -30.0 and lignes[0]["largeur_pts"] == 20.0
+        m = metriques_ecart(lignes)
+        assert (m["nb_fourchettes"], m["nb_dans_fourchette"]) == (3, 1)
+        assert m["part_dans_fourchette"] == pytest.approx(1 / 3)
+        assert m["largeur_moyenne_pts"] == pytest.approx(40 / 3)
+        assert m["nb_sorties_plus_fortes"] == 1  # A : baisse pire que prevu ; C : sens inverse
+
+    def test_sans_fourchette_rien_n_est_compte(self):
+        m = metriques_ecart([_ligne("A", -10.0, -20.0)])
+        assert m["nb_fourchettes"] == 0
+        assert m["part_dans_fourchette"] is None
+        assert m["largeur_moyenne_pts"] is None

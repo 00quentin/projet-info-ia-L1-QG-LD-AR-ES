@@ -12,6 +12,20 @@ export const COULEUR_REEL = "var(--series-2)";
 const ECHELLE_MAX_PCT = 100;
 
 /** Pastille de legende (forme de la marque : rectangle pour une barre). */
+/** Pastille de legende de la fourchette : trait fin a taquets, comme sur les barres. */
+export function CleFourchette({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 text-xs text-ink-2">
+      <span aria-hidden className="relative h-2.5 w-4">
+        <span className="absolute inset-x-0 top-1/2 h-px bg-ink" />
+        <span className="absolute inset-y-0 left-0 w-px bg-ink" />
+        <span className="absolute inset-y-0 right-0 w-px bg-ink" />
+      </span>
+      {children}
+    </span>
+  );
+}
+
 export function Cle({ couleur, children }: { couleur: string; children: React.ReactNode }) {
   return (
     <span className="inline-flex items-center gap-1.5 text-xs text-ink-2">
@@ -40,8 +54,10 @@ function Valeur({ couleur, libelle, valeur, accent }: { couleur: string; libelle
 }
 
 /** Une barre qui part du zero central ; bout arrondi cote donnee, carre cote zero. */
-function Barre({ valeur, max, couleur, delai }: { valeur: number; max: number; couleur: string; delai: number }) {
+function Barre({ valeur, max, couleur, delai, fourchette }: { valeur: number; max: number; couleur: string; delai: number; fourchette?: [number, number] }) {
   const coupee = Math.abs(valeur) > max;
+  // Position (en % de la largeur) d'une valeur sur l'axe -max…+max, zero au milieu.
+  const position = (v: number) => 50 + (Math.max(-max, Math.min(max, v)) / max) * 50;
   const part = (Math.min(Math.abs(valeur), max) / max) * 50;
   const positif = valeur >= 0;
   return (
@@ -57,6 +73,21 @@ function Barre({ valeur, max, couleur, delai }: { valeur: number; max: number; c
       {coupee && (
         // Coupure : un trait couleur surface au bout de la barre signale qu'elle continue au-dela.
         <span aria-hidden className={`absolute -inset-y-0.5 w-0.5 bg-surface ${positif ? "right-1" : "left-1"}`} />
+      )}
+      {fourchette && fourchette[1] > fourchette[0] && (
+        // Fourchette bas-haut de l'IA : trait fin a taquets, par-dessus sa barre.
+        <motion.span
+          aria-hidden
+          className="absolute top-1/2 h-px -translate-y-1/2 bg-ink"
+          style={{ left: `${position(fourchette[0])}%`, width: `${position(fourchette[1]) - position(fourchette[0])}%` }}
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 0.85 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.4, delay: delai + 0.5 }}
+        >
+          <span className="absolute -top-[5px] left-0 h-[11px] w-px bg-ink" />
+          <span className="absolute -top-[5px] right-0 h-[11px] w-px bg-ink" />
+        </motion.span>
       )}
     </span>
   );
@@ -89,12 +120,14 @@ function IconeSens({ sens }: { sens: boolean | null }) {
  */
 export function BarresAppariees({ actifs }: { actifs: ActifValide[] }) {
   const max = echelle(actifs);
+  const avecFourchette = actifs.some((a) => a.bas_pct != null && a.haut_pct != null);
   const tronque = actifs.some((a) => Math.abs(a.estime_pct) > max || Math.abs(a.reel_pct) > max);
   return (
     <div>
       <div className="mb-3 flex flex-wrap items-center gap-x-4 gap-y-1">
         <Cle couleur={COULEUR_IA}>Estimation de l’IA</Cle>
         <Cle couleur={COULEUR_REEL}>Vrai mouvement</Cle>
+        {avecFourchette && <CleFourchette>Fourchette de l’IA (bas–haut)</CleFourchette>}
       </div>
       <ul className="flex flex-col" aria-label="Estimation de l'IA et vrai mouvement, actif par actif">
         {actifs.map((a, i) => (
@@ -102,7 +135,7 @@ export function BarresAppariees({ actifs }: { actifs: ActifValide[] }) {
           <li
             key={a.cle}
             className="grid grid-cols-[minmax(0,1fr)_auto_1rem] items-center gap-x-2 gap-y-1.5 rounded-lg px-1.5 py-2 transition-colors hover:bg-surface-2 sm:grid-cols-[minmax(0,9rem)_minmax(0,1fr)_5.75rem_1rem] sm:gap-x-3 sm:py-1.5"
-            title={`${a.nom} : IA ${pourcentSigne(a.estime_pct)}, réel ${pourcentSigne(a.reel_pct)}, écart ${pourcentSigne(a.ecart_pts).replace(" %", " pts")}`}
+            title={`${a.nom} : IA ${pourcentSigne(a.estime_pct)}${a.bas_pct != null && a.haut_pct != null ? ` (fourchette ${pourcentSigne(a.bas_pct)} à ${pourcentSigne(a.haut_pct)}${a.dans_fourchette ? ", réel dedans" : ", réel dehors"})` : ""}, réel ${pourcentSigne(a.reel_pct)}, écart ${pourcentSigne(a.ecart_pts).replace(" %", " pts")}`}
           >
             <span className="col-start-1 row-start-1 min-w-0 text-[13px] leading-snug text-ink-2">
               <span className="line-clamp-2">
@@ -112,7 +145,13 @@ export function BarresAppariees({ actifs }: { actifs: ActifValide[] }) {
             </span>
             <span className="relative col-span-3 row-start-2 flex flex-col gap-0.5 py-0.5 sm:col-span-1 sm:col-start-2 sm:row-start-1" aria-hidden>
               <span className="absolute -inset-y-1 left-1/2 w-px bg-line-strong" />
-              <Barre valeur={a.estime_pct} max={max} couleur={COULEUR_IA} delai={i * 0.03} />
+              <Barre
+                valeur={a.estime_pct}
+                max={max}
+                couleur={COULEUR_IA}
+                delai={i * 0.03}
+                fourchette={a.bas_pct != null && a.haut_pct != null ? [a.bas_pct, a.haut_pct] : undefined}
+              />
               <Barre valeur={a.reel_pct} max={max} couleur={COULEUR_REEL} delai={i * 0.03 + 0.08} />
             </span>
             <span className="col-start-2 row-start-1 flex gap-2.5 text-xs leading-tight tabular-nums sm:col-start-3 sm:flex-col sm:gap-0">
