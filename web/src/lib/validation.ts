@@ -18,6 +18,15 @@ export type MetriquesValidation = {
   correlation_rangs: number | null;
   /** Taille des chocs de l'IA rapportée à celle des vrais mouvements (< 1 : prudente). */
   ratio_amplitude: number | null;
+  /** Comparaisons qui portent une fourchette bas / haut de l'IA. */
+  nb_fourchettes?: number;
+  nb_dans_fourchette?: number;
+  /** Part des vrais mouvements tombés dans la fourchette de l'IA. */
+  part_dans_fourchette?: number | null;
+  /** Écart moyen haut − bas, en points. */
+  largeur_moyenne_pts?: number | null;
+  /** Sorties de fourchette où le vrai mouvement a été plus fort que prévu, dans le sens vu par l'IA. */
+  nb_sorties_plus_fortes?: number;
   nb_crises?: number;
 };
 
@@ -37,6 +46,12 @@ export type ActifValide = {
   sens_correct: boolean | null;
   /** Estimation plafonnée par les garde-fous du simulateur. */
   ecrete: boolean;
+  /** Fourchette de l'IA (même conversion en euros que le central). */
+  bas_pct?: number;
+  haut_pct?: number;
+  largeur_pts?: number;
+  dans_fourchette?: boolean;
+  sortie_plus_forte?: boolean;
 };
 
 export type VarianteAvecDate = {

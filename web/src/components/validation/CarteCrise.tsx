@@ -4,7 +4,7 @@ import { ChevronDown, Quote } from "lucide-react";
 import type { CriseValidee } from "@/lib/validation";
 import { Carte, Pastille } from "@/components/ui/Carte";
 import { BarresAppariees } from "./BarresAppariees";
-import { coefficient, periode, points } from "./outils";
+import { coefficient, part, periode, points } from "./outils";
 
 function Statistique({ libelle, valeur }: { libelle: string; valeur: string }) {
   return (
@@ -58,6 +58,16 @@ export function CarteCrise({ crise }: { crise: CriseValidee }) {
         <Statistique libelle="Corrélation" valeur={coefficient(m.correlation)} />
         <Statistique libelle="Avec la date" valeur={crise.avec_date ? points(crise.avec_date.metriques.erreur_moyenne_pts) : "—"} />
       </dl>
+
+      {m.part_dans_fourchette != null && (
+        <p className="mt-3 text-[13px] leading-relaxed text-ink-2">
+          Fourchette : le vrai mouvement tombe entre le bas et le haut de l’IA pour{" "}
+          <strong className="font-semibold text-ink">
+            {m.nb_dans_fourchette} actif{(m.nb_dans_fourchette ?? 0) > 1 ? "s" : ""} sur {m.nb_fourchettes}
+          </strong>{" "}
+          ({part(m.part_dans_fourchette)}, largeur moyenne {points(m.largeur_moyenne_pts ?? null)}).
+        </p>
+      )}
 
       <div className="mt-5" aria-labelledby={titreId}>
         <BarresAppariees actifs={crise.actifs} />

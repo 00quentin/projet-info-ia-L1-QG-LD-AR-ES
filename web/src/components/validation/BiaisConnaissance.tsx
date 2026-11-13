@@ -78,6 +78,12 @@ export function BiaisConnaissance({ v }: { v: ValidationIA }) {
     { libelle: "Bon sens de variation", sans: part(b.sans_date.part_sens_correct), avec: part(b.avec_date.part_sens_correct) },
     { libelle: "Corrélation", sans: coefficient(b.sans_date.correlation), avec: coefficient(b.avec_date.correlation) },
     { libelle: "Taille des chocs", sans: `×${nombre(b.sans_date.ratio_amplitude ?? 0, 2)}`, avec: `×${nombre(b.avec_date.ratio_amplitude ?? 0, 2)}` },
+    ...(b.sans_date.part_dans_fourchette != null
+      ? [
+          { libelle: "Dans la fourchette", sans: part(b.sans_date.part_dans_fourchette), avec: part(b.avec_date.part_dans_fourchette ?? null) },
+          { libelle: "Largeur de la fourchette", sans: points(b.sans_date.largeur_moyenne_pts ?? null), avec: points(b.avec_date.largeur_moyenne_pts ?? null) },
+        ]
+      : []),
     { libelle: "Crises reconnues", sans: `${b.nb_reconnues_sans_date} / ${b.nb_crises}`, avec: `${b.nb_reconnues_avec_date} / ${b.nb_crises}` },
   ];
   return (

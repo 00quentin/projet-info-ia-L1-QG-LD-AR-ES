@@ -1,6 +1,6 @@
 "use client";
 
-import { Compass, Crosshair, Ruler, Scale } from "lucide-react";
+import { Compass, Crosshair, MoveHorizontal, Ruler, Scale } from "lucide-react";
 import type { ReactNode } from "react";
 import type { ValidationIA } from "@/lib/validation";
 import { nombre } from "@/lib/format";
@@ -27,7 +27,7 @@ export function ChiffresCles({ v }: { v: ValidationIA }) {
   const g = v.global;
   return (
     <Carte className="p-5 sm:p-6">
-      <Cascade className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <Cascade className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         <Tuile
           icone={<Compass className="size-3.5" aria-hidden />}
           libelle="Bon sens de variation"
@@ -52,6 +52,14 @@ export function ChiffresCles({ v }: { v: ValidationIA }) {
           valeur={<NombreAnime valeur={g.ratio_amplitude ?? 0} depuis={0} format={(x) => `×${nombre(x, 2)}`} />}
           aide="Ampleur des chocs de l’IA rapportée aux vrais mouvements : sous 1, elle est trop prudente."
         />
+        {g.part_dans_fourchette != null && (
+          <Tuile
+            icone={<MoveHorizontal className="size-3.5" aria-hidden />}
+            libelle="Dans la fourchette"
+            valeur={<NombreAnime valeur={g.part_dans_fourchette * 100} depuis={0} format={(x) => `${nombre(x, 0)} %`} />}
+            aide={`${g.nb_dans_fourchette} vrais mouvements sur ${g.nb_fourchettes} tombent entre le bas et le haut estimés (largeur moyenne ${points(g.largeur_moyenne_pts ?? null)}).`}
+          />
+        )}
       </Cascade>
       <div className="mt-5 flex flex-col gap-2 border-t border-line pt-4 text-[15px] leading-relaxed text-ink-2">
         {lectureGlobale(v).map((phrase) => (

@@ -14,7 +14,7 @@ import re
 import unicodedata
 from datetime import date
 from statistics import mean, median
-from typing import Dict, Iterable, List, Optional, Sequence
+from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 
 import pandas as pd
 
@@ -83,21 +83,55 @@ def sens_correct(estime_pct: float, reel_pct: float,
     return sens(estime_pct) == sens_reel
 
 
+def dans_fourchette(bas_pct: float, haut_pct: float, reel_pct: float) -> bool:
+    """Le vrai mouvement tombe-t-il entre le bas et le haut estimés (bornes incluses) ?"""
+    return min(bas_pct, haut_pct) <= reel_pct <= max(bas_pct, haut_pct)
+
+
+def sortie_plus_forte(bas_pct: float, central_pct: float, haut_pct: float,
+                      reel_pct: float) -> bool:
+    """Le vrai mouvement dépasse la fourchette dans le sens prévu par l'IA : elle
+    avait vu la direction mais pas l'ampleur (baisse pire que le bas, ou hausse
+    plus forte que le haut)."""
+    return (reel_pct < bas_pct and central_pct <= 0) or (reel_pct > haut_pct and central_pct >= 0)
+
+
+def convertir_fourchettes_en_euros(fourchettes: Dict[str, Tuple[float, float]],
+                                   devises: Dict[str, Optional[str]],
+                                   choc_eur_usd: float) -> Dict[str, Tuple[float, float]]:
+    """Bornes (décimales) converties comme le central : avec l'EUR/USD central de l'IA."""
+    bas = convertir_estimations_en_euros({c: b for c, (b, _) in fourchettes.items()}, devises, choc_eur_usd)
+    haut = convertir_estimations_en_euros({c: h for c, (_, h) in fourchettes.items()}, devises, choc_eur_usd)
+    return {c: (bas[c], haut[c]) for c in fourchettes}
+
+
 def comparer_actifs(estimes_pct: Dict[str, float], reels_pct: Dict[str, float],
-                    seuil: float = SEUIL_SENS_PTS) -> List[Dict]:
-    """Une ligne par actif présent des deux côtés (ordre de `reels_pct`)."""
+                    seuil: float = SEUIL_SENS_PTS,
+                    fourchettes_pct: Optional[Dict[str, Tuple[float, float]]] = None) -> List[Dict]:
+    """Une ligne par actif présent des deux côtés (ordre de `reels_pct`).
+    `fourchettes_pct` : {actif: (bas, haut)} en %, ajoute la mesure de la fourchette."""
     lignes = []
     for cle, reel in reels_pct.items():
         if cle not in estimes_pct:
             continue
         estime = estimes_pct[cle]
-        lignes.append({
+        ligne = {
             "cle": cle,
             "estime_pct": estime,
             "reel_pct": reel,
             "ecart_pts": estime - reel,
             "sens_correct": sens_correct(estime, reel, seuil),
-        })
+        }
+        if fourchettes_pct and cle in fourchettes_pct:
+            bas, haut = sorted(fourchettes_pct[cle])
+            ligne.update({
+                "bas_pct": bas,
+                "haut_pct": haut,
+                "largeur_pts": haut - bas,
+                "dans_fourchette": dans_fourchette(bas, haut, reel),
+                "sortie_plus_forte": sortie_plus_forte(bas, estime, haut, reel),
+            })
+        lignes.append(ligne)
     return lignes
 
 
@@ -162,6 +196,22 @@ def metriques_ecart(lignes: Iterable[Dict]) -> Dict:
         # < 1 : les chocs de l'IA sont plus petits que les vrais mouvements.
         "ratio_amplitude": (sum(abs(e) for e in estimes) / amplitude_reelle
                             if amplitude_reelle else None),
+        **metriques_fourchette(lignes),
+    }
+
+
+def metriques_fourchette(lignes: Iterable[Dict]) -> Dict:
+    """Part des vrais mouvements tombés dans la fourchette de l'IA et largeur
+    moyenne de celle-ci. Seules les lignes qui portent une fourchette comptent."""
+    avec = [l for l in lignes if "dans_fourchette" in l]
+    dedans = sum(1 for l in avec if l["dans_fourchette"])
+    return {
+        "nb_fourchettes": len(avec),
+        "nb_dans_fourchette": dedans,
+        "part_dans_fourchette": dedans / len(avec) if avec else None,
+        "largeur_moyenne_pts": mean(l["largeur_pts"] for l in avec) if avec else None,
+        # Sorties dues à un vrai mouvement plus fort que prévu (dans le sens vu par l'IA).
+        "nb_sorties_plus_fortes": sum(1 for l in avec if l["sortie_plus_forte"]),
     }
 
 

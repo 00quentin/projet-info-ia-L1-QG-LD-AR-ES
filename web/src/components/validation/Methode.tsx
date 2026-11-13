@@ -23,7 +23,7 @@ const ETAPES = [
   {
     titre: "On mesure, une fois pour toutes",
     texte:
-      "Écart en points, bon sens de variation, corrélation et taille des chocs. Le calcul est fait une fois par un script et enregistré : votre visite ne déclenche aucun appel à l’IA.",
+      "Écart en points, bon sens de variation, corrélation, taille des chocs, et part des vrais mouvements tombés dans la fourchette bas–haut donnée par l’IA (convertie en euros comme son estimation centrale). Le calcul est fait une fois par un script et enregistré : votre visite ne déclenche aucun appel à l’IA.",
   },
 ];
 
@@ -71,6 +71,10 @@ export function Methode({ v }: { v: ValidationIA }) {
           <Point>
             <G>Test à l’aveugle partiel.</G> L’IA a lu l’histoire de ces crises : même sans nom ni date, elle les reconnaît presque toujours. Ce test
             montre qu’elle traduit bien une crise connue en chiffres, pas qu’elle prévoit un événement inédit.
+          </Point>
+          <Point>
+            <G>Fourchette sans bruit de marché.</G> Par consigne, la fourchette de l’IA ne couvre que le doute sur l’impact du scénario : le bruit
+            normal des marchés est simulé à part. Elle est donc plus étroite qu’un intervalle qui viserait à encadrer le vrai cours.
           </Point>
           <Point>
             <G>Un seul tirage par crise.</G> L’IA n’est pas déterministe : relancée, elle donnerait des chiffres un peu différents.
