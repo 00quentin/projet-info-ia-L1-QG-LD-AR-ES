@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="512" height="512">
+  <!-- Meme dessin que components/ui/Logo.tsx, couleurs figees (icone, image de partage). -->
+  <defs>
+    <linearGradient id="degrade" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#5b5fe3"/>
+      <stop offset="1" stop-color="#1baf7a"/>
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="8" fill="url(#degrade)"/>
+  <polyline points="7,22.5 12.2,18.2 17.4,20 22.2,13.2 25.2,10.4" fill="none" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="25.2" cy="10.4" r="2.9" fill="#ffffff"/>
+</svg>
