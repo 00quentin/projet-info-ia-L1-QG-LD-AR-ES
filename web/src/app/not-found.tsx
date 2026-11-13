@@ -29,7 +29,7 @@ export default function PageIntrouvable() {
       </p>
       <Link
         href="/"
-        className="apparition mt-8 inline-flex h-11 items-center gap-2 rounded-xl bg-accent px-5 text-sm font-semibold text-white transition hover:brightness-110"
+        className="apparition mt-8 inline-flex h-11 items-center gap-2 rounded-xl bg-accent px-5 text-sm font-semibold text-on-accent transition hover:brightness-110"
       >
         <ArrowLeft className="size-4" aria-hidden />
         Retour à l’accueil

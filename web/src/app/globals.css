@@ -18,6 +18,8 @@
   --accent: #5b5fe3;
   --accent-ink: #4347c9;
   --accent-soft: #eef0fe;
+  /* Texte pose sur l'accent plein (boutons principaux, pastilles pleines). */
+  --on-accent: #ffffff;
   --gain: #0a8a3c;
   --gain-soft: #e6f6ec;
   --loss: #cf3838;
@@ -56,6 +58,7 @@
   --accent: #5b5fe3;
   --accent-ink: #a3a6f7;
   --accent-soft: #1d1e3a;
+  --on-accent: #ffffff;
   --gain: #35c46a;
   --gain-soft: #10291a;
   --loss: #f06a6a;
@@ -88,6 +91,7 @@
   --color-accent: var(--accent);
   --color-accent-ink: var(--accent-ink);
   --color-accent-soft: var(--accent-soft);
+  --color-on-accent: var(--on-accent);
   --color-gain: var(--gain);
   --color-gain-soft: var(--gain-soft);
   --color-loss: var(--loss);

@@ -120,7 +120,7 @@ function Detail({ entree, onSupprimer, annoncer }: { entree: EntreeHistorique; o
         <div className="flex shrink-0 gap-2">
           {chemin && (
             <motion.span whileTap={{ scale: 0.97 }} transition={RESSORT} className="flex flex-1 sm:flex-none">
-              <Link href={chemin} className="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-controle bg-accent px-3.5 text-sm font-semibold text-white transition hover:brightness-110">
+              <Link href={chemin} className="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-controle bg-accent px-3.5 text-sm font-semibold text-on-accent transition hover:brightness-110">
                 <Play className="size-3.5" aria-hidden />
                 Relancer
               </Link>

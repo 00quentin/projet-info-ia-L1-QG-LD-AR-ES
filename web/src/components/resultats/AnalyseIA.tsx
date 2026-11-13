@@ -9,6 +9,7 @@ import { nomCourt } from "@/contenu/actifs";
 import { Carte, Pastille, TitreCarte } from "@/components/ui/Carte";
 import { DUREE, EASE_SORTIE } from "@/components/motion/transitions";
 import { Depliable } from "./Depliable";
+import { FourchettesIA } from "./FourchettesIA";
 
 // Un statut n'est ni vert ni rouge (couleurs reservees aux gains et pertes) : accent, neutre ou alerte.
 const FIABILITES = {
@@ -124,6 +125,7 @@ export function AnalyseIA({ s, calibration, noms, conjoncture }: { s: ResultatSc
           <dd className="mt-0.5 text-xl font-semibold tabular-nums">{points(a.taux_directeurs)}</dd>
         </div>
       </dl>
+      <FourchettesIA a={a} noms={noms} />
       {calibration && (refs.length > 0 || a.evenement_reference || a.fiabilite?.raison) && (
         <div className="mt-5 border-t border-line pt-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">

@@ -71,7 +71,7 @@ function Attente({ nbScenarios }: { nbScenarios: number }) {
                 <span className="grid size-5 shrink-0 place-items-center">
                   <AnimatePresence mode="wait" initial={false}>
                     {faite ? (
-                      <motion.span key="ok" initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={RESSORT} className="grid size-5 place-items-center rounded-full bg-accent text-white">
+                      <motion.span key="ok" initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={RESSORT} className="grid size-5 place-items-center rounded-full bg-accent text-on-accent">
                         <Check className="size-3" strokeWidth={3} aria-hidden />
                       </motion.span>
                     ) : enCours ? (

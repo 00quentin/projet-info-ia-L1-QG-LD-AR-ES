@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 };
 
 const BOUTON = "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors";
-const BOUTON_PRINCIPAL = `${BOUTON} bg-accent font-semibold text-white hover:brightness-110`;
+const BOUTON_PRINCIPAL = `${BOUTON} bg-accent font-semibold text-on-accent hover:brightness-110`;
 const BOUTON_SECONDAIRE = `${BOUTON} border border-line bg-surface text-ink-2 hover:border-line-strong hover:text-ink`;
 
 function CarteContact({ icone: Icone, titre, children, actions }: { icone: LucideIcon; titre: string; children: ReactNode; actions: ReactNode }) {

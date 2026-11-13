@@ -74,7 +74,7 @@ export function Saisie({ valeur, onChange, onEnvoyer, enAttente, champRef }: Pro
           disabled={vide || enAttente}
           whileTap={vide || enAttente ? undefined : { scale: 0.97 }}
           aria-label="Envoyer la question (Entrée)"
-          className="grid size-9 shrink-0 place-items-center rounded-controle bg-accent text-white transition-[background-color,opacity] disabled:cursor-not-allowed disabled:bg-line-strong disabled:text-surface"
+          className="grid size-9 shrink-0 place-items-center rounded-controle bg-accent text-on-accent transition-[background-color,opacity] disabled:cursor-not-allowed disabled:bg-line-strong disabled:text-surface"
         >
           <ArrowUp className="size-4" strokeWidth={2.5} aria-hidden />
         </motion.button>

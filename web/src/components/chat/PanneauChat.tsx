@@ -180,7 +180,7 @@ export function PanneauChat({ id, messages, enAttente, erreur, brouillon, onBrou
       className="fixed inset-0 z-50 flex flex-col overflow-hidden bg-surface outline-none sm:inset-auto sm:bottom-6 sm:right-6 sm:h-[min(600px,calc(100dvh-7.5rem))] sm:w-[400px] sm:rounded-carte sm:border sm:border-line sm:shadow-[0_24px_60px_-16px_rgba(15,17,21,0.28)] dark:sm:shadow-[0_24px_60px_-16px_rgba(0,0,0,0.7)]"
     >
       <header className="flex shrink-0 items-center gap-3 border-b border-line py-3 pl-4 pr-2.5 pt-[max(0.75rem,env(safe-area-inset-top))] sm:pt-3">
-        <span className="grid size-9 shrink-0 place-items-center rounded-tuile bg-accent text-white">
+        <span className="grid size-9 shrink-0 place-items-center rounded-tuile bg-accent text-on-accent">
           <Bot className="size-4.5" aria-hidden />
         </span>
         <div className="min-w-0 flex-1">

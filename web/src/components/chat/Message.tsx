@@ -72,7 +72,7 @@ export function BulleMessage({ message }: { message: MessageConversation }) {
     >
       <span className="sr-only">{utilisateur ? "Vous :" : "L'analyste (IA) :"}</span>
       {utilisateur ? (
-        <div className="max-w-[85%] whitespace-pre-wrap break-words rounded-2xl rounded-br-md bg-accent px-3.5 py-2 text-sm leading-relaxed text-white">
+        <div className="max-w-[85%] whitespace-pre-wrap break-words rounded-2xl rounded-br-md bg-accent px-3.5 py-2 text-sm leading-relaxed text-on-accent">
           {message.content}
         </div>
       ) : (

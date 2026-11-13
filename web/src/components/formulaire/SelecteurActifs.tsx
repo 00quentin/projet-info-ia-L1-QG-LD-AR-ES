@@ -244,7 +244,7 @@ export function SelecteurActifs({ catalogue, actifs, actifsPerso, autoriserActif
               whileTap={{ scale: 0.97 }}
               disabled={selection.length === 0}
               onClick={() => onValider(selection, perso.filter((a) => selection.includes(a.cle)))}
-              className="rounded-controle bg-accent px-4 py-2 text-sm font-semibold text-white transition-[filter,opacity] hover:brightness-110 disabled:opacity-50"
+              className="rounded-controle bg-accent px-4 py-2 text-sm font-semibold text-on-accent transition-[filter,opacity] hover:brightness-110 disabled:opacity-50"
             >
               Valider
             </motion.button>
@@ -266,7 +266,7 @@ function LigneActif({ ligne: a, coche, dansProfil, cours, onBasculer }: { ligne:
       onClick={onBasculer}
       className={`flex w-full items-start gap-3 rounded-tuile border px-3 py-2.5 text-left transition-colors ${coche ? "border-accent bg-accent-soft/60" : "border-line hover:border-line-strong hover:bg-surface-2/60"}`}
     >
-      <span className={`mt-0.5 grid size-5 shrink-0 place-items-center rounded-[calc(var(--radius-controle)/2)] border transition-colors ${coche ? "border-accent bg-accent text-white" : "border-line-strong bg-surface"}`}>
+      <span className={`mt-0.5 grid size-5 shrink-0 place-items-center rounded-[calc(var(--radius-controle)/2)] border transition-colors ${coche ? "border-accent bg-accent text-on-accent" : "border-line-strong bg-surface"}`}>
         <AnimatePresence initial={false}>
           {coche && (
             <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} transition={RESSORT}>

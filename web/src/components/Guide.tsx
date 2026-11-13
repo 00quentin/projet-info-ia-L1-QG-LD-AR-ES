@@ -120,7 +120,7 @@ export function Guide() {
                   transition={{ delay: 0.12 + i * 0.07 }}
                   className="rounded-tuile border border-line bg-surface-2/50 p-4"
                 >
-                  <span className="grid size-7 place-items-center rounded-full bg-accent text-xs font-bold text-white">{i + 1}</span>
+                  <span className="grid size-7 place-items-center rounded-full bg-accent text-xs font-bold text-on-accent">{i + 1}</span>
                   <h3 className="mt-2.5 text-sm font-semibold">{e.titre}</h3>
                   <p className="mt-1 text-sm leading-relaxed text-ink-2">{e.texte}</p>
                 </motion.li>
@@ -143,7 +143,7 @@ export function Guide() {
                 <strong className="font-semibold text-ink">Important :</strong> outil pédagogique, pas un conseil en investissement. L&apos;IA estime des ordres de grandeur en s&apos;inspirant de crises historiques ; la réalité peut fortement diverger.
               </p>
             </div>
-            <motion.button whileTap={{ scale: 0.98 }} type="button" onClick={fermer} className="mt-6 h-11 w-full rounded-controle bg-accent text-sm font-semibold text-white transition hover:brightness-110 sm:w-auto sm:px-6">
+            <motion.button whileTap={{ scale: 0.98 }} type="button" onClick={fermer} className="mt-6 h-11 w-full rounded-controle bg-accent text-sm font-semibold text-on-accent transition hover:brightness-110 sm:w-auto sm:px-6">
               J&apos;ai compris, c&apos;est parti
             </motion.button>
           </motion.div>

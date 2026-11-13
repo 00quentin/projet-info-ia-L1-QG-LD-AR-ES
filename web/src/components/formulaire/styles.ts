@@ -10,4 +10,4 @@ export const puce =
 export const barreLancement =
   "sticky bottom-0 z-10 -mx-(--marge-carte) -mb-(--marge-carte) flex flex-col gap-2 rounded-b-carte border-t border-line bg-surface/95 px-(--marge-carte) py-4 backdrop-blur";
 export const boutonPrincipal =
-  "relative flex h-11 items-center justify-center gap-2 overflow-hidden rounded-controle bg-accent text-sm font-semibold text-white transition-[filter,opacity] hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50";
+  "relative flex h-11 items-center justify-center gap-2 overflow-hidden rounded-controle bg-accent text-sm font-semibold text-on-accent transition-[filter,opacity] hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50";

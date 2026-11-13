@@ -69,7 +69,7 @@ function Illustration() {
   );
 }
 
-const lienPrincipal = "inline-flex h-10 items-center justify-center gap-2 rounded-controle bg-accent px-4 text-sm font-semibold text-white transition hover:brightness-110";
+const lienPrincipal = "inline-flex h-10 items-center justify-center gap-2 rounded-controle bg-accent px-4 text-sm font-semibold text-on-accent transition hover:brightness-110";
 const lienSecondaire = "inline-flex h-10 items-center justify-center gap-2 rounded-controle border border-line bg-surface px-4 text-sm font-medium transition-colors hover:border-line-strong hover:bg-surface-2";
 
 export function HistoriqueVide({ tailleMax }: { tailleMax: number }) {

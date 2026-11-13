@@ -34,6 +34,35 @@ def _section_tip(titre: str, aide: str) -> str:
     return f'<div class="qt-section-title">{titre}{_tip(aide)}</div>'
 
 
+def _afficher_fourchettes_ia(chocs: dict, params: dict):
+    """Expander : choc bas / central / haut de l'IA pour chaque actif simulé."""
+    centraux = chocs.get("actifs") or {}
+    fourchettes = chocs.get("fourchettes") or {}
+    lignes = []
+    for a in params.get("actifs_sim", []):
+        if a not in centraux:
+            continue
+        central = centraux[a]
+        f = fourchettes.get(a) or {}
+        bas, haut = f.get("bas", central), f.get("haut", central)
+        # bas == haut : ancienne réponse sans fourchette, rien à encadrer
+        lignes.append({
+            "Actif": NOM_AFFICHAGE.get(a, a.replace("_", " ")),
+            "Bas": f"{bas * 100:+.1f} %" if bas != haut else "—",
+            "Central": f"{central * 100:+.1f} %",
+            "Haut": f"{haut * 100:+.1f} %" if bas != haut else "—",
+        })
+    if not lignes:
+        return
+    with st.expander("📏 Fourchette de l'IA par actif (bas → central → haut)"):
+        st.caption(
+            "L'IA ne donne pas un chiffre unique mais une fourchette : choc bas, "
+            "central et haut. En mode Monte-Carlo, chaque trajectoire tire son choc "
+            "au hasard dans cette fourchette ; la trajectoire unique utilise le choc central."
+        )
+        st.dataframe(pd.DataFrame(lignes), hide_index=True, use_container_width=True)
+
+
 def _render_hero_dashboard(res, params):
     """Hero TradingView : grande valeur finale + variation coloree + badges."""
     chocs = res["chocs_ia"]
@@ -121,6 +150,8 @@ def afficher_dashboard(res, params, key_prefix="main"):
         f'</div>',
         unsafe_allow_html=True
     )
+
+    _afficher_fourchettes_ia(chocs, params)
 
     # === Calibration historique : mix d'evenements + score de fiabilite ===
     if params.get("calib"):

@@ -186,7 +186,7 @@ export function Comparaison({ scenarios, parametres: p, lienPartage, onVoirDetai
                   transition={{ duration: DUREE.normale, ease: EASE_SORTIE, delay: i * 0.06 }}
                   className="flex items-center gap-3 rounded-tuile bg-surface-2/60 px-4 py-3 text-sm"
                 >
-                  <span className={`grid size-7 shrink-0 place-items-center rounded-full text-xs font-semibold ${i === 0 ? "bg-accent text-white" : "bg-surface text-ink-2"}`}>{i + 1}</span>
+                  <span className={`grid size-7 shrink-0 place-items-center rounded-full text-xs font-semibold ${i === 0 ? "bg-accent text-on-accent" : "bg-surface text-ink-2"}`}>{i + 1}</span>
                   <span className="min-w-0 flex-1">
                     <strong className="font-semibold">Scénario {s.label}</strong>
                     <span className="text-ink-2"> · {pourcentSigne(s.portefeuille.performance_pct, 2)}</span>

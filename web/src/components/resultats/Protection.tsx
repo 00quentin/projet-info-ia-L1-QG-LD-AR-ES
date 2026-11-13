@@ -334,7 +334,7 @@ function Resultat({ d, onAppliquer }: { d: ReponseCouverture; onAppliquer: Props
           }}
           whileHover={{ scale: 1.01 }}
           whileTap={{ scale: 0.98 }}
-          className="flex h-10 shrink-0 items-center justify-center gap-2 self-start rounded-xl bg-accent px-4 text-sm font-semibold text-white shadow-[0_6px_20px_-6px_var(--accent)] transition-[filter] hover:brightness-110 sm:self-auto"
+          className="flex h-10 shrink-0 items-center justify-center gap-2 self-start rounded-xl bg-accent px-4 text-sm font-semibold text-on-accent shadow-[0_6px_20px_-6px_var(--accent)] transition-[filter] hover:brightness-110 sm:self-auto"
         >
           <AnimatePresence mode="wait" initial={false}>
             <motion.span key={applique ? "fait" : "repos"} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: DUREE.rapide }} className="flex items-center gap-2">
@@ -405,7 +405,7 @@ export function Protection({ reponse, scenario, onAppliquer }: Props) {
             whileTap={{ scale: 0.98 }}
             variants={{ repos: { scale: 1 }, survol: { scale: 1.02 } }}
             transition={RESSORT}
-            className="group relative flex h-10 shrink-0 items-center justify-center gap-2 self-start overflow-hidden rounded-xl bg-accent px-4 text-sm font-semibold text-white shadow-[0_6px_20px_-6px_var(--accent)] transition-[filter] hover:brightness-110"
+            className="group relative flex h-10 shrink-0 items-center justify-center gap-2 self-start overflow-hidden rounded-xl bg-accent px-4 text-sm font-semibold text-on-accent shadow-[0_6px_20px_-6px_var(--accent)] transition-[filter] hover:brightness-110"
           >
             {/* Reflet qui traverse le bouton au survol */}
             <span aria-hidden className="pointer-events-none absolute inset-y-0 -left-1/2 w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-[300%]" />

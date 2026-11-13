@@ -118,7 +118,7 @@ export function BulleChat() {
         whileTap={{ scale: 0.97 }}
         transition={RESSORT}
         // Sous lg, le bouton "Lancer" du simulateur est colle en bas de l'ecran : la bulle se tient au-dessus.
-        className={`group fixed bottom-[calc(5.75rem+env(safe-area-inset-bottom))] right-4 z-40 grid size-12 place-items-center rounded-full bg-accent text-white shadow-[0_10px_28px_-8px_color-mix(in_oklab,var(--accent)_75%,transparent)] sm:size-14 lg:bottom-6 lg:right-6 ${ouvert ? "pointer-events-none" : ""}`}
+        className={`group fixed bottom-[calc(5.75rem+env(safe-area-inset-bottom))] right-4 z-40 grid size-12 place-items-center rounded-full bg-accent text-on-accent shadow-[0_10px_28px_-8px_color-mix(in_oklab,var(--accent)_75%,transparent)] sm:size-14 lg:bottom-6 lg:right-6 ${ouvert ? "pointer-events-none" : ""}`}
       >
         {/* Invitation : une pulsation douce, une seule fois apres le chargement. */}
         <motion.span
