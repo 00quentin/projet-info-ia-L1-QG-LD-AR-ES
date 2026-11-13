@@ -155,3 +155,15 @@ def creer_rapport(demande: DemandeRapport) -> Response:
         content=pdf, media_type="application/pdf",
         headers={"Content-Disposition": 'attachment; filename="rapport-quant-terminal.pdf"'},
     )
+
+
+# === Protection du portefeuille ============================================
+# Import ici (et non en tete) : le bloc est ajoute a la fin sans toucher au reste du fichier.
+from api.couverture import DemandeCouverture, proposer_protection  # noqa: E402
+
+
+@app.post("/api/couverture", tags=["Simulation"], dependencies=[limite_ia])
+def proteger_portefeuille(demande: DemandeCouverture) -> dict:
+    """Propose une répartition plus résistante au scénario simulé, la compare
+    à l'actuelle (mêmes trajectoires) et justifie chaque changement de poids."""
+    return proposer_protection(demande)
