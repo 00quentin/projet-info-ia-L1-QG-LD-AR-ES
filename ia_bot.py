@@ -39,7 +39,7 @@ def _get_openai_client() -> OpenAI:
 
 # Bump this version when the prompt structure changes, to invalidate
 # all old cached IA responses (they don't have the new fields).
-PROMPT_VERSION = "v8-fourchette-2026-11"
+PROMPT_VERSION = "v9-fourchette-large-2026-11"
 
 # Gabarit d'un actif dans le format JSON demande a l'IA (choc bas / central / haut).
 _FOURCHETTE_VIDE = '{"bas": 0.0, "central": 0.0, "haut": 0.0}'
@@ -245,7 +245,8 @@ def _build_prompt_macro(evenement_utilisateur, calibration_historique=False,
     pricees. Un scenario produit des chocs plus MODESTES que ce que l'intuition
     suggere, sauf en cas de surprise totale (crise systemique, guerre, defaut majeur).
     Cas typique = mouvements de 3 a 15%. Cas extreme = 20-40%. Apocalyptique = au-dela.
-    Quand tu hesites entre deux amplitudes, choisis la plus modeste.
+    Pour le choc CENTRAL, quand tu hesites entre deux amplitudes, choisis la plus
+    modeste. Ce doute doit alors se retrouver dans la FOURCHETTE (voir plus bas).
 {bloc_conjoncture}
 
     CRITERE DE VALIDATION :
@@ -307,15 +308,21 @@ def _build_prompt_macro(evenement_utilisateur, calibration_historique=False,
     *** FOURCHETTE D'INCERTITUDE (OBLIGATOIRE POUR CHAQUE ACTIF) ***
     Ton estimation n'est pas une certitude : donne pour chaque actif trois chocs en décimal.
     - "central" : ton estimation la plus probable (celle des étapes ci-dessus).
-    - "bas" : la valeur la plus basse encore plausible pour ce choc.
-    - "haut" : la valeur la plus haute encore plausible pour ce choc.
+    - "bas" : environ le 10e centile (1 chance sur 10 que le vrai choc soit plus bas).
+    - "haut" : environ le 90e centile (1 chance sur 10 que le vrai choc soit plus haut).
+    - OBJECTIF : le vrai mouvement doit tomber DANS la fourchette 8 fois sur 10.
     - Toujours "bas" <= "central" <= "haut" (pour une baisse, "bas" est la baisse la plus forte).
-    - La largeur traduit ton doute : étroite si un précédent historique proche existe
-      (fiabilité "elevee"), large si le scénario est inédit (fiabilité "faible").
+    - BIAIS CONNU À CORRIGER : testées sur des crises passées, les estimations sous-estiment
+      l'ampleur réelle d'environ 40 % et une fourchette « raisonnable » ne contient le vrai
+      mouvement qu'une fois sur deux. Donc, côté aggravation, la borne va au moins 1,5 fois
+      plus loin que le central (ex : central -20 % → "bas" vers -30 % ou au-delà ;
+      central +10 % → "haut" vers +15 % ou au-delà).
+    - Un actif au choc central faible (moins de 5 %) peut quand même être emporté
+      franchement dans un sens ou dans l'autre (devises, valeurs refuges, matières premières,
+      réactions secondaires imprévues) : donne-lui au moins ±5 points, davantage s'il est volatil.
+    - La largeur traduit aussi ton doute : plus large si le scénario est inédit (fiabilité
+      "faible"), un peu plus serrée si un précédent historique très proche existe.
     - Elle peut être asymétrique (un krach peut s'aggraver plus qu'il ne s'atténue).
-    - Un actif peu concerné garde une fourchette étroite autour de son central.
-    - Ne mets pas le bruit normal du marché dans la fourchette : il est simulé à part.
-      La fourchette ne porte que sur l'ampleur de l'impact du scénario.
 
     *** REPÈRES D'AMPLITUDE TYPIQUES ***
     Pour t'aider à calibrer (ces ranges couvrent 95% des scénarios sérieux) :

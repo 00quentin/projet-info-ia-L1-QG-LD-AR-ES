@@ -117,7 +117,7 @@ def test_build_prompt_demande_une_fourchette_par_actif():
 
 def test_prompt_version_invalide_l_ancien_cache():
     """Le format de reponse a change : les analyses en cache (sans fourchette) sont perimees."""
-    assert ia_bot.PROMPT_VERSION.startswith("v8")
+    assert ia_bot.PROMPT_VERSION.startswith("v9")
 
 
 def test_analyse_avec_fourchettes_validee(monkeypatch):
