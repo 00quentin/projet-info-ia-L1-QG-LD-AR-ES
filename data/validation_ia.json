@@ -1,5 +1,5 @@
 {
-  "genere_le": "2026-11-13T17:42:55",
+  "genere_le": "2026-11-13T19:14:18",
   "protocole": {
     "version": "validation-v2-fourchette",
     "version_prompt": "v8-fourchette-2026-11",
@@ -33,10 +33,10 @@
     "correlation_rangs": 0.82,
     "ratio_amplitude": 0.588,
     "nb_fourchettes": 102,
-    "nb_dans_fourchette": 54,
-    "part_dans_fourchette": 0.529,
-    "largeur_moyenne_pts": 23.82,
-    "nb_sorties_plus_fortes": 32,
+    "nb_dans_fourchette": 80,
+    "part_dans_fourchette": 0.784,
+    "largeur_moyenne_pts": 38.84,
+    "nb_sorties_plus_fortes": 17,
     "nb_crises": 6
   },
   "global_devise_locale": {
@@ -51,10 +51,10 @@
     "correlation_rangs": 0.817,
     "ratio_amplitude": 0.635,
     "nb_fourchettes": 102,
-    "nb_dans_fourchette": 55,
-    "part_dans_fourchette": 0.539,
-    "largeur_moyenne_pts": 23.27,
-    "nb_sorties_plus_fortes": 28,
+    "nb_dans_fourchette": 79,
+    "part_dans_fourchette": 0.775,
+    "largeur_moyenne_pts": 37.94,
+    "nb_sorties_plus_fortes": 16,
     "nb_crises": 6
   },
   "biais_connaissance": {
@@ -71,10 +71,10 @@
       "correlation_rangs": 0.82,
       "ratio_amplitude": 0.588,
       "nb_fourchettes": 102,
-      "nb_dans_fourchette": 54,
-      "part_dans_fourchette": 0.529,
-      "largeur_moyenne_pts": 23.82,
-      "nb_sorties_plus_fortes": 32,
+      "nb_dans_fourchette": 80,
+      "part_dans_fourchette": 0.784,
+      "largeur_moyenne_pts": 38.84,
+      "nb_sorties_plus_fortes": 17,
       "nb_crises": 6
     },
     "avec_date": {
@@ -89,10 +89,10 @@
       "correlation_rangs": 0.985,
       "ratio_amplitude": 0.976,
       "nb_fourchettes": 102,
-      "nb_dans_fourchette": 71,
-      "part_dans_fourchette": 0.696,
-      "largeur_moyenne_pts": 9.34,
-      "nb_sorties_plus_fortes": 22,
+      "nb_dans_fourchette": 90,
+      "part_dans_fourchette": 0.882,
+      "largeur_moyenne_pts": 26.37,
+      "nb_sorties_plus_fortes": 12,
       "nb_crises": 6
     },
     "nb_reconnues_sans_date": 6,
@@ -125,10 +125,10 @@
         "correlation_rangs": 0.938,
         "ratio_amplitude": 0.782,
         "nb_fourchettes": 22,
-        "nb_dans_fourchette": 19,
-        "part_dans_fourchette": 0.864,
-        "largeur_moyenne_pts": 28.78,
-        "nb_sorties_plus_fortes": 3
+        "nb_dans_fourchette": 20,
+        "part_dans_fourchette": 0.909,
+        "largeur_moyenne_pts": 44.81,
+        "nb_sorties_plus_fortes": 2
       },
       "metriques_devise_locale": {
         "nb_actifs": 22,
@@ -142,10 +142,10 @@
         "correlation_rangs": 0.945,
         "ratio_amplitude": 0.837,
         "nb_fourchettes": 22,
-        "nb_dans_fourchette": 19,
-        "part_dans_fourchette": 0.864,
-        "largeur_moyenne_pts": 28.27,
-        "nb_sorties_plus_fortes": 3
+        "nb_dans_fourchette": 20,
+        "part_dans_fourchette": 0.909,
+        "largeur_moyenne_pts": 44.03,
+        "nb_sorties_plus_fortes": 2
       },
       "actifs": [
         {
@@ -154,9 +154,9 @@
           "reel_pct": -16.54,
           "ecart_pts": -0.99,
           "sens_correct": true,
-          "bas_pct": -27.84,
-          "haut_pct": -7.22,
-          "largeur_pts": 20.62,
+          "bas_pct": -35.57,
+          "haut_pct": -2.06,
+          "largeur_pts": 33.51,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "S&P 500 (USA)",
@@ -172,9 +172,9 @@
           "reel_pct": -10.79,
           "ecart_pts": -3.64,
           "sens_correct": true,
-          "bas_pct": -25.77,
-          "haut_pct": -5.15,
-          "largeur_pts": 20.62,
+          "bas_pct": -34.28,
+          "haut_pct": 3.35,
+          "largeur_pts": 37.63,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "NASDAQ 100 (Tech US)",
@@ -190,9 +190,9 @@
           "reel_pct": -25.67,
           "ecart_pts": 1.67,
           "sens_correct": true,
-          "bas_pct": -35.0,
-          "haut_pct": -12.0,
-          "largeur_pts": 23.0,
+          "bas_pct": -43.25,
+          "haut_pct": -9.0,
+          "largeur_pts": 34.25,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "CAC 40 (France)",
@@ -208,9 +208,9 @@
           "reel_pct": -17.93,
           "ecart_pts": -0.62,
           "sens_correct": true,
-          "bas_pct": -28.87,
-          "haut_pct": -8.25,
-          "largeur_pts": 20.62,
+          "bas_pct": -36.6,
+          "haut_pct": -3.87,
+          "largeur_pts": 32.73,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "MSCI World (Global)",
@@ -226,9 +226,9 @@
           "reel_pct": -18.5,
           "ecart_pts": -0.06,
           "sens_correct": true,
-          "bas_pct": -29.9,
-          "haut_pct": -7.22,
-          "largeur_pts": 22.68,
+          "bas_pct": -38.4,
+          "haut_pct": -0.77,
+          "largeur_pts": 37.63,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "MSCI Emerging Markets",
@@ -244,9 +244,9 @@
           "reel_pct": 5.51,
           "ecart_pts": 2.74,
           "sens_correct": true,
-          "bas_pct": 4.12,
-          "haut_pct": 12.37,
-          "largeur_pts": 8.25,
+          "bas_pct": 1.29,
+          "haut_pct": 15.46,
+          "largeur_pts": 14.18,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "U.S. Treasury 10Y",
@@ -262,9 +262,9 @@
           "reel_pct": 0.07,
           "ecart_pts": 1.93,
           "sens_correct": null,
-          "bas_pct": -1.0,
-          "haut_pct": 5.0,
-          "largeur_pts": 6.0,
+          "bas_pct": -4.0,
+          "haut_pct": 8.0,
+          "largeur_pts": 12.0,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "Bund Allemagne 10Y",
@@ -280,9 +280,9 @@
           "reel_pct": -1.97,
           "ecart_pts": 2.97,
           "sens_correct": null,
-          "bas_pct": -3.0,
-          "haut_pct": 5.0,
-          "largeur_pts": 8.0,
+          "bas_pct": -5.0,
+          "haut_pct": 8.0,
+          "largeur_pts": 13.0,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "OAT France 10Y",
@@ -298,9 +298,9 @@
           "reel_pct": 6.09,
           "ecart_pts": -5.09,
           "sens_correct": true,
-          "bas_pct": -1.0,
-          "haut_pct": 3.0,
-          "largeur_pts": 4.0,
+          "bas_pct": -3.5,
+          "haut_pct": 5.5,
+          "largeur_pts": 9.0,
           "dans_fourchette": false,
           "sortie_plus_forte": true,
           "nom": "JGB Japon 10Y",
@@ -316,9 +316,9 @@
           "reel_pct": 5.42,
           "ecart_pts": -1.42,
           "sens_correct": true,
-          "bas_pct": 0.0,
-          "haut_pct": 8.0,
-          "largeur_pts": 8.0,
+          "bas_pct": -2.0,
+          "haut_pct": 11.0,
+          "largeur_pts": 13.0,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "Gilt Royaume-Uni 10Y",
@@ -334,9 +334,9 @@
           "reel_pct": 0.75,
           "ecart_pts": -3.75,
           "sens_correct": null,
-          "bas_pct": -6.0,
-          "haut_pct": 1.0,
-          "largeur_pts": 7.0,
+          "bas_pct": -9.0,
+          "haut_pct": 3.0,
+          "largeur_pts": 12.0,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "EUR/USD (Euro-Dollar)",
@@ -352,9 +352,9 @@
           "reel_pct": -0.57,
           "ecart_pts": 3.57,
           "sens_correct": null,
-          "bas_pct": -1.0,
-          "haut_pct": 6.0,
-          "largeur_pts": 7.0,
+          "bas_pct": -3.0,
+          "haut_pct": 9.0,
+          "largeur_pts": 12.0,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "DXY (US Dollar Index)",
@@ -370,9 +370,9 @@
           "reel_pct": 154.62,
           "ecart_pts": -34.62,
           "sens_correct": true,
-          "bas_pct": 50.0,
-          "haut_pct": 250.0,
-          "largeur_pts": 200.0,
+          "bas_pct": 32.5,
+          "haut_pct": 347.5,
+          "largeur_pts": 315.0,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "VIX (CBOE Volatility Index)",
@@ -388,9 +388,9 @@
           "reel_pct": 8.51,
           "ecart_pts": -0.26,
           "sens_correct": true,
-          "bas_pct": 0.0,
-          "haut_pct": 15.46,
-          "largeur_pts": 15.46,
+          "bas_pct": -4.9,
+          "haut_pct": 21.39,
+          "largeur_pts": 26.29,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "Or (Gold Spot, $/oz)",
@@ -406,9 +406,9 @@
           "reel_pct": -12.39,
           "ecart_pts": 7.24,
           "sens_correct": true,
-          "bas_pct": -17.53,
-          "haut_pct": 7.22,
-          "largeur_pts": 24.74,
+          "bas_pct": -26.8,
+          "haut_pct": 10.31,
+          "largeur_pts": 37.11,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "Argent (Silver Spot, $/oz)",
@@ -424,11 +424,11 @@
           "reel_pct": -61.82,
           "ecart_pts": 28.83,
           "sens_correct": true,
-          "bas_pct": -53.61,
-          "haut_pct": -15.46,
-          "largeur_pts": 38.14,
-          "dans_fourchette": false,
-          "sortie_plus_forte": true,
+          "bas_pct": -69.07,
+          "haut_pct": -11.08,
+          "largeur_pts": 57.99,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
           "nom": "Pétrole WTI (Crude Oil)",
           "nom_court": "Pétrole WTI",
           "categorie": "Matières Premières",
@@ -442,9 +442,9 @@
           "reel_pct": -11.13,
           "ecart_pts": -1.24,
           "sens_correct": true,
-          "bas_pct": -22.68,
-          "haut_pct": -4.12,
-          "largeur_pts": 18.56,
+          "bas_pct": -30.41,
+          "haut_pct": 1.55,
+          "largeur_pts": 31.96,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "Cuivre (Copper Futures)",
@@ -460,9 +460,9 @@
           "reel_pct": -24.91,
           "ecart_pts": 5.32,
           "sens_correct": true,
-          "bas_pct": -32.99,
-          "haut_pct": -7.22,
-          "largeur_pts": 25.77,
+          "bas_pct": -38.14,
+          "haut_pct": -2.58,
+          "largeur_pts": 35.57,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "ETF Terres Rares (REMX)",
@@ -479,8 +479,8 @@
           "ecart_pts": 21.14,
           "sens_correct": true,
           "bas_pct": -27.84,
-          "haut_pct": -4.12,
-          "largeur_pts": 23.71,
+          "haut_pct": -1.55,
+          "largeur_pts": 26.29,
           "dans_fourchette": false,
           "sortie_plus_forte": true,
           "nom": "ETF Aérospatiale & Défense (ITA)",
@@ -496,9 +496,9 @@
           "reel_pct": -30.21,
           "ecart_pts": 7.53,
           "sens_correct": true,
-          "bas_pct": -43.3,
-          "haut_pct": -2.06,
-          "largeur_pts": 41.24,
+          "bas_pct": -58.76,
+          "haut_pct": 3.09,
+          "largeur_pts": 61.86,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "Bitcoin (BTC)",
@@ -514,9 +514,9 @@
           "reel_pct": -41.52,
           "ecart_pts": 13.69,
           "sens_correct": true,
-          "bas_pct": -48.45,
-          "haut_pct": -5.15,
-          "largeur_pts": 43.3,
+          "bas_pct": -63.92,
+          "haut_pct": 0.52,
+          "largeur_pts": 64.43,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "Ethereum (ETH)",
@@ -532,9 +532,9 @@
           "reel_pct": -36.08,
           "ecart_pts": 3.09,
           "sens_correct": true,
-          "bas_pct": -53.61,
-          "haut_pct": -7.22,
-          "largeur_pts": 46.39,
+          "bas_pct": -69.07,
+          "haut_pct": -0.77,
+          "largeur_pts": 68.3,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "XRP (Ripple)",
@@ -567,9 +567,9 @@
           "correlation_rangs": 0.966,
           "ratio_amplitude": 1.077,
           "nb_fourchettes": 22,
-          "nb_dans_fourchette": 19,
-          "part_dans_fourchette": 0.864,
-          "largeur_moyenne_pts": 11.11,
+          "nb_dans_fourchette": 20,
+          "part_dans_fourchette": 0.909,
+          "largeur_moyenne_pts": 28.76,
           "nb_sorties_plus_fortes": 2
         },
         "estimes_pct": {
@@ -657,6 +657,133 @@
           "Solana": -0.38
         },
         "fourchettes": {
+          "S&P 500": {
+            "bas": -0.375,
+            "central": -0.2,
+            "haut": -0.05
+          },
+          "NASDAQ": {
+            "bas": -0.3625,
+            "central": -0.17,
+            "haut": 0.0025
+          },
+          "CAC 40": {
+            "bas": -0.4325,
+            "central": -0.24,
+            "haut": -0.09
+          },
+          "MSCI_World": {
+            "bas": -0.385,
+            "central": -0.21,
+            "haut": -0.0675
+          },
+          "Emerging_Markets": {
+            "bas": -0.4025,
+            "central": -0.21,
+            "haut": -0.0375
+          },
+          "Bons_Tresor_US_10Y": {
+            "bas": -0.0175,
+            "central": 0.05,
+            "haut": 0.12
+          },
+          "Bund_10Y": {
+            "bas": -0.04,
+            "central": 0.02,
+            "haut": 0.08
+          },
+          "OAT_10Y": {
+            "bas": -0.05,
+            "central": 0.01,
+            "haut": 0.08
+          },
+          "JGB_10Y": {
+            "bas": -0.035,
+            "central": 0.01,
+            "haut": 0.055
+          },
+          "Gilt_10Y": {
+            "bas": -0.02,
+            "central": 0.04,
+            "haut": 0.11
+          },
+          "EUR_USD": {
+            "bas": -0.09,
+            "central": -0.03,
+            "haut": 0.03
+          },
+          "Dollar_Index": {
+            "bas": -0.03,
+            "central": 0.03,
+            "haut": 0.09
+          },
+          "VIX": {
+            "bas": 0.325,
+            "central": 1.2,
+            "haut": 3.475
+          },
+          "Or": {
+            "bas": -0.0775,
+            "central": 0.05,
+            "haut": 0.1775
+          },
+          "Argent": {
+            "bas": -0.29,
+            "central": -0.08,
+            "haut": 0.07
+          },
+          "Petrole": {
+            "bas": -0.7,
+            "central": -0.35,
+            "haut": -0.1375
+          },
+          "Cuivre": {
+            "bas": -0.325,
+            "central": -0.15,
+            "haut": -0.015
+          },
+          "ETF_Terres_Rares": {
+            "bas": -0.4,
+            "central": -0.22,
+            "haut": -0.055
+          },
+          "ETF_Defense": {
+            "bas": -0.3,
+            "central": -0.17,
+            "haut": -0.045
+          },
+          "Bitcoin": {
+            "bas": -0.6,
+            "central": -0.25,
+            "haut": 0.0
+          },
+          "Ethereum": {
+            "bas": -0.65,
+            "central": -0.3,
+            "haut": -0.025
+          },
+          "XRP": {
+            "bas": -0.7,
+            "central": -0.35,
+            "haut": -0.0375
+          },
+          "Solana": {
+            "bas": -0.765,
+            "central": -0.38,
+            "haut": -0.03
+          }
+        },
+        "evenement_cite": "COVID 2020",
+        "references": [
+          {
+            "evenement": "COVID 2020",
+            "annee": 2020,
+            "poids": 1.0,
+            "raison": "La propagation mondiale d'un virus respiratoire et les confinements simultanés offrent le précédent le plus direct pour les chocs de demande, de liquidité et de mobilité."
+          }
+        ],
+        "explication": "La COVID 2020 constitue le précédent principal de cette crise de sévérité forte : sur 42 séances, le S&P 500 est estimé à -20 % entre le début et la fin, et non à son creux intrapériode. La fermeture des frontières entre l'Asie, l'Europe et les États-Unis bloque le tourisme et les chaînes d'approvisionnement, tandis que les confinements font chuter la demande de carburant, avec un pétrole à -35 %. La fuite vers la qualité soutient les Treasuries à 10 ans de 5 %, alors que les ventes forcées pèsent sur le bitcoin et que le VIX progresse de 120 %. Les chiffres macro représentent des variations en points de pourcentage de l'inflation américaine annuelle et du taux directeur américain, et les chocs obligataires portent sur les prix, non sur les rendements. Si les taux sont déjà proches de leur plancher ou si les confinements sont levés rapidement, la baisse des taux et les pertes finales pourraient être plus limitées.",
+        "fourchettes_ia": {
           "S&P 500": {
             "bas": -0.3,
             "central": -0.2,
@@ -772,17 +899,7 @@
             "central": -0.38,
             "haut": -0.1
           }
-        },
-        "evenement_cite": "COVID 2020",
-        "references": [
-          {
-            "evenement": "COVID 2020",
-            "annee": 2020,
-            "poids": 1.0,
-            "raison": "La propagation mondiale d'un virus respiratoire et les confinements simultanés offrent le précédent le plus direct pour les chocs de demande, de liquidité et de mobilité."
-          }
-        ],
-        "explication": "La COVID 2020 constitue le précédent principal de cette crise de sévérité forte : sur 42 séances, le S&P 500 est estimé à -20 % entre le début et la fin, et non à son creux intrapériode. La fermeture des frontières entre l'Asie, l'Europe et les États-Unis bloque le tourisme et les chaînes d'approvisionnement, tandis que les confinements font chuter la demande de carburant, avec un pétrole à -35 %. La fuite vers la qualité soutient les Treasuries à 10 ans de 5 %, alors que les ventes forcées pèsent sur le bitcoin et que le VIX progresse de 120 %. Les chiffres macro représentent des variations en points de pourcentage de l'inflation américaine annuelle et du taux directeur américain, et les chocs obligataires portent sur les prix, non sur les rendements. Si les taux sont déjà proches de leur plancher ou si les confinements sont levés rapidement, la baisse des taux et les pertes finales pourraient être plus limitées."
+        }
       },
       "estimation_avec_date": {
         "empreinte": "b6029b7427fffb81",
@@ -844,6 +961,133 @@
           "Solana": 0.0
         },
         "fourchettes": {
+          "S&P 500": {
+            "bas": -0.33,
+            "central": -0.18,
+            "haut": -0.03
+          },
+          "NASDAQ": {
+            "bas": -0.3125,
+            "central": -0.14,
+            "haut": 0.0325
+          },
+          "CAC 40": {
+            "bas": -0.43,
+            "central": -0.28,
+            "haut": -0.13
+          },
+          "MSCI_World": {
+            "bas": -0.3425,
+            "central": -0.2,
+            "haut": -0.0575
+          },
+          "Emerging_Markets": {
+            "bas": -0.3725,
+            "central": -0.2,
+            "haut": -0.0275
+          },
+          "Bons_Tresor_US_10Y": {
+            "bas": 0.0025,
+            "central": 0.07,
+            "haut": 0.1375
+          },
+          "Bund_10Y": {
+            "bas": -0.04,
+            "central": 0.02,
+            "haut": 0.08
+          },
+          "OAT_10Y": {
+            "bas": -0.05,
+            "central": 0.01,
+            "haut": 0.07
+          },
+          "JGB_10Y": {
+            "bas": -0.045,
+            "central": 0.0,
+            "haut": 0.045
+          },
+          "Gilt_10Y": {
+            "bas": 0.0,
+            "central": 0.06,
+            "haut": 0.12
+          },
+          "EUR_USD": {
+            "bas": -0.07,
+            "central": -0.01,
+            "haut": 0.05
+          },
+          "Dollar_Index": {
+            "bas": -0.05,
+            "central": 0.01,
+            "haut": 0.07
+          },
+          "VIX": {
+            "bas": 1.505,
+            "central": 1.98,
+            "haut": 2.715
+          },
+          "Or": {
+            "bas": -0.0475,
+            "central": 0.08,
+            "haut": 0.2075
+          },
+          "Argent": {
+            "bas": -0.29,
+            "central": -0.14,
+            "haut": 0.01
+          },
+          "Petrole": {
+            "bas": -0.7,
+            "central": -0.61,
+            "haut": -0.43
+          },
+          "Cuivre": {
+            "bas": -0.245,
+            "central": -0.11,
+            "haut": 0.025
+          },
+          "ETF_Terres_Rares": {
+            "bas": -0.365,
+            "central": -0.2,
+            "haut": -0.035
+          },
+          "ETF_Defense": {
+            "bas": -0.3,
+            "central": -0.25,
+            "haut": -0.13
+          },
+          "Bitcoin": {
+            "bas": -0.54,
+            "central": -0.36,
+            "haut": -0.18
+          },
+          "Ethereum": {
+            "bas": -0.64,
+            "central": -0.46,
+            "haut": -0.28
+          },
+          "XRP": {
+            "bas": -0.55,
+            "central": -0.37,
+            "haut": -0.19
+          },
+          "Solana": {
+            "bas": 0.0,
+            "central": 0.0,
+            "haut": 0.0
+          }
+        },
+        "evenement_cite": "COVID 2020",
+        "references": [
+          {
+            "evenement": "COVID 2020",
+            "annee": 2020,
+            "poids": 1.0,
+            "raison": "La pandémie, les confinements et la fenêtre étudiée correspondent directement à l’événement historique."
+          }
+        ],
+        "explication": "La COVID 2020 constitue une crise systémique forte : entre le 14 février, dernière séance avant le début de la période, et le 15 avril, le S&P 500 recule d’environ 18 % malgré son rebond après le creux de mars. Les confinements en Europe et aux États-Unis stoppent les voyages et la production, tandis que la fuite vers la qualité soutient les Treasuries ; les estimations obligataires portent sur leurs prix, non sur leurs rendements. Le WTI perd environ 61 %, sous l’effet conjoint de l’effondrement de la demande et de la guerre des prix entre l’Arabie saoudite et la Russie ; le VIX finit environ 198 % au-dessus de son niveau initial. Les chiffres macro représentent des variations approximatives en points de pourcentage de l’inflation annuelle américaine et du taux directeur effectif de la Fed, et non leurs niveaux finaux. Risque de comparaison : les dates et instruments exacts influencent les résultats, et Solana n’a pas de prix de marché comparable au début de la période, d’où ses valeurs nulles.",
+        "fourchettes_ia": {
           "S&P 500": {
             "bas": -0.2,
             "central": -0.18,
@@ -959,17 +1203,7 @@
             "central": 0.0,
             "haut": 0.0
           }
-        },
-        "evenement_cite": "COVID 2020",
-        "references": [
-          {
-            "evenement": "COVID 2020",
-            "annee": 2020,
-            "poids": 1.0,
-            "raison": "La pandémie, les confinements et la fenêtre étudiée correspondent directement à l’événement historique."
-          }
-        ],
-        "explication": "La COVID 2020 constitue une crise systémique forte : entre le 14 février, dernière séance avant le début de la période, et le 15 avril, le S&P 500 recule d’environ 18 % malgré son rebond après le creux de mars. Les confinements en Europe et aux États-Unis stoppent les voyages et la production, tandis que la fuite vers la qualité soutient les Treasuries ; les estimations obligataires portent sur leurs prix, non sur leurs rendements. Le WTI perd environ 61 %, sous l’effet conjoint de l’effondrement de la demande et de la guerre des prix entre l’Arabie saoudite et la Russie ; le VIX finit environ 198 % au-dessus de son niveau initial. Les chiffres macro représentent des variations approximatives en points de pourcentage de l’inflation annuelle américaine et du taux directeur effectif de la Fed, et non leurs niveaux finaux. Risque de comparaison : les dates et instruments exacts influencent les résultats, et Solana n’a pas de prix de marché comparable au début de la période, d’où ses valeurs nulles."
+        }
       }
     },
     {
@@ -998,10 +1232,10 @@
         "correlation_rangs": 0.924,
         "ratio_amplitude": 0.608,
         "nb_fourchettes": 14,
-        "nb_dans_fourchette": 7,
-        "part_dans_fourchette": 0.5,
-        "largeur_moyenne_pts": 32.09,
-        "nb_sorties_plus_fortes": 6
+        "nb_dans_fourchette": 11,
+        "part_dans_fourchette": 0.786,
+        "largeur_moyenne_pts": 46.63,
+        "nb_sorties_plus_fortes": 2
       },
       "metriques_devise_locale": {
         "nb_actifs": 14,
@@ -1015,10 +1249,10 @@
         "correlation_rangs": 0.872,
         "ratio_amplitude": 0.653,
         "nb_fourchettes": 14,
-        "nb_dans_fourchette": 8,
-        "part_dans_fourchette": 0.571,
-        "largeur_moyenne_pts": 30.86,
-        "nb_sorties_plus_fortes": 6
+        "nb_dans_fourchette": 12,
+        "part_dans_fourchette": 0.857,
+        "largeur_moyenne_pts": 44.91,
+        "nb_sorties_plus_fortes": 2
       },
       "actifs": [
         {
@@ -1027,11 +1261,11 @@
           "reel_pct": -38.21,
           "ecart_pts": 13.48,
           "sens_correct": true,
-          "bas_pct": -37.63,
-          "haut_pct": -11.83,
-          "largeur_pts": 25.81,
-          "dans_fourchette": false,
-          "sortie_plus_forte": true,
+          "bas_pct": -47.31,
+          "haut_pct": -8.6,
+          "largeur_pts": 38.71,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
           "nom": "S&P 500 (USA)",
           "nom_court": "S&P 500",
           "categorie": "Actions & Indices",
@@ -1045,9 +1279,9 @@
           "reel_pct": -33.53,
           "ecart_pts": 9.87,
           "sens_correct": true,
-          "bas_pct": -38.71,
-          "haut_pct": -9.68,
-          "largeur_pts": 29.03,
+          "bas_pct": -50.0,
+          "haut_pct": -5.11,
+          "largeur_pts": 44.89,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "NASDAQ 100 (Tech US)",
@@ -1063,11 +1297,11 @@
           "reel_pct": -43.33,
           "ecart_pts": 13.33,
           "sens_correct": true,
-          "bas_pct": -43.0,
-          "haut_pct": -17.0,
-          "largeur_pts": 26.0,
-          "dans_fourchette": false,
-          "sortie_plus_forte": true,
+          "bas_pct": -52.75,
+          "haut_pct": -13.75,
+          "largeur_pts": 39.0,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
           "nom": "CAC 40 (France)",
           "nom_court": "CAC 40",
           "categorie": "Actions & Indices",
@@ -1081,9 +1315,9 @@
           "reel_pct": -36.37,
           "ecart_pts": 8.41,
           "sens_correct": true,
-          "bas_pct": -44.09,
-          "haut_pct": -12.9,
-          "largeur_pts": 31.18,
+          "bas_pct": -56.18,
+          "haut_pct": -9.14,
+          "largeur_pts": 47.04,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "MSCI Emerging Markets",
@@ -1099,9 +1333,9 @@
           "reel_pct": 24.25,
           "ecart_pts": -7.04,
           "sens_correct": true,
-          "bas_pct": 10.75,
-          "haut_pct": 24.73,
-          "largeur_pts": 13.98,
+          "bas_pct": 9.14,
+          "haut_pct": 29.03,
+          "largeur_pts": 19.89,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "U.S. Treasury 10Y",
@@ -1117,9 +1351,9 @@
           "reel_pct": 8.31,
           "ecart_pts": -1.31,
           "sens_correct": true,
-          "bas_pct": 1.0,
-          "haut_pct": 14.0,
-          "largeur_pts": 13.0,
+          "bas_pct": -0.5,
+          "haut_pct": 19.25,
+          "largeur_pts": 19.75,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "Gilt Royaume-Uni 10Y",
@@ -1135,9 +1369,9 @@
           "reel_pct": -13.29,
           "ecart_pts": 6.29,
           "sens_correct": true,
-          "bas_pct": -15.0,
-          "haut_pct": 2.0,
-          "largeur_pts": 17.0,
+          "bas_pct": -20.0,
+          "haut_pct": 4.25,
+          "largeur_pts": 24.25,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "EUR/USD (Euro-Dollar)",
@@ -1153,9 +1387,9 @@
           "reel_pct": 13.39,
           "ecart_pts": -6.39,
           "sens_correct": true,
-          "bas_pct": -2.0,
-          "haut_pct": 14.0,
-          "largeur_pts": 16.0,
+          "bas_pct": -4.25,
+          "haut_pct": 19.25,
+          "largeur_pts": 23.5,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "DXY (US Dollar Index)",
@@ -1171,9 +1405,9 @@
           "reel_pct": 124.33,
           "ecart_pts": -44.33,
           "sens_correct": true,
-          "bas_pct": 30.0,
-          "haut_pct": 160.0,
-          "largeur_pts": 130.0,
+          "bas_pct": 17.5,
+          "haut_pct": 220.0,
+          "largeur_pts": 202.5,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "VIX (CBOE Volatility Index)",
@@ -1189,11 +1423,11 @@
           "reel_pct": 35.18,
           "ecart_pts": -22.28,
           "sens_correct": true,
-          "bas_pct": -1.08,
-          "haut_pct": 25.81,
-          "largeur_pts": 26.88,
-          "dans_fourchette": false,
-          "sortie_plus_forte": true,
+          "bas_pct": -4.57,
+          "haut_pct": 35.48,
+          "largeur_pts": 40.05,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
           "nom": "Or (Gold Spot, $/oz)",
           "nom_court": "Or",
           "categorie": "Matières Premières",
@@ -1207,9 +1441,9 @@
           "reel_pct": 17.92,
           "ecart_pts": -23.3,
           "sens_correct": false,
-          "bas_pct": -22.58,
-          "haut_pct": 12.9,
-          "largeur_pts": 35.48,
+          "bas_pct": -24.73,
+          "haut_pct": 17.47,
+          "largeur_pts": 42.2,
           "dans_fourchette": false,
           "sortie_plus_forte": false,
           "nom": "Argent (Silver Spot, $/oz)",
@@ -1225,11 +1459,11 @@
           "reel_pct": -52.07,
           "ecart_pts": 18.74,
           "sens_correct": true,
-          "bas_pct": -51.61,
-          "haut_pct": -13.98,
-          "largeur_pts": 37.63,
-          "dans_fourchette": false,
-          "sortie_plus_forte": true,
+          "bas_pct": -65.32,
+          "haut_pct": -9.14,
+          "largeur_pts": 56.18,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
           "nom": "Pétrole WTI (Crude Oil)",
           "nom_court": "Pétrole WTI",
           "categorie": "Matières Premières",
@@ -1244,8 +1478,8 @@
           "ecart_pts": 14.7,
           "sens_correct": true,
           "bas_pct": -35.48,
-          "haut_pct": -9.68,
-          "largeur_pts": 25.81,
+          "haut_pct": -5.38,
+          "largeur_pts": 30.11,
           "dans_fourchette": false,
           "sortie_plus_forte": true,
           "nom": "Cuivre (Copper Futures)",
@@ -1262,8 +1496,8 @@
           "ecart_pts": 26.93,
           "sens_correct": true,
           "bas_pct": -24.73,
-          "haut_pct": -3.23,
-          "largeur_pts": 21.51,
+          "haut_pct": 0.0,
+          "largeur_pts": 24.73,
           "dans_fourchette": false,
           "sortie_plus_forte": true,
           "nom": "ETF Aérospatiale & Défense (ITA)",
@@ -1328,10 +1562,10 @@
           "correlation_rangs": 0.906,
           "ratio_amplitude": 0.957,
           "nb_fourchettes": 14,
-          "nb_dans_fourchette": 8,
-          "part_dans_fourchette": 0.571,
-          "largeur_moyenne_pts": 8.65,
-          "nb_sorties_plus_fortes": 4
+          "nb_dans_fourchette": 12,
+          "part_dans_fourchette": 0.857,
+          "largeur_moyenne_pts": 22.7,
+          "nb_sorties_plus_fortes": 2
         },
         "estimes_pct": {
           "S&P 500": -40.45,
@@ -1410,6 +1644,133 @@
           "Solana": -0.5
         },
         "fourchettes": {
+          "S&P 500": {
+            "bas": -0.51,
+            "central": -0.3,
+            "haut": -0.15
+          },
+          "NASDAQ": {
+            "bas": -0.535,
+            "central": -0.29,
+            "haut": -0.1175
+          },
+          "CAC 40": {
+            "bas": -0.5275,
+            "central": -0.3,
+            "haut": -0.1375
+          },
+          "MSCI_World": {
+            "bas": -0.5,
+            "central": -0.3,
+            "haut": -0.15
+          },
+          "Emerging_Markets": {
+            "bas": -0.5925,
+            "central": -0.33,
+            "haut": -0.155
+          },
+          "Bons_Tresor_US_10Y": {
+            "bas": 0.015,
+            "central": 0.09,
+            "haut": 0.2
+          },
+          "Bund_10Y": {
+            "bas": 0.0075,
+            "central": 0.07,
+            "haut": 0.175
+          },
+          "OAT_10Y": {
+            "bas": -0.0125,
+            "central": 0.05,
+            "haut": 0.155
+          },
+          "JGB_10Y": {
+            "bas": -0.015,
+            "central": 0.03,
+            "haut": 0.1
+          },
+          "Gilt_10Y": {
+            "bas": -0.005,
+            "central": 0.07,
+            "haut": 0.1925
+          },
+          "EUR_USD": {
+            "bas": -0.2,
+            "central": -0.07,
+            "haut": 0.0425
+          },
+          "Dollar_Index": {
+            "bas": -0.0425,
+            "central": 0.07,
+            "haut": 0.1925
+          },
+          "VIX": {
+            "bas": 0.175,
+            "central": 0.8,
+            "haut": 2.2
+          },
+          "Or": {
+            "bas": -0.1125,
+            "central": 0.05,
+            "haut": 0.26
+          },
+          "Argent": {
+            "bas": -0.3,
+            "central": -0.12,
+            "haut": 0.0925
+          },
+          "Petrole": {
+            "bas": -0.6775,
+            "central": -0.38,
+            "haut": -0.155
+          },
+          "Cuivre": {
+            "bas": -0.4,
+            "central": -0.32,
+            "haut": -0.12
+          },
+          "ETF_Terres_Rares": {
+            "bas": -0.4,
+            "central": -0.35,
+            "haut": -0.1375
+          },
+          "ETF_Defense": {
+            "bas": -0.3,
+            "central": -0.22,
+            "haut": -0.07
+          },
+          "Bitcoin": {
+            "bas": -0.7875,
+            "central": -0.35,
+            "haut": -0.0375
+          },
+          "Ethereum": {
+            "bas": -0.8,
+            "central": -0.45,
+            "haut": -0.075
+          },
+          "XRP": {
+            "bas": -0.85,
+            "central": -0.5,
+            "haut": -0.1
+          },
+          "Solana": {
+            "bas": -0.85,
+            "central": -0.5,
+            "haut": -0.1
+          }
+        },
+        "evenement_cite": "Crise financière mondiale de 2008",
+        "references": [
+          {
+            "evenement": "Crise financière mondiale de 2008",
+            "annee": 2008,
+            "poids": 1.0,
+            "raison": "La faillite de Lehman Brothers, les sauvetages bancaires et le gel du crédit correspondent directement au scénario."
+          }
+        ],
+        "explication": "La crise financière de 2008 sert de référence à ce choc de sévérité forte, mesuré sur 135 séances à partir d'une faillite comparable à celle de Lehman Brothers. Les pertes sur les hypothèques américaines et le blocage du financement interbancaire provoquent un désendettement mondial : le S&P 500 recule de 30 % et le pétrole de 38 % dans le scénario central. La fuite vers les Treasuries soutient leur prix de 9 % et le dollar de 7 %, tandis que le VIX termine 80 % au-dessus de son niveau initial. Les chiffres macro représentent des variations en points de pourcentage de l'inflation américaine et du taux directeur de la Fed ; les obligations sont exprimées en variations de prix et les autres actifs en devise de cotation. Nuance importante : les cryptos et les ETF de terres rares ne disposent pas tous d'un précédent comparable en 2008, et des ventes forcées pourraient aussi faire temporairement baisser l'or.",
+        "fourchettes_ia": {
           "S&P 500": {
             "bas": -0.42,
             "central": -0.3,
@@ -1525,17 +1886,7 @@
             "central": -0.5,
             "haut": -0.18
           }
-        },
-        "evenement_cite": "Crise financière mondiale de 2008",
-        "references": [
-          {
-            "evenement": "Crise financière mondiale de 2008",
-            "annee": 2008,
-            "poids": 1.0,
-            "raison": "La faillite de Lehman Brothers, les sauvetages bancaires et le gel du crédit correspondent directement au scénario."
-          }
-        ],
-        "explication": "La crise financière de 2008 sert de référence à ce choc de sévérité forte, mesuré sur 135 séances à partir d'une faillite comparable à celle de Lehman Brothers. Les pertes sur les hypothèques américaines et le blocage du financement interbancaire provoquent un désendettement mondial : le S&P 500 recule de 30 % et le pétrole de 38 % dans le scénario central. La fuite vers les Treasuries soutient leur prix de 9 % et le dollar de 7 %, tandis que le VIX termine 80 % au-dessus de son niveau initial. Les chiffres macro représentent des variations en points de pourcentage de l'inflation américaine et du taux directeur de la Fed ; les obligations sont exprimées en variations de prix et les autres actifs en devise de cotation. Nuance importante : les cryptos et les ETF de terres rares ne disposent pas tous d'un précédent comparable en 2008, et des ventes forcées pourraient aussi faire temporairement baisser l'or."
+        }
       },
       "estimation_avec_date": {
         "empreinte": "5dcd92cc21ff866c",
@@ -1597,6 +1948,133 @@
           "Solana": 0.0
         },
         "fourchettes": {
+          "S&P 500": {
+            "bas": -0.55,
+            "central": -0.47,
+            "haut": -0.32
+          },
+          "NASDAQ": {
+            "bas": -0.6,
+            "central": -0.46,
+            "haut": -0.2875
+          },
+          "CAC 40": {
+            "bas": -0.55,
+            "central": -0.42,
+            "haut": -0.27
+          },
+          "MSCI_World": {
+            "bas": -0.5,
+            "central": -0.44,
+            "haut": -0.2975
+          },
+          "Emerging_Markets": {
+            "bas": -0.6,
+            "central": -0.45,
+            "haut": -0.2775
+          },
+          "Bons_Tresor_US_10Y": {
+            "bas": 0.0525,
+            "central": 0.12,
+            "haut": 0.19
+          },
+          "Bund_10Y": {
+            "bas": 0.04,
+            "central": 0.1,
+            "haut": 0.17
+          },
+          "OAT_10Y": {
+            "bas": 0.02,
+            "central": 0.08,
+            "haut": 0.15
+          },
+          "JGB_10Y": {
+            "bas": -0.015,
+            "central": 0.03,
+            "haut": 0.075
+          },
+          "Gilt_10Y": {
+            "bas": 0.0675,
+            "central": 0.13,
+            "haut": 0.2
+          },
+          "EUR_USD": {
+            "bas": -0.17,
+            "central": -0.11,
+            "haut": -0.05
+          },
+          "Dollar_Index": {
+            "bas": 0.07,
+            "central": 0.13,
+            "haut": 0.19
+          },
+          "VIX": {
+            "bas": 1.2125,
+            "central": 1.4,
+            "haut": 1.6625
+          },
+          "Or": {
+            "bas": -0.0275,
+            "central": 0.1,
+            "haut": 0.2275
+          },
+          "Argent": {
+            "bas": -0.19,
+            "central": -0.04,
+            "haut": 0.11
+          },
+          "Petrole": {
+            "bas": -0.7,
+            "central": -0.59,
+            "haut": -0.41
+          },
+          "Cuivre": {
+            "bas": -0.4,
+            "central": -0.4,
+            "haut": -0.4
+          },
+          "ETF_Terres_Rares": {
+            "bas": 0.0,
+            "central": 0.0,
+            "haut": 0.0
+          },
+          "ETF_Defense": {
+            "bas": -0.3,
+            "central": -0.3,
+            "haut": -0.3
+          },
+          "Bitcoin": {
+            "bas": 0.0,
+            "central": 0.0,
+            "haut": 0.0
+          },
+          "Ethereum": {
+            "bas": 0.0,
+            "central": 0.0,
+            "haut": 0.0
+          },
+          "XRP": {
+            "bas": 0.0,
+            "central": 0.0,
+            "haut": 0.0
+          },
+          "Solana": {
+            "bas": 0.0,
+            "central": 0.0,
+            "haut": 0.0
+          }
+        },
+        "evenement_cite": "Crise financière de 2008",
+        "references": [
+          {
+            "evenement": "Crise financière de 2008",
+            "annee": 2008,
+            "poids": 1.0,
+            "raison": "La fenêtre demandée correspond directement à la faillite de Lehman et au blocage mondial du crédit."
+          }
+        ],
+        "explication": "La crise financière de 2008, classée forte mais exceptionnellement sévère sur cette fenêtre, sert de référence directe : le S&P 500 perd environ 47 % entre la clôture précédant le 1er septembre et le 9 mars 2009. La faillite de Lehman Brothers le 15 septembre et le sauvetage d'AIG alimentent le gel interbancaire, les ventes forcées et la fuite vers les Treasuries, tandis que le VIX termine environ 140 % au-dessus de son niveau initial. L'effondrement de la demande et le désendettement pèsent sur le pétrole, estimé à -59 %, malgré une hausse d'environ 10 % de l'or. Les chiffres macro indiquent l'inflation américaine annuelle de février 2009 et le milieu de la fourchette cible de la Fed en fin de période ; les obligations représentent des variations de prix approximatives, hors coupons. Les valeurs nulles signalent l'absence d'historique négociable comparable pour les cryptomonnaies et l'ETF de terres rares ; les estimations restent sensibles au choix exact des indices, instruments et cours de clôture.",
+        "fourchettes_ia": {
           "S&P 500": {
             "bas": -0.49,
             "central": -0.47,
@@ -1712,17 +2190,7 @@
             "central": 0.0,
             "haut": 0.0
           }
-        },
-        "evenement_cite": "Crise financière de 2008",
-        "references": [
-          {
-            "evenement": "Crise financière de 2008",
-            "annee": 2008,
-            "poids": 1.0,
-            "raison": "La fenêtre demandée correspond directement à la faillite de Lehman et au blocage mondial du crédit."
-          }
-        ],
-        "explication": "La crise financière de 2008, classée forte mais exceptionnellement sévère sur cette fenêtre, sert de référence directe : le S&P 500 perd environ 47 % entre la clôture précédant le 1er septembre et le 9 mars 2009. La faillite de Lehman Brothers le 15 septembre et le sauvetage d'AIG alimentent le gel interbancaire, les ventes forcées et la fuite vers les Treasuries, tandis que le VIX termine environ 140 % au-dessus de son niveau initial. L'effondrement de la demande et le désendettement pèsent sur le pétrole, estimé à -59 %, malgré une hausse d'environ 10 % de l'or. Les chiffres macro indiquent l'inflation américaine annuelle de février 2009 et le milieu de la fourchette cible de la Fed en fin de période ; les obligations représentent des variations de prix approximatives, hors coupons. Les valeurs nulles signalent l'absence d'historique négociable comparable pour les cryptomonnaies et l'ETF de terres rares ; les estimations restent sensibles au choix exact des indices, instruments et cours de clôture."
+        }
       }
     },
     {
@@ -1753,7 +2221,7 @@
         "nb_fourchettes": 5,
         "nb_dans_fourchette": 3,
         "part_dans_fourchette": 0.6,
-        "largeur_moyenne_pts": 34.94,
+        "largeur_moyenne_pts": 50.14,
         "nb_sorties_plus_fortes": 2
       },
       "metriques_devise_locale": {
@@ -1770,7 +2238,7 @@
         "nb_fourchettes": 5,
         "nb_dans_fourchette": 3,
         "part_dans_fourchette": 0.6,
-        "largeur_moyenne_pts": 35.2,
+        "largeur_moyenne_pts": 50.5,
         "nb_sorties_plus_fortes": 2
       },
       "actifs": [
@@ -1780,9 +2248,9 @@
           "reel_pct": -43.85,
           "ecart_pts": 1.54,
           "sens_correct": true,
-          "bas_pct": -51.92,
-          "haut_pct": -30.77,
-          "largeur_pts": 21.15,
+          "bas_pct": -56.73,
+          "haut_pct": -27.88,
+          "largeur_pts": 28.85,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "S&P 500 (USA)",
@@ -1799,8 +2267,8 @@
           "ecart_pts": 21.11,
           "sens_correct": true,
           "bas_pct": -61.54,
-          "haut_pct": -50.0,
-          "largeur_pts": 11.54,
+          "haut_pct": -44.95,
+          "largeur_pts": 16.59,
           "dans_fourchette": false,
           "sortie_plus_forte": true,
           "nom": "NASDAQ 100 (Tech US)",
@@ -1817,8 +2285,8 @@
           "ecart_pts": 18.62,
           "sens_correct": true,
           "bas_pct": -55.0,
-          "haut_pct": -25.0,
-          "largeur_pts": 30.0,
+          "haut_pct": -21.25,
+          "largeur_pts": 33.75,
           "dans_fourchette": false,
           "sortie_plus_forte": true,
           "nom": "CAC 40 (France)",
@@ -1834,9 +2302,9 @@
           "reel_pct": 2.23,
           "ecart_pts": -6.23,
           "sens_correct": false,
-          "bas_pct": -12.0,
-          "haut_pct": 5.0,
-          "largeur_pts": 17.0,
+          "bas_pct": -18.0,
+          "haut_pct": 7.25,
+          "largeur_pts": 25.25,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "DXY (US Dollar Index)",
@@ -1852,9 +2320,9 @@
           "reel_pct": 93.13,
           "ecart_pts": -38.13,
           "sens_correct": true,
-          "bas_pct": 15.0,
-          "haut_pct": 110.0,
-          "largeur_pts": 95.0,
+          "bas_pct": 5.0,
+          "haut_pct": 151.25,
+          "largeur_pts": 146.25,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "VIX (CBOE Volatility Index)",
@@ -1955,9 +2423,9 @@
           "correlation_rangs": 1.0,
           "ratio_amplitude": 0.905,
           "nb_fourchettes": 5,
-          "nb_dans_fourchette": 2,
-          "part_dans_fourchette": 0.4,
-          "largeur_moyenne_pts": 15.58,
+          "nb_dans_fourchette": 3,
+          "part_dans_fourchette": 0.6,
+          "largeur_moyenne_pts": 28.12,
           "nb_sorties_plus_fortes": 2
         },
         "estimes_pct": {
@@ -2028,6 +2496,139 @@
           "Solana": -0.6
         },
         "fourchettes": {
+          "S&P 500": {
+            "bas": -0.55,
+            "central": -0.4,
+            "haut": -0.25
+          },
+          "NASDAQ": {
+            "bas": -0.6,
+            "central": -0.6,
+            "haut": -0.4275
+          },
+          "CAC 40": {
+            "bas": -0.55,
+            "central": -0.4,
+            "haut": -0.2125
+          },
+          "MSCI_World": {
+            "bas": -0.5,
+            "central": -0.35,
+            "haut": -0.2
+          },
+          "Emerging_Markets": {
+            "bas": -0.525,
+            "central": -0.28,
+            "haut": -0.105
+          },
+          "Bons_Tresor_US_10Y": {
+            "bas": 0.0575,
+            "central": 0.17,
+            "haut": 0.2
+          },
+          "Bund_10Y": {
+            "bas": 0.025,
+            "central": 0.1,
+            "haut": 0.2
+          },
+          "OAT_10Y": {
+            "bas": 0.015,
+            "central": 0.09,
+            "haut": 0.195
+          },
+          "JGB_10Y": {
+            "bas": -0.005,
+            "central": 0.04,
+            "haut": 0.11
+          },
+          "Gilt_10Y": {
+            "bas": 0.0175,
+            "central": 0.08,
+            "haut": 0.185
+          },
+          "EUR_USD": {
+            "bas": -0.085,
+            "central": 0.04,
+            "haut": 0.2
+          },
+          "Dollar_Index": {
+            "bas": -0.18,
+            "central": -0.04,
+            "haut": 0.0725
+          },
+          "VIX": {
+            "bas": 0.05,
+            "central": 0.55,
+            "haut": 1.5125
+          },
+          "Or": {
+            "bas": -0.075,
+            "central": 0.1,
+            "haut": 0.31
+          },
+          "Argent": {
+            "bas": -0.285,
+            "central": -0.04,
+            "haut": 0.16
+          },
+          "Petrole": {
+            "bas": -0.435,
+            "central": -0.12,
+            "haut": 0.105
+          },
+          "Cuivre": {
+            "bas": -0.4,
+            "central": -0.2,
+            "haut": -0.0125
+          },
+          "ETF_Terres_Rares": {
+            "bas": -0.4,
+            "central": -0.28,
+            "haut": -0.055
+          },
+          "ETF_Defense": {
+            "bas": -0.3,
+            "central": -0.08,
+            "haut": 0.12
+          },
+          "Bitcoin": {
+            "bas": -0.8,
+            "central": -0.4,
+            "haut": -0.025
+          },
+          "Ethereum": {
+            "bas": -0.8,
+            "central": -0.52,
+            "haut": -0.0575
+          },
+          "XRP": {
+            "bas": -0.85,
+            "central": -0.58,
+            "haut": -0.08
+          },
+          "Solana": {
+            "bas": -0.85,
+            "central": -0.6,
+            "haut": -0.1
+          }
+        },
+        "evenement_cite": "Éclatement de la bulle Internet",
+        "references": [
+          {
+            "evenement": "Éclatement de la bulle Internet",
+            "annee": 2000,
+            "poids": 0.85,
+            "raison": "La chute des valeurs Internet et télécoms et le recul de l’investissement technologique correspondent directement au scénario."
+          },
+          {
+            "evenement": "Baisse des valeurs technologiques et des cryptomonnaies",
+            "annee": 2022,
+            "poids": 0.15,
+            "raison": "Cet épisode fournit une analogie imparfaite pour la sensibilité des cryptomonnaies aux ventes d’actifs technologiques."
+          }
+        ],
+        "explication": "L’éclatement de la bulle Internet en 2000 constitue le précédent principal d’une crise sectorielle modérée à son origine, mais prolongée sur 666 séances. L’effondrement du financement des jeunes entreprises Internet et des télécommunications réduit les commandes de logiciels, de semi-conducteurs et d’équipements, ce qui justifie un choc central de -65% sur le NASDAQ. La contraction de l’investissement américain favorise les Treasuries à 10 ans, estimés à +17% en prix, tandis que les changements macro indiqués correspondent à des variations en points de pourcentage aux États-Unis. Le VIX est estimé à +55% entre les deux dates, et non à son pic intrapériode. Les cryptomonnaies n’existaient pas lors de la bulle Internet : leurs estimations sont donc des analogies spéculatives, particulièrement sensibles à la liquidité et aux faillites de plateformes.",
+        "fourchettes_ia": {
           "S&P 500": {
             "bas": -0.5,
             "central": -0.4,
@@ -2143,23 +2744,7 @@
             "central": -0.6,
             "haut": -0.2
           }
-        },
-        "evenement_cite": "Éclatement de la bulle Internet",
-        "references": [
-          {
-            "evenement": "Éclatement de la bulle Internet",
-            "annee": 2000,
-            "poids": 0.85,
-            "raison": "La chute des valeurs Internet et télécoms et le recul de l’investissement technologique correspondent directement au scénario."
-          },
-          {
-            "evenement": "Baisse des valeurs technologiques et des cryptomonnaies",
-            "annee": 2022,
-            "poids": 0.15,
-            "raison": "Cet épisode fournit une analogie imparfaite pour la sensibilité des cryptomonnaies aux ventes d’actifs technologiques."
-          }
-        ],
-        "explication": "L’éclatement de la bulle Internet en 2000 constitue le précédent principal d’une crise sectorielle modérée à son origine, mais prolongée sur 666 séances. L’effondrement du financement des jeunes entreprises Internet et des télécommunications réduit les commandes de logiciels, de semi-conducteurs et d’équipements, ce qui justifie un choc central de -65% sur le NASDAQ. La contraction de l’investissement américain favorise les Treasuries à 10 ans, estimés à +17% en prix, tandis que les changements macro indiqués correspondent à des variations en points de pourcentage aux États-Unis. Le VIX est estimé à +55% entre les deux dates, et non à son pic intrapériode. Les cryptomonnaies n’existaient pas lors de la bulle Internet : leurs estimations sont donc des analogies spéculatives, particulièrement sensibles à la liquidité et aux faillites de plateformes."
+        }
       },
       "estimation_avec_date": {
         "empreinte": "f67d7c400550c2e0",
@@ -2221,6 +2806,133 @@
           "Solana": 0.0
         },
         "fourchettes": {
+          "S&P 500": {
+            "bas": -0.55,
+            "central": -0.49,
+            "haut": -0.34
+          },
+          "NASDAQ": {
+            "bas": -0.6,
+            "central": -0.6,
+            "haut": -0.6
+          },
+          "CAC 40": {
+            "bas": -0.55,
+            "central": -0.55,
+            "haut": -0.4
+          },
+          "MSCI_World": {
+            "bas": -0.5,
+            "central": -0.48,
+            "haut": -0.3375
+          },
+          "Emerging_Markets": {
+            "bas": -0.5725,
+            "central": -0.4,
+            "haut": -0.2275
+          },
+          "Bons_Tresor_US_10Y": {
+            "bas": 0.1025,
+            "central": 0.19,
+            "haut": 0.2
+          },
+          "Bund_10Y": {
+            "bas": 0.0575,
+            "central": 0.12,
+            "haut": 0.2
+          },
+          "OAT_10Y": {
+            "bas": 0.0575,
+            "central": 0.12,
+            "haut": 0.2
+          },
+          "JGB_10Y": {
+            "bas": 0.01,
+            "central": 0.06,
+            "haut": 0.13
+          },
+          "Gilt_10Y": {
+            "bas": 0.0375,
+            "central": 0.1,
+            "haut": 0.1875
+          },
+          "EUR_USD": {
+            "bas": -0.0425,
+            "central": 0.02,
+            "haut": 0.1075
+          },
+          "Dollar_Index": {
+            "bas": -0.0325,
+            "central": 0.03,
+            "haut": 0.1175
+          },
+          "VIX": {
+            "bas": 0.475,
+            "central": 0.85,
+            "haut": 1.375
+          },
+          "Or": {
+            "bas": -0.0275,
+            "central": 0.1,
+            "haut": 0.2275
+          },
+          "Argent": {
+            "bas": -0.23,
+            "central": -0.08,
+            "haut": 0.07
+          },
+          "Petrole": {
+            "bas": -0.28,
+            "central": -0.1,
+            "haut": 0.08
+          },
+          "Cuivre": {
+            "bas": -0.285,
+            "central": -0.15,
+            "haut": -0.015
+          },
+          "ETF_Terres_Rares": {
+            "bas": 0.0,
+            "central": 0.0,
+            "haut": 0.0
+          },
+          "ETF_Defense": {
+            "bas": 0.0,
+            "central": 0.0,
+            "haut": 0.0
+          },
+          "Bitcoin": {
+            "bas": 0.0,
+            "central": 0.0,
+            "haut": 0.0
+          },
+          "Ethereum": {
+            "bas": 0.0,
+            "central": 0.0,
+            "haut": 0.0
+          },
+          "XRP": {
+            "bas": 0.0,
+            "central": 0.0,
+            "haut": 0.0
+          },
+          "Solana": {
+            "bas": 0.0,
+            "central": 0.0,
+            "haut": 0.0
+          }
+        },
+        "evenement_cite": "Éclatement de la bulle Internet",
+        "references": [
+          {
+            "evenement": "Éclatement de la bulle Internet",
+            "annee": 2000,
+            "poids": 1.0,
+            "raison": "L'événement et les dates correspondent directement à la période étudiée."
+          }
+        ],
+        "explication": "L'éclatement de la bulle Internet de 2000 constitue une crise forte, dont la durée de 666 séances explique un Nasdaq Composite proche de -78 %, bien au-delà d'un choc de cinq mois. L'effondrement des dot-com et des équipementiers télécoms a réduit l'investissement et les valorisations, tandis que la détente des taux américains a soutenu le prix des Treasuries. Les chiffres macro représentent des variations approximatives en points de pourcentage aux États-Unis ; les obligations sont estimées en variations de prix, hors coupons. Les valeurs nulles signalent des actifs inexistants à l'époque ou un ETF non identifié, et non une performance nulle. La période inclut aussi les attentats du 11 septembre 2001 et les scandales comptables : les variations totales ne peuvent donc pas être attribuées uniquement à la bulle Internet.",
+        "fourchettes_ia": {
           "S&P 500": {
             "bas": -0.52,
             "central": -0.49,
@@ -2336,17 +3048,7 @@
             "central": 0.0,
             "haut": 0.0
           }
-        },
-        "evenement_cite": "Éclatement de la bulle Internet",
-        "references": [
-          {
-            "evenement": "Éclatement de la bulle Internet",
-            "annee": 2000,
-            "poids": 1.0,
-            "raison": "L'événement et les dates correspondent directement à la période étudiée."
-          }
-        ],
-        "explication": "L'éclatement de la bulle Internet de 2000 constitue une crise forte, dont la durée de 666 séances explique un Nasdaq Composite proche de -78 %, bien au-delà d'un choc de cinq mois. L'effondrement des dot-com et des équipementiers télécoms a réduit l'investissement et les valorisations, tandis que la détente des taux américains a soutenu le prix des Treasuries. Les chiffres macro représentent des variations approximatives en points de pourcentage aux États-Unis ; les obligations sont estimées en variations de prix, hors coupons. Les valeurs nulles signalent des actifs inexistants à l'époque ou un ETF non identifié, et non une performance nulle. La période inclut aussi les attentats du 11 septembre 2001 et les scandales comptables : les variations totales ne peuvent donc pas être attribuées uniquement à la bulle Internet."
+        }
       }
     },
     {
@@ -2375,10 +3077,10 @@
         "correlation_rangs": 0.914,
         "ratio_amplitude": 0.264,
         "nb_fourchettes": 18,
-        "nb_dans_fourchette": 3,
-        "part_dans_fourchette": 0.167,
-        "largeur_moyenne_pts": 16.31,
-        "nb_sorties_plus_fortes": 15
+        "nb_dans_fourchette": 10,
+        "part_dans_fourchette": 0.556,
+        "largeur_moyenne_pts": 30.14,
+        "nb_sorties_plus_fortes": 8
       },
       "metriques_devise_locale": {
         "nb_actifs": 18,
@@ -2392,10 +3094,10 @@
         "correlation_rangs": 0.958,
         "ratio_amplitude": 0.288,
         "nb_fourchettes": 18,
-        "nb_dans_fourchette": 3,
-        "part_dans_fourchette": 0.167,
-        "largeur_moyenne_pts": 15.78,
-        "nb_sorties_plus_fortes": 14
+        "nb_dans_fourchette": 10,
+        "part_dans_fourchette": 0.556,
+        "largeur_moyenne_pts": 29.12,
+        "nb_sorties_plus_fortes": 8
       },
       "actifs": [
         {
@@ -2404,11 +3106,11 @@
           "reel_pct": 16.32,
           "ecart_pts": -14.21,
           "sens_correct": true,
-          "bas_pct": -3.16,
-          "haut_pct": 7.37,
-          "largeur_pts": 10.53,
-          "dans_fourchette": false,
-          "sortie_plus_forte": true,
+          "bas_pct": -13.68,
+          "haut_pct": 17.89,
+          "largeur_pts": 31.58,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
           "nom": "S&P 500 (USA)",
           "nom_court": "S&P 500",
           "categorie": "Actions & Indices",
@@ -2422,9 +3124,9 @@
           "reel_pct": 28.47,
           "ecart_pts": -25.31,
           "sens_correct": true,
-          "bas_pct": -2.11,
-          "haut_pct": 8.42,
-          "largeur_pts": 10.53,
+          "bas_pct": -15.0,
+          "haut_pct": 21.32,
+          "largeur_pts": 36.32,
           "dans_fourchette": false,
           "sortie_plus_forte": true,
           "nom": "NASDAQ 100 (Tech US)",
@@ -2440,11 +3142,11 @@
           "reel_pct": -10.07,
           "ecart_pts": 7.07,
           "sens_correct": true,
-          "bas_pct": -9.0,
-          "haut_pct": 3.0,
-          "largeur_pts": 12.0,
-          "dans_fourchette": false,
-          "sortie_plus_forte": true,
+          "bas_pct": -18.0,
+          "haut_pct": 12.0,
+          "largeur_pts": 30.0,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
           "nom": "CAC 40 (France)",
           "nom_court": "CAC 40",
           "categorie": "Actions & Indices",
@@ -2458,11 +3160,11 @@
           "reel_pct": 7.61,
           "ecart_pts": -6.56,
           "sens_correct": true,
-          "bas_pct": -5.26,
-          "haut_pct": 6.32,
-          "largeur_pts": 11.58,
-          "dans_fourchette": false,
-          "sortie_plus_forte": true,
+          "bas_pct": -13.95,
+          "haut_pct": 16.05,
+          "largeur_pts": 30.0,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
           "nom": "MSCI World (Global)",
           "nom_court": "MSCI World",
           "categorie": "Actions & Indices",
@@ -2476,9 +3178,9 @@
           "reel_pct": -13.14,
           "ecart_pts": 8.93,
           "sens_correct": true,
-          "bas_pct": -13.68,
-          "haut_pct": 3.16,
-          "largeur_pts": 16.84,
+          "bas_pct": -22.37,
+          "haut_pct": 13.95,
+          "largeur_pts": 36.32,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "MSCI Emerging Markets",
@@ -2494,9 +3196,9 @@
           "reel_pct": 34.07,
           "ecart_pts": -24.6,
           "sens_correct": true,
-          "bas_pct": 6.32,
-          "haut_pct": 13.68,
-          "largeur_pts": 7.37,
+          "bas_pct": 2.37,
+          "haut_pct": 16.84,
+          "largeur_pts": 14.47,
           "dans_fourchette": false,
           "sortie_plus_forte": true,
           "nom": "U.S. Treasury 10Y",
@@ -2512,11 +3214,11 @@
           "reel_pct": 9.29,
           "ecart_pts": -5.29,
           "sens_correct": true,
-          "bas_pct": 1.0,
-          "haut_pct": 7.0,
-          "largeur_pts": 6.0,
-          "dans_fourchette": false,
-          "sortie_plus_forte": true,
+          "bas_pct": -2.0,
+          "haut_pct": 10.0,
+          "largeur_pts": 12.0,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
           "nom": "Bund Allemagne 10Y",
           "nom_court": "Bund Allemagne 10Y",
           "categorie": "Obligations d'État (10 ans)",
@@ -2530,11 +3232,11 @@
           "reel_pct": 9.56,
           "ecart_pts": -6.56,
           "sens_correct": true,
-          "bas_pct": 0.0,
-          "haut_pct": 7.0,
-          "largeur_pts": 7.0,
-          "dans_fourchette": false,
-          "sortie_plus_forte": true,
+          "bas_pct": -3.0,
+          "haut_pct": 10.0,
+          "largeur_pts": 13.0,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
           "nom": "OAT France 10Y",
           "nom_court": "OAT France 10Y",
           "categorie": "Obligations d'État (10 ans)",
@@ -2548,9 +3250,9 @@
           "reel_pct": 15.66,
           "ecart_pts": -11.66,
           "sens_correct": true,
-          "bas_pct": 1.0,
-          "haut_pct": 8.0,
-          "largeur_pts": 7.0,
+          "bas_pct": -2.0,
+          "haut_pct": 11.0,
+          "largeur_pts": 13.0,
           "dans_fourchette": false,
           "sortie_plus_forte": true,
           "nom": "Gilt Royaume-Uni 10Y",
@@ -2566,9 +3268,9 @@
           "reel_pct": -17.16,
           "ecart_pts": 12.16,
           "sens_correct": true,
-          "bas_pct": -10.0,
-          "haut_pct": 1.0,
-          "largeur_pts": 11.0,
+          "bas_pct": -13.75,
+          "haut_pct": 2.5,
+          "largeur_pts": 16.25,
           "dans_fourchette": false,
           "sortie_plus_forte": true,
           "nom": "EUR/USD (Euro-Dollar)",
@@ -2584,9 +3286,9 @@
           "reel_pct": 18.91,
           "ecart_pts": -13.91,
           "sens_correct": true,
-          "bas_pct": 0.0,
-          "haut_pct": 10.0,
-          "largeur_pts": 10.0,
+          "bas_pct": -1.25,
+          "haut_pct": 13.75,
+          "largeur_pts": 15.0,
           "dans_fourchette": false,
           "sortie_plus_forte": true,
           "nom": "DXY (US Dollar Index)",
@@ -2602,9 +3304,9 @@
           "reel_pct": 127.03,
           "ecart_pts": -112.03,
           "sens_correct": true,
-          "bas_pct": -5.0,
-          "haut_pct": 45.0,
-          "largeur_pts": 50.0,
+          "bas_pct": -10.0,
+          "haut_pct": 67.5,
+          "largeur_pts": 77.5,
           "dans_fourchette": false,
           "sortie_plus_forte": true,
           "nom": "VIX (CBOE Volatility Index)",
@@ -2620,9 +3322,9 @@
           "reel_pct": 16.15,
           "ecart_pts": -7.73,
           "sens_correct": true,
-          "bas_pct": 0.0,
-          "haut_pct": 17.89,
-          "largeur_pts": 17.89,
+          "bas_pct": -5.0,
+          "haut_pct": 25.0,
+          "largeur_pts": 30.0,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "Or (Gold Spot, $/oz)",
@@ -2638,9 +3340,9 @@
           "reel_pct": -1.27,
           "ecart_pts": 3.37,
           "sens_correct": null,
-          "bas_pct": -7.37,
-          "haut_pct": 13.68,
-          "largeur_pts": 21.05,
+          "bas_pct": -14.47,
+          "haut_pct": 17.89,
+          "largeur_pts": 32.37,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "Argent (Silver Spot, $/oz)",
@@ -2656,11 +3358,11 @@
           "reel_pct": -67.61,
           "ecart_pts": 28.66,
           "sens_correct": true,
-          "bas_pct": -57.89,
-          "haut_pct": -21.05,
-          "largeur_pts": 36.84,
-          "dans_fourchette": false,
-          "sortie_plus_forte": true,
+          "bas_pct": -68.42,
+          "haut_pct": -16.58,
+          "largeur_pts": 51.84,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
           "nom": "Pétrole WTI (Crude Oil)",
           "nom_court": "Pétrole WTI",
           "categorie": "Matières Premières",
@@ -2674,11 +3376,11 @@
           "reel_pct": -22.98,
           "ecart_pts": 14.56,
           "sens_correct": true,
-          "bas_pct": -21.05,
-          "haut_pct": 1.05,
-          "largeur_pts": 22.11,
-          "dans_fourchette": false,
-          "sortie_plus_forte": true,
+          "bas_pct": -30.53,
+          "haut_pct": 5.79,
+          "largeur_pts": 36.32,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
           "nom": "Cuivre (Copper Futures)",
           "nom_court": "Cuivre",
           "categorie": "Matières Premières",
@@ -2692,9 +3394,9 @@
           "reel_pct": -56.46,
           "ecart_pts": 49.09,
           "sens_correct": true,
-          "bas_pct": -21.05,
-          "haut_pct": 5.26,
-          "largeur_pts": 26.32,
+          "bas_pct": -31.32,
+          "haut_pct": 10.0,
+          "largeur_pts": 41.32,
           "dans_fourchette": false,
           "sortie_plus_forte": true,
           "nom": "ETF Terres Rares (REMX)",
@@ -2710,9 +3412,9 @@
           "reel_pct": 18.76,
           "ecart_pts": -13.5,
           "sens_correct": true,
-          "bas_pct": 0.0,
-          "haut_pct": 9.47,
-          "largeur_pts": 9.47,
+          "bas_pct": -7.37,
+          "haut_pct": 17.89,
+          "largeur_pts": 25.26,
           "dans_fourchette": false,
           "sortie_plus_forte": true,
           "nom": "ETF Aérospatiale & Défense (ITA)",
@@ -2761,10 +3463,10 @@
           "correlation_rangs": 0.963,
           "ratio_amplitude": 0.959,
           "nb_fourchettes": 18,
-          "nb_dans_fourchette": 11,
-          "part_dans_fourchette": 0.611,
-          "largeur_moyenne_pts": 10.96,
-          "nb_sorties_plus_fortes": 6
+          "nb_dans_fourchette": 15,
+          "part_dans_fourchette": 0.833,
+          "largeur_moyenne_pts": 26.57,
+          "nb_sorties_plus_fortes": 3
         },
         "estimes_pct": {
           "S&P 500": 14.46,
@@ -2847,6 +3549,133 @@
           "Solana": -0.08
         },
         "fourchettes": {
+          "S&P 500": {
+            "bas": -0.18,
+            "central": -0.03,
+            "haut": 0.12
+          },
+          "NASDAQ": {
+            "bas": -0.1925,
+            "central": -0.02,
+            "haut": 0.1525
+          },
+          "CAC 40": {
+            "bas": -0.18,
+            "central": -0.03,
+            "haut": 0.12
+          },
+          "MSCI_World": {
+            "bas": -0.1825,
+            "central": -0.04,
+            "haut": 0.1025
+          },
+          "Emerging_Markets": {
+            "bas": -0.2625,
+            "central": -0.09,
+            "haut": 0.0825
+          },
+          "Bons_Tresor_US_10Y": {
+            "bas": -0.0275,
+            "central": 0.04,
+            "haut": 0.11
+          },
+          "Bund_10Y": {
+            "bas": -0.02,
+            "central": 0.04,
+            "haut": 0.1
+          },
+          "OAT_10Y": {
+            "bas": -0.03,
+            "central": 0.03,
+            "haut": 0.1
+          },
+          "JGB_10Y": {
+            "bas": -0.035,
+            "central": 0.01,
+            "haut": 0.055
+          },
+          "Gilt_10Y": {
+            "bas": -0.02,
+            "central": 0.04,
+            "haut": 0.11
+          },
+          "EUR_USD": {
+            "bas": -0.1375,
+            "central": -0.05,
+            "haut": 0.025
+          },
+          "Dollar_Index": {
+            "bas": -0.0125,
+            "central": 0.05,
+            "haut": 0.1375
+          },
+          "VIX": {
+            "bas": -0.1,
+            "central": 0.15,
+            "haut": 0.675
+          },
+          "Or": {
+            "bas": -0.0975,
+            "central": 0.03,
+            "haut": 0.1875
+          },
+          "Argent": {
+            "bas": -0.1875,
+            "central": -0.03,
+            "haut": 0.12
+          },
+          "Petrole": {
+            "bas": -0.7,
+            "central": -0.42,
+            "haut": -0.2075
+          },
+          "Cuivre": {
+            "bas": -0.34,
+            "central": -0.13,
+            "haut": 0.005
+          },
+          "ETF_Terres_Rares": {
+            "bas": -0.3475,
+            "central": -0.12,
+            "haut": 0.045
+          },
+          "ETF_Defense": {
+            "bas": -0.12,
+            "central": 0.0,
+            "haut": 0.12
+          },
+          "Bitcoin": {
+            "bas": -0.4,
+            "central": -0.05,
+            "haut": 0.1625
+          },
+          "Ethereum": {
+            "bas": -0.4725,
+            "central": -0.07,
+            "haut": 0.205
+          },
+          "XRP": {
+            "bas": -0.5525,
+            "central": -0.08,
+            "haut": 0.245
+          },
+          "Solana": {
+            "bas": -0.5525,
+            "central": -0.08,
+            "haut": 0.245
+          }
+        },
+        "evenement_cite": "Contre-choc pétrolier de 2014-2016",
+        "references": [
+          {
+            "evenement": "Contre-choc pétrolier de 2014-2016",
+            "annee": 2014,
+            "poids": 1.0,
+            "raison": "La hausse de l'offre de schiste, la défense des parts de marché de l'OPEP et le ralentissement chinois reproduisent étroitement les mécanismes du scénario."
+          }
+        ],
+        "explication": "Le contre-choc pétrolier de 2014-2016 fournit le précédent principal : sa sévérité est modérée pour les indices diversifiés, mais forte pour le secteur pétrolier. Sur 443 séances, le pétrole perdrait 42 % sous l'effet de l'offre de schiste américaine, du maintien de la production de l'OPEP et du ralentissement chinois ; la compression des revenus des producteurs pèserait sur les actions émergentes et les investissements énergétiques. La désinflation et la recherche de sécurité soutiendraient les Treasuries à 10 ans de 4 %, tandis que la baisse des coûts énergétiques amortirait le choc pour les consommateurs et les entreprises importatrices. Les chiffres macro représentent des variations en points de pourcentage par rapport au scénario sans choc ; les actifs représentent les variations cumulées attribuables au scénario, et non des prévisions intégrant tous les autres facteurs. Un risque propre à cet épisode est qu'une vague de faillites dans le schiste réduise l'offre plus vite que prévu et provoque un rebond du brut avant la fin de la période.",
+        "fourchettes_ia": {
           "S&P 500": {
             "bas": -0.08,
             "central": -0.03,
@@ -2962,17 +3791,7 @@
             "central": -0.08,
             "haut": 0.18
           }
-        },
-        "evenement_cite": "Contre-choc pétrolier de 2014-2016",
-        "references": [
-          {
-            "evenement": "Contre-choc pétrolier de 2014-2016",
-            "annee": 2014,
-            "poids": 1.0,
-            "raison": "La hausse de l'offre de schiste, la défense des parts de marché de l'OPEP et le ralentissement chinois reproduisent étroitement les mécanismes du scénario."
-          }
-        ],
-        "explication": "Le contre-choc pétrolier de 2014-2016 fournit le précédent principal : sa sévérité est modérée pour les indices diversifiés, mais forte pour le secteur pétrolier. Sur 443 séances, le pétrole perdrait 42 % sous l'effet de l'offre de schiste américaine, du maintien de la production de l'OPEP et du ralentissement chinois ; la compression des revenus des producteurs pèserait sur les actions émergentes et les investissements énergétiques. La désinflation et la recherche de sécurité soutiendraient les Treasuries à 10 ans de 4 %, tandis que la baisse des coûts énergétiques amortirait le choc pour les consommateurs et les entreprises importatrices. Les chiffres macro représentent des variations en points de pourcentage par rapport au scénario sans choc ; les actifs représentent les variations cumulées attribuables au scénario, et non des prévisions intégrant tous les autres facteurs. Un risque propre à cet épisode est qu'une vague de faillites dans le schiste réduise l'offre plus vite que prévu et provoque un rebond du brut avant la fin de la période."
+        }
       },
       "estimation_avec_date": {
         "empreinte": "ba1fbb89c9da0cc5",
@@ -3034,6 +3853,133 @@
           "Solana": 0.0
         },
         "fourchettes": {
+          "S&P 500": {
+            "bas": -0.2,
+            "central": -0.05,
+            "haut": 0.1
+          },
+          "NASDAQ": {
+            "bas": -0.1625,
+            "central": 0.01,
+            "haut": 0.1825
+          },
+          "CAC 40": {
+            "bas": -0.29,
+            "central": -0.14,
+            "haut": 0.01
+          },
+          "MSCI_World": {
+            "bas": -0.2425,
+            "central": -0.1,
+            "haut": 0.0425
+          },
+          "Emerging_Markets": {
+            "bas": -0.4225,
+            "central": -0.25,
+            "haut": -0.0775
+          },
+          "Bons_Tresor_US_10Y": {
+            "bas": 0.0025,
+            "central": 0.07,
+            "haut": 0.1375
+          },
+          "Bund_10Y": {
+            "bas": 0.04,
+            "central": 0.1,
+            "haut": 0.17
+          },
+          "OAT_10Y": {
+            "bas": 0.05,
+            "central": 0.11,
+            "haut": 0.18
+          },
+          "JGB_10Y": {
+            "bas": 0.015,
+            "central": 0.06,
+            "haut": 0.1125
+          },
+          "Gilt_10Y": {
+            "bas": 0.02,
+            "central": 0.08,
+            "haut": 0.15
+          },
+          "EUR_USD": {
+            "bas": -0.2,
+            "central": -0.17,
+            "haut": -0.11
+          },
+          "Dollar_Index": {
+            "bas": 0.14,
+            "central": 0.2,
+            "haut": 0.2
+          },
+          "VIX": {
+            "bas": 1.1325,
+            "central": 1.47,
+            "haut": 1.96
+          },
+          "Or": {
+            "bas": -0.1275,
+            "central": 0.0,
+            "haut": 0.1275
+          },
+          "Argent": {
+            "bas": -0.3,
+            "central": -0.19,
+            "haut": -0.04
+          },
+          "Petrole": {
+            "bas": -0.7,
+            "central": -0.7,
+            "haut": -0.7
+          },
+          "Cuivre": {
+            "bas": -0.4,
+            "central": -0.3,
+            "haut": -0.165
+          },
+          "ETF_Terres_Rares": {
+            "bas": -0.4,
+            "central": -0.4,
+            "haut": -0.235
+          },
+          "ETF_Defense": {
+            "bas": -0.04,
+            "central": 0.08,
+            "haut": 0.22
+          },
+          "Bitcoin": {
+            "bas": -0.58,
+            "central": -0.4,
+            "haut": -0.22
+          },
+          "Ethereum": {
+            "bas": 0.0,
+            "central": 0.0,
+            "haut": 0.0
+          },
+          "XRP": {
+            "bas": -0.4,
+            "central": -0.05,
+            "haut": 0.2625
+          },
+          "Solana": {
+            "bas": 0.0,
+            "central": 0.0,
+            "haut": 0.0
+          }
+        },
+        "evenement_cite": "Effondrement pétrolier de 2014-2016",
+        "references": [
+          {
+            "evenement": "Effondrement pétrolier de 2014-2016",
+            "annee": 2014,
+            "poids": 1.0,
+            "raison": "Il s’agit de la période et du choc d’offre pétrolière décrits, accompagnés du ralentissement chinois et de l’appréciation du dollar."
+          }
+        ],
+        "explication": "L’effondrement pétrolier de 2014-2016 est classé comme une crise sectorielle modérée, et non comme une crise systémique. Sur les 443 séances, le WTI perd environ 74 %, sous l’effet combiné du schiste américain, du refus de l’OPEP de réduire sa production et du ralentissement chinois. La contraction des revenus des producteurs et des investissements énergétiques pèse sur les émergents et le crédit, tandis que la fuite vers les Treasuries et la divergence monétaire soutiennent le dollar. Les chiffres sont des estimations de variation totale en devise de cotation ; pour les obligations, ils désignent le prix de titres à échéance constante de dix ans, tandis que les chiffres macro sont des variations en points de pourcentage des indicateurs américains. Ethereum et Solana sont non calculables sur toute la période car ils n’étaient pas cotés au départ ; les cryptomonnaies disponibles et les ETF sectoriels restent particulièrement difficiles à attribuer au seul choc pétrolier.",
+        "fourchettes_ia": {
           "S&P 500": {
             "bas": -0.08,
             "central": -0.05,
@@ -3149,17 +4095,7 @@
             "central": 0.0,
             "haut": 0.0
           }
-        },
-        "evenement_cite": "Effondrement pétrolier de 2014-2016",
-        "references": [
-          {
-            "evenement": "Effondrement pétrolier de 2014-2016",
-            "annee": 2014,
-            "poids": 1.0,
-            "raison": "Il s’agit de la période et du choc d’offre pétrolière décrits, accompagnés du ralentissement chinois et de l’appréciation du dollar."
-          }
-        ],
-        "explication": "L’effondrement pétrolier de 2014-2016 est classé comme une crise sectorielle modérée, et non comme une crise systémique. Sur les 443 séances, le WTI perd environ 74 %, sous l’effet combiné du schiste américain, du refus de l’OPEP de réduire sa production et du ralentissement chinois. La contraction des revenus des producteurs et des investissements énergétiques pèse sur les émergents et le crédit, tandis que la fuite vers les Treasuries et la divergence monétaire soutiennent le dollar. Les chiffres sont des estimations de variation totale en devise de cotation ; pour les obligations, ils désignent le prix de titres à échéance constante de dix ans, tandis que les chiffres macro sont des variations en points de pourcentage des indicateurs américains. Ethereum et Solana sont non calculables sur toute la période car ils n’étaient pas cotés au départ ; les cryptomonnaies disponibles et les ETF sectoriels restent particulièrement difficiles à attribuer au seul choc pétrolier."
+        }
       }
     },
     {
@@ -3188,9 +4124,9 @@
         "correlation_rangs": 0.773,
         "ratio_amplitude": 0.764,
         "nb_fourchettes": 23,
-        "nb_dans_fourchette": 20,
-        "part_dans_fourchette": 0.87,
-        "largeur_moyenne_pts": 28.75,
+        "nb_dans_fourchette": 21,
+        "part_dans_fourchette": 0.913,
+        "largeur_moyenne_pts": 42.5,
         "nb_sorties_plus_fortes": 2
       },
       "metriques_devise_locale": {
@@ -3205,9 +4141,9 @@
         "correlation_rangs": 0.785,
         "ratio_amplitude": 0.748,
         "nb_fourchettes": 23,
-        "nb_dans_fourchette": 20,
-        "part_dans_fourchette": 0.87,
-        "largeur_moyenne_pts": 28.13,
+        "nb_dans_fourchette": 21,
+        "part_dans_fourchette": 0.913,
+        "largeur_moyenne_pts": 41.58,
         "nb_sorties_plus_fortes": 2
       },
       "actifs": [
@@ -3217,9 +4153,9 @@
           "reel_pct": -6.3,
           "ecart_pts": -1.94,
           "sens_correct": true,
-          "bas_pct": -17.53,
-          "haut_pct": 0.0,
-          "largeur_pts": 17.53,
+          "bas_pct": -24.48,
+          "haut_pct": 7.22,
+          "largeur_pts": 31.7,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "S&P 500 (USA)",
@@ -3235,9 +4171,9 @@
           "reel_pct": -18.07,
           "ecart_pts": 2.61,
           "sens_correct": true,
-          "bas_pct": -26.8,
-          "haut_pct": -3.09,
-          "largeur_pts": 23.71,
+          "bas_pct": -35.31,
+          "haut_pct": 2.32,
+          "largeur_pts": 37.63,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "NASDAQ 100 (Tech US)",
@@ -3253,9 +4189,9 @@
           "reel_pct": -0.73,
           "ecart_pts": -7.27,
           "sens_correct": null,
-          "bas_pct": -18.0,
-          "haut_pct": 2.0,
-          "largeur_pts": 20.0,
+          "bas_pct": -25.5,
+          "haut_pct": 7.0,
+          "largeur_pts": 32.5,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "CAC 40 (France)",
@@ -3271,9 +4207,9 @@
           "reel_pct": -5.1,
           "ecart_pts": -4.18,
           "sens_correct": true,
-          "bas_pct": -18.56,
-          "haut_pct": -1.03,
-          "largeur_pts": 17.53,
+          "bas_pct": -25.52,
+          "haut_pct": 5.41,
+          "largeur_pts": 30.93,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "MSCI World (Global)",
@@ -3289,9 +4225,9 @@
           "reel_pct": -12.64,
           "ecart_pts": 1.3,
           "sens_correct": true,
-          "bas_pct": -21.65,
-          "haut_pct": -1.03,
-          "largeur_pts": 20.62,
+          "bas_pct": -29.38,
+          "haut_pct": 6.44,
+          "largeur_pts": 35.82,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "MSCI Emerging Markets",
@@ -3307,9 +4243,9 @@
           "reel_pct": -8.0,
           "ecart_pts": 1.81,
           "sens_correct": true,
-          "bas_pct": -12.37,
-          "haut_pct": 0.0,
-          "largeur_pts": 12.37,
+          "bas_pct": -17.01,
+          "haut_pct": 1.55,
+          "largeur_pts": 18.56,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "U.S. Treasury 10Y",
@@ -3325,9 +4261,9 @@
           "reel_pct": -15.6,
           "ecart_pts": 4.6,
           "sens_correct": true,
-          "bas_pct": -18.0,
-          "haut_pct": -4.0,
-          "largeur_pts": 14.0,
+          "bas_pct": -20.0,
+          "haut_pct": -2.25,
+          "largeur_pts": 17.75,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "Bund Allemagne 10Y",
@@ -3343,9 +4279,9 @@
           "reel_pct": -16.6,
           "ecart_pts": 4.6,
           "sens_correct": true,
-          "bas_pct": -19.0,
-          "haut_pct": -5.0,
-          "largeur_pts": 14.0,
+          "bas_pct": -20.0,
+          "haut_pct": -3.25,
+          "largeur_pts": 16.75,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "OAT France 10Y",
@@ -3361,9 +4297,9 @@
           "reel_pct": -15.11,
           "ecart_pts": 12.11,
           "sens_correct": true,
-          "bas_pct": -7.0,
-          "haut_pct": 0.0,
-          "largeur_pts": 7.0,
+          "bas_pct": -10.0,
+          "haut_pct": 1.5,
+          "largeur_pts": 11.5,
           "dans_fourchette": false,
           "sortie_plus_forte": true,
           "nom": "JGB Japon 10Y",
@@ -3380,8 +4316,8 @@
           "ecart_pts": 5.44,
           "sens_correct": true,
           "bas_pct": -20.0,
-          "haut_pct": -6.0,
-          "largeur_pts": 14.0,
+          "haut_pct": -4.0,
+          "largeur_pts": 16.0,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "Gilt Royaume-Uni 10Y",
@@ -3397,9 +4333,9 @@
           "reel_pct": -5.7,
           "ecart_pts": 2.7,
           "sens_correct": true,
-          "bas_pct": -10.0,
-          "haut_pct": 3.0,
-          "largeur_pts": 13.0,
+          "bas_pct": -15.25,
+          "haut_pct": 4.5,
+          "largeur_pts": 19.75,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "EUR/USD (Euro-Dollar)",
@@ -3415,9 +4351,9 @@
           "reel_pct": 6.57,
           "ecart_pts": -2.57,
           "sens_correct": true,
-          "bas_pct": -2.0,
-          "haut_pct": 10.0,
-          "largeur_pts": 12.0,
+          "bas_pct": -3.5,
+          "haut_pct": 14.5,
+          "largeur_pts": 18.0,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "DXY (US Dollar Index)",
@@ -3433,10 +4369,10 @@
           "reel_pct": -28.53,
           "ecart_pts": 38.53,
           "sens_correct": false,
-          "bas_pct": -25.0,
-          "haut_pct": 65.0,
-          "largeur_pts": 90.0,
-          "dans_fourchette": false,
+          "bas_pct": -33.75,
+          "haut_pct": 106.25,
+          "largeur_pts": 140.0,
+          "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "VIX (CBOE Volatility Index)",
           "nom_court": "VIX",
@@ -3451,9 +4387,9 @@
           "reel_pct": -0.78,
           "ecart_pts": 6.96,
           "sens_correct": null,
-          "bas_pct": -4.12,
-          "haut_pct": 15.46,
-          "largeur_pts": 19.59,
+          "bas_pct": -6.96,
+          "haut_pct": 22.42,
+          "largeur_pts": 29.38,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "Or (Gold Spot, $/oz)",
@@ -3469,9 +4405,9 @@
           "reel_pct": 1.17,
           "ecart_pts": -0.14,
           "sens_correct": null,
-          "bas_pct": -11.34,
-          "haut_pct": 15.46,
-          "largeur_pts": 26.8,
+          "bas_pct": -20.62,
+          "haut_pct": 19.07,
+          "largeur_pts": 39.69,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "Argent (Silver Spot, $/oz)",
@@ -3487,9 +4423,9 @@
           "reel_pct": -9.49,
           "ecart_pts": 2.28,
           "sens_correct": true,
-          "bas_pct": -27.84,
-          "haut_pct": 21.65,
-          "largeur_pts": 49.48,
+          "bas_pct": -43.3,
+          "haut_pct": 28.87,
+          "largeur_pts": 72.16,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "Pétrole WTI (Crude Oil)",
@@ -3505,9 +4441,9 @@
           "reel_pct": -10.58,
           "ecart_pts": 1.3,
           "sens_correct": true,
-          "bas_pct": -21.65,
-          "haut_pct": 5.15,
-          "largeur_pts": 26.8,
+          "bas_pct": -30.93,
+          "haut_pct": 8.76,
+          "largeur_pts": 39.69,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "Cuivre (Copper Futures)",
@@ -3523,9 +4459,9 @@
           "reel_pct": -22.4,
           "ecart_pts": 10.03,
           "sens_correct": true,
-          "bas_pct": -25.77,
-          "haut_pct": 5.15,
-          "largeur_pts": 30.93,
+          "bas_pct": -35.82,
+          "haut_pct": 9.54,
+          "largeur_pts": 45.36,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "ETF Terres Rares (REMX)",
@@ -3541,9 +4477,9 @@
           "reel_pct": 13.2,
           "ecart_pts": 5.36,
           "sens_correct": true,
-          "bas_pct": 6.19,
-          "haut_pct": 31.96,
-          "largeur_pts": 25.77,
+          "bas_pct": 3.09,
+          "haut_pct": 42.01,
+          "largeur_pts": 38.92,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "ETF Aérospatiale & Défense (ITA)",
@@ -3559,9 +4495,9 @@
           "reel_pct": -54.67,
           "ecart_pts": 16.53,
           "sens_correct": true,
-          "bas_pct": -58.76,
-          "haut_pct": -15.46,
-          "largeur_pts": 43.3,
+          "bas_pct": -74.23,
+          "haut_pct": -9.79,
+          "largeur_pts": 64.43,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "Bitcoin (BTC)",
@@ -3577,9 +4513,9 @@
           "reel_pct": -51.69,
           "ecart_pts": 11.48,
           "sens_correct": true,
-          "bas_pct": -63.92,
-          "haut_pct": -12.37,
-          "largeur_pts": 51.55,
+          "bas_pct": -79.38,
+          "haut_pct": -5.41,
+          "largeur_pts": 73.97,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "Ethereum (ETH)",
@@ -3595,9 +4531,9 @@
           "reel_pct": -48.14,
           "ecart_pts": 9.99,
           "sens_correct": true,
-          "bas_pct": -63.92,
-          "haut_pct": -9.28,
-          "largeur_pts": 54.64,
+          "bas_pct": -83.25,
+          "haut_pct": -2.06,
+          "largeur_pts": 81.19,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "XRP (Ripple)",
@@ -3614,8 +4550,8 @@
           "ecart_pts": 24.49,
           "sens_correct": true,
           "bas_pct": -84.54,
-          "haut_pct": -27.84,
-          "largeur_pts": 56.7,
+          "haut_pct": -18.81,
+          "largeur_pts": 65.72,
           "dans_fourchette": false,
           "sortie_plus_forte": true,
           "nom": "Solana (SOL)",
@@ -3643,10 +4579,10 @@
           "correlation_rangs": 0.951,
           "ratio_amplitude": 0.914,
           "nb_fourchettes": 23,
-          "nb_dans_fourchette": 17,
-          "part_dans_fourchette": 0.739,
-          "largeur_moyenne_pts": 7.78,
-          "nb_sorties_plus_fortes": 5
+          "nb_dans_fourchette": 21,
+          "part_dans_fourchette": 0.913,
+          "largeur_moyenne_pts": 26.21,
+          "nb_sorties_plus_fortes": 2
         },
         "estimes_pct": {
           "S&P 500": -5.79,
@@ -3734,6 +4670,139 @@
           "Solana": -0.65
         },
         "fourchettes": {
+          "S&P 500": {
+            "bas": -0.2675,
+            "central": -0.11,
+            "haut": 0.04
+          },
+          "NASDAQ": {
+            "bas": -0.3725,
+            "central": -0.18,
+            "haut": -0.0075
+          },
+          "CAC 40": {
+            "bas": -0.255,
+            "central": -0.08,
+            "haut": 0.07
+          },
+          "MSCI_World": {
+            "bas": -0.2775,
+            "central": -0.12,
+            "haut": 0.0225
+          },
+          "Emerging_Markets": {
+            "bas": -0.315,
+            "central": -0.14,
+            "haut": 0.0325
+          },
+          "Bons_Tresor_US_10Y": {
+            "bas": -0.195,
+            "central": -0.09,
+            "haut": -0.015
+          },
+          "Bund_10Y": {
+            "bas": -0.2,
+            "central": -0.11,
+            "haut": -0.0225
+          },
+          "OAT_10Y": {
+            "bas": -0.2,
+            "central": -0.12,
+            "haut": -0.0325
+          },
+          "JGB_10Y": {
+            "bas": -0.1,
+            "central": -0.03,
+            "haut": 0.015
+          },
+          "Gilt_10Y": {
+            "bas": -0.2,
+            "central": -0.14,
+            "haut": -0.04
+          },
+          "EUR_USD": {
+            "bas": -0.1525,
+            "central": -0.03,
+            "haut": 0.045
+          },
+          "Dollar_Index": {
+            "bas": -0.035,
+            "central": 0.04,
+            "haut": 0.145
+          },
+          "VIX": {
+            "bas": -0.3375,
+            "central": 0.1,
+            "haut": 1.0625
+          },
+          "Or": {
+            "bas": -0.0975,
+            "central": 0.03,
+            "haut": 0.1875
+          },
+          "Argent": {
+            "bas": -0.23,
+            "central": -0.02,
+            "haut": 0.155
+          },
+          "Petrole": {
+            "bas": -0.45,
+            "central": -0.1,
+            "haut": 0.25
+          },
+          "Cuivre": {
+            "bas": -0.33,
+            "central": -0.12,
+            "haut": 0.055
+          },
+          "ETF_Terres_Rares": {
+            "bas": -0.3775,
+            "central": -0.15,
+            "haut": 0.0625
+          },
+          "ETF_Defense": {
+            "bas": 0.0,
+            "central": 0.15,
+            "haut": 0.3775
+          },
+          "Bitcoin": {
+            "bas": -0.75,
+            "central": -0.4,
+            "haut": -0.125
+          },
+          "Ethereum": {
+            "bas": -0.8,
+            "central": -0.42,
+            "haut": -0.0825
+          },
+          "XRP": {
+            "bas": -0.8375,
+            "central": -0.4,
+            "haut": -0.05
+          },
+          "Solana": {
+            "bas": -0.85,
+            "central": -0.65,
+            "haut": -0.2125
+          }
+        },
+        "evenement_cite": "Invasion russe de l'Ukraine et choc énergétique",
+        "references": [
+          {
+            "evenement": "Invasion russe de l'Ukraine et choc énergétique",
+            "annee": 2022,
+            "poids": 0.75,
+            "raison": "Le conflit, les sanctions et la dépendance européenne au gaz russe correspondent directement au scénario."
+          },
+          {
+            "evenement": "Cycle de resserrement de la Fed",
+            "annee": 2022,
+            "poids": 0.25,
+            "raison": "La hausse rapide des taux réels éclaire la baisse simultanée des obligations et des actifs de croissance."
+          }
+        ],
+        "explication": "L'invasion russe de l'Ukraine en 2022 sert de référence à ce choc de sévérité forte, estimé sur 222 séances plutôt que sur 100. Les sanctions et la réduction des flux de gaz russe renchérissent l'énergie européenne, comprimant les marges des industries chimiques et manufacturières, tandis que le NASDAQ recule de 18 % dans l'estimation centrale. La remontée des taux américains pèse sur les obligations et les actifs risqués ; les chiffres macro sont des niveaux américains indicatifs en fin de période, en pourcentage, et les obligations sont exprimées en prix, hors coupons. Le pétrole termine à -10 % dans le scénario central malgré sa flambée initiale, sous l'effet du ralentissement de la demande et de l'ajustement des approvisionnements. Une interruption prolongée du gaz russe ou, à l'inverse, une détente rapide pourrait modifier sensiblement ce bilan final ; les faillites propres aux plateformes crypto constituent un risque distinct.",
+        "fourchettes_ia": {
           "S&P 500": {
             "bas": -0.2,
             "central": -0.11,
@@ -3849,23 +4918,7 @@
             "central": -0.65,
             "haut": -0.3
           }
-        },
-        "evenement_cite": "Invasion russe de l'Ukraine et choc énergétique",
-        "references": [
-          {
-            "evenement": "Invasion russe de l'Ukraine et choc énergétique",
-            "annee": 2022,
-            "poids": 0.75,
-            "raison": "Le conflit, les sanctions et la dépendance européenne au gaz russe correspondent directement au scénario."
-          },
-          {
-            "evenement": "Cycle de resserrement de la Fed",
-            "annee": 2022,
-            "poids": 0.25,
-            "raison": "La hausse rapide des taux réels éclaire la baisse simultanée des obligations et des actifs de croissance."
-          }
-        ],
-        "explication": "L'invasion russe de l'Ukraine en 2022 sert de référence à ce choc de sévérité forte, estimé sur 222 séances plutôt que sur 100. Les sanctions et la réduction des flux de gaz russe renchérissent l'énergie européenne, comprimant les marges des industries chimiques et manufacturières, tandis que le NASDAQ recule de 18 % dans l'estimation centrale. La remontée des taux américains pèse sur les obligations et les actifs risqués ; les chiffres macro sont des niveaux américains indicatifs en fin de période, en pourcentage, et les obligations sont exprimées en prix, hors coupons. Le pétrole termine à -10 % dans le scénario central malgré sa flambée initiale, sous l'effet du ralentissement de la demande et de l'ajustement des approvisionnements. Une interruption prolongée du gaz russe ou, à l'inverse, une détente rapide pourrait modifier sensiblement ce bilan final ; les faillites propres aux plateformes crypto constituent un risque distinct."
+        }
       },
       "estimation_avec_date": {
         "empreinte": "d9230bad94b8dc78",
@@ -3927,6 +4980,133 @@
           "Solana": -0.88
         },
         "fourchettes": {
+          "S&P 500": {
+            "bas": -0.255,
+            "central": -0.105,
+            "haut": 0.045
+          },
+          "NASDAQ": {
+            "bas": -0.3925,
+            "central": -0.22,
+            "haut": -0.0475
+          },
+          "CAC 40": {
+            "bas": -0.16,
+            "central": -0.01,
+            "haut": 0.14
+          },
+          "MSCI_World": {
+            "bas": -0.2825,
+            "central": -0.14,
+            "haut": 0.0025
+          },
+          "Emerging_Markets": {
+            "bas": -0.3325,
+            "central": -0.16,
+            "haut": 0.0125
+          },
+          "Bons_Tresor_US_10Y": {
+            "bas": -0.1775,
+            "central": -0.11,
+            "haut": -0.0425
+          },
+          "Bund_10Y": {
+            "bas": -0.2,
+            "central": -0.13,
+            "haut": -0.07
+          },
+          "OAT_10Y": {
+            "bas": -0.2,
+            "central": -0.13,
+            "haut": -0.07
+          },
+          "JGB_10Y": {
+            "bas": -0.065,
+            "central": -0.02,
+            "haut": 0.025
+          },
+          "Gilt_10Y": {
+            "bas": -0.2,
+            "central": -0.14,
+            "haut": -0.08
+          },
+          "EUR_USD": {
+            "bas": -0.11,
+            "central": -0.05,
+            "haut": 0.01
+          },
+          "Dollar_Index": {
+            "bas": 0.01,
+            "central": 0.07,
+            "haut": 0.13
+          },
+          "VIX": {
+            "bas": -0.46,
+            "central": -0.28,
+            "haut": -0.1
+          },
+          "Or": {
+            "bas": -0.1775,
+            "central": -0.05,
+            "haut": 0.0775
+          },
+          "Argent": {
+            "bas": -0.19,
+            "central": -0.04,
+            "haut": 0.11
+          },
+          "Petrole": {
+            "bas": -0.31,
+            "central": -0.13,
+            "haut": 0.05
+          },
+          "Cuivre": {
+            "bas": -0.245,
+            "central": -0.11,
+            "haut": 0.025
+          },
+          "ETF_Terres_Rares": {
+            "bas": -0.345,
+            "central": -0.18,
+            "haut": -0.015
+          },
+          "ETF_Defense": {
+            "bas": -0.02,
+            "central": 0.1,
+            "haut": 0.22
+          },
+          "Bitcoin": {
+            "bas": -0.75,
+            "central": -0.57,
+            "haut": -0.39
+          },
+          "Ethereum": {
+            "bas": -0.72,
+            "central": -0.54,
+            "haut": -0.36
+          },
+          "XRP": {
+            "bas": -0.7,
+            "central": -0.52,
+            "haut": -0.34
+          },
+          "Solana": {
+            "bas": -0.85,
+            "central": -0.85,
+            "haut": -0.67
+          }
+        },
+        "evenement_cite": "Invasion russe de l’Ukraine",
+        "references": [
+          {
+            "evenement": "Invasion russe de l’Ukraine",
+            "annee": 2022,
+            "poids": 1.0,
+            "raison": "La période décrite correspond directement à l’invasion, aux sanctions et au resserrement monétaire concomitant."
+          }
+        ],
+        "explication": "L’invasion russe de l’Ukraine en 2022 constitue une crise de sévérité forte, dont le choc énergétique frappe particulièrement l’Europe. Sur 222 séances, le NASDAQ perd environ 22 % tandis que le resserrement de la Fed pénalise les valorisations technologiques et les obligations ; les variations indiquées sont totales et ne sont pas attribuables à la seule guerre. Le Brent recule d’environ 13 % entre les clôtures retenues malgré sa flambée initiale, tandis que le VIX baisse d’environ 28 % depuis son niveau déjà élevé du 24 février. L’inflation et le taux directeur sont respectivement le glissement annuel de l’IPC américain en décembre et le milieu de la fourchette de la Fed en fin d’année. Les prix obligataires sont approximés pour des titres à duration proche de 10 ans ; le choix des ETF, des horaires de clôture et l’effondrement de FTX, particulièrement important pour Solana, peuvent modifier sensiblement les résultats.",
+        "fourchettes_ia": {
           "S&P 500": {
             "bas": -0.13,
             "central": -0.105,
@@ -4042,17 +5222,7 @@
             "central": -0.85,
             "haut": -0.84
           }
-        },
-        "evenement_cite": "Invasion russe de l’Ukraine",
-        "references": [
-          {
-            "evenement": "Invasion russe de l’Ukraine",
-            "annee": 2022,
-            "poids": 1.0,
-            "raison": "La période décrite correspond directement à l’invasion, aux sanctions et au resserrement monétaire concomitant."
-          }
-        ],
-        "explication": "L’invasion russe de l’Ukraine en 2022 constitue une crise de sévérité forte, dont le choc énergétique frappe particulièrement l’Europe. Sur 222 séances, le NASDAQ perd environ 22 % tandis que le resserrement de la Fed pénalise les valorisations technologiques et les obligations ; les variations indiquées sont totales et ne sont pas attribuables à la seule guerre. Le Brent recule d’environ 13 % entre les clôtures retenues malgré sa flambée initiale, tandis que le VIX baisse d’environ 28 % depuis son niveau déjà élevé du 24 février. L’inflation et le taux directeur sont respectivement le glissement annuel de l’IPC américain en décembre et le milieu de la fourchette de la Fed en fin d’année. Les prix obligataires sont approximés pour des titres à duration proche de 10 ans ; le choix des ETF, des horaires de clôture et l’effondrement de FTX, particulièrement important pour Solana, peuvent modifier sensiblement les résultats."
+        }
       }
     },
     {
@@ -4081,10 +5251,10 @@
         "correlation_rangs": -0.411,
         "ratio_amplitude": 0.305,
         "nb_fourchettes": 20,
-        "nb_dans_fourchette": 2,
-        "part_dans_fourchette": 0.1,
-        "largeur_moyenne_pts": 10.86,
-        "nb_sorties_plus_fortes": 4
+        "nb_dans_fourchette": 15,
+        "part_dans_fourchette": 0.75,
+        "largeur_moyenne_pts": 27.61,
+        "nb_sorties_plus_fortes": 1
       },
       "metriques_devise_locale": {
         "nb_actifs": 20,
@@ -4098,10 +5268,10 @@
         "correlation_rangs": -0.552,
         "ratio_amplitude": 0.473,
         "nb_fourchettes": 20,
-        "nb_dans_fourchette": 2,
-        "part_dans_fourchette": 0.1,
-        "largeur_moyenne_pts": 10.65,
-        "nb_sorties_plus_fortes": 1
+        "nb_dans_fourchette": 13,
+        "part_dans_fourchette": 0.65,
+        "largeur_moyenne_pts": 26.97,
+        "nb_sorties_plus_fortes": 0
       },
       "actifs": [
         {
@@ -4110,11 +5280,11 @@
           "reel_pct": 14.46,
           "ecart_pts": -13.43,
           "sens_correct": true,
-          "bas_pct": -2.59,
-          "haut_pct": 3.63,
-          "largeur_pts": 6.22,
-          "dans_fourchette": false,
-          "sortie_plus_forte": true,
+          "bas_pct": -14.51,
+          "haut_pct": 16.58,
+          "largeur_pts": 31.09,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
           "nom": "S&P 500 (USA)",
           "nom_court": "S&P 500",
           "categorie": "Actions & Indices",
@@ -4128,11 +5298,11 @@
           "reel_pct": 17.63,
           "ecart_pts": -17.11,
           "sens_correct": true,
-          "bas_pct": -3.63,
-          "haut_pct": 3.63,
-          "largeur_pts": 7.25,
-          "dans_fourchette": false,
-          "sortie_plus_forte": true,
+          "bas_pct": -17.36,
+          "haut_pct": 18.39,
+          "largeur_pts": 35.75,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
           "nom": "NASDAQ 100 (Tech US)",
           "nom_court": "NASDAQ 100",
           "categorie": "Actions & Indices",
@@ -4146,10 +5316,10 @@
           "reel_pct": 8.88,
           "ecart_pts": -14.88,
           "sens_correct": false,
-          "bas_pct": -12.0,
-          "haut_pct": -2.0,
-          "largeur_pts": 10.0,
-          "dans_fourchette": false,
+          "bas_pct": -21.0,
+          "haut_pct": 9.0,
+          "largeur_pts": 30.0,
+          "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "CAC 40 (France)",
           "nom_court": "CAC 40",
@@ -4164,10 +5334,10 @@
           "reel_pct": 11.6,
           "ecart_pts": -12.12,
           "sens_correct": false,
-          "bas_pct": -4.66,
-          "haut_pct": 2.59,
-          "largeur_pts": 7.25,
-          "dans_fourchette": false,
+          "bas_pct": -15.28,
+          "haut_pct": 14.25,
+          "largeur_pts": 29.53,
+          "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "MSCI World (Global)",
           "nom_court": "MSCI World",
@@ -4182,10 +5352,10 @@
           "reel_pct": 10.07,
           "ecart_pts": -11.1,
           "sens_correct": false,
-          "bas_pct": -5.7,
-          "haut_pct": 2.59,
-          "largeur_pts": 8.29,
-          "dans_fourchette": false,
+          "bas_pct": -18.91,
+          "haut_pct": 16.84,
+          "largeur_pts": 35.75,
+          "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "MSCI Emerging Markets",
           "nom_court": "MSCI Emerging Markets",
@@ -4200,10 +5370,10 @@
           "reel_pct": 3.35,
           "ecart_pts": 2.87,
           "sens_correct": true,
-          "bas_pct": 4.15,
-          "haut_pct": 8.81,
-          "largeur_pts": 4.66,
-          "dans_fourchette": false,
+          "bas_pct": -0.78,
+          "haut_pct": 13.21,
+          "largeur_pts": 13.99,
+          "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "U.S. Treasury 10Y",
           "nom_court": "U.S. Treasury 10Y",
@@ -4218,10 +5388,10 @@
           "reel_pct": -0.71,
           "ecart_pts": 3.21,
           "sens_correct": null,
-          "bas_pct": 0.5,
-          "haut_pct": 5.0,
-          "largeur_pts": 4.5,
-          "dans_fourchette": false,
+          "bas_pct": -3.5,
+          "haut_pct": 8.5,
+          "largeur_pts": 12.0,
+          "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "Bund Allemagne 10Y",
           "nom_court": "Bund Allemagne 10Y",
@@ -4236,10 +5406,10 @@
           "reel_pct": -1.15,
           "ecart_pts": 2.65,
           "sens_correct": null,
-          "bas_pct": -0.5,
-          "haut_pct": 4.0,
-          "largeur_pts": 4.5,
-          "dans_fourchette": false,
+          "bas_pct": -4.5,
+          "haut_pct": 7.5,
+          "largeur_pts": 12.0,
+          "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "OAT France 10Y",
           "nom_court": "OAT France 10Y",
@@ -4254,9 +5424,9 @@
           "reel_pct": -6.15,
           "ecart_pts": 7.15,
           "sens_correct": false,
-          "bas_pct": 0.0,
-          "haut_pct": 2.5,
-          "largeur_pts": 2.5,
+          "bas_pct": -3.5,
+          "haut_pct": 5.5,
+          "largeur_pts": 9.0,
           "dans_fourchette": false,
           "sortie_plus_forte": false,
           "nom": "JGB Japon 10Y",
@@ -4272,9 +5442,9 @@
           "reel_pct": 4.07,
           "ecart_pts": 0.43,
           "sens_correct": true,
-          "bas_pct": 1.5,
-          "haut_pct": 8.0,
-          "largeur_pts": 6.5,
+          "bas_pct": -1.5,
+          "haut_pct": 10.63,
+          "largeur_pts": 12.13,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "Gilt Royaume-Uni 10Y",
@@ -4290,9 +5460,9 @@
           "reel_pct": -6.65,
           "ecart_pts": 3.15,
           "sens_correct": true,
-          "bas_pct": -7.0,
-          "haut_pct": -1.0,
-          "largeur_pts": 6.0,
+          "bas_pct": -9.62,
+          "haut_pct": 2.5,
+          "largeur_pts": 12.12,
           "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "EUR/USD (Euro-Dollar)",
@@ -4308,11 +5478,11 @@
           "reel_pct": 9.47,
           "ecart_pts": -5.97,
           "sens_correct": true,
-          "bas_pct": 1.0,
-          "haut_pct": 7.0,
-          "largeur_pts": 6.0,
-          "dans_fourchette": false,
-          "sortie_plus_forte": true,
+          "bas_pct": -2.5,
+          "haut_pct": 9.62,
+          "largeur_pts": 12.12,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
           "nom": "DXY (US Dollar Index)",
           "nom_court": "DXY",
           "categorie": "Devises & Volatilité",
@@ -4326,9 +5496,9 @@
           "reel_pct": -18.61,
           "ecart_pts": 43.61,
           "sens_correct": false,
-          "bas_pct": 5.0,
-          "haut_pct": 60.0,
-          "largeur_pts": 55.0,
+          "bas_pct": 0.0,
+          "haut_pct": 86.25,
+          "largeur_pts": 86.25,
           "dans_fourchette": false,
           "sortie_plus_forte": false,
           "nom": "VIX (CBOE Volatility Index)",
@@ -4344,10 +5514,10 @@
           "reel_pct": -1.48,
           "ecart_pts": 11.33,
           "sens_correct": null,
-          "bas_pct": 4.66,
-          "haut_pct": 16.06,
-          "largeur_pts": 11.4,
-          "dans_fourchette": false,
+          "bas_pct": -3.37,
+          "haut_pct": 23.06,
+          "largeur_pts": 26.42,
+          "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "Or (Gold Spot, $/oz)",
           "nom_court": "Or",
@@ -4362,10 +5532,10 @@
           "reel_pct": -0.75,
           "ecart_pts": 6.97,
           "sens_correct": null,
-          "bas_pct": -0.52,
-          "haut_pct": 13.99,
-          "largeur_pts": 14.51,
-          "dans_fourchette": false,
+          "bas_pct": -9.33,
+          "haut_pct": 21.76,
+          "largeur_pts": 31.09,
+          "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "Argent (Silver Spot, $/oz)",
           "nom_court": "Argent",
@@ -4380,10 +5550,10 @@
           "reel_pct": 15.83,
           "ecart_pts": -16.35,
           "sens_correct": false,
-          "bas_pct": -6.74,
-          "haut_pct": 3.63,
-          "largeur_pts": 10.36,
-          "dans_fourchette": false,
+          "bas_pct": -19.17,
+          "haut_pct": 18.13,
+          "largeur_pts": 37.31,
+          "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "Pétrole WTI (Crude Oil)",
           "nom_court": "Pétrole WTI",
@@ -4398,9 +5568,9 @@
           "reel_pct": 24.72,
           "ecart_pts": -25.76,
           "sens_correct": false,
-          "bas_pct": -6.74,
-          "haut_pct": 3.63,
-          "largeur_pts": 10.36,
+          "bas_pct": -15.03,
+          "haut_pct": 12.95,
+          "largeur_pts": 27.98,
           "dans_fourchette": false,
           "sortie_plus_forte": false,
           "nom": "Cuivre (Copper Futures)",
@@ -4416,10 +5586,10 @@
           "reel_pct": 12.51,
           "ecart_pts": -13.03,
           "sens_correct": false,
-          "bas_pct": -6.74,
-          "haut_pct": 4.66,
-          "largeur_pts": 11.4,
-          "dans_fourchette": false,
+          "bas_pct": -17.62,
+          "haut_pct": 16.58,
+          "largeur_pts": 34.2,
+          "dans_fourchette": true,
           "sortie_plus_forte": false,
           "nom": "ETF Terres Rares (REMX)",
           "nom_court": "ETF Terres Rares",
@@ -4434,9 +5604,9 @@
           "reel_pct": 21.62,
           "ecart_pts": -19.03,
           "sens_correct": true,
-          "bas_pct": -0.52,
-          "haut_pct": 6.22,
-          "largeur_pts": 6.74,
+          "bas_pct": -9.84,
+          "haut_pct": 15.03,
+          "largeur_pts": 24.87,
           "dans_fourchette": false,
           "sortie_plus_forte": true,
           "nom": "ETF Aérospatiale & Défense (ITA)",
@@ -4452,9 +5622,9 @@
           "reel_pct": 66.44,
           "ecart_pts": -66.96,
           "sens_correct": false,
-          "bas_pct": -11.92,
-          "haut_pct": 11.92,
-          "largeur_pts": 23.83,
+          "bas_pct": -20.47,
+          "haut_pct": 18.13,
+          "largeur_pts": 38.6,
           "dans_fourchette": false,
           "sortie_plus_forte": false,
           "nom": "Bitcoin (BTC)",
@@ -4495,10 +5665,10 @@
           "correlation_rangs": 0.969,
           "ratio_amplitude": 1.026,
           "nb_fourchettes": 20,
-          "nb_dans_fourchette": 14,
-          "part_dans_fourchette": 0.7,
-          "largeur_moyenne_pts": 6.67,
-          "nb_sorties_plus_fortes": 3
+          "nb_dans_fourchette": 19,
+          "part_dans_fourchette": 0.95,
+          "largeur_moyenne_pts": 25.91,
+          "nb_sorties_plus_fortes": 1
         },
         "estimes_pct": {
           "S&P 500": 15.22,
@@ -4583,6 +5753,133 @@
           "Solana": -0.08
         },
         "fourchettes": {
+          "S&P 500": {
+            "bas": -0.175,
+            "central": -0.025,
+            "haut": 0.125
+          },
+          "NASDAQ": {
+            "bas": -0.2025,
+            "central": -0.03,
+            "haut": 0.1425
+          },
+          "CAC 40": {
+            "bas": -0.21,
+            "central": -0.06,
+            "haut": 0.09
+          },
+          "MSCI_World": {
+            "bas": -0.1825,
+            "central": -0.04,
+            "haut": 0.1025
+          },
+          "Emerging_Markets": {
+            "bas": -0.2175,
+            "central": -0.045,
+            "haut": 0.1275
+          },
+          "Bons_Tresor_US_10Y": {
+            "bas": -0.0425,
+            "central": 0.025,
+            "haut": 0.0925
+          },
+          "Bund_10Y": {
+            "bas": -0.035,
+            "central": 0.025,
+            "haut": 0.085
+          },
+          "OAT_10Y": {
+            "bas": -0.045,
+            "central": 0.015,
+            "haut": 0.075
+          },
+          "JGB_10Y": {
+            "bas": -0.035,
+            "central": 0.01,
+            "haut": 0.055
+          },
+          "Gilt_10Y": {
+            "bas": -0.015,
+            "central": 0.045,
+            "haut": 0.1063
+          },
+          "EUR_USD": {
+            "bas": -0.0963,
+            "central": -0.035,
+            "haut": 0.025
+          },
+          "Dollar_Index": {
+            "bas": -0.025,
+            "central": 0.035,
+            "haut": 0.0963
+          },
+          "VIX": {
+            "bas": 0.0,
+            "central": 0.25,
+            "haut": 0.8625
+          },
+          "Or": {
+            "bas": -0.0675,
+            "central": 0.06,
+            "haut": 0.1875
+          },
+          "Argent": {
+            "bas": -0.125,
+            "central": 0.025,
+            "haut": 0.175
+          },
+          "Petrole": {
+            "bas": -0.22,
+            "central": -0.04,
+            "haut": 0.14
+          },
+          "Cuivre": {
+            "bas": -0.18,
+            "central": -0.045,
+            "haut": 0.09
+          },
+          "ETF_Terres_Rares": {
+            "bas": -0.205,
+            "central": -0.04,
+            "haut": 0.125
+          },
+          "ETF_Defense": {
+            "bas": -0.13,
+            "central": -0.01,
+            "haut": 0.11
+          },
+          "Bitcoin": {
+            "bas": -0.2325,
+            "central": -0.04,
+            "haut": 0.14
+          },
+          "Ethereum": {
+            "bas": -0.305,
+            "central": -0.06,
+            "haut": 0.14
+          },
+          "XRP": {
+            "bas": -0.3325,
+            "central": -0.07,
+            "haut": 0.1425
+          },
+          "Solana": {
+            "bas": -0.3775,
+            "central": -0.08,
+            "haut": 0.145
+          }
+        },
+        "evenement_cite": "Référendum sur le Brexit",
+        "references": [
+          {
+            "evenement": "Référendum sur le Brexit",
+            "annee": 2016,
+            "poids": 1.0,
+            "raison": "Le vote britannique pour quitter l'Union européenne correspond directement au scénario et fournit un précédent pour la livre, les actions européennes et les gilts."
+          }
+        ],
+        "explication": "Le référendum sur le Brexit de 2016 constitue le précédent direct ; la sévérité retenue est modérée, malgré la surprise du vote. Sur 137 séances, la dépréciation de la livre renchérit les importations britanniques, tandis que la perspective de barrières commerciales pèse sur les banques et les exportateurs européens : le choc central du CAC 40 est de -6 %. La recherche de sécurité et l'assouplissement de la Banque d'Angleterre soutiennent les gilts à 10 ans, estimés à +4,5 % en livre. Les chiffres macro représentent des écarts en points de pourcentage pour le Royaume-Uni par rapport à un scénario sans référendum ; les actifs indiquent l'effet isolé du scénario, non une prévision de rendement de marché complet. Nuance : le rebond des multinationales britanniques bénéficiant de revenus en devises et l'évolution des négociations peuvent atténuer les pertes, tandis que Solana n'existait pas en 2016.",
+        "fourchettes_ia": {
           "S&P 500": {
             "bas": -0.06,
             "central": -0.025,
@@ -4698,17 +5995,7 @@
             "central": -0.08,
             "haut": 0.1
           }
-        },
-        "evenement_cite": "Référendum sur le Brexit",
-        "references": [
-          {
-            "evenement": "Référendum sur le Brexit",
-            "annee": 2016,
-            "poids": 1.0,
-            "raison": "Le vote britannique pour quitter l'Union européenne correspond directement au scénario et fournit un précédent pour la livre, les actions européennes et les gilts."
-          }
-        ],
-        "explication": "Le référendum sur le Brexit de 2016 constitue le précédent direct ; la sévérité retenue est modérée, malgré la surprise du vote. Sur 137 séances, la dépréciation de la livre renchérit les importations britanniques, tandis que la perspective de barrières commerciales pèse sur les banques et les exportateurs européens : le choc central du CAC 40 est de -6 %. La recherche de sécurité et l'assouplissement de la Banque d'Angleterre soutiennent les gilts à 10 ans, estimés à +4,5 % en livre. Les chiffres macro représentent des écarts en points de pourcentage pour le Royaume-Uni par rapport à un scénario sans référendum ; les actifs indiquent l'effet isolé du scénario, non une prévision de rendement de marché complet. Nuance : le rebond des multinationales britanniques bénéficiant de revenus en devises et l'évolution des négociations peuvent atténuer les pertes, tandis que Solana n'existait pas en 2016."
+        }
       },
       "estimation_avec_date": {
         "empreinte": "eb48c3eee2d12944",
@@ -4770,6 +6057,133 @@
           "Solana": 0.0
         },
         "fourchettes": {
+          "S&P 500": {
+            "bas": -0.09,
+            "central": 0.06,
+            "haut": 0.21
+          },
+          "NASDAQ": {
+            "bas": -0.0725,
+            "central": 0.1,
+            "haut": 0.2725
+          },
+          "CAC 40": {
+            "bas": -0.03,
+            "central": 0.12,
+            "haut": 0.27
+          },
+          "MSCI_World": {
+            "bas": -0.0825,
+            "central": 0.06,
+            "haut": 0.2025
+          },
+          "Emerging_Markets": {
+            "bas": -0.1225,
+            "central": 0.05,
+            "haut": 0.2225
+          },
+          "Bons_Tresor_US_10Y": {
+            "bas": -0.1475,
+            "central": -0.08,
+            "haut": -0.0125
+          },
+          "Bund_10Y": {
+            "bas": -0.07,
+            "central": -0.01,
+            "haut": 0.05
+          },
+          "OAT_10Y": {
+            "bas": -0.09,
+            "central": -0.03,
+            "haut": 0.03
+          },
+          "JGB_10Y": {
+            "bas": -0.055,
+            "central": -0.01,
+            "haut": 0.035
+          },
+          "Gilt_10Y": {
+            "bas": -0.05,
+            "central": 0.01,
+            "haut": 0.07
+          },
+          "EUR_USD": {
+            "bas": -0.14,
+            "central": -0.08,
+            "haut": -0.02
+          },
+          "Dollar_Index": {
+            "bas": 0.03,
+            "central": 0.09,
+            "haut": 0.15
+          },
+          "VIX": {
+            "bas": -0.37,
+            "central": -0.19,
+            "haut": -0.01
+          },
+          "Or": {
+            "bas": -0.2075,
+            "central": -0.08,
+            "haut": 0.0475
+          },
+          "Argent": {
+            "bas": -0.23,
+            "central": -0.08,
+            "haut": 0.07
+          },
+          "Petrole": {
+            "bas": -0.11,
+            "central": 0.07,
+            "haut": 0.25
+          },
+          "Cuivre": {
+            "bas": 0.045,
+            "central": 0.18,
+            "haut": 0.315
+          },
+          "ETF_Terres_Rares": {
+            "bas": -0.145,
+            "central": 0.02,
+            "haut": 0.185
+          },
+          "ETF_Defense": {
+            "bas": 0.0,
+            "central": 0.12,
+            "haut": 0.24
+          },
+          "Bitcoin": {
+            "bas": 0.36,
+            "central": 0.54,
+            "haut": 0.72
+          },
+          "Ethereum": {
+            "bas": -0.61,
+            "central": -0.43,
+            "haut": -0.25
+          },
+          "XRP": {
+            "bas": -0.23,
+            "central": -0.05,
+            "haut": 0.13
+          },
+          "Solana": {
+            "bas": 0.0,
+            "central": 0.0,
+            "haut": 0.0
+          }
+        },
+        "evenement_cite": "Référendum sur le Brexit",
+        "references": [
+          {
+            "evenement": "Référendum sur le Brexit",
+            "annee": 2016,
+            "poids": 1.0,
+            "raison": "Il s’agit de l’événement et de la période étudiés, avec un choc initial suivi de reprises et de mouvements propres à chaque marché."
+          }
+        ],
+        "explication": "Le référendum sur le Brexit de 2016 est classé comme choc modéré : le Royaume-Uni vote le 23 juin pour quitter l’UE, surprenant les investisseurs sans déclencher de crise systémique mondiale. La fuite initiale vers les obligations et la baisse de la livre transmettent le choc aux banques européennes et aux exportateurs britanniques, avant un rebond des actions : le CAC 40 termine la période environ 12 % au-dessus de son niveau de clôture du 23 juin. Les variations indiquées couvrent les clôtures du 23 juin au 30 décembre 2016, dernière séance de l’année, et ne sont pas toutes attribuables au Brexit : l’élection américaine et la hausse des taux américains ont notamment pesé sur l’or et les Treasuries. Les chiffres macro désignent l’inflation britannique de décembre en glissement annuel et le taux directeur de la Banque d’Angleterre en fin de période ; les obligations sont estimées en variation de prix, hors coupons. Nuance : Solana n’existait pas en 2016 et les variations des ETF et des cryptomonnaies anciennes dépendent du véhicule et des cours retenus.",
+        "fourchettes_ia": {
           "S&P 500": {
             "bas": 0.04,
             "central": 0.06,
@@ -4885,17 +6299,7 @@
             "central": 0.0,
             "haut": 0.0
           }
-        },
-        "evenement_cite": "Référendum sur le Brexit",
-        "references": [
-          {
-            "evenement": "Référendum sur le Brexit",
-            "annee": 2016,
-            "poids": 1.0,
-            "raison": "Il s’agit de l’événement et de la période étudiés, avec un choc initial suivi de reprises et de mouvements propres à chaque marché."
-          }
-        ],
-        "explication": "Le référendum sur le Brexit de 2016 est classé comme choc modéré : le Royaume-Uni vote le 23 juin pour quitter l’UE, surprenant les investisseurs sans déclencher de crise systémique mondiale. La fuite initiale vers les obligations et la baisse de la livre transmettent le choc aux banques européennes et aux exportateurs britanniques, avant un rebond des actions : le CAC 40 termine la période environ 12 % au-dessus de son niveau de clôture du 23 juin. Les variations indiquées couvrent les clôtures du 23 juin au 30 décembre 2016, dernière séance de l’année, et ne sont pas toutes attribuables au Brexit : l’élection américaine et la hausse des taux américains ont notamment pesé sur l’or et les Treasuries. Les chiffres macro désignent l’inflation britannique de décembre en glissement annuel et le taux directeur de la Banque d’Angleterre en fin de période ; les obligations sont estimées en variation de prix, hors coupons. Nuance : Solana n’existait pas en 2016 et les variations des ETF et des cryptomonnaies anciennes dépendent du véhicule et des cours retenus."
+        }
       }
     }
   ]

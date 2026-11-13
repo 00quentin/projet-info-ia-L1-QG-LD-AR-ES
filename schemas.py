@@ -21,6 +21,12 @@ from typing import Optional, Dict, List, Literal
 
 from pydantic import BaseModel, Field, field_validator, model_validator, ConfigDict, ValidationError
 
+from config import (
+    FOURCHETTE_AMPLITUDE_REF_MAX,
+    FOURCHETTE_DEMI_LARGEUR_MIN,
+    FOURCHETTE_ELARGISSEMENT_AGGRAVATION,
+    FOURCHETTE_ELARGISSEMENT_ATTENUATION,
+)
 from logger import get_logger
 
 log = get_logger("schemas")
@@ -319,16 +325,47 @@ def _separer_fourchettes(brut) -> tuple:
     return {**brut, "actifs": centraux}, fourchettes
 
 
+def bornes_actif(nom: str) -> tuple:
+    """Bornes (min, max) du choc d'un actif : catalogue, sinon borne des actifs perso."""
+    return BORNES_ACTIFS.get(nom, _BORNE_GENERIQUE_CUSTOM)
+
+
+def elargir_fourchette(fourchette: Dict[str, float], mn: float, mx: float) -> Dict[str, float]:
+    """Recale une fourchette de l'IA sur les crises passées (voir config.py) :
+    élargit le côté aggravation (loin de zéro) et le côté atténuation, impose une
+    demi-largeur minimale proportionnelle à l'amplitude de l'actif, puis reborne.
+    Une fourchette réduite au central (pas de doute exprimé) reste telle quelle."""
+    bas, central, haut = fourchette["bas"], fourchette["central"], fourchette["haut"]
+    if bas == central == haut:
+        return dict(fourchette)
+    minimum = FOURCHETTE_DEMI_LARGEUR_MIN * min(mx - mn, FOURCHETTE_AMPLITUDE_REF_MAX)
+    baisse = central < 0
+    ecart_aggravation = (central - bas) if baisse else (haut - central)
+    ecart_attenuation = (haut - central) if baisse else (central - bas)
+    ecart_aggravation = max(ecart_aggravation * FOURCHETTE_ELARGISSEMENT_AGGRAVATION, minimum)
+    ecart_attenuation = max(ecart_attenuation * FOURCHETTE_ELARGISSEMENT_ATTENUATION, minimum)
+    if baisse:
+        bas, haut = central - ecart_aggravation, central + ecart_attenuation
+    else:
+        bas, haut = central - ecart_attenuation, central + ecart_aggravation
+    return {"bas": max(mn, bas), "central": central, "haut": min(mx, haut)}
+
+
 def _encadrer_actifs(actifs: Dict[str, float],
                      fourchettes: Dict[str, FourchetteChoc]) -> Dict[str, Dict[str, float]]:
-    """Fourchette bas / central / haut de chaque actif, autour de son choc final."""
+    """Fourchette bas / central / haut donnée par l'IA, autour du choc final de chaque actif."""
     sortie = {}
     for nom, central in actifs.items():
-        mn, mx = BORNES_ACTIFS.get(nom, _BORNE_GENERIQUE_CUSTOM)
+        mn, mx = bornes_actif(nom)
         fourchette = fourchettes.get(nom)
         sortie[nom] = (fourchette.encadrer(central, mn, mx) if fourchette
                        else {"bas": central, "central": central, "haut": central})
     return sortie
+
+
+def elargir_fourchettes(fourchettes_ia: Dict[str, Dict[str, float]]) -> Dict[str, Dict[str, float]]:
+    """Applique elargir_fourchette à chaque actif (fourchettes simulées et affichées)."""
+    return {nom: elargir_fourchette(f, *bornes_actif(nom)) for nom, f in fourchettes_ia.items()}
 
 
 def valider_reponse_ia(brut: dict) -> dict:
@@ -336,16 +373,18 @@ def valider_reponse_ia(brut: dict) -> dict:
     Point d'entrée principal. Prend le JSON brut de l'IA, le valide,
     le normalise, le borne, et retourne un dict prêt à l'emploi.
 
-    "actifs" garde un choc central par actif ; "fourchettes" ajoute pour
-    chaque actif {"bas", "central", "haut"} (bas = haut = central si l'IA
-    n'a pas donné de fourchette).
+    "actifs" garde un choc central par actif ; "fourchettes_ia" donne pour
+    chaque actif {"bas", "central", "haut"} tel que l'IA l'a estimé (bas = haut
+    = central si elle n'a pas donné de fourchette) ; "fourchettes" est la même
+    fourchette recalée sur les crises passées, celle que la simulation utilise.
 
     En cas d'échec total : retourne {"erreur": "..."}
     """
     brut, fourchettes = _separer_fourchettes(brut)
     resultat = _valider_centraux(brut)
     if "actifs" in resultat:
-        resultat["fourchettes"] = _encadrer_actifs(resultat["actifs"], fourchettes)
+        resultat["fourchettes_ia"] = _encadrer_actifs(resultat["actifs"], fourchettes)
+        resultat["fourchettes"] = elargir_fourchettes(resultat["fourchettes_ia"])
     return resultat
 
 

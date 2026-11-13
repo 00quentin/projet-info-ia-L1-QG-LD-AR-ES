@@ -44,7 +44,7 @@ from core.validation_ia import (  # noqa: E402
     verifier_neutralite,
 )
 from logger import get_logger  # noqa: E402
-from schemas import BORNES_ACTIFS, valider_reponse_ia  # noqa: E402
+from schemas import BORNES_ACTIFS, elargir_fourchettes, valider_reponse_ia  # noqa: E402
 
 log = get_logger("validation_ia")
 
@@ -198,9 +198,10 @@ def appeler_ia(prompt: str, scenario: str, compteur: CompteurAppels) -> dict:
         "chocs": {cle: float(v) for cle, v in valide["actifs"].items() if cle in BORNES_ACTIFS},
         "chocs_bruts": {cle: _choc_normalise(v) for cle, v in actifs_bruts.items()
                         if cle in BORNES_ACTIFS},
-        # {actif: {"bas", "central", "haut"}} en décimal, bornés comme le central.
-        "fourchettes": {cle: {k: float(x) for k, x in f.items()}
-                        for cle, f in (valide.get("fourchettes") or {}).items() if cle in BORNES_ACTIFS},
+        # {actif: {"bas", "central", "haut"}} en décimal telle que donnée par l'IA ;
+        # la fourchette recalée ("fourchettes") est recalculée à chaque exécution.
+        "fourchettes_ia": {cle: {k: float(x) for k, x in f.items()}
+                           for cle, f in (valide.get("fourchettes_ia") or {}).items() if cle in BORNES_ACTIFS},
         "evenement_cite": valide.get("evenement_reference"),
         "references": valide.get("references_historiques") or [],
         "explication": valide.get("explication_courte") or "",
@@ -220,8 +221,18 @@ def obtenir_estimation(prompt: str, scenario: str, ancienne: dict | None,
 # === Comparaison avec les vrais cours ======================================
 
 
+def recaler_fourchettes(estimation: dict) -> None:
+    """Applique le recalage actuel (config.py) à la fourchette donnée par l'IA : changer
+    les réglages du recalage ne demande donc aucun nouvel appel IA. Une ancienne
+    estimation sans "fourchettes_ia" avait une fourchette brute de l'IA dans "fourchettes"."""
+    if "fourchettes_ia" not in estimation:
+        estimation["fourchettes_ia"] = estimation.get("fourchettes") or {}
+    estimation["fourchettes"] = elargir_fourchettes(estimation["fourchettes_ia"])
+
+
 def comparer(estimation: dict, reels_eur: dict, reels_local: dict) -> tuple[list, list]:
     """Lignes de comparaison en euros (comme le backtest) et en devise d'origine."""
+    recaler_fourchettes(estimation)
     chocs = estimation["chocs"]
     choc_eur_usd = chocs.get(ACTIF_TAUX_EUR_USD, 0.0)
     en_euros = convertir_estimations_en_euros(chocs, DEVISE_ACTIF, choc_eur_usd)
@@ -402,6 +413,7 @@ def _arrondir_fichier(resultat: dict) -> dict:
                 est["chocs"] = arrondir(est["chocs"], 4)
                 est["chocs_bruts"] = arrondir(est["chocs_bruts"], 4)
                 est["fourchettes"] = arrondir(est.get("fourchettes") or {}, 4)
+                est["fourchettes_ia"] = arrondir(est.get("fourchettes_ia") or {}, 4)
     for bloc in (resultat["global"], resultat["global_devise_locale"],
                  resultat["biais_connaissance"]["sans_date"], resultat["biais_connaissance"]["avec_date"]):
         _arrondir_metriques(bloc)
