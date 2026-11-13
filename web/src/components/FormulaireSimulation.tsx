@@ -2,11 +2,11 @@
 
 import { useId, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { ChevronDown, Play, Plus, Sparkles, X } from "lucide-react";
+import { ChevronDown, GitCompareArrows, Loader2, Play, Plus, Settings2, X } from "lucide-react";
 import type { Catalogue } from "@/lib/api";
 import { Interrupteur } from "@/components/ui/Carte";
 import { ChoixPortefeuille, portefeuilleInitial, validerPortefeuille, type ValeurPortefeuille } from "@/components/formulaire/ChoixPortefeuille";
-import { champ, titreSection } from "@/components/formulaire/styles";
+import { barreLancement, boutonPrincipal, champ, puce, titreSection } from "@/components/formulaire/styles";
 import { DUREE, EASE_SORTIE, RESSORT } from "@/components/motion/transitions";
 
 export type Reglages = {
@@ -23,12 +23,24 @@ export type Reglages = {
 
 const SCENARIO_LONGUEUR_MIN = 10;
 const SCENARIO_LONGUEUR_MAX = 1000;
+/** Scenarios rapides visibles d'emblee ; les autres sont derriere « Plus d'idees ». */
+const SCENARIOS_RAPIDES_VISIBLES = 4;
+const JOURS_BOURSE_PAR_MOIS = 21;
+const MOIS_PAR_AN = 12;
 
-const DESCRIPTIONS_MODELE: Record<string, string> = {
-  Probabiliste: "Variations quotidiennes classiques (loi normale)",
-  Historique: "Rejoue de vraies séances de bourse, chocs violents inclus",
-  Machine: "Tendance qui s'auto-entretient et s'accélère",
+// Noms grand public des modeles ; la valeur envoyee a l'API reste celle du catalogue.
+const MODELES: Record<string, { nom: string; description: string }> = {
+  Probabiliste: { nom: "Classique", description: "Variations quotidiennes classiques (loi normale)." },
+  Historique: { nom: "Crises réelles", description: "Rejoue de vraies séances de bourse, chocs violents inclus." },
+  Machine: { nom: "Emballement", description: "Tendance qui s'auto-entretient et s'accélère." },
 };
+const presentationModele = (m: string) => MODELES[m.split(" ")[0]] ?? { nom: m.split(" (")[0], description: "" };
+
+/** « ≈ 5 mois » pour 100 jours de bourse. */
+export function equivalentDuree(jours: number): string {
+  const mois = Math.max(1, Math.round(jours / JOURS_BOURSE_PAR_MOIS));
+  return mois >= MOIS_PAR_AN ? "≈ 1 an" : `≈ ${mois} mois`;
+}
 
 export function reglagesInitiaux(catalogue: Catalogue): Reglages {
   return {
@@ -70,13 +82,22 @@ export function FormulaireSimulation({ catalogue, reglages: r, onChange, onLance
   // Les scenarios rapides remplissent le dernier champ utilise.
   const [actif, setActif] = useState(0);
   const [optionsOuvertes, setOptionsOuvertes] = useState(false);
-  const idGroupe = useId();
+  const [plusIdees, setPlusIdees] = useState(false);
   const idOptions = useId();
+  const idModele = useId();
+  const idGroupe = useId();
+
+  const rapides = catalogue.scenarios_rapides;
+  const indexChoisi = rapides.findIndex((s) => s.texte === r.scenarios[actif]);
+  // Un scenario rapide deja choisi parmi les « autres idees » reste visible.
+  const idees = plusIdees || indexChoisi >= SCENARIOS_RAPIDES_VISIBLES ? rapides : rapides.slice(0, SCENARIOS_RAPIDES_VISIBLES);
+  const modele = presentationModele(r.modele);
 
   function definirNombre(nb: number) {
     const scenarios = Array.from({ length: nb }, (_, i) => r.scenarios[i] ?? catalogue.scenarios_par_defaut[i] ?? "");
     maj({ scenarios });
     setActif(Math.min(actif, nb - 1));
+    if (nb > r.scenarios.length) requestAnimationFrame(() => document.getElementById(`scenario-${nb - 1}`)?.focus());
   }
 
   function majScenario(i: number, texte: string) {
@@ -91,7 +112,8 @@ export function FormulaireSimulation({ catalogue, reglages: r, onChange, onLance
   return (
     <form
       noValidate
-      className="flex flex-col gap-7"
+      aria-label="Paramètres de la simulation"
+      className="flex flex-col gap-6"
       onSubmit={(e) => {
         e.preventDefault();
         if (!erreur && !enCours) onLancer();
@@ -99,32 +121,7 @@ export function FormulaireSimulation({ catalogue, reglages: r, onChange, onLance
     >
       {/* 1. Scenario(s) */}
       <fieldset className="flex flex-col gap-3">
-        <legend className={titreSection}>1 · {r.scenarios.length > 1 ? "Vos scénarios" : "Votre scénario"}</legend>
-        <div className="flex items-center justify-between gap-3">
-          <span id={`${idGroupe}-nb-libelle`} className="text-xs text-ink-2">
-            Comparer plusieurs scénarios
-          </span>
-          <div role="radiogroup" aria-labelledby={`${idGroupe}-nb-libelle`} className="flex rounded-lg bg-surface-2 p-0.5 text-xs font-semibold">
-            {Array.from({ length: max }, (_, i) => i + 1).map((nb) => {
-              const choisi = r.scenarios.length === nb;
-              return (
-                <button
-                  key={nb}
-                  type="button"
-                  role="radio"
-                  aria-checked={choisi}
-                  aria-label={nb === 1 ? "Un seul scénario" : `Comparer ${nb} scénarios`}
-                  title={nb === 1 ? "Un seul scénario" : `Comparer ${nb} scénarios`}
-                  onClick={() => definirNombre(nb)}
-                  className={`relative w-9 rounded-md py-1 tabular-nums transition-colors ${choisi ? "text-ink" : "text-muted hover:text-ink"}`}
-                >
-                  {choisi && <motion.span layoutId={`${idGroupe}-nb`} className="absolute inset-0 rounded-md bg-surface shadow-sm" transition={RESSORT} />}
-                  <span className="relative">{nb}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
+        <legend className={`${titreSection} mb-3`}>{r.scenarios.length > 1 ? "Vos scénarios" : "Votre scénario"}</legend>
 
         <div className="flex flex-col gap-2.5">
           <AnimatePresence initial={false}>
@@ -138,99 +135,115 @@ export function FormulaireSimulation({ catalogue, reglages: r, onChange, onLance
                 transition={{ duration: DUREE.normale, ease: EASE_SORTIE }}
                 className="overflow-hidden"
               >
-                <div className="relative">
-                  {r.scenarios.length > 1 ? (
-                    <div className="mb-1.5 flex items-center justify-between">
-                      <label htmlFor={`scenario-${i}`} className="flex items-center gap-2 text-sm font-medium">
-                        <span aria-hidden className="grid size-5 place-items-center rounded-md bg-accent-soft text-[11px] font-semibold text-accent-ink">
-                          {labels[i]}
-                        </span>
-                        Scénario {labels[i]}
-                      </label>
-                      {i > 0 && (
-                        <button type="button" onClick={() => retirerScenario(i)} aria-label={`Retirer le scénario ${labels[i]}`} className="grid size-6 place-items-center rounded-md text-muted transition hover:bg-surface-2 hover:text-loss">
-                          <X className="size-3.5" aria-hidden />
-                        </button>
-                      )}
-                    </div>
-                  ) : (
-                    <label htmlFor={`scenario-${i}`} className="sr-only">
-                      Événement économique à simuler
+                {r.scenarios.length > 1 ? (
+                  <div className="mb-1.5 flex items-center justify-between">
+                    <label htmlFor={`scenario-${i}`} className="flex items-center gap-2 text-sm font-medium">
+                      <span aria-hidden className="grid size-5 place-items-center rounded-[calc(var(--radius-controle)/2)] bg-accent-soft text-xs font-semibold text-accent-ink">
+                        {labels[i]}
+                      </span>
+                      Scénario {labels[i]}
                     </label>
-                  )}
-                  <textarea
-                    id={`scenario-${i}`}
-                    rows={r.scenarios.length > 1 ? 3 : 4}
-                    maxLength={SCENARIO_LONGUEUR_MAX}
-                    value={texte}
-                    onFocus={() => setActif(i)}
-                    onChange={(e) => majScenario(i, e.target.value)}
-                    placeholder="Ex. : la BCE baisse ses taux de 1 point par surprise pour relancer l'économie…"
-                    className={`${champ} resize-y leading-relaxed ${actif === i && r.scenarios.length > 1 ? "border-accent/60" : ""}`}
-                  />
-                </div>
+                    {i > 0 && (
+                      <button type="button" onClick={() => retirerScenario(i)} aria-label={`Retirer le scénario ${labels[i]}`} className="grid size-6 place-items-center rounded-controle text-muted transition-colors hover:bg-surface-2 hover:text-loss">
+                        <X className="size-3.5" aria-hidden />
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  <label htmlFor={`scenario-${i}`} className="sr-only">
+                    Événement économique à simuler
+                  </label>
+                )}
+                <textarea
+                  id={`scenario-${i}`}
+                  rows={r.scenarios.length > 1 ? 3 : 4}
+                  maxLength={SCENARIO_LONGUEUR_MAX}
+                  value={texte}
+                  onFocus={() => setActif(i)}
+                  onChange={(e) => majScenario(i, e.target.value)}
+                  placeholder="Ex. : la BCE baisse ses taux de 1 point par surprise pour relancer l'économie…"
+                  className={`${champ} block resize-y leading-relaxed ${actif === i && r.scenarios.length > 1 ? "border-accent/60" : ""}`}
+                />
               </motion.div>
             ))}
           </AnimatePresence>
         </div>
 
-        {r.scenarios.length < max && r.scenarios.length > 1 && (
+        {r.scenarios.length > 1 && r.scenarios.length < max && (
           <motion.button
             type="button"
             layout
-            whileTap={{ scale: 0.97 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => definirNombre(r.scenarios.length + 1)}
-            className="flex items-center justify-center gap-1.5 rounded-xl border border-dashed border-line-strong py-2 text-sm font-medium text-ink-2 transition hover:border-accent hover:text-accent-ink"
+            className="flex items-center justify-center gap-1.5 rounded-controle border border-dashed border-line-strong py-2 text-sm font-medium text-ink-2 transition-colors hover:border-accent hover:text-accent-ink"
           >
             <Plus className="size-4" aria-hidden />
             Ajouter le scénario {labels[r.scenarios.length]}
           </motion.button>
         )}
 
-        <p className="text-xs leading-relaxed text-muted">
+        <p className="text-aide leading-relaxed text-muted">
           {r.scenarios.length > 1
-            ? `Les scénarios rapides remplissent le scénario ${labels[actif]}. Même portefeuille pour tous : seule la cause change.`
+            ? `Les idées ci-dessous remplissent le scénario ${labels[actif]}. Même portefeuille pour tous : seule la cause change.`
             : "Plus vous êtes précis (pays, secteur, ampleur, durée), plus l'analyse est pertinente."}
         </p>
-        <div className="flex flex-wrap gap-1.5">
-          {catalogue.scenarios_rapides.map((s) => {
-            const choisi = r.scenarios[actif] === s.texte;
-            return (
+        <div role="group" aria-label="Idées de scénarios" className="flex flex-wrap gap-1.5">
+          <AnimatePresence initial={false}>
+            {idees.map((s) => (
               <motion.button
                 key={s.titre}
                 type="button"
-                whileTap={{ scale: 0.94 }}
-                whileHover={{ y: -1 }}
+                layout="position"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: DUREE.rapide }}
+                whileTap={{ scale: 0.97 }}
                 onClick={() => majScenario(actif, s.texte)}
-                aria-pressed={choisi}
-                className="rounded-full border border-line bg-surface px-3 py-1.5 text-xs font-medium text-ink-2 transition-colors hover:border-accent hover:text-accent-ink aria-pressed:border-accent aria-pressed:bg-accent-soft aria-pressed:text-accent-ink"
+                aria-pressed={r.scenarios[actif] === s.texte}
+                className={puce}
               >
                 {s.titre}
               </motion.button>
-            );
-          })}
+            ))}
+          </AnimatePresence>
+          {rapides.length > SCENARIOS_RAPIDES_VISIBLES && indexChoisi < SCENARIOS_RAPIDES_VISIBLES && (
+            <motion.button
+              type="button"
+              layout="position"
+              aria-expanded={plusIdees}
+              onClick={() => setPlusIdees((o) => !o)}
+              className="flex items-center gap-1 rounded-full px-2.5 py-1.5 text-aide font-medium text-accent-ink transition-colors hover:bg-accent-soft"
+            >
+              {plusIdees ? "Moins d'idées" : "Plus d'idées"}
+              <ChevronDown className={`size-3.5 transition-transform duration-200 ${plusIdees ? "rotate-180" : ""}`} aria-hidden />
+            </motion.button>
+          )}
         </div>
+
+        {r.scenarios.length === 1 && max > 1 && (
+          <button type="button" onClick={() => definirNombre(2)} className="flex items-center gap-1.5 self-start text-aide font-medium text-ink-2 transition-colors hover:text-accent-ink">
+            <GitCompareArrows className="size-3.5" aria-hidden />
+            Comparer avec un autre scénario
+          </button>
+        )}
       </fieldset>
 
       {/* 2. Portefeuille */}
       <fieldset className="flex flex-col gap-3">
-        <legend className={`${titreSection} mb-3`}>2 · Votre portefeuille</legend>
+        <legend className={`${titreSection} mb-3`}>Votre portefeuille</legend>
         <ChoixPortefeuille catalogue={catalogue} valeur={r.portefeuille} onChange={(portefeuille) => maj({ portefeuille })} />
       </fieldset>
 
-      {/* 3. Options */}
-      <div>
-        <button
-          type="button"
-          aria-expanded={optionsOuvertes}
-          aria-controls={idOptions}
-          onClick={() => setOptionsOuvertes((o) => !o)}
-          className={`flex w-full items-center justify-between ${titreSection}`}
-        >
-          3 · Options avancées
-          <motion.span animate={{ rotate: optionsOuvertes ? 180 : 0 }} transition={RESSORT}>
-            <ChevronDown className="size-4" aria-hidden />
-          </motion.span>
+      {/* 3. Options : ligne repliable distincte, son resume reste visible une fois fermee */}
+      <div className="-mx-(--marge-carte) -mb-6 border-t border-line px-(--marge-carte)">
+        <button type="button" aria-expanded={optionsOuvertes} aria-controls={idOptions} onClick={() => setOptionsOuvertes((o) => !o)} className="flex w-full items-center gap-2 py-3.5 text-left">
+          <Settings2 className="size-4 shrink-0 text-muted" aria-hidden />
+          <span className={titreSection}>Options avancées</span>
+          <span className="ml-auto min-w-0 truncate text-aide text-muted">
+            {r.duree} j · {modele.nom}
+          </span>
+          <ChevronDown className={`size-4 shrink-0 text-muted transition-transform duration-200 ${optionsOuvertes ? "rotate-180" : ""}`} aria-hidden />
         </button>
         <AnimatePresence initial={false}>
           {optionsOuvertes && (
@@ -242,11 +255,13 @@ export function FormulaireSimulation({ catalogue, reglages: r, onChange, onLance
               transition={{ duration: DUREE.normale, ease: EASE_SORTIE }}
               className="overflow-hidden"
             >
-              <div className="flex flex-col gap-4 pt-4">
+              <div className="flex flex-col gap-5 pb-4 pt-1">
                 <div>
-                  <label htmlFor="duree" className="mb-1.5 flex items-center justify-between text-sm font-medium">
+                  <label htmlFor="duree" className="mb-2 flex items-baseline justify-between gap-2 text-sm font-medium">
                     Horizon
-                    <span className="font-normal text-ink-2 tabular-nums">{r.duree} jours de bourse</span>
+                    <span className="font-normal text-ink-2 tabular-nums">
+                      {r.duree} jours de bourse <span className="text-muted">· {equivalentDuree(r.duree)}</span>
+                    </span>
                   </label>
                   <input
                     id="duree"
@@ -255,37 +270,52 @@ export function FormulaireSimulation({ catalogue, reglages: r, onChange, onLance
                     max={catalogue.horizon.max}
                     step={catalogue.horizon.pas}
                     value={r.duree}
+                    aria-valuetext={`${r.duree} jours de bourse, ${equivalentDuree(r.duree)}`}
                     onChange={(e) => maj({ duree: Number(e.target.value) })}
                     className="w-full accent-(--accent)"
                   />
                 </div>
                 <div>
-                  <label htmlFor="modele" className="mb-1.5 block text-sm font-medium">
+                  <p id={idModele} className="mb-2 text-sm font-medium">
                     Comportement du marché
-                  </label>
-                  <select id="modele" value={r.modele} onChange={(e) => maj({ modele: e.target.value })} className={champ}>
-                    {catalogue.modeles.map((m) => (
-                      <option key={m} value={m}>
-                        {m}
-                      </option>
-                    ))}
-                  </select>
-                  <AnimatePresence mode="wait" initial={false}>
-                    <motion.p key={r.modele} initial={{ opacity: 0, y: -3 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: DUREE.rapide }} className="mt-1.5 text-xs text-muted">
-                      {DESCRIPTIONS_MODELE[r.modele.split(" ")[0]]}
-                    </motion.p>
-                  </AnimatePresence>
+                  </p>
+                  <div role="radiogroup" aria-labelledby={idModele} className="grid grid-cols-3 gap-1.5">
+                    {catalogue.modeles.map((m) => {
+                      const choisi = r.modele === m;
+                      const p = presentationModele(m);
+                      return (
+                        <button
+                          key={m}
+                          type="button"
+                          role="radio"
+                          aria-checked={choisi}
+                          onClick={() => maj({ modele: m })}
+                          className={`relative rounded-controle border px-2 py-2 text-center text-aide font-medium transition-colors ${choisi ? "border-accent text-accent-ink" : "border-line text-ink-2 hover:border-line-strong hover:text-ink"}`}
+                        >
+                          {choisi && <motion.span layoutId={`${idGroupe}-modele`} className="absolute inset-0 rounded-[calc(var(--radius-controle)-1px)] bg-accent-soft" transition={RESSORT} />}
+                          <span className="relative">{p.nom}</span>
+                          <span className="sr-only">
+                            {" "}
+                            (modèle « {m} ») : {p.description}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <p className="mt-2 text-aide text-muted" aria-live="polite">
+                    {modele.description}
+                  </p>
                 </div>
                 <div className="divide-y divide-line">
                   <Interrupteur
                     actif={r.monteCarlo}
                     onChange={(v) => maj({ monteCarlo: v })}
                     libelle={`Monte-Carlo (${catalogue.nb_simulations_monte_carlo.toLocaleString("fr-FR")} trajectoires)`}
-                    aide="Affiche la fourchette des issues possibles et la probabilité de perte."
+                    info="Affiche la fourchette des issues possibles et la probabilité de perte."
                   />
-                  <Interrupteur actif={r.convertirEur} onChange={(v) => maj({ convertirEur: v })} libelle="Convertir en euros" aide="Tient compte du taux de change, comme le vivrait un investisseur européen." />
-                  <Interrupteur actif={r.calibration} onChange={(v) => maj({ calibration: v })} libelle="Calibration historique" aide="L'IA s'ancre sur les amplitudes de crises réelles (2008, COVID, 2022…)." />
-                  <Interrupteur actif={r.prixReels} onChange={(v) => maj({ prixReels: v })} libelle="Prix de marché actuels" aide="Part des dernières clôtures et des volatilités réelles (Yahoo Finance)." />
+                  <Interrupteur actif={r.convertirEur} onChange={(v) => maj({ convertirEur: v })} libelle="Convertir en euros" info="Tient compte du taux de change, comme le vivrait un investisseur européen." />
+                  <Interrupteur actif={r.calibration} onChange={(v) => maj({ calibration: v })} libelle="Calibration historique" info="L'IA s'ancre sur les amplitudes de crises réelles (2008, COVID, 2022…)." />
+                  <Interrupteur actif={r.prixReels} onChange={(v) => maj({ prixReels: v })} libelle="Prix de marché actuels" info="Part des dernières clôtures et des volatilités réelles (Yahoo Finance)." />
                 </div>
               </div>
             </motion.div>
@@ -293,24 +323,18 @@ export function FormulaireSimulation({ catalogue, reglages: r, onChange, onLance
         </AnimatePresence>
       </div>
 
-      <div className="sticky bottom-0 z-10 -mx-5 -mb-5 flex flex-col gap-2 rounded-b-2xl border-t border-line bg-surface/95 px-5 py-4 backdrop-blur">
+      <div className={barreLancement}>
         <AnimatePresence>
           {erreur && (
-            <motion.p role="alert" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="text-xs text-warn">
+            <motion.p role="alert" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="text-aide text-warn">
               {erreur}
             </motion.p>
           )}
         </AnimatePresence>
-        <motion.button
-          type="submit"
-          disabled={!!erreur || enCours}
-          whileHover={!erreur && !enCours ? { scale: 1.01 } : undefined}
-          whileTap={!erreur && !enCours ? { scale: 0.98 } : undefined}
-          className="relative flex h-11 items-center justify-center gap-2 overflow-hidden rounded-xl bg-accent text-sm font-semibold text-white shadow-[0_6px_20px_-6px_var(--accent)] transition-[filter,opacity] hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
-        >
+        <motion.button type="submit" disabled={!!erreur || enCours} whileTap={!erreur && !enCours ? { scale: 0.98 } : undefined} className={boutonPrincipal}>
           <AnimatePresence mode="wait" initial={false}>
-            <motion.span key={enCours ? "attente" : "repos"} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: DUREE.rapide }} className="flex items-center gap-2">
-              {enCours ? <Sparkles className="size-4 animate-pulse" aria-hidden /> : <Play className="size-4" aria-hidden />}
+            <motion.span key={enCours ? "attente" : "repos"} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: DUREE.rapide }} className="flex items-center gap-2">
+              {enCours ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <Play className="size-4" aria-hidden />}
               {enCours ? "Analyse en cours…" : r.scenarios.length > 1 ? `Comparer les ${r.scenarios.length} scénarios` : "Lancer la simulation"}
             </motion.span>
           </AnimatePresence>

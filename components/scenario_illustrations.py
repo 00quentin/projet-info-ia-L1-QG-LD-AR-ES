@@ -507,7 +507,7 @@ _ILLUSTRATIONS = {
     "Krach 2008 bis":       illu_krach,
     "Fusion nucléaire":     illu_fusion,
     "Choc pétrolier":       illu_petrole,
-    "Hausse brutale FED":   illu_fed,
+    "Hausse brutale de la Fed": illu_fed,
     "Crise Chine-Taïwan":   illu_chine_taiwan,
 }
 

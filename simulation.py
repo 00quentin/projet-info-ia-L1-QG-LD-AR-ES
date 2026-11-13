@@ -6,15 +6,18 @@ Moteur de simulation des trajectoires de prix.
 Principe : l'IA donne le choc attendu de chaque actif sur l'horizon. Le moteur
 tire autour de ce choc des trajectoires aleatoires dont la volatilite et les
 correlations sont celles mesurees sur les vrais marches. La mediane des
-trajectoires retombe sur le choc de l'IA.
+trajectoires retombe sur le choc de l'IA. En Monte-Carlo, chaque trajectoire
+tire en plus son choc dans la fourchette bas / central / haut de l'IA.
 
 Trois modeles d'alea :
-- Probabiliste : rendements gaussiens correles.
+- Probabiliste : rendements gaussiens correles, profil de choc "crise".
 - Historique   : rejoue des blocs de vraies seances passees (queues epaisses
                  et co-mouvements reels) ; loi de Student si l'historique manque.
+                 Profil de choc "crise".
 - Tendance     : rendements autocorreles, choc qui s'accelere dans le temps.
 """
 
+import math
 from typing import Dict, List, Optional, Tuple
 
 import numpy as np
@@ -24,7 +27,8 @@ from config import (
     ACTIFS_SECOURS, ACTIF_TAUX_EUR_USD,
     BOOTSTRAP_MIN_SEANCES, BOOTSTRAP_TAILLE_BLOC,
     CORRELATION_INTER_GROUPES, CORRELATION_INTRA_GROUPE,
-    GROUPE_CORRELATION, GROUPE_CORRELATION_DEFAUT,
+    CRISE_DEPASSEMENT, CRISE_FRACTION_CREUX,
+    GROUPE_CORRELATION, GROUPE_CORRELATION_DEFAUT, INCERTITUDE_IA_CORRELATION,
     MOMENTUM_ACCELERATION, MOMENTUM_AUTOCORRELATION,
     NB_CHEMINS_CONSERVES, PERTE_MAX_QUOTIDIENNE, STUDENT_DEGRES_LIBERTE,
 )
@@ -35,23 +39,88 @@ ACTIFS_PRO = ACTIFS_SECOURS
 _PRIX_DEFAUT = 100.0
 _VOL_DEFAUT = 0.015
 _CHOC_MIN, _CHOC_MAX = -0.95, 5.0
+# Meme seuil que schemas.py : les bornes y montent jusqu'a +500 % (VIX), donc un
+# choc de 4 (= +400 %) est un decimal valide, pas un pourcentage mal forme.
+_SEUIL_POURCENTAGE = 5.0
+_TOLERANCE_CENTRAL = 1e-6
+
+
+def _en_decimal(valeur, defaut: float = 0.0) -> float:
+    """Choc IA en decimal borne (25 -> 0.25, max +500%) ; `defaut` si illisible."""
+    try:
+        v = float(valeur)
+    except (TypeError, ValueError):
+        return defaut
+    if not np.isfinite(v):
+        return defaut
+    if abs(v) > _SEUIL_POURCENTAGE:
+        v = v / 100.0
+    return max(_CHOC_MIN, min(_CHOC_MAX, v))
 
 
 def _normaliser_impacts(chocs_ia: dict) -> Dict[str, float]:
-    """Convertit les chocs IA en decimaux bornes (25 -> 0.25, max +500%)."""
-    impacts = {}
-    for actif, valeur in (chocs_ia.get("actifs") or {}).items():
-        try:
-            v = float(valeur)
-        except (TypeError, ValueError):
-            v = 0.0
-        if not np.isfinite(v):
-            v = 0.0
-        # Au-dela de 3 (=300%), c'est un pourcentage mal forme
-        if abs(v) > 3:
-            v = v / 100.0
-        impacts[actif] = max(_CHOC_MIN, min(_CHOC_MAX, v))
-    return impacts
+    """Convertit les chocs IA en decimaux bornes."""
+    return {actif: _en_decimal(valeur)
+            for actif, valeur in (chocs_ia.get("actifs") or {}).items()}
+
+
+def _bornes_fourchette(chocs_ia: dict, cles: List[str], centraux: np.ndarray
+                       ) -> Tuple[np.ndarray, np.ndarray]:
+    """Chocs bas et haut de chaque actif, encadrant toujours le central.
+    Sans fourchette (ancienne reponse IA), bas = haut = central."""
+    fourchettes = (chocs_ia or {}).get("fourchettes") or {}
+    bas, haut = centraux.copy(), centraux.copy()
+    for i, k in enumerate(cles):
+        f = fourchettes.get(k)
+        if not isinstance(f, dict):
+            continue
+        c = centraux[i]
+        # Fourchette d'un autre choc central (choc retouche apres l'IA) : ignoree.
+        if "central" in f and abs(_en_decimal(f["central"], c) - c) > _TOLERANCE_CENTRAL:
+            continue
+        bas[i] = min(_en_decimal(f.get("bas"), c), c)
+        haut[i] = max(_en_decimal(f.get("haut"), c), c)
+    return bas, haut
+
+
+_repartition_normale = np.vectorize(
+    lambda x: 0.5 * (1.0 + math.erf(x / math.sqrt(2.0))), otypes=[float])
+
+
+def tirer_chocs(bas: np.ndarray, central: np.ndarray, haut: np.ndarray, nb: int,
+                rng: np.random.Generator) -> np.ndarray:
+    """Un choc par trajectoire et par actif, tire dans [bas, haut] : (nb, n_actifs).
+
+    Loi triangulaire en deux moities (mode = central), une chance sur deux de
+    chaque cote : la mediane des chocs tires reste le central de l'IA meme si la
+    fourchette est asymetrique (une triangulaire classique la decalerait).
+    Le tirage est en grande partie commun aux actifs : si le scenario s'avere plus
+    grave, tous s'eloignent ensemble de zero, chacun dans le sens de son choc.
+    """
+    rho = INCERTITUDE_IA_CORRELATION
+    gravite = rng.standard_normal((nb, 1))
+    z = np.sqrt(rho) * gravite + np.sqrt(1 - rho) * rng.standard_normal((nb, len(central)))
+    u = _repartition_normale(z)
+    u = np.where(central < 0, 1 - u, u)
+    moitie_basse = bas + (central - bas) * np.sqrt(2 * u)
+    moitie_haute = haut - (haut - central) * np.sqrt(2 * (1 - u))
+    return np.where(u < 0.5, moitie_basse, moitie_haute)
+
+
+def profil_choc(modele: str, pas: int) -> np.ndarray:
+    """Part du choc de l'IA realisee a chaque seance (somme = 1, donc la
+    trajectoire mediane finit toujours sur le choc de l'IA)."""
+    if "Probabiliste" in modele or "Historique" in modele:
+        # Une vraie crise ne derive pas a vitesse constante : elle chute vite
+        # (plus fort les premiers jours), depasse sa cible puis rebondit en partie.
+        t = np.arange(pas + 1) / pas
+        creux, pic = CRISE_FRACTION_CREUX, 1 + CRISE_DEPASSEMENT
+        chute = pic * (1 - (1 - np.minimum(t / creux, 1)) ** 2)
+        s = np.clip((t - creux) / (1 - creux), 0, 1)
+        rebond = CRISE_DEPASSEMENT * (1 - (1 - s) ** 2)
+        return np.diff(np.where(t <= creux, chute, pic - rebond))
+    profil = 1 + MOMENTUM_ACCELERATION * np.arange(1, pas + 1) / pas
+    return profil / profil.sum()
 
 
 def _preparer_actifs(actifs, prix_reels, vols_reelles, actifs_extras
@@ -172,7 +241,8 @@ def _innovations(modele: str, cles: List[str], nb: int, pas: int,
 def generer_chemins(chocs_ia, jours=100, modele="Probabiliste (Réaliste)",
                     actifs=None, nb_simulations=1, prix_reels=None, vols_reelles=None,
                     actifs_extras=None, rendements_historiques=None,
-                    actifs_en_usd=None, graine=None) -> Tuple[List[str], np.ndarray]:
+                    actifs_en_usd=None, graine=None,
+                    incertitude_ia=False) -> Tuple[List[str], np.ndarray]:
     """
     Genere nb_simulations trajectoires de prix.
 
@@ -182,6 +252,8 @@ def generer_chemins(chocs_ia, jours=100, modele="Probabiliste (Réaliste)",
             le modele Historique. Optionnel.
         actifs_en_usd: actifs cotes en dollars a exprimer en euros via la
             trajectoire simulee de l'EUR/USD (qui doit faire partie des actifs).
+        incertitude_ia: chaque trajectoire tire son choc dans la fourchette
+            chocs_ia["fourchettes"] au lieu de prendre le choc central.
 
     Returns:
         (cles, chemins) avec chemins de forme (nb_simulations, jours, n_actifs).
@@ -194,16 +266,17 @@ def generer_chemins(chocs_ia, jours=100, modele="Probabiliste (Réaliste)",
 
     eps = _innovations(modele, cles, nb_simulations, pas, rendements_historiques, rng)
 
-    # Derive en log telle que la trajectoire mediane atteigne le choc de l'IA
-    log_cible = np.log1p(np.array([impacts.get(k, 0.0) for k in cles]))
-    if "Probabiliste" in modele or "Historique" in modele:
-        profil = np.full(pas, 1.0 / pas)
-    else:
-        profil = 1 + MOMENTUM_ACCELERATION * np.arange(1, pas + 1) / pas
-        profil = profil / profil.sum()
-    derive = profil[:, None] * log_cible[None, :]
+    cibles = np.array([impacts.get(k, 0.0) for k in cles])
+    if incertitude_ia:
+        bas, haut = _bornes_fourchette(chocs_ia, cles, cibles)
+        if (haut > bas).any():
+            cibles = tirer_chocs(bas, cibles, haut, nb_simulations, rng)
 
-    log_rendements = derive[None, :, :] + eps * vols[None, None, :]
+    # Derive en log telle que la trajectoire mediane atteigne le choc de l'IA
+    log_cible = np.log1p(np.atleast_2d(cibles))
+    derive = profil_choc(modele, pas)[None, :, None] * log_cible[:, None, :]
+
+    log_rendements = derive + eps * vols[None, None, :]
     log_rendements = np.maximum(log_rendements, np.log(1 - PERTE_MAX_QUOTIDIENNE))
 
     chemins = np.empty((nb_simulations, pas + 1, n))
@@ -241,14 +314,15 @@ def simuler_monte_carlo(chocs_ia, jours=100, modele="Probabiliste (Réaliste)",
     """
     Monte-Carlo : mediane et intervalle 5%-95% par actif, plus un echantillon
     de trajectoires completes ("chemins") pour calculer le risque du portefeuille
-    sur de vraies trajectoires plutot que sur la mediane lissee.
+    sur de vraies trajectoires plutot que sur la mediane lissee. L'intervalle
+    tient compte du bruit de marche ET du doute de l'IA (fourchette des chocs).
     """
     cles, chemins = generer_chemins(
         chocs_ia, jours=jours, modele=modele, actifs=actifs,
         nb_simulations=nb_simulations, prix_reels=prix_reels,
         vols_reelles=vols_reelles, actifs_extras=actifs_extras,
         rendements_historiques=rendements_historiques,
-        actifs_en_usd=actifs_en_usd, graine=graine,
+        actifs_en_usd=actifs_en_usd, graine=graine, incertitude_ia=True,
     )
     bas, mediane, haut = np.percentile(chemins, [5, 50, 95], axis=0)
     return {

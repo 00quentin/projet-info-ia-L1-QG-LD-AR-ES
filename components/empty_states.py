@@ -20,7 +20,7 @@ ICONES_SCENARIOS = {
     "Krach 2008 bis":      "▼",
     "Fusion nucléaire":    "⚛",
     "Choc pétrolier":      "▲",
-    "Hausse brutale FED":  "%",
+    "Hausse brutale de la Fed": "%",
     "Crise Chine-Taïwan":  "◉",
 }
 

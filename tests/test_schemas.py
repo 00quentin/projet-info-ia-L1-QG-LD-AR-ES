@@ -178,3 +178,88 @@ def test_actifs_perso_borne_generique_appliquee():
     brut2 = {"actifs": {"PERSO_DOGE": -0.95}}  # -95% -> doit etre borne
     out2 = valider_reponse_ia(brut2)
     assert out2["actifs"]["PERSO_DOGE"] >= -0.80
+
+
+# === Fourchette bas / central / haut ======================================
+
+
+def _ordonnee(f):
+    return f["bas"] <= f["central"] <= f["haut"]
+
+
+def test_fourchette_complete_validee():
+    out = valider_reponse_ia({"actifs": {
+        "S&P 500": {"bas": -0.30, "central": -0.18, "haut": -0.10}}})
+    assert out["actifs"]["S&P 500"] == -0.18           # le central reste le choc principal
+    assert out["fourchettes"]["S&P 500"] == {"bas": -0.30, "central": -0.18, "haut": -0.10}
+
+
+def test_ancien_format_donne_une_fourchette_reduite_au_central():
+    out = valider_reponse_ia({"actifs": {"Or": 0.08}})
+    assert out["actifs"]["Or"] == 0.08
+    assert out["fourchettes"]["Or"] == {"bas": 0.08, "central": 0.08, "haut": 0.08}
+    # Tous les actifs (catalogue + perso) ont une fourchette coherente avec leur central
+    assert set(out["fourchettes"]) == set(out["actifs"])
+    assert all(f["central"] == out["actifs"][k] for k, f in out["fourchettes"].items())
+
+
+def test_fourchette_bornes_inversees_remises_dans_l_ordre():
+    out = valider_reponse_ia({"actifs": {
+        "S&P 500": {"bas": -0.10, "central": -0.18, "haut": -0.30}}})
+    assert out["fourchettes"]["S&P 500"] == {"bas": -0.30, "central": -0.18, "haut": -0.10}
+
+
+def test_fourchette_central_hors_fourchette_toujours_encadre():
+    out = valider_reponse_ia({"actifs": {
+        "S&P 500": {"bas": -0.25, "central": -0.30, "haut": -0.20}}})
+    f = out["fourchettes"]["S&P 500"]
+    assert _ordonnee(f) and f["central"] == -0.30
+
+
+def test_fourchette_bornee_par_classe_d_actif():
+    mn, mx = BORNES_ACTIFS["S&P 500"]
+    out = valider_reponse_ia({"actifs": {
+        "S&P 500": {"bas": -0.95, "central": -0.20, "haut": 0.90},
+        "PERSO_DOGE": {"bas": -0.99, "central": 0.5, "haut": 4.0}}})
+    assert out["fourchettes"]["S&P 500"] == {"bas": mn, "central": -0.20, "haut": mx}
+    assert out["fourchettes"]["PERSO_DOGE"]["bas"] >= -0.80
+    assert out["fourchettes"]["PERSO_DOGE"]["haut"] <= 2.0
+
+
+def test_fourchette_en_pourcentage_normalisee_d_un_bloc():
+    # -3 seul serait pris pour -300 % : les trois valeurs sont dans la meme unite
+    out = valider_reponse_ia({"actifs": {
+        "Bitcoin": {"bas": -40, "central": -25, "haut": -3}}})
+    assert out["fourchettes"]["Bitcoin"] == pytest.approx(
+        {"bas": -0.40, "central": -0.25, "haut": -0.03})
+    assert out["actifs"]["Bitcoin"] == pytest.approx(-0.25)
+
+
+def test_fourchette_sans_central_rejetee():
+    out = valider_reponse_ia({"actifs": {
+        "S&P 500": {"bas": -0.30, "haut": -0.10},
+        "PERSO_TSLA": {"bas": -0.5},
+        "Or": 0.05}})
+    assert out["actifs"]["S&P 500"] == 0.0        # central obligatoire : choc par defaut
+    assert out["fourchettes"]["S&P 500"] == {"bas": 0.0, "central": 0.0, "haut": 0.0}
+    assert "PERSO_TSLA" not in out["actifs"]
+    assert out["actifs"]["Or"] == 0.05
+
+
+def test_fourchette_borne_illisible_ignoree():
+    out = valider_reponse_ia({"actifs": {
+        "Or": {"bas": "beaucoup", "central": 0.08, "haut": None}}})
+    assert out["fourchettes"]["Or"] == {"bas": 0.08, "central": 0.08, "haut": 0.08}
+
+
+def test_fourchette_presente_meme_en_validation_de_secours():
+    # Inflation hors bornes -> le schema complet echoue, la passe de secours garde les fourchettes
+    out = valider_reponse_ia({
+        "macro": {"inflation": 99, "taux_directeurs": 0},
+        "actifs": {"S&P 500": {"bas": -0.30, "central": -0.18, "haut": -0.10}}})
+    assert out["actifs"]["S&P 500"] == -0.18
+    assert out["fourchettes"]["S&P 500"] == {"bas": -0.30, "central": -0.18, "haut": -0.10}
+
+
+def test_erreur_ia_sans_fourchette():
+    assert valider_reponse_ia({"erreur": "absurde"}) == {"erreur": "absurde"}

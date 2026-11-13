@@ -76,8 +76,8 @@ EVENEMENTS_PRESETS = {
     "Révolution IA":         "Une intelligence artificielle générale (AGI) est annoncée par une grande entreprise tech, remplaçant une large part des emplois intellectuels en quelques années.",
     "Krach 2008 bis":        "Une crise bancaire majeure éclate aux États-Unis avec la faillite de plusieurs grandes banques, provoquant une panique financière mondiale.",
     "Fusion nucléaire":      "Des chercheurs annoncent la maîtrise industrielle de la fusion nucléaire, promettant une énergie illimitée et bon marché d'ici 5 ans.",
-    "Choc pétrolier":        "Un conflit au Moyen-Orient coupe 30% de la production mondiale de pétrole, faisant exploser les prix de l'énergie.",
-    "Hausse brutale FED":    "La FED annonce une hausse surprise des taux directeurs de +2% pour combattre une inflation hors de contrôle.",
+    "Choc pétrolier":        "Un conflit au Moyen-Orient coupe 30 % de la production mondiale de pétrole, faisant exploser les prix de l'énergie.",
+    "Hausse brutale de la Fed": "La Fed annonce une hausse surprise de ses taux directeurs de 2 points pour combattre une inflation hors de contrôle.",
     "Crise Chine-Taïwan":    "La Chine impose un blocus militaire autour de Taïwan, paralysant la production mondiale de semi-conducteurs.",
 }
 
@@ -87,7 +87,7 @@ EVENEMENTS_PRESETS = {
 # ==========================================
 SCENARIO_A_DEFAUT = "Les États-Unis annoncent une impression massive de monnaie face à une crise soudaine."
 SCENARIO_B_DEFAUT = "Une percée majeure dans l'intelligence artificielle dope la productivité mondiale."
-SCENARIO_C_DEFAUT = "Un choc geopolitique majeur (tensions Taiwan, conflit énergétique) déstabilise les marchés."
+SCENARIO_C_DEFAUT = "Un choc géopolitique majeur (tensions autour de Taïwan, conflit énergétique) déstabilise les marchés."
 
 # Comparaison multi-scenarios : labels ordonnes utilisables pour 1, 2 ou 3 simulations
 LABELS_SCENARIOS = ["A", "B", "C"]
@@ -174,6 +174,16 @@ BOOTSTRAP_MIN_SEANCES = 120
 # Modele "Tendance" : autocorrelation des rendements et acceleration du choc.
 MOMENTUM_AUTOCORRELATION = 0.2
 MOMENTUM_ACCELERATION = 0.5
+# Profil de choc "crise" (modeles Probabiliste et Historique) : comme en 1987, 2008
+# ou 2020, l'essentiel du mouvement arrive vite, depasse sa cible puis se resorbe en
+# partie. Le point extreme tombe a CRISE_FRACTION_CREUX de l'horizon et va
+# CRISE_DEPASSEMENT plus loin que le choc final de l'IA (0.3 = 30 % plus profond).
+CRISE_FRACTION_CREUX = 0.2
+CRISE_DEPASSEMENT = 0.3
+# Doute de l'IA (Monte-Carlo) : chaque trajectoire tire son choc dans la fourchette
+# bas / central / haut de l'IA. Part commune du tirage a tous les actifs (le scenario
+# s'avere plus ou moins grave pour tous a la fois) : 0 = independants, 1 = identiques.
+INCERTITUDE_IA_CORRELATION = 0.8
 # Queues epaisses de secours (loi de Student) si l'historique reel manque.
 STUDENT_DEGRES_LIBERTE = 4
 # Garde-fou : pire variation possible sur une seule seance.
@@ -342,6 +352,10 @@ API_BACKTEST_JOURS_MAX = 3660          # ~10 ans
 API_FENETRE_LIMITE_SECONDES = 60
 API_LIMITE_APPELS_IA = 12              # simulations + rapports + chat, par minute et par IP
 API_LIMITE_APPELS_DONNEES = 120        # prix, catalogue, backtests, par minute et par IP
+# Plafond de depense OpenAI : demandes IA par jour (UTC), tous visiteurs confondus.
+# Une simulation compte pour 1 mais peut faire jusqu'a 6 appels OpenAI (3 scenarios
+# x calibration). Surchargeable sur l'hebergeur : QT_PLAFOND_IA_JOUR=500.
+API_PLAFOND_APPELS_IA_JOUR = 300
 API_ORIGINES_PAR_DEFAUT = ["http://localhost:3000", "http://127.0.0.1:3000"]
 # Un visiteur peut forcer le rechargement des prix, au plus une fois par periode
 # (protege Yahoo Finance d'un afflux de requetes).
@@ -366,3 +380,45 @@ SERIES_FRED = {
 }
 SERIE_TAUX_SANS_RISQUE = "taux_bce"
 CONJONCTURE_HISTORIQUE_ANNEES = 3
+
+
+# ==========================================
+# PROTÉGER MON PORTEFEUILLE (core/couverture.py, api/couverture.py)
+# ==========================================
+COUVERTURE_POIDS_MAX_LIGNE = 40          # % : aucune ligne au-dessus
+COUVERTURE_ECART_MAX_LIGNE = 15          # points : variation maximale d'une ligne
+COUVERTURE_ROTATION_MAX = 30             # % du portefeuille qui peut changer de main
+COUVERTURE_PAS_TRANSFERT = 5             # points déplacés à chaque étape
+COUVERTURE_ETAPES_MAX = 12               # 12 x 5 points : couvre largement la rotation maximale
+COUVERTURE_GAIN_MIN_RELATIF = 0.01       # un transfert doit gagner au moins 1 % de score
+COUVERTURE_PLANCHER_PROBA_PERTE = 5.0    # % : évite de diviser par une probabilité quasi nulle
+COUVERTURE_PLANCHER_PERTE_MAX = 0.1      # % : idem pour un portefeuille quasi immobile
+COUVERTURE_NB_TRAJECTOIRES_RECHERCHE = 400
+COUVERTURE_NB_TRAJECTOIRES_EVALUATION = 1000
+COUVERTURE_GRAINE = 2026                 # résultat reproductible pour une même demande
+COUVERTURE_TAILLE_LOT = 48               # portefeuilles évalués ensemble (borne la mémoire)
+JOURS_PAR_AN = 252                       # jours de bourse par an (annualisation)
+# Bornes des actifs personnalises (miroir de schemas._BORNE_GENERIQUE_CUSTOM).
+COUVERTURE_BORNES_ACTIF_PERSO = (-0.80, 2.00)
+# Tolerance d'arrondi sur la somme des poids envoyes par le site (fractions).
+COUVERTURE_TOLERANCE_SOMME_POIDS = 0.01
+# Longueurs maximales des textes rediges par l'IA (au-dela : tronques).
+COUVERTURE_JUSTIFICATION_LONGUEUR_MAX = 280
+COUVERTURE_SYNTHESE_LONGUEUR_MAX = 320
+
+
+# ==========================================
+# L'IA À L'ÉPREUVE DE L'HISTOIRE (core/validation_ia.py, scripts/valider_ia_historique.py)
+# ==========================================
+# Sous ce mouvement réel (en points de %), le sens de variation n'est pas net :
+# l'actif n'entre pas dans le score « bon sens » (il reste dans l'erreur moyenne).
+SEUIL_SENS_PTS = 2.0
+# Taille minimale d'un échantillon pour calculer une corrélation.
+MIN_POINTS_CORRELATION = 3
+# Mots des noms de crises qui ne trahissent pas l'événement : tous les autres
+# mots du nom (Lehman, Brexit, COVID, Ukraine…) sont interdits dans la description.
+MOTS_GENERIQUES = {"krach", "crise", "bulle", "guerre", "petrolier", "petroliere"}
+# L'IA n'estime ni la livre ni le yen : ces actifs sont comparés dans leur devise.
+VALIDATION_DEVISES_EN_LOCAL = {"GBP", "JPY"}
+# Garde-fou de coût : nombre maximal d'appels IA par exécution.
+VALIDATION_MAX_APPELS = 14
