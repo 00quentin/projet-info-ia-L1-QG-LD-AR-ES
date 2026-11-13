@@ -23,6 +23,10 @@ export const PARAMETRES = {
   criseDepassementPct: 30, // CRISE_DEPASSEMENT = 0.3
   // Fourchette bas / central / haut de l'IA (Monte-Carlo)
   incertitudePartCommunePct: 80, // INCERTITUDE_IA_CORRELATION = 0.8
+  // Recalage de la fourchette sur les crises passees (schemas.elargir_fourchette)
+  fourchetteAggravation: 1.75, // FOURCHETTE_ELARGISSEMENT_AGGRAVATION
+  fourchetteAttenuation: 1.25, // FOURCHETTE_ELARGISSEMENT_ATTENUATION
+  fourchetteDemiLargeurMinPct: 15, // FOURCHETTE_DEMI_LARGEUR_MIN = 0.15 (part de l'amplitude des bornes)
   modeleIa: "GPT-6.1 Terra", // IA_ANALYSE (gpt-6.1-terra)
   modeleIaSecours: "GPT-5.4 mini", // IA_ANALYSE_SECOURS (gpt-5.4-mini)
 };

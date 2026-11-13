@@ -73,8 +73,9 @@ export function Methode({ v }: { v: ValidationIA }) {
             montre qu’elle traduit bien une crise connue en chiffres, pas qu’elle prévoit un événement inédit.
           </Point>
           <Point>
-            <G>Fourchette sans bruit de marché.</G> Par consigne, la fourchette de l’IA ne couvre que le doute sur l’impact du scénario : le bruit
-            normal des marchés est simulé à part. Elle est donc plus étroite qu’un intervalle qui viserait à encadrer le vrai cours.
+            <G>Fourchette recalée sur ces mêmes crises.</G> Brute, la fourchette de l’IA ne contenait le vrai mouvement qu’environ une fois sur deux.
+            Elle est donc élargie (surtout du côté de l’aggravation) avant d’être simulée, et c’est cette fourchette recalée qui est mesurée ici.
+            Les réglages de ce recalage ont été choisis sur ces 6 crises : le score est donc un peu flatteur, une crise inédite pourrait faire moins bien.
           </Point>
           <Point>
             <G>Un seul tirage par crise.</G> L’IA n’est pas déterministe : relancée, elle donnerait des chiffres un peu différents.
