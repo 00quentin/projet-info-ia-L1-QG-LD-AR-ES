@@ -12,6 +12,7 @@ import streamlit as st
 
 from config import NOM_AFFICHAGE
 from core.metrics import calculer_metriques_risque
+from market_data import get_taux_sans_risque
 from core.portfolio import calculer_poids, construire_allocations_finales, calculer_valeur_portefeuille
 from core.export_csv import generer_csv_simulation
 from core.risk_alerts import evaluer_alertes_risque
@@ -42,7 +43,9 @@ def render_page_backtest_dashboard():
     # === Bandeau d'info ===
     st.markdown(f'<div class="qt-callout"><strong>Backtest : {bt["evenement"]}</strong><br>'
                 f'<span style="font-size:0.9em;">{bt["description"]}<br>'
-                f'Période : {bt["date_debut"]} → {bt["date_fin"]} · {len(bt["df"])} jours de cotation</span></div>',
+                f'Période : {bt["date_debut"]} → {bt["date_fin"]} · {len(bt["df"])} jours de cotation'
+                + (' · converti en € (taux BCE)' if params.get("eur") else '')
+                + '</span></div>',
                 unsafe_allow_html=True)
 
     if bt["actifs_indisponibles"]:
@@ -52,7 +55,10 @@ def render_page_backtest_dashboard():
     # === Métriques de risque ===
     poids = calculer_poids(params["profil"], params["actifs_sim"], params["allocations"])
     valeur_port = calculer_valeur_portefeuille(df, poids, params["capital"])
-    metriques = calculer_metriques_risque(valeur_port)
+    # Taux sans risque moyen de l'epoque rejouee (pas celui d'aujourd'hui)
+    metriques = calculer_metriques_risque(
+        valeur_port, get_taux_sans_risque(str(bt["date_debut"]), str(bt["date_fin"]))
+    )
 
     st.markdown('<div class="qt-section-title">Métriques de risque (données réelles)</div>',
                 unsafe_allow_html=True)

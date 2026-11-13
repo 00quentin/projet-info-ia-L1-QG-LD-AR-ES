@@ -285,7 +285,7 @@ def generer_rapport_pdf(simu, params, metriques, allocations_finales,
         f"<b>Nombre d'actifs analysés :</b> {len(params['actifs_sim'])}<br/>"
     ).replace(",", " ")
     if params.get("mc"):
-        params_text += "<b>Mode Monte-Carlo :</b> activé (50 simulations)<br/>"
+        params_text += "<b>Mode Monte-Carlo :</b> activé (1 000 simulations)<br/>"
     if params.get("prix_reels"):
         params_text += "<b>Prix initiaux :</b> Yahoo Finance (temps réel)<br/>"
     if params.get("calib") and simu.get("chocs_ia", {}).get("evenement_reference"):

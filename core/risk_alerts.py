@@ -58,17 +58,17 @@ def evaluer_alertes_risque(metriques: Dict[str, float]) -> List[AlerteRisque]:
     # === Sharpe Ratio ===
     if sharpe < -1.0:
         alertes.append(AlerteRisque(
-            "error", "Rendement risque tres defavorable",
-            f"Sharpe Ratio de {sharpe:.2f} : le portefeuille perd plus que ce que le risque le justifie. Reconsiderer l'allocation.",
+            "error", "Rendement/risque très défavorable",
+            f"Sharpe Ratio de {sharpe:.2f} : le portefeuille perd plus que ce que le risque justifie. Reconsidérez l'allocation.",
             "sharpe"))
     elif sharpe < 0:
         alertes.append(AlerteRisque(
-            "warning", "Sharpe Ratio negatif",
-            f"Sharpe de {sharpe:.2f} : la volatilite n'est pas compensee par le rendement.",
+            "warning", "Ratio de Sharpe négatif",
+            f"Sharpe de {sharpe:.2f} : la volatilité n'est pas compensée par le rendement.",
             "sharpe"))
     elif sharpe >= 2.0:
         alertes.append(AlerteRisque(
-            "success", "Excellent rapport rendement-risque",
+            "success", "Excellent rapport rendement/risque",
             f"Sharpe de {sharpe:.2f} : performance exceptionnelle compte tenu du risque pris.",
             "sharpe"))
 
@@ -76,31 +76,31 @@ def evaluer_alertes_risque(metriques: Dict[str, float]) -> List[AlerteRisque]:
     if dd >= 40.0:
         alertes.append(AlerteRisque(
             "error", "Drawdown critique",
-            f"Chute maximale de -{dd:.1f}% depuis un sommet : le portefeuille a connu un effondrement majeur. Hors profil prudent.",
+            f"Chute maximale de -{dd:.1f} % depuis un sommet : le portefeuille a connu un effondrement majeur. Hors profil prudent.",
             "max_dd"))
     elif dd >= 25.0:
         alertes.append(AlerteRisque(
-            "warning", "Drawdown severe",
-            f"Chute maximale de -{dd:.1f}% : pertes temporaires importantes. A reserver aux profils tolerants au risque.",
+            "warning", "Drawdown sévère",
+            f"Chute maximale de -{dd:.1f} % : pertes temporaires importantes. À réserver aux profils tolérants au risque.",
             "max_dd"))
 
     # === Volatilite annualisee ===
     if vol >= 50.0:
         alertes.append(AlerteRisque(
-            "error", "Volatilite extreme",
-            f"Volatilite annualisee de {vol:.1f}% : variations dignes d'actifs cryptos ou leverages. Risque de pertes brutales.",
+            "error", "Volatilité extrême",
+            f"Volatilité annualisée de {vol:.1f} % : variations dignes de cryptomonnaies ou de produits à effet de levier. Risque de pertes brutales.",
             "vol_ann"))
     elif vol >= 35.0:
         alertes.append(AlerteRisque(
-            "warning", "Volatilite tres elevee",
-            f"Volatilite annualisee de {vol:.1f}% : amplitude des variations bien superieure a un portefeuille standard.",
+            "warning", "Volatilité très élevée",
+            f"Volatilité annualisée de {vol:.1f} % : amplitude des variations bien supérieure à un portefeuille standard.",
             "vol_ann"))
 
     # === VaR 95% (1 jour) ===
     if var >= 5.0:
         alertes.append(AlerteRisque(
-            "warning", "Risque journalier eleve",
-            f"VaR 95% a 1 jour de -{var:.2f}% : probabilite reelle de perdre plus de {var:.1f}% en une seule seance.",
+            "warning", "Risque journalier élevé",
+            f"VaR 95 % à 1 jour de -{var:.2f} % : un jour sur vingt, la perte dépasse {var:.1f} % en une seule séance.",
             "var_95"))
 
     # Tri : error > warning > success > info

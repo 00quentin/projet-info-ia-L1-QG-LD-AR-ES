@@ -1,0 +1,475 @@
+"use client";
+
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { AnimatePresence, motion } from "motion/react";
+import { Check, CircleAlert, Link2, RotateCw } from "lucide-react";
+import {
+  ErreurApi, estReussi, lancerSimulation, lireCatalogue, lireConjoncture,
+  type Catalogue, type Conjoncture as TypeConjoncture, type ReponseSimulation, type ResultatScenario,
+} from "@/lib/api";
+import { Conjoncture } from "@/components/resultats/Conjoncture";
+import { ajouterEntree } from "@/lib/historique";
+import { contexteSimulation, definirContexteChat } from "@/lib/contexteChat";
+import { decoderReglages, encoderReglages, lienDePartage, type ReglagesPartages } from "@/lib/partage";
+import { Carte } from "@/components/ui/Carte";
+import { notifier } from "@/components/ui/Notifications";
+import { FormulaireSimulation, reglagesInitiaux, type Reglages } from "@/components/FormulaireSimulation";
+import { PROFIL_PERSONNALISE } from "@/components/formulaire/ChoixPortefeuille";
+import { Resultats } from "@/components/Resultats";
+import { Comparaison } from "@/components/resultats/Comparaison";
+import { DUREE, EASE_SORTIE, RESSORT } from "@/components/motion/transitions";
+
+const ETAPES_ATTENTE = [
+  "L'IA lit votre scénario",
+  "Recherche de précédents historiques",
+  "Estimation de l'impact sur chaque actif",
+  "Simulation des trajectoires de marché",
+  "Calcul du risque du portefeuille",
+];
+const DUREE_ETAPE_MS = 3200;
+
+const transitionEtat = {
+  initial: { opacity: 0, y: 12 },
+  animate: { opacity: 1, y: 0, transition: { duration: DUREE.normale, ease: EASE_SORTIE } },
+  exit: { opacity: 0, y: -8, transition: { duration: DUREE.rapide } },
+};
+
+function Attente({ nbScenarios }: { nbScenarios: number }) {
+  const [etape, setEtape] = useState(0);
+  useEffect(() => {
+    const minuterie = setInterval(() => setEtape((e) => Math.min(e + 1, ETAPES_ATTENTE.length - 1)), DUREE_ETAPE_MS);
+    return () => clearInterval(minuterie);
+  }, []);
+  return (
+    <div className="flex flex-col gap-4" role="status" aria-live="polite">
+      <Carte className="overflow-hidden p-7">
+        <div className="text-[15px] font-semibold">{nbScenarios > 1 ? `Analyse de ${nbScenarios} scénarios en parallèle` : "Analyse en cours"}</div>
+        <p className="mt-1 text-sm text-muted">Comptez une quinzaine de secondes : l&apos;IA raisonne sur des crises réelles avant de répondre.</p>
+        <ol className="mt-5 flex flex-col gap-2.5">
+          {ETAPES_ATTENTE.map((texte, i) => {
+            const faite = i < etape;
+            const enCours = i === etape;
+            return (
+              <motion.li
+                key={texte}
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: i <= etape ? 1 : 0.4, x: 0 }}
+                transition={{ delay: i * 0.05, duration: DUREE.normale }}
+                className="flex items-center gap-3 text-sm"
+              >
+                <span className="relative grid size-5 shrink-0 place-items-center">
+                  <AnimatePresence mode="wait" initial={false}>
+                    {faite ? (
+                      <motion.span key="ok" initial={{ scale: 0 }} animate={{ scale: 1 }} transition={RESSORT} className="grid size-5 place-items-center rounded-full bg-gain text-white">
+                        <Check className="size-3" strokeWidth={3} aria-hidden />
+                      </motion.span>
+                    ) : enCours ? (
+                      <motion.span key="encours" className="relative flex size-3">
+                        <span className="absolute inline-flex size-full animate-ping rounded-full bg-accent opacity-60" />
+                        <span className="relative inline-flex size-3 rounded-full bg-accent" />
+                      </motion.span>
+                    ) : (
+                      <motion.span key="attente" className="size-2 rounded-full bg-line-strong" />
+                    )}
+                  </AnimatePresence>
+                </span>
+                <span className={enCours ? "font-medium text-ink" : faite ? "text-ink-2" : "text-muted"}>{texte}</span>
+              </motion.li>
+            );
+          })}
+        </ol>
+        <div className="mt-6 h-1 overflow-hidden rounded-full bg-surface-2">
+          {/* Progression indicative : tend vers 92 % sans jamais pretendre avoir fini */}
+          <motion.div className="h-full origin-left rounded-full bg-accent" initial={{ scaleX: 0.04 }} animate={{ scaleX: 0.92 }} transition={{ duration: 18, ease: [0.1, 0.6, 0.3, 1] }} />
+        </div>
+      </Carte>
+      <div className="chargement h-40 rounded-2xl" />
+      <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+        {[0, 1, 2, 3].map((i) => (
+          <div key={i} className="chargement h-28 rounded-xl" />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** Petite courbe qui se dessine en boucle : illustre "simuler l'avenir". */
+function IllustrationAccueil() {
+  const trace = "M4 70 C 30 66, 42 40, 64 46 S 98 72, 118 52 S 150 18, 176 24 S 206 10, 220 8";
+  return (
+    <svg viewBox="0 0 224 84" className="mx-auto h-24 w-60" aria-hidden>
+      <defs>
+        <linearGradient id="degrade-accueil" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.25" />
+          <stop offset="100%" stopColor="var(--accent)" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      {[20, 42, 64].map((y) => (
+        <line key={y} x1="0" x2="224" y1={y} y2={y} stroke="var(--line)" strokeWidth="1" />
+      ))}
+      <motion.path
+        d={`${trace} L 220 84 L 4 84 Z`}
+        fill="url(#degrade-accueil)"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: [0, 1, 1, 0] }}
+        transition={{ duration: 4, times: [0, 0.45, 0.85, 1], repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.path
+        d={trace}
+        fill="none"
+        stroke="var(--accent)"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        initial={{ pathLength: 0 }}
+        animate={{ pathLength: [0, 1, 1, 1], opacity: [1, 1, 1, 0] }}
+        transition={{ duration: 4, times: [0, 0.45, 0.85, 1], repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.circle
+        r="4.5"
+        fill="var(--accent)"
+        stroke="var(--surface)"
+        strokeWidth="2"
+        cx="220"
+        cy="8"
+        initial={{ scale: 0 }}
+        animate={{ scale: [0, 0, 1, 1, 0] }}
+        transition={{ duration: 4, times: [0, 0.42, 0.5, 0.85, 1], repeat: Infinity }}
+        style={{ transformBox: "fill-box", transformOrigin: "center" }}
+      />
+    </svg>
+  );
+}
+
+function EtatVide() {
+  const [conjoncture, setConjoncture] = useState<TypeConjoncture | null>(null);
+  useEffect(() => {
+    let actif = true;
+    lireConjoncture()
+      .then((c) => actif && setConjoncture(c))
+      .catch(() => undefined); // facultatif : l'accueil reste complet sans
+    return () => {
+      actif = false;
+    };
+  }, []);
+  const etapes = [
+    ["Décrivez", "un événement : krach, guerre, percée technologique, décision d'une banque centrale…"],
+    ["Composez", "votre portefeuille : un profil type ou votre propre répartition."],
+    ["Analysez", "l'impact estimé par l'IA sur les vrais prix de marché, et le risque pris."],
+  ];
+  return (
+    <Carte className="grid min-h-[26rem] place-items-center p-8 text-center">
+      <div className="max-w-lg">
+        <IllustrationAccueil />
+        <h2 className="mt-4 text-2xl font-semibold tracking-tight">Et si ça arrivait demain ?</h2>
+        <p className="mt-2 text-[15px] leading-relaxed text-ink-2">Testez l&apos;impact d&apos;un événement économique sur votre portefeuille, à partir des vrais prix de marché et des grandes crises passées.</p>
+        <ol className="mt-7 grid gap-3 text-left sm:grid-cols-3">
+          {etapes.map(([titre, texte], i) => (
+            <motion.li
+              key={titre}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 + i * 0.1, duration: DUREE.normale, ease: EASE_SORTIE }}
+              className="rounded-xl border border-line bg-surface-2/50 p-3"
+            >
+              <span className="grid size-6 place-items-center rounded-full bg-accent-soft text-xs font-semibold text-accent-ink">{i + 1}</span>
+              <span className="mt-2 block text-sm font-semibold">{titre}</span>
+              <span className="mt-0.5 block text-xs leading-relaxed text-muted">{texte}</span>
+            </motion.li>
+          ))}
+        </ol>
+        {conjoncture && (
+          <div className="mt-7 border-t border-line pt-5 text-left">
+            <Conjoncture conjoncture={conjoncture} titre="Conjoncture du jour" compacte />
+          </div>
+        )}
+      </div>
+    </Carte>
+  );
+}
+
+function Erreur({ message, onReessayer }: { message: string; onReessayer?: () => void }) {
+  return (
+    <Carte className="p-7">
+      <div className="flex gap-3">
+        <motion.span initial={{ rotate: -20, scale: 0.6 }} animate={{ rotate: 0, scale: 1 }} transition={RESSORT}>
+          <CircleAlert className="mt-0.5 size-5 shrink-0 text-loss" aria-hidden />
+        </motion.span>
+        <div>
+          <h2 className="text-[15px] font-semibold">La simulation n&apos;a pas abouti</h2>
+          <p className="mt-1 text-sm leading-relaxed text-ink-2">{message}</p>
+          {onReessayer && (
+            <motion.button whileTap={{ scale: 0.96 }} type="button" onClick={onReessayer} className="mt-4 inline-flex items-center gap-2 rounded-lg border border-line px-3 py-2 text-sm font-medium transition hover:border-line-strong">
+              <RotateCw className="size-4" aria-hidden />
+              Réessayer
+            </motion.button>
+          )}
+        </div>
+      </div>
+    </Carte>
+  );
+}
+
+/** Applique les reglages d'un lien de partage, en ignorant tout ce que le catalogue ne connait pas. */
+function appliquerPartage(base: Reglages, partage: ReglagesPartages, catalogue: Catalogue): Reglages {
+  const connus = new Set(catalogue.categories.flatMap((c) => c.actifs.map((a) => a.cle)));
+  const actifs = partage.actifs?.filter((a) => connus.has(a));
+  const profil = catalogue.profils.some((p) => p.nom === partage.profil) ? partage.profil! : base.portefeuille.profil;
+  const borne = (v: number | undefined, b: { min: number; max: number }, defaut: number) => (v == null ? defaut : Math.min(b.max, Math.max(b.min, v)));
+  return {
+    ...base,
+    scenarios: partage.scenarios.filter((s, i) => i === 0 || s).slice(0, catalogue.labels_scenarios.length),
+    portefeuille: {
+      ...base.portefeuille,
+      profil,
+      capital: borne(partage.capital, catalogue.capital, base.portefeuille.capital),
+      actifs: actifs?.length ? actifs : base.portefeuille.actifs,
+      allocations: profil === PROFIL_PERSONNALISE ? Object.fromEntries(Object.entries(partage.allocations ?? {}).filter(([k]) => connus.has(k))) : {},
+    },
+    duree: borne(partage.duree, catalogue.horizon, base.duree),
+    modele: catalogue.modeles.includes(partage.modele ?? "") ? partage.modele! : base.modele,
+    monteCarlo: partage.monteCarlo ?? base.monteCarlo,
+    convertirEur: partage.convertirEur ?? base.convertirEur,
+    calibration: partage.calibration ?? base.calibration,
+    prixReels: partage.prixReels ?? base.prixReels,
+  };
+}
+
+function versPartage(r: Reglages): ReglagesPartages {
+  return {
+    scenarios: r.scenarios,
+    profil: r.portefeuille.profil,
+    capital: r.portefeuille.capital,
+    actifs: r.portefeuille.actifs.filter((a) => !a.startsWith("PERSO_")),
+    allocations: r.portefeuille.profil === PROFIL_PERSONNALISE ? r.portefeuille.allocations : undefined,
+    duree: r.duree,
+    modele: r.modele,
+    monteCarlo: r.monteCarlo,
+    convertirEur: r.convertirEur,
+    calibration: r.calibration,
+    prixReels: r.prixReels,
+  };
+}
+
+export function Simulateur() {
+  const params = useSearchParams();
+  const [catalogue, setCatalogue] = useState<Catalogue | null>(null);
+  const [erreurCatalogue, setErreurCatalogue] = useState<string | null>(null);
+  const [essai, setEssai] = useState(0);
+  const [reglages, setReglages] = useState<Reglages | null>(null);
+  const [prerempli, setPrerempli] = useState(false);
+  const [chaineVue, setChaineVue] = useState<string | null>(null);
+  const [chaineEcrite, setChaineEcrite] = useState<string | null>(null);
+  const [reponse, setReponse] = useState<ReponseSimulation | null>(null);
+  const [lien, setLien] = useState<string | undefined>();
+  const [onglet, setOnglet] = useState<string>("comparaison");
+  const [enCours, setEnCours] = useState(false);
+  const [erreur, setErreur] = useState<string | null>(null);
+  const zoneResultats = useRef<HTMLDivElement>(null);
+  const [nbEnCours, setNbEnCours] = useState(1);
+
+  useEffect(() => {
+    let actif = true;
+    lireCatalogue()
+      .then((c) => {
+        if (!actif) return;
+        setErreurCatalogue(null);
+        setCatalogue(c);
+        setReglages((r) => r ?? reglagesInitiaux(c));
+      })
+      .catch((e: unknown) => actif && setErreurCatalogue(e instanceof ErreurApi ? e.message : "Chargement impossible."));
+    return () => {
+      actif = false;
+    };
+  }, [essai]);
+
+  // Lien de partage ou bouton « Relancer » de l'historique : on applique les reglages
+  // de l'adresse a chaque fois qu'elle change (la page reste montee entre deux visites),
+  // sauf quand c'est nous qui venons de l'ecrire apres une simulation.
+  const chaine = params.toString();
+  if (catalogue && reglages && chaine !== chaineVue) {
+    setChaineVue(chaine);
+    const partage = chaine && chaine !== chaineEcrite ? decoderReglages(new URLSearchParams(chaine)) : null;
+    if (partage) {
+      setReglages(appliquerPartage(reglagesInitiaux(catalogue), partage, catalogue));
+      setPrerempli(true);
+    }
+  }
+
+  const noms = useMemo(() => {
+    const m = new Map<string, string>();
+    catalogue?.categories.forEach((c) => c.actifs.forEach((a) => m.set(a.cle, a.nom)));
+    reglages?.portefeuille.actifsPerso.forEach((a) => m.set(a.cle, a.nom));
+    return m;
+  }, [catalogue, reglages?.portefeuille.actifsPerso]);
+
+  async function lancer() {
+    if (!reglages) return;
+    const r = reglages;
+    setNbEnCours(r.scenarios.length);
+    setEnCours(true);
+    setErreur(null);
+    setPrerempli(false);
+    // Sur mobile le formulaire est au-dessus : on amene les resultats a l'ecran.
+    if (window.matchMedia("(max-width: 1023px)").matches) zoneResultats.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    try {
+      const rep = await lancerSimulation({
+        scenarios: r.scenarios.map((s) => s.trim()),
+        actifs: r.portefeuille.actifs,
+        profil: r.portefeuille.profil,
+        allocations: r.portefeuille.allocations,
+        capital: r.portefeuille.capital,
+        tickers_perso: r.portefeuille.actifsPerso.filter((a) => r.portefeuille.actifs.includes(a.cle)).map((a) => a.ticker),
+        convertir_eur: r.convertirEur,
+        duree: r.duree,
+        modele: r.modele,
+        monte_carlo: r.monteCarlo,
+        prix_reels: r.prixReels,
+        calibration: r.calibration,
+      });
+      // L'adresse de la page devient le lien de partage de cette simulation.
+      const partage = versPartage(r);
+      const encode = encoderReglages(partage);
+      setChaineEcrite(encode);
+      window.history.replaceState(null, "", `?${encode}`);
+      const lienCourant = lienDePartage(partage);
+      setLien(lienCourant);
+      setReponse(rep);
+      setOnglet(rep.scenarios.length > 1 ? "comparaison" : rep.scenarios[0].label);
+      const nb = rep.scenarios.length;
+      const nbReussis = rep.scenarios.filter(estReussi).length;
+      if (nbReussis > 0) definirContexteChat(contexteSimulation(rep.scenarios.filter(estReussi), rep.parametres.profil, rep.parametres.duree));
+      if (nbReussis > 0) notifier(nb > 1 ? `Comparaison terminée : ${nbReussis} scénarios analysés.` : "Simulation terminée avec succès.");
+      for (const s of rep.scenarios) {
+        if (!estReussi(s)) continue;
+        ajouterEntree({
+          type: "Simulation",
+          scenario: s.scenario,
+          profil: rep.parametres.profil,
+          capital: s.portefeuille.capital,
+          valeur_finale: s.portefeuille.valeur_finale,
+          performance_pct: s.portefeuille.performance_pct,
+          monte_carlo: rep.parametres.monte_carlo,
+          nb_actifs: rep.parametres.nb_actifs,
+          label_comparaison: nb > 1 ? s.label : null,
+          lien: lienCourant,
+        });
+      }
+    } catch (e) {
+      setErreur(e instanceof ErreurApi ? e.message : "Une erreur est survenue.");
+    } finally {
+      setEnCours(false);
+    }
+  }
+
+  function comparer() {
+    if (!reglages || !catalogue) return;
+    setReglages({ ...reglages, scenarios: [reglages.scenarios[0], catalogue.scenarios_par_defaut[1] ?? ""] });
+    requestAnimationFrame(() => document.getElementById("scenario-1")?.focus());
+  }
+
+  if (erreurCatalogue) {
+    return (
+      <div className="mx-auto max-w-xl px-4 py-16">
+        <Erreur message={`${erreurCatalogue} Le serveur se réveille peut-être : patientez quelques secondes.`} onReessayer={() => setEssai((n) => n + 1)} />
+      </div>
+    );
+  }
+
+  const reussis = (reponse?.scenarios.filter(estReussi) ?? []) as ResultatScenario[];
+  const echecs = reponse?.scenarios.filter((s) => !estReussi(s)) ?? [];
+  const comparaison = reussis.length > 1;
+  const ongletCourant = comparaison && onglet === "comparaison" ? "comparaison" : (reussis.find((s) => s.label === onglet) ?? reussis[0])?.label;
+  const scenarioAffiche = reussis.find((s) => s.label === ongletCourant);
+  const etat = enCours ? "attente" : erreur ? "erreur" : reponse ? (reussis.length ? "resultats" : "echec") : "vide";
+
+  return (
+    <div className="mx-auto grid max-w-[1400px] grid-cols-1 gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[23.5rem_minmax(0,1fr)] lg:items-start">
+      <h1 className="sr-only">Simulateur Quant Terminal : impact d&apos;un événement économique sur votre portefeuille</h1>
+      <aside className="lg:sticky lg:top-[7.75rem] lg:max-h-[calc(100dvh-9.25rem)] lg:overflow-y-auto lg:rounded-2xl">
+        <Carte className="p-5">
+          <AnimatePresence>
+            {prerempli && (
+              <motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="mb-5 flex gap-2 overflow-hidden rounded-xl bg-accent-soft px-3 py-2.5 text-xs leading-relaxed text-accent-ink">
+                <Link2 className="mt-0.5 size-3.5 shrink-0" aria-hidden />
+                Simulation partagée : les réglages sont pré-remplis, il ne reste qu&apos;à la lancer.
+              </motion.p>
+            )}
+          </AnimatePresence>
+          {catalogue && reglages ? (
+            <FormulaireSimulation catalogue={catalogue} reglages={reglages} onChange={setReglages} onLancer={lancer} enCours={enCours} />
+          ) : (
+            <div className="flex flex-col gap-4" aria-label="Chargement du formulaire">
+              <div className="chargement h-28 rounded-xl" />
+              <div className="chargement h-10 rounded-xl" />
+              <div className="chargement h-40 rounded-xl" />
+            </div>
+          )}
+        </Carte>
+      </aside>
+
+      <section ref={zoneResultats} aria-label="Résultats de la simulation" className="min-w-0 scroll-mt-4">
+        <AnimatePresence mode="wait">
+          {etat === "attente" && (
+            <motion.div key="attente" {...transitionEtat}>
+              <Attente nbScenarios={nbEnCours} />
+            </motion.div>
+          )}
+          {etat === "erreur" && (
+            <motion.div key="erreur" {...transitionEtat}>
+              <Erreur message={erreur!} onReessayer={lancer} />
+            </motion.div>
+          )}
+          {etat === "echec" && (
+            <motion.div key="echec" {...transitionEtat}>
+              <Erreur message={echecs[0]?.erreur ?? "Une erreur est survenue."} onReessayer={lancer} />
+            </motion.div>
+          )}
+          {etat === "vide" && (
+            <motion.div key="vide" {...transitionEtat}>
+              <EtatVide />
+            </motion.div>
+          )}
+          {etat === "resultats" && reponse && (
+            <motion.div key={`resultats-${reponse.date}`} {...transitionEtat} className="flex flex-col gap-4">
+              {comparaison && (
+                <div role="tablist" aria-label="Vue des résultats" className="flex w-full gap-1 overflow-x-auto rounded-xl border border-line bg-surface p-1 [scrollbar-width:none] sm:w-fit">
+                  {["comparaison", ...reussis.map((s) => s.label)].map((cle) => {
+                    const actif = ongletCourant === cle;
+                    return (
+                      <button
+                        key={cle}
+                        type="button"
+                        role="tab"
+                        aria-selected={actif}
+                        onClick={() => setOnglet(cle)}
+                        className={`relative shrink-0 rounded-lg px-3.5 py-1.5 text-sm font-medium transition-colors ${actif ? "text-ink" : "text-muted hover:text-ink"}`}
+                      >
+                        {actif && <motion.span layoutId="onglet-resultats" className="absolute inset-0 rounded-lg bg-surface-2" transition={RESSORT} />}
+                        <span className="relative">{cle === "comparaison" ? "Comparaison" : `Scénario ${cle}`}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+              {echecs.length > 0 && (
+                <p role="status" className="rounded-xl border border-warn/30 bg-warn-soft px-4 py-3 text-sm">
+                  {echecs.map((e) => `Scénario ${e.label} : ${e.erreur}`).join(" · ")}
+                </p>
+              )}
+              <AnimatePresence mode="wait">
+                <motion.div key={ongletCourant} role={comparaison ? "tabpanel" : undefined} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: DUREE.rapide + 0.07, ease: EASE_SORTIE }}>
+                  {ongletCourant === "comparaison" ? (
+                    <Comparaison scenarios={reussis} parametres={reponse.parametres} lienPartage={lien} onVoirDetail={setOnglet} />
+                  ) : (
+                    scenarioAffiche && <Resultats reponse={reponse} scenario={scenarioAffiche} noms={noms} lienPartage={lien} onComparer={comparaison ? undefined : comparer} />
+                  )}
+                </motion.div>
+              </AnimatePresence>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </section>
+    </div>
+  );
+}

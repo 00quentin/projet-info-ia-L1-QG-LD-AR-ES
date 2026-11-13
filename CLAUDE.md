@@ -1,6 +1,8 @@
 # Quant Terminal — Guide pour Claude
 
-Application Streamlit pédagogique qui simule l'impact d'événements économiques sur un portefeuille (vrais prix Yahoo Finance + IA OpenAI). Projet L1 MIASHS.
+Application pédagogique qui simule l'impact d'événements économiques sur un portefeuille (vrais prix Yahoo Finance + IA OpenAI). Projet L1 MIASHS.
+
+**Migration en cours** : l'app Streamlit (racine) reste en ligne tant que le nouveau site (`web/`, Next.js) ne couvre pas 100 % de ses fonctions. Le moteur Python est partagé et exposé au site par l'API FastAPI (`api/`).
 
 ---
 
@@ -15,6 +17,15 @@ pytest
 
 # Lancer un test précis
 pytest tests/test_runner.py -v
+
+# Lancer l'API web en local (port 8000, doc sur /docs)
+uvicorn api.main:app --reload --port 8000
+
+# Lancer le nouveau site web (port 3000, l'API doit tourner sur 8000)
+cd web && npm install && npm run dev
+
+# Vérifier le site avant commit
+cd web && npx tsc --noEmit && npx eslint src && npm run build
 
 # Vérifier qu'un fichier Python compile (avant commit)
 python -m py_compile views/dashboard.py
@@ -40,7 +51,26 @@ core/               → Logique métier PURE (zéro import streamlit)
 ├── validation.py   → validations actifs/scénarios
 ├── risk_alerts.py  → alertes automatiques sur métriques
 ├── custom_assets.py→ ajout d'actifs personnalisés (tickers Yahoo)
-└── export_csv.py   → export CSV
+├── export_csv.py   → export CSV
+├── devises.py      → conversion en euros (taux BCE)
+└── cache.py        → cache TTL indépendant de Streamlit (@cache_ttl)
+
+api/                → API web FastAPI (moteur exposé au futur site Next.js, zéro import streamlit)
+├── main.py         → routes HTTP, CORS, limite d'appels par IP
+├── modeles.py      → validation Pydantic des demandes
+├── services.py     → orchestration pure (équivalent de handlers.py sans UI)
+├── limites.py      → limiteur d'appels
+└── requirements.txt→ dépendances de l'API seule (Render)
+
+web/                → NOUVEAU site Next.js 16 + Tailwind 4 + Motion (remplacera Streamlit)
+├── src/app/        → une page par route : / (simulateur), /backtest, /historique, /academie, /a-propos
+├── src/components/ → Simulateur, FormulaireSimulation, Resultats, EnTete, BandeMarches
+│   ├── resultats/  → blocs de résultats (Synthese, AnalyseIA, Comparaison, Risque, Repartition…)
+│   ├── formulaire/ → ChoixPortefeuille (partagé simulateur/backtest)
+│   ├── charts/     → GraphiqueLignes, BarresPerformance (SVG maison, animés)
+│   ├── motion/     → Apparition, Cascade, NombreAnime, transitions.ts (réglages d'animation communs)
+│   └── ui/, chat/, exports/, historique/, backtest/, academie/
+└── src/lib/        → api.ts (client + types de l'API), format.ts (formats FR), historique.ts (localStorage), partage.ts (lien)
 
 components/         → UI réutilisable Streamlit
 ├── header.py, sidebar.py, footer.py
@@ -53,8 +83,8 @@ components/         → UI réutilisable Streamlit
 views/              → 1 fichier par onglet (dashboard, portefeuille, comparaison, backtest, historique, academie, chat, apropos)
 
 ia_bot.py           → Appels OpenAI (cache, sanitization anti-injection, validation Pydantic)
-market_data.py      → Yahoo Finance via yfinance (cache 1h, fallback snapshot JSON)
-simulation.py       → Moteur de simulation (probabiliste, historique, ML)
+market_data.py      → Yahoo Finance via yfinance (cache 1h, fallback snapshot JSON, conversion €)
+simulation.py       → Moteur de simulation vectorisé (corrélations réelles, Monte-Carlo)
 pdf_generator.py    → Rapports PDF via ReportLab
 logger.py           → get_logger(nom_module)
 
@@ -63,7 +93,7 @@ tests/              → pytest, 1 fichier par module core/
 style.css           → CSS custom (palette neutre Linear/Vercel, indigo #6366f1)
 ```
 
-**Règle d'or** : `core/` ne doit JAMAIS importer `streamlit`. Toute interaction UI passe par `handlers.py`, `components/` ou `views/`.
+**Règle d'or** : `core/`, `api/`, `market_data.py`, `ia_bot.py` et `simulation.py` ne doivent JAMAIS importer `streamlit` (le moteur est partagé avec l'API). Toute interaction UI passe par `handlers.py`, `components/` ou `views/`.
 
 ---
 
@@ -81,7 +111,8 @@ style.css           → CSS custom (palette neutre Linear/Vercel, indigo #6366f1
 - **Commentaires** : minimaux, uniquement pour le **pourquoi** non-évident (workaround, contrainte, choix surprenant). Pas de comment pour expliquer le quoi.
 - **Imports** : groupés (stdlib → tiers → locaux), avec ligne vide entre groupes.
 - **Types** : annotations utilisées dans `core/` et signatures publiques. Pas obligatoire partout.
-- **Cache Streamlit** : `@st.cache_data` pour données, `@st.cache_resource` pour clients (OpenAI, etc.).
+- **Cache** : `@cache_ttl(secondes)` de `core/cache.py` pour les données (fonctionne dans Streamlit et dans l'API).
+- **Site web** : textes, noms et commentaires en français aussi. Couleurs uniquement via les jetons de `web/src/app/globals.css` (classes `bg-surface`, `text-ink-2`, `border-line`, `text-gain`…), jamais de hex en dur. Animations via les briques de `web/src/components/motion/` (courtes, sobres ; « réduire les animations » est respecté globalement).
 
 ---
 

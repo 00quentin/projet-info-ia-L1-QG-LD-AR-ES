@@ -1,0 +1,19 @@
+# Deploiement de l'API sur Render (https://render.com) : "New > Blueprint".
+# Cles a renseigner dans le tableau de bord Render, jamais dans ce fichier :
+#   OPENAI_API_KEY          cle OpenAI
+#   QT_ORIGINES_AUTORISEES  adresse du site, ex. https://quant-terminal.vercel.app
+services:
+  - type: web
+    name: quant-terminal-api
+    runtime: python
+    plan: free
+    buildCommand: pip install -r api/requirements.txt
+    startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/sante
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: QT_ORIGINES_AUTORISEES
+        sync: false

@@ -24,7 +24,7 @@ def render_page_historique():
     with col_b1:
         if st.button("Effacer l'historique"):
             st.session_state.historique_simus = []
-            effacer_historique()
+            effacer_historique(utilisateur=st.session_state.get("visiteur_id"))
             st.rerun()
 
     for i, simu in enumerate(st.session_state.historique_simus):
@@ -72,5 +72,8 @@ def render_page_historique():
                 if st.button("💾 Nommer", key=f"save_nom_{i}", use_container_width=True,
                              help="Enregistre un nom personnalisé pour retrouver cette simulation facilement."):
                     st.session_state.historique_simus[i]["nom_custom"] = nouveau_nom.strip()
-                    sauvegarder_historique(st.session_state.historique_simus)
+                    sauvegarder_historique(
+                        st.session_state.historique_simus,
+                        utilisateur=st.session_state.get("visiteur_id"),
+                    )
                     st.rerun()

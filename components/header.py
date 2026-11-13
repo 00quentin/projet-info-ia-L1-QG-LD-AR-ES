@@ -141,7 +141,7 @@ def render_onboarding():
         '<ul style="margin:8px 0 0 0; padding-left:20px; font-size:0.88em; color:var(--text-muted); line-height:1.7;">'
         '<li>Le bouton <strong>🔄 Recharger les prix Yahoo</strong> en haut de la sidebar force le rafraîchissement des prix réels (sinon cache de 1h).</li>'
         '<li>Vous pouvez comparer jusqu\'à <strong>3 scénarios côte à côte</strong> via le slider "Nombre de scénarios" en haut de la sidebar.</li>'
-        '<li>Cochez <em>"Mode Monte-Carlo"</em> dans les options avancées pour voir une <strong>fourchette de trajectoires</strong> (50 simulations).</li>'
+        '<li>Cochez <em>"Mode Monte-Carlo"</em> dans les options avancées pour voir une <strong>fourchette de trajectoires</strong> (1 000 simulations).</li>'
         '<li>Le mode <strong>Backtest historique</strong> rejoue les vraies données passées (2008, COVID…) pour voir comment votre portefeuille s\'en serait sorti.</li>'
         '<li>L\'icône <strong>❓ Guide d\'utilisation</strong> en haut à droite réaffiche ce panneau à tout moment.</li>'
         '<li>Le <strong>mode sombre</strong> (bouton 🌙) est plus reposant pour les yeux en soirée.</li>'
@@ -215,7 +215,26 @@ def render_bande_marche():
         actifs_strip = ["S&P 500", "VIX", "Or", "Petrole", "Bitcoin", "EUR_USD"]
         donnees = get_prix_avec_variation(actifs_strip)
 
-        items_html = '<span class="market-strip-title">Marchés en direct</span><div class="market-strip-tag"><span class="qt-live-dot"></span>LIVE</div>'
+        # Honnetete : on n'affiche "en direct" que si tous les prix viennent de Yahoo.
+        sources = {d.get("source") for d in donnees.values() if d}
+        dates = [d["date"] for d in donnees.values() if d and d.get("date")]
+        date_txt = ""
+        if dates:
+            a, m, j = max(dates).split("-")
+            date_txt = f"{j}/{m}/{a}"
+        if sources == {"yahoo"}:
+            items_html = (
+                '<span class="market-strip-title">Marchés · dernière clôture</span>'
+                f'<div class="market-strip-tag" title="Source : Yahoo Finance, cotations au {date_txt}">'
+                f'<span class="qt-live-dot"></span>{date_txt}</div>'
+            )
+        else:
+            items_html = (
+                '<span class="market-strip-title">Marchés · données de secours</span>'
+                '<div class="market-strip-tag" style="color:#f59e0b;" '
+                f'title="Yahoo Finance est injoignable : dernières valeurs connues au {date_txt}">'
+                f'⚠ {date_txt}</div>'
+            )
         labels_courts = {
             "S&P 500": "S&P 500", "VIX": "VIX",
             "Or": "OR", "Petrole": "WTI",

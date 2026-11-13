@@ -1,6 +1,6 @@
-# Bornes minimales requises par le code (cache_resource, OpenAI v1+, yfinance batch).
+# Bornes minimales requises par le code (st.context.cookies, OpenAI v1+, yfinance batch).
 # Pas de pin haut pour laisser pip choisir une version compatible recente.
-streamlit>=1.30
+streamlit>=1.37
 pandas>=2.0
 numpy>=1.24
 plotly>=5.0
@@ -10,4 +10,4 @@ yfinance>=0.2.40
 reportlab>=4.0
 pydantic>=2.0
 # Requis par pandas Styler.background_gradient (utilise dans views/dashboard.py)
-matplotlib>=3.7
+matplotlib>=3.7requests>=2.31

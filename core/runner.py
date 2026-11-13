@@ -11,7 +11,9 @@ import pandas as pd
 
 from simulation import simuler_marche_dynamique, simuler_monte_carlo
 from ia_bot import analyser_evenement_macro
-from config import NOM_AFFICHAGE, NB_SIMULATIONS_MONTE_CARLO
+from config import (
+    ACTIF_TAUX_EUR_USD, BENCHMARKS, DEVISE_ACTIF, NOM_AFFICHAGE, NB_SIMULATIONS_MONTE_CARLO,
+)
 from core.custom_assets import PREFIXE_CUSTOM
 from logger import get_logger
 
@@ -39,13 +41,24 @@ def lancer_simulation_scenario(
     calibration_historique: bool,
     actifs_extras: Optional[Dict[str, Dict[str, float]]] = None,
     custom_tickers: Optional[List[Dict]] = None,
+    rendements_historiques: Optional[pd.DataFrame] = None,
+    convertir_eur: bool = False,
+    conjoncture: str = "",
 ) -> Tuple[Optional[Dict], Optional[str]]:
     """
     Lance une simulation complète pour un scénario donné.
 
+    Args:
+        rendements_historiques: rendements quotidiens reels (correlations,
+            modele Historique). Optionnel.
+        convertir_eur: exprime en euros les actifs cotes en dollars, via la
+            trajectoire simulee de l'EUR/USD (choc estime par l'IA).
+        conjoncture: taux et inflation du moment, transmis a l'IA (texte).
+
     Returns:
         Tuple (resultat, erreur). Si succès, erreur est None.
-        resultat contient : scenario, chocs_ia, df, mc_data, perf, perf_df
+        resultat contient : scenario, chocs_ia, df, mc_data, perf, perf_df,
+        converti_eur
     """
     log.info("Simulation : scenario='%s...', %d actifs, %d jours, MC=%s",
              scenario[:40], len(actifs_selectionnes), duree, monte_carlo)
@@ -59,10 +72,12 @@ def lancer_simulation_scenario(
             fut_calib = pool.submit(
                 analyser_evenement_macro, scenario,
                 calibration_historique=True, custom_tickers=custom_tickers,
+                conjoncture=conjoncture,
             )
             fut_libre = pool.submit(
                 analyser_evenement_macro, scenario,
                 calibration_historique=False, custom_tickers=custom_tickers,
+                conjoncture=conjoncture,
             )
             chocs = fut_calib.result()
             try:
@@ -78,6 +93,7 @@ def lancer_simulation_scenario(
             scenario,
             calibration_historique=False,
             custom_tickers=custom_tickers,
+            conjoncture=conjoncture,
         )
 
     if isinstance(chocs, dict) and "erreur" in chocs and len(chocs) == 1:
@@ -96,11 +112,22 @@ def lancer_simulation_scenario(
 
     # On injecte toujours S&P 500 et MSCI_World comme benchmarks, même si
     # l'utilisateur ne les a pas sélectionnés. Ils sont exclus de perf_df.
-    BENCHMARKS_FIXES = ["S&P 500", "MSCI_World"]
+    BENCHMARKS_FIXES = BENCHMARKS
     actifs_a_simuler = list(actifs_selectionnes)
     for bm in BENCHMARKS_FIXES:
         if bm not in actifs_a_simuler:
             actifs_a_simuler.append(bm)
+
+    # Conversion en euros : l'EUR/USD est simule avec les autres actifs
+    # (correle a eux) et sert a convertir chaque trajectoire en dollars.
+    actifs_en_usd = None
+    if convertir_eur:
+        if ACTIF_TAUX_EUR_USD not in actifs_a_simuler:
+            actifs_a_simuler.append(ACTIF_TAUX_EUR_USD)
+        devises = dict(DEVISE_ACTIF)
+        for sim_key, params in (actifs_extras or {}).items():
+            devises[sim_key] = params.get("devise")
+        actifs_en_usd = [a for a in actifs_a_simuler if devises.get(a) == "USD"]
 
     mc_data = None
     if monte_carlo:
@@ -109,6 +136,8 @@ def lancer_simulation_scenario(
             actifs=actifs_a_simuler, nb_simulations=NB_SIMULATIONS_MONTE_CARLO,
             prix_reels=prix_reels, vols_reelles=vols_reelles,
             actifs_extras=actifs_extras,
+            rendements_historiques=rendements_historiques,
+            actifs_en_usd=actifs_en_usd,
         )
         df = mc_data["mediane"]
     else:
@@ -117,6 +146,8 @@ def lancer_simulation_scenario(
             actifs=actifs_a_simuler,
             prix_reels=prix_reels, vols_reelles=vols_reelles,
             actifs_extras=actifs_extras,
+            rendements_historiques=rendements_historiques,
+            actifs_en_usd=actifs_en_usd,
         )
 
     # Calcul de perf defensif : si iloc[0] = 0 ou NaN, fallback 0% au lieu
@@ -142,6 +173,7 @@ def lancer_simulation_scenario(
         "mc_data":    mc_data,
         "perf":       perf,
         "perf_df":    perf_df,
+        "converti_eur": bool(convertir_eur),
     }, None
 
 

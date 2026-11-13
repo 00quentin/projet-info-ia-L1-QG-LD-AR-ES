@@ -34,7 +34,7 @@ def render_footer():
                 <h5>Méthodologie</h5>
                 <ul>
                     <li>Mouvement brownien géométrique</li>
-                    <li>Méthode Monte-Carlo (50 sims)</li>
+                    <li>Méthode Monte-Carlo (1 000 sims)</li>
                     <li>Métriques institutionnelles</li>
                     <li>Calibration historique IA</li>
                 </ul>

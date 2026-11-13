@@ -139,7 +139,7 @@ def test_simulation_mode_dynamique_renvoie_structure_complete(monkeypatch, df_si
 
     assert err is None
     assert set(res.keys()) == {"scenario", "chocs_ia", "chocs_libre",
-                                "df", "mc_data", "perf", "perf_df"}
+                                "df", "mc_data", "perf", "perf_df", "converti_eur"}
     assert res["scenario"] == "krach"
     assert res["chocs_ia"] is chocs_ia
     assert res["chocs_libre"] is None  # pas de calibration -> pas d'analyse libre
@@ -331,3 +331,27 @@ def test_simulation_libelle_strip_prefixe_perso(monkeypatch):
     )
 
     assert res["perf_df"]["Actif"].tolist() == ["TSLA"]
+
+
+# === Conversion en euros (moteur reel, seule l'IA est simulee) ============
+
+
+def test_simulation_convertie_en_euros(monkeypatch):
+    """Dollar qui baisse de ~9% (EUR/USD +10%) : un actif stable en dollars
+    perd ~9% en euros, un actif en euros n'est pas touche."""
+    chocs = {"actifs": {"S&P 500": 0.0, "CAC 40": 0.0, "EUR_USD": 0.10}}
+    monkeypatch.setattr(runner, "analyser_evenement_macro", lambda *a, **kw: dict(chocs))
+    monkeypatch.setattr(runner, "NB_SIMULATIONS_MONTE_CARLO", 2000)
+
+    res, err = runner.lancer_simulation_scenario(
+        scenario="le dollar chute", actifs_selectionnes=["S&P 500", "CAC 40"],
+        duree=60, modele="Probabiliste (Réaliste)", monte_carlo=True,
+        prix_reels=None, vols_reelles=None, calibration_historique=False,
+        convertir_eur=True,
+    )
+    assert err is None
+    assert res["converti_eur"] is True
+    assert res["perf"]["S&P 500"] == pytest.approx(-9.1, abs=2.0)
+    assert res["perf"]["CAC 40"] == pytest.approx(0.0, abs=2.0)
+    # L'EUR/USD technique n'apparait pas dans le tableau des actifs choisis
+    assert len(res["perf_df"]) == 2

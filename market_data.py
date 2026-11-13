@@ -5,13 +5,21 @@ Connexion aux données réelles via Yahoo Finance.
 """
 
 import json
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import pandas as pd
 import yfinance as yf
-import streamlit as st
 from datetime import datetime, timedelta
 
+from config import (
+    ACTIFS_SECOURS, ACTIFS_COTES_7J, BACKTEST_TOLERANCE_DEBUT_SEANCES,
+    CONJONCTURE_HISTORIQUE_ANNEES, SERIE_TAUX_SANS_RISQUE, SERIES_FRED,
+    DATE_PRIX_SECOURS, DEVISE_ACTIF, FENETRE_CALIBRATION_JOURS,
+)
+from core.cache import cache_ttl
+from core.conjoncture import construire_conjoncture, taux_sans_risque, telecharger_serie_fred
+from core.devises import convertir_en_eur, telecharger_taux_bce
 from logger import get_logger
 
 log = get_logger("market_data")
@@ -31,8 +39,8 @@ TICKERS_YAHOO = {
     "MSCI_World":           "URTH",
     "Emerging_Markets":     "EEM",
     "Bons_Tresor_US_10Y":   "IEF",
-    "Bund_10Y":             "IBGM.DE",
-    "OAT_10Y":              "OAT.PA",
+    "Bund_10Y":             "IS0L.DE",
+    "OAT_10Y":              "IFRB.AS",
     "JGB_10Y":              "1482.T",
     "Gilt_10Y":             "IGLT.L",
     "EUR_USD":              "EURUSD=X",
@@ -55,14 +63,11 @@ TICKERS_YAHOO = {
 # 1) le snapshot disque est inexistant ET 2) Yahoo plante.
 # Mis a jour en code de temps en temps. Au runtime, le snapshot disque
 # (rafraichi automatiquement) prend le pas sur ces valeurs.
-_PRIX_HARDCODE = {
-    "S&P 500": 5200, "NASDAQ": 18200, "CAC 40": 8100, "MSCI_World": 3500, "Emerging_Markets": 1100,
-    "Bons_Tresor_US_10Y": 100, "Bund_10Y": 100, "OAT_10Y": 100, "JGB_10Y": 100, "Gilt_10Y": 100,
-    "EUR_USD": 1.08, "Dollar_Index": 104, "VIX": 18,
-    "Or": 2350, "Argent": 28, "Petrole": 85, "Cuivre": 4.5, "ETF_Terres_Rares": 55,
-    "ETF_Defense": 42,
-    "Bitcoin": 65000, "Ethereum": 3300, "XRP": 0.55, "Solana": 160,
-}
+_PRIX_HARDCODE = {k: v["prix"] for k, v in ACTIFS_SECOURS.items()}
+
+
+# Date du snapshot disque charge (None si absent) : affichee quand on s'en sert.
+_SNAPSHOT_META = {"date": None}
 
 
 def _charger_snapshot() -> dict:
@@ -75,6 +80,7 @@ def _charger_snapshot() -> dict:
         age_h = (datetime.now() - ts).total_seconds() / 3600
         if age_h > _SNAPSHOT_TTL_HEURES:
             log.info("Snapshot fallback périmé (%dh), sera rafraîchi", int(age_h))
+        _SNAPSHOT_META["date"] = ts.strftime("%Y-%m-%d")
         return data.get("prix", {})
     except (json.JSONDecodeError, ValueError, OSError) as e:
         log.warning("Snapshot fallback illisible : %s", e)
@@ -104,12 +110,32 @@ def _prix_fallback(sim_key: str, defaut: float = 100) -> float:
     return _PRIX_HARDCODE.get(sim_key, defaut)
 
 
+def source_fallback(sim_key: str) -> dict:
+    """Decrit d'ou vient le prix de secours d'un actif : {"source", "date"}.
+    Sert a afficher honnetement que le prix n'est pas en direct."""
+    if sim_key in _SNAPSHOT_PRIX:
+        return {"source": "snapshot", "date": _SNAPSHOT_META["date"] or DATE_PRIX_SECOURS}
+    return {"source": "secours", "date": DATE_PRIX_SECOURS}
+
+
 # Alias retro-compatible : du code externe peut encore lire PRIX_FALLBACK
 # comme un dict. On garde l'API publique stable.
 PRIX_FALLBACK = _PRIX_HARDCODE
 
 
-@st.cache_data(ttl=3600, show_spinner=False)
+def _extraire_close(data: pd.DataFrame, ticker: str):
+    """Serie Close d'un ticker, que yfinance renvoie des colonnes a plat
+    (anciennes versions, 1 ticker) ou un MultiIndex (ticker, champ)."""
+    if isinstance(data.columns, pd.MultiIndex):
+        if ticker in data.columns.get_level_values(0):
+            return data[ticker]["Close"]
+        if ticker in data.columns.get_level_values(1):
+            return data["Close"][ticker]
+        return None
+    return data["Close"] if "Close" in data.columns else None
+
+
+@cache_ttl(3600)
 def get_prix_actuels(actifs_keys=None):
     """Recupere le dernier prix de cloture pour chaque actif demande.
 
@@ -154,17 +180,11 @@ def get_prix_actuels(actifs_keys=None):
             erreurs.append(sim_key)
         return prix, erreurs
 
-    # Format de sortie yf.download :
-    # - 1 ticker : DataFrame plat avec colonnes (Open, High, ...)
-    # - N tickers : MultiIndex de colonnes (ticker, OHLC)
-    multi = len(tickers_a_charger) > 1
     for ticker in tickers_a_charger:
         sim_key = ticker_to_sim[ticker]
         try:
-            if multi:
-                serie = data[ticker]["Close"].dropna() if ticker in data.columns.get_level_values(0) else None
-            else:
-                serie = data["Close"].dropna()
+            serie = _extraire_close(data, ticker)
+            serie = serie.dropna() if serie is not None else None
             if serie is not None and not serie.empty:
                 prix[sim_key] = float(serie.iloc[-1])
             else:
@@ -183,18 +203,26 @@ def get_prix_actuels(actifs_keys=None):
     if succes:
         snapshot_complet = {**_SNAPSHOT_PRIX, **succes}
         _ecrire_snapshot(snapshot_complet)
+        _SNAPSHOT_META["date"] = datetime.now().strftime("%Y-%m-%d")
         _SNAPSHOT_PRIX.update(succes)
 
     return prix, erreurs
 
 
-@st.cache_data(ttl=3600, show_spinner=False)
-def get_prix_avec_variation(actifs_keys=None):
-    """Retourne pour chaque actif : {"prix": float, "variation_pct": float,
-    "sparkline": list[float]} sur les 5 derniers jours de cotation.
+def _entree_fallback(sim_key: str) -> dict:
+    return {"prix": _prix_fallback(sim_key), "variation_pct": 0.0,
+            "sparkline": [], **source_fallback(sim_key)}
 
-    Sert au market strip pour afficher une mini-tendance visuelle à côté
-    de chaque prix (très peu de coût additionnel : on récupère déjà 5j).
+
+@cache_ttl(3600)
+def get_prix_avec_variation(actifs_keys=None):
+    """Retourne pour chaque actif : {"prix", "variation_pct", "sparkline",
+    "source", "date"}.
+
+    source vaut "yahoo" (derniere cloture reelle, datee par "date"),
+    "snapshot" (dernier prix Yahoo memorise sur disque) ou "secours"
+    (valeur figee de config). L'interface s'en sert pour ne jamais presenter
+    un prix de secours comme un prix en direct.
     """
     if actifs_keys is None:
         actifs_keys = list(TICKERS_YAHOO.keys())
@@ -205,8 +233,7 @@ def get_prix_avec_variation(actifs_keys=None):
     for sim_key in actifs_keys:
         ticker = TICKERS_YAHOO.get(sim_key)
         if ticker is None:
-            result[sim_key] = {"prix": _prix_fallback(sim_key),
-                               "variation_pct": 0.0, "sparkline": []}
+            result[sim_key] = _entree_fallback(sim_key)
         else:
             ticker_to_sim[ticker] = sim_key
             tickers_a_charger.append(ticker)
@@ -223,32 +250,27 @@ def get_prix_avec_variation(actifs_keys=None):
         log.warning("get_prix_avec_variation: batch echec (%s)", str(e)[:80])
         for ticker in tickers_a_charger:
             sk = ticker_to_sim[ticker]
-            result[sk] = {"prix": _prix_fallback(sk),
-                          "variation_pct": 0.0, "sparkline": []}
+            result[sk] = _entree_fallback(sk)
         return result
 
-    multi = len(tickers_a_charger) > 1
     for ticker in tickers_a_charger:
         sk = ticker_to_sim[ticker]
         try:
-            if multi:
-                serie = (data[ticker]["Close"].dropna()
-                         if ticker in data.columns.get_level_values(0) else None)
-            else:
-                serie = data["Close"].dropna()
+            serie = _extraire_close(data, ticker)
+            serie = serie.dropna() if serie is not None else None
             if serie is not None and len(serie) >= 2:
                 prix_now = float(serie.iloc[-1])
                 prix_prev = float(serie.iloc[-2])
                 variation = ((prix_now - prix_prev) / prix_prev * 100.0) if prix_prev else 0.0
                 spark = [float(v) for v in serie.tail(5).tolist()]
                 result[sk] = {"prix": prix_now,
-                              "variation_pct": variation, "sparkline": spark}
+                              "variation_pct": variation, "sparkline": spark,
+                              "source": "yahoo",
+                              "date": pd.Timestamp(serie.index[-1]).strftime("%Y-%m-%d")}
             else:
-                result[sk] = {"prix": _prix_fallback(sk),
-                              "variation_pct": 0.0, "sparkline": []}
+                result[sk] = _entree_fallback(sk)
         except (KeyError, IndexError, ValueError):
-            result[sk] = {"prix": _prix_fallback(sk),
-                          "variation_pct": 0.0, "sparkline": []}
+            result[sk] = _entree_fallback(sk)
 
     return result
 
@@ -273,21 +295,44 @@ def _telecharger_closes(tickers: list, **kwargs) -> pd.DataFrame:
         return pd.DataFrame()
 
     out = pd.DataFrame()
-    if len(tickers) == 1:
-        if "Close" in data.columns:
-            out[tickers[0]] = data["Close"]
-        return out
     for ticker in tickers:
-        if ticker in data.columns.get_level_values(0):
-            try:
-                out[ticker] = data[ticker]["Close"]
-            except KeyError:
-                continue
+        try:
+            serie = _extraire_close(data, ticker)
+        except KeyError:
+            continue
+        if serie is not None:
+            out[ticker] = serie
     return out
 
 
-@st.cache_data(ttl=21600, show_spinner=False)
-def get_historique(actifs_keys, date_debut, date_fin):
+def _aligner_jours_de_bourse(df: pd.DataFrame, cles_7j: set) -> pd.DataFrame:
+    """Retire les week-ends quand des actifs classiques cotoient des cryptos :
+    sinon les samedis/dimanches ajoutent des seances a rendement nul pour les
+    actions et ecrasent artificiellement leur volatilite."""
+    if df.empty or not isinstance(df.index, pd.DatetimeIndex):
+        return df
+    if all(c in cles_7j for c in df.columns):
+        return df
+    return df[df.index.dayofweek < 5]
+
+
+@cache_ttl(86400)
+def get_taux_bce() -> pd.DataFrame:
+    """Taux de reference BCE (cache 24h : la BCE publie une fois par jour)."""
+    return telecharger_taux_bce()
+
+
+@cache_ttl(21600)
+def get_historique(actifs_keys, date_debut, date_fin, convertir_eur=True,
+                   avec_dates=False):
+    """Prix historiques reels pour un backtest, en euros par defaut.
+
+    Un actif qui ne cotait pas encore au debut de la periode est ecarte
+    (au lieu d'etre prolonge en arriere avec un prix futur) ; lancer_backtest
+    le signale alors comme indisponible.
+
+    avec_dates=True conserve l'index de dates (utile pour tracer un axe du temps).
+    """
     log.info("Backtest Yahoo (batch): %d actifs, %s → %s",
              len(actifs_keys), date_debut, date_fin)
     sim_to_ticker = {sk: TICKERS_YAHOO[sk] for sk in actifs_keys if sk in TICKERS_YAHOO}
@@ -308,15 +353,62 @@ def get_historique(actifs_keys, date_debut, date_fin):
     rename = {tk: sk for sk, tk in sim_to_ticker.items() if tk in df_tickers.columns}
     df_global = df_tickers.rename(columns=rename)
     df_global = df_global[[c for c in df_global.columns if c in sim_to_ticker]]
+    df_global = df_global.dropna(axis=1, how="all")
+    df_global = _aligner_jours_de_bourse(df_global, ACTIFS_COTES_7J)
 
-    # ffill : trous de cotation au milieu de la periode (jours feries / suspension)
-    # bfill : trous au DEBUT (asset cote depuis moins longtemps que la fenetre demandee)
-    df_global = df_global.ffill().bfill().dropna(how="all")
-    df_global = df_global.reset_index(drop=True)
+    # ffill : trous de cotation en cours de periode (jours feries / suspension).
+    # bfill limite : simple decalage de calendrier en tout debut de periode.
+    df_global = df_global.ffill().bfill(limit=BACKTEST_TOLERANCE_DEBUT_SEANCES)
+    df_global = df_global.dropna(how="all")
+    if df_global.empty:
+        return pd.DataFrame()
+    trop_recents = [c for c in df_global.columns if pd.isna(df_global[c].iloc[0])]
+    if trop_recents:
+        log.info("Actifs non cotes au debut de la periode, ecartes : %s", trop_recents)
+        df_global = df_global.drop(columns=trop_recents)
+    if df_global.empty:
+        return pd.DataFrame()
+
+    if convertir_eur and isinstance(df_global.index, pd.DatetimeIndex):
+        df_global, non_convertis = convertir_en_eur(df_global, DEVISE_ACTIF, get_taux_bce())
+        if non_convertis:
+            log.warning("Conversion EUR impossible (taux BCE absents) : %s", non_convertis)
+
+    if not avec_dates:
+        df_global = df_global.reset_index(drop=True)
     return df_global
 
 
-@st.cache_data(ttl=86400, show_spinner=False)
+@cache_ttl(86400)
+def get_rendements_historiques(actifs_keys, jours_calendaires=FENETRE_CALIBRATION_JOURS):
+    """Rendements quotidiens reels (jours de bourse) des actifs demandes.
+
+    Sert a mesurer les vraies correlations entre actifs et a alimenter le
+    modele de simulation "Historique". DataFrame vide si Yahoo est indisponible.
+    """
+    fin = datetime.now()
+    debut = fin - timedelta(days=jours_calendaires)
+    sim_to_ticker = {sk: TICKERS_YAHOO[sk] for sk in actifs_keys if sk in TICKERS_YAHOO}
+    if not sim_to_ticker:
+        return pd.DataFrame()
+
+    df_tickers = _telecharger_closes(
+        list(sim_to_ticker.values()),
+        start=debut.strftime("%Y-%m-%d"),
+        end=fin.strftime("%Y-%m-%d"),
+        interval="1d",
+    )
+    if df_tickers.empty:
+        return pd.DataFrame()
+
+    rename = {tk: sk for sk, tk in sim_to_ticker.items() if tk in df_tickers.columns}
+    prix = df_tickers.rename(columns=rename).dropna(axis=1, how="all")
+    prix = _aligner_jours_de_bourse(prix, ACTIFS_COTES_7J)
+    # ffill court : un jour ferie local ne doit pas casser la correlation
+    return prix.ffill(limit=3).pct_change(fill_method=None).dropna(how="all")
+
+
+@cache_ttl(86400)
 def get_volatilites_historiques(actifs_keys, jours=252):
     fin = datetime.now()
     debut = fin - timedelta(days=jours * 2)
@@ -334,6 +426,11 @@ def get_volatilites_historiques(actifs_keys, jours=252):
     if df_tickers.empty:
         return {}
 
+    # Jours de bourse uniquement : la simulation avance en seances (252/an),
+    # la volatilite des cryptos (cotees 7j/7) doit etre mesuree au meme pas.
+    if isinstance(df_tickers.index, pd.DatetimeIndex):
+        df_tickers = df_tickers[df_tickers.index.dayofweek < 5]
+
     vols = {}
     for sim_key, ticker in sim_to_ticker.items():
         if ticker not in df_tickers.columns:
@@ -343,6 +440,37 @@ def get_volatilites_historiques(actifs_keys, jours=252):
             rendements = serie.pct_change().dropna()
             vols[sim_key] = float(rendements.std())
     return vols
+
+
+def _serie_fred_non_vide(serie) -> bool:
+    return serie is not None and not serie.empty
+
+
+# Une serie vide (FRED injoignable) n'est pas memorisee : on retentera au prochain appel.
+@cache_ttl(21600, garder=_serie_fred_non_vide)
+def get_serie_fred(identifiant: str, depuis: str) -> pd.Series:
+    """Serie FRED en cache 6 h (les taux et l'inflation bougent au plus une fois par jour)."""
+    return telecharger_serie_fred(identifiant, depuis)
+
+
+def _depuis(annees: int) -> str:
+    return (datetime.now() - timedelta(days=365 * annees)).strftime("%Y-%m-%d")
+
+
+def get_conjoncture() -> dict:
+    """Taux directeurs, taux longs et inflation du moment (FRED). Indicateurs absents si FRED est injoignable."""
+    depuis = _depuis(CONJONCTURE_HISTORIQUE_ANNEES)
+    # Telechargements en parallele : 6 petites series, surtout de l'attente reseau.
+    with ThreadPoolExecutor(max_workers=len(SERIES_FRED)) as pool:
+        futures = {cle: pool.submit(get_serie_fred, identifiant, depuis) for cle, (identifiant, _, _) in SERIES_FRED.items()}
+    return construire_conjoncture({cle: f.result() for cle, f in futures.items()})
+
+
+def get_taux_sans_risque(debut=None, fin=None) -> float:
+    """Taux sans risque du Sharpe (decimal) : taux de depot BCE actuel, ou moyen sur une periode passee."""
+    identifiant = SERIES_FRED[SERIE_TAUX_SANS_RISQUE][0]
+    depuis = "1999-01-01" if debut is not None else _depuis(1)
+    return taux_sans_risque(get_serie_fred(identifiant, depuis), debut, fin)
 
 
 EVENEMENTS_HISTORIQUES = {

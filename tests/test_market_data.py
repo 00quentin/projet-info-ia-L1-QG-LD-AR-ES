@@ -22,10 +22,17 @@ import market_data
 # Fixture : on vide le cache Streamlit avant chaque test pour eviter
 # que le 1er test pollue les suivants.
 @pytest.fixture(autouse=True)
-def _clear_streamlit_cache():
+def _clear_streamlit_cache(tmp_path, monkeypatch):
     market_data.get_prix_actuels.clear()
+    market_data.get_prix_avec_variation.clear()
     market_data.get_historique.clear()
+    market_data.get_rendements_historiques.clear()
     market_data.get_volatilites_historiques.clear()
+    market_data.get_taux_bce.clear()
+    # Snapshot disque isole : les tests ne doivent ni lire ni ecrire le vrai fichier
+    monkeypatch.setattr(market_data, "_SNAPSHOT_PATH", tmp_path / "snapshot.json")
+    monkeypatch.setattr(market_data, "_SNAPSHOT_PRIX", {})
+    monkeypatch.setattr(market_data, "_SNAPSHOT_META", {"date": None})
 
 
 def _build_multi_df(tickers_data: dict) -> pd.DataFrame:
@@ -190,3 +197,67 @@ def test_evenements_historiques_ont_des_dates_valides():
         debut = pd.to_datetime(evt["debut"])
         fin = pd.to_datetime(evt["fin"])
         assert debut < fin, f"{nom} : debut >= fin"
+
+
+# === Fiabilite : backtest sans prix inventes, conversion en euros, fraicheur ===
+
+
+def _build_multi_df_dates(tickers_data: dict, debut: str) -> pd.DataFrame:
+    dfs = {}
+    for ticker, closes in tickers_data.items():
+        idx = pd.bdate_range(debut, periods=len(closes))
+        dfs[ticker] = pd.DataFrame({"Close": closes}, index=idx)
+    return pd.concat(dfs, axis=1)
+
+
+def test_get_historique_ecarte_un_actif_pas_encore_cote():
+    """Un actif sans cotation au debut de la periode ne doit pas etre prolonge
+    en arriere avec un prix futur (biais d'anticipation)."""
+    n = 30
+    btc = [np.nan] * 20 + [100.0] * 10
+    fake = _build_multi_df_dates({"^FCHI": [7000.0] * n, "BTC-USD": btc}, "2024-01-01")
+    with patch.object(market_data.yf, "download", return_value=fake):
+        df = market_data.get_historique(["CAC 40", "Bitcoin"], "2024-01-01", "2024-02-15",
+                                        convertir_eur=False)
+    assert list(df.columns) == ["CAC 40"]
+
+
+def test_get_historique_tolere_un_decalage_de_calendrier():
+    n = 30
+    or_ = [np.nan, np.nan] + [2300.0] * (n - 2)
+    fake = _build_multi_df_dates({"^FCHI": [7000.0] * n, "GC=F": or_}, "2024-01-01")
+    with patch.object(market_data.yf, "download", return_value=fake):
+        df = market_data.get_historique(["CAC 40", "Or"], "2024-01-01", "2024-02-15",
+                                        convertir_eur=False)
+    assert "Or" in df.columns
+    assert not df.isna().any().any()
+
+
+def test_get_historique_convertit_les_actifs_dollar_en_euros():
+    n = 10
+    fake = _build_multi_df_dates({"^GSPC": [5000.0] * n, "^FCHI": [7000.0] * n}, "2024-01-01")
+    idx = pd.bdate_range("2023-12-01", periods=60)
+    # Le dollar se deprecie : 1 EUR passe de 1.00 a 1.25 USD
+    taux = pd.DataFrame({"USD": np.linspace(1.0, 1.25, 60)}, index=idx)
+    with patch.object(market_data.yf, "download", return_value=fake), \
+         patch.object(market_data, "get_taux_bce", return_value=taux):
+        df = market_data.get_historique(["S&P 500", "CAC 40"], "2024-01-01", "2024-01-15")
+    # CAC 40 (EUR) inchange ; S&P 500 stable en USD mais en baisse une fois en EUR
+    assert df["CAC 40"].iloc[-1] == pytest.approx(7000.0)
+    assert df["S&P 500"].iloc[-1] < df["S&P 500"].iloc[0] < 5000.0
+
+
+def test_get_prix_avec_variation_indique_la_source():
+    fake = _build_multi_df({"^GSPC": [5000, 5100], "GC=F": [np.nan, np.nan]})
+    with patch.object(market_data.yf, "download", return_value=fake):
+        data = market_data.get_prix_avec_variation(["S&P 500", "Or"])
+    assert data["S&P 500"]["source"] == "yahoo"
+    assert data["S&P 500"]["date"] == "2024-01-02"
+    assert data["Or"]["source"] == "secours"
+    assert data["Or"]["prix"] == market_data.PRIX_FALLBACK["Or"]
+
+
+def test_tous_les_actifs_ont_une_devise():
+    from config import DEVISE_ACTIF
+    for sim_key in market_data.TICKERS_YAHOO:
+        assert sim_key in DEVISE_ACTIF

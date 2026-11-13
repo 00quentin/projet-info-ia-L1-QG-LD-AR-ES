@@ -93,7 +93,7 @@ def render_page_apropos():
     - **Simulation prospective** : tester l'impact d'un scénario fictif sur un portefeuille
     - **Backtest historique** : rejouer les vraies données de crises passées (COVID, Lehman, dot-com…)
     - **Mode comparaison** : opposer deux scénarios sur le même portefeuille
-    - **Mode Monte-Carlo** : 50 simulations pour une vision statistiquement robuste
+    - **Mode Monte-Carlo** : 1 000 simulations pour une vision statistiquement robuste
     - **Calibration historique IA** : amplitudes calibrées sur les vraies crises
     - **Connexion Yahoo Finance** : prix actuels + volatilités historiques en direct
     - **Métriques institutionnelles** : Volatilité annualisée, Sharpe Ratio, Max Drawdown, VaR 95%
@@ -106,12 +106,13 @@ def render_page_apropos():
     st.markdown('<div class="qt-section-title">Sources & limites assumées</div>', unsafe_allow_html=True)
     st.markdown('<div class="qt-callout-warn">'
                 '<strong>Quant Terminal est un outil pédagogique.</strong><br><br>'
-                'Les simulations utilisent un mouvement brownien géométrique standard, calibré par une IA.<br><br>'
-                'Les volatilités sont calculées sur 12 mois Yahoo Finance.<br><br>'
-                '<strong>Limites :</strong> volatilités supposées constantes, actifs indépendants, '
-                'pas de coûts de transaction.<br><br>'
+                'Le choc de chaque actif est estimé par une IA ; les trajectoires autour de ce choc utilisent '
+                'les volatilités et les corrélations mesurées sur les vrais rendements Yahoo Finance.<br><br>'
+                'Les montants sont convertis en euros (taux officiels BCE en backtest).<br><br>'
+                '<strong>Limites :</strong> volatilités et corrélations supposées constantes sur l\'horizon, '
+                'pas de coûts de transaction, obligations suivies via des ETF.<br><br>'
                 'Pour un usage professionnel, il faudrait calibrer le modèle sur des données institutionnelles '
-                'et ajouter la modélisation des corrélations et des queues épaisses.'
+                'et modéliser les changements de régime en crise.'
                 '</div>', unsafe_allow_html=True)
 
     st.markdown('<div style="text-align:center; color:var(--text-muted); margin-top:30px; padding:20px; '

@@ -44,8 +44,8 @@ def test_vers_actifs_extras_format_attendu():
     extras = ca.vers_actifs_extras(perso)
 
     assert set(extras.keys()) == {"PERSO_TSLA", "PERSO_MSFT"}
-    assert extras["PERSO_TSLA"] == {"prix": 250.0, "volatilite": 0.025}
-    assert extras["PERSO_MSFT"] == {"prix": 420.0, "volatilite": 0.014}
+    assert extras["PERSO_TSLA"] == {"prix": 250.0, "volatilite": 0.025, "devise": None}
+    assert extras["PERSO_MSFT"] == {"prix": 420.0, "volatilite": 0.014, "devise": None}
 
 
 def test_vers_actifs_extras_vide():
