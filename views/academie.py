@@ -6,6 +6,7 @@ Académie pédagogique : 9 sections denses pour comprendre la finance de marché
 
 import streamlit as st
 
+from config import CRISE_DEPASSEMENT, CRISE_FRACTION_CREUX, INCERTITUDE_IA_CORRELATION
 from components.academie_illustrations import (
     get_academie_illustration, get_academie_synthese,
     img_chandelier, img_gaussienne, img_fed_building,
@@ -13,6 +14,20 @@ from components.academie_illustrations import (
     img_lehman_brothers, img_markowitz_frontier, img_buffett,
     img_nyse_building, img_kahneman,
 )
+
+
+# Choc d'exemple pour illustrer le profil de crise (pedagogique, pas un reglage du moteur).
+_CHOC_EXEMPLE = -0.20
+
+
+def _pct(x: float) -> str:
+    """0.2 -> '20 %' (format francais)."""
+    return f"{x * 100:.0f} %".replace("-", "−")
+
+
+def _decimal(x: float) -> str:
+    """1.3 -> '1,3'."""
+    return f"{x:g}".replace(".", ",")
 
 
 def _illu(section: str):
@@ -223,6 +238,11 @@ def _render_modeles():
     Le plus courant. Chaque jour, variation = tendance + bruit gaussien. Bon pour les périodes 
     calmes et les actifs stables (obligations, grands indices). Mais il rate les krachs.
     """)
+    st.write(f"""
+    Le choc suit un **profil de crise** : il arrive vite, va trop loin, puis se résorbe en partie. 
+    Le point le plus bas tombe à {_pct(CRISE_FRACTION_CREUX)} de l'horizon et va {_pct(CRISE_DEPASSEMENT)} 
+    plus loin que le choc final. C'est ce qu'on a vu en 1987, 2008 et 2020.
+    """)
     st.markdown("**B. Modèle Historique (queues épaisses)**")
     st.write("""
     Au lieu de tirer des variations dans une loi théorique, on **rejoue de vraies séances de bourse** 
@@ -230,6 +250,8 @@ def _render_modeles():
     Les mouvements brusques et les jours où tout baisse en même temps sont donc ceux réellement 
     observés — les *fat tails* de Mandelbrot sans avoir à les inventer. Idéal pour tester la résilience 
     d'un portefeuille. (Si l'historique Yahoo manque, on utilise une loi de Student à queues épaisses.)
+    
+    Même profil de crise que le modèle Probabiliste : chute rapide, point extrême, reprise partielle.
     """)
     st.markdown("**C. Modèle Machine Learning (momentum)**")
     st.write("""
@@ -255,6 +277,13 @@ def _render_modeles():
     
     Ces 3 valeurs définissent la **bande de confiance à 90%**. C'est exactement ce que 
     font les actuaires, les ingénieurs nucléaires, et les banquiers d'investissement chaque jour.
+    """)
+    st.write(f"""
+    Dans Quant Terminal, deux hasards se combinent. Le **bruit du marché** : chaque jour, un tirage 
+    au hasard. Le **doute de l'IA** : l'IA ne donne pas un seul choc, mais une fourchette (un choc bas, 
+    un choc central, un choc haut). Chaque simulation pioche son propre choc dans cette fourchette. 
+    Dans certaines, la crise est plus douce ; dans d'autres, plus dure. Et quand elle est plus dure, 
+    elle l'est pour presque tous les actifs à la fois ({_pct(INCERTITUDE_IA_CORRELATION)} du tirage est commun).
     """)
 
     st.markdown("#### 2.5 — Rendements simples vs rendements logarithmiques")
@@ -1004,6 +1033,18 @@ def _render_methodologie():
     corrélation $C$ sur deux ans de vrais rendements, puis on corrèle les tirages grâce à sa 
     décomposition de Cholesky ($C = L L^T$, $Z = L \\cdot \\varepsilon$). Ainsi, quand les actions 
     chutent dans une simulation, le Nasdaq chute avec le S&P 500 et l'or réagit comme il le fait en réalité.
+    
+    Le drift n'est pas le même chaque jour : il suit un **profil de crise** (modèles Probabiliste et 
+    Historique). Le choc de l'IA est découpé en parts journalières $p_t$ :
+    """)
+    st.latex(r"\mu_t = p_t \times \ln(1 + \text{choc}), \qquad \sum_t p_t = 1")
+    extreme = (1 + _CHOC_EXEMPLE) ** (1 + CRISE_DEPASSEMENT) - 1
+    st.write(f"""
+    Les premières parts sont grandes : la chute est rapide. Le cumul atteint {_decimal(1 + CRISE_DEPASSEMENT)} fois
+    le choc à {_pct(CRISE_FRACTION_CREUX)} de l'horizon (le point extrême). Ensuite, les parts deviennent
+    négatives : le marché se reprend en partie. Comme la somme vaut 1, la médiane finit quand même sur
+    le choc de l'IA. Exemple : un choc final de {_pct(_CHOC_EXEMPLE)} passe par environ {_pct(extreme)}
+    au point extrême. C'est la forme des krachs de 1987, 2008 et 2020.
     """)
 
     st.markdown("#### E bis. Conversion en euros")
@@ -1029,7 +1070,20 @@ def _render_methodologie():
     Les métriques de risque (volatilité, drawdown, VaR) sont calculées **sur chaque trajectoire du 
     portefeuille**, pas sur la médiane : la médiane est une courbe lissée où le hasard s'annule, 
     y mesurer le risque le sous-estimerait fortement.
-    
+
+    La bande mélange deux incertitudes : le bruit du marché (les $Z_t$) et le **doute de l'IA**.
+    Pour chaque actif, l'IA donne un choc bas, un choc central et un choc haut. Chaque trajectoire $k$
+    tire son propre choc dans cette fourchette, une chance sur deux de chaque côté du central (la
+    médiane des chocs reste donc le central). Le tirage est en grande partie **commun** à tous les actifs :
+    """)
+    st.latex(r"z_{k,i} = \sqrt{\rho}\; G_k + \sqrt{1-\rho}\; \varepsilon_{k,i}, \qquad \rho = "
+             + _decimal(INCERTITUDE_IA_CORRELATION).replace(",", "{,}"))
+    st.write("""
+    $G_k$ est la « gravité » du scénario dans la trajectoire $k$, la même pour tous les actifs ;
+    $\\varepsilon_{k,i}$ est propre à l'actif $i$. Si le scénario s'avère plus grave, chaque actif
+    s'éloigne davantage de zéro, dans le sens de son choc, et tous ensemble. Est-ce que cette
+    fourchette contient le vrai mouvement ? On le mesure sur des crises passées (page Validation du site web).
+
     La méthode Monte-Carlo converge en $O(1/\\sqrt{N})$ : pour doubler la précision, il faut 
     quadrupler le nombre de simulations. Avec 1 000 simulations, la précision est typiquement 
     de l'ordre de ±1% sur les percentiles — confortable pour un outil éducatif. Les grandes banques utilisent 
@@ -1044,7 +1098,10 @@ def _render_methodologie():
                 '• Les corrélations sont mesurées sur les <strong>2 dernières années</strong> et supposées '
                 'stables, alors qu\'en crise elles montent toutes vers 1 (voir 2008).<br><br>'
                 '• L\'IA fournit une estimation <strong>globale</strong> du choc, pas une trajectoire '
-                'fine dans le temps.<br><br>'
+                'fine dans le temps. Le moteur lui donne une forme de crise type (chute rapide, '
+                'dépassement, reprise partielle), la même pour tous les scénarios.<br><br>'
+                '• La <strong>fourchette</strong> bas / central / haut de l\'IA est elle-même une '
+                'estimation : le vrai mouvement peut en sortir.<br><br>'
                 '• Les distributions restent <strong>gaussiennes</strong>, sauf dans le mode Historique '
                 '(qui rejoue de vraies séances).<br><br>'
                 '• Les obligations sont représentées par des <strong>ETF obligataires</strong> et les indices '

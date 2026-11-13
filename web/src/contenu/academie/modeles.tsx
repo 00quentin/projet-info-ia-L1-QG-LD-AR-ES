@@ -1,6 +1,8 @@
 import { CarteTexte, Chapeau, Encadre, G, Liste, P, Point, Section } from "@/components/academie/blocs";
 import { Formule, M } from "@/components/academie/Formule";
 import { Gaussienne } from "@/components/academie/illustrations/Gaussienne";
+import Link from "next/link";
+import { PARAMETRES } from "@/components/methodologie/donnees";
 import { sectionsDe } from "./modules";
 
 const s = sectionsDe("modeles");
@@ -73,6 +75,11 @@ export function ContenuModeles() {
               Le plus courant. Chaque jour, variation = tendance + bruit gaussien. Bon pour les périodes calmes et les actifs stables (obligations, grands
               indices). Mais il rate les krachs.
             </p>
+            <p>
+              Le choc suit un <G>profil de crise</G> : il arrive vite, va trop loin, puis se résorbe en partie. Le point le plus bas tombe à{" "}
+              {PARAMETRES.criseCreuxPctHorizon} % de l’horizon et va {PARAMETRES.criseDepassementPct} % plus loin que le choc final. C’est ce qu’on a vu
+              en 1987, 2008 et 2020.
+            </p>
           </CarteTexte>
           <CarteTexte etiquette="B" titre="Modèle Historique (queues épaisses)">
             <p>
@@ -81,6 +88,7 @@ export function ContenuModeles() {
               donc ceux réellement observés — les <em>fat tails</em> de Mandelbrot sans avoir à les inventer. Idéal pour tester la résilience d’un
               portefeuille. (Si l’historique Yahoo manque, on utilise une loi de Student à queues épaisses.)
             </p>
+            <p>Même profil de crise que le modèle Probabiliste : chute rapide, point extrême, reprise partielle.</p>
           </CarteTexte>
           <CarteTexte etiquette="C" titre="Modèle Machine Learning (momentum)">
             <p>
@@ -117,6 +125,21 @@ export function ContenuModeles() {
           Ces 3 valeurs définissent la <G>bande de confiance à 90%</G>. C’est exactement ce que font les actuaires, les ingénieurs nucléaires, et les
           banquiers d’investissement chaque jour.
         </P>
+        <P>
+          Dans Quant Terminal, deux hasards se combinent. Le <G>bruit du marché</G> : chaque jour, un tirage au hasard. Le <G>doute de l’IA</G> :
+          l’IA ne donne pas un seul choc, mais une fourchette (un choc bas, un choc central, un choc haut). Chaque simulation pioche son propre choc
+          dans cette fourchette. Dans certaines, la crise est plus douce ; dans d’autres, plus dure. Et quand elle est plus dure, elle l’est pour
+          presque tous les actifs à la fois ({PARAMETRES.incertitudePartCommunePct} % du tirage est commun).
+        </P>
+        <Encadre>
+          <p>
+            Une fourchette n’a de valeur que si elle contient souvent la réalité. On le vérifie sur des crises passées :{" "}
+            <Link href="/validation" className="font-medium text-accent-ink hover:underline">
+              voir la page Validation
+            </Link>
+            .
+          </p>
+        </Encadre>
       </Section>
 
       <Section {...s("rendements")}>
