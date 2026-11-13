@@ -17,9 +17,6 @@ function Performance({ valeur, className = "" }: { valeur: number; className?: s
   const hausse = valeur >= 0;
   return (
     <span className={`inline-flex items-center gap-1 whitespace-nowrap font-semibold tabular-nums ${hausse ? "text-gain" : "text-loss"} ${className}`}>
-      <span aria-hidden className="text-[0.8em]">
-        {hausse ? "▲" : "▼"}
-      </span>
       <span className="sr-only">{hausse ? "Hausse de" : "Baisse de"}</span>
       {pourcentSigne(valeur, 2)}
     </span>
@@ -29,7 +26,7 @@ function Performance({ valeur, className = "" }: { valeur: number; className?: s
 function Chiffre({ libelle, children, ton }: { libelle: string; children: ReactNode; ton?: "gain" | "perte" }) {
   const fond = ton === "gain" ? "border-gain/25 bg-gain-soft" : ton === "perte" ? "border-loss/25 bg-loss-soft" : "border-line bg-surface-2/50";
   return (
-    <div className={`rounded-xl border px-3.5 py-3 ${fond}`}>
+    <div className={`rounded-tuile border px-3.5 py-3 ${fond}`}>
       <dt className="text-xs text-muted">{libelle}</dt>
       <dd className={`mt-0.5 text-base font-semibold tabular-nums ${ton === "gain" ? "text-gain" : ton === "perte" ? "text-loss" : ""}`}>{children}</dd>
     </div>
@@ -62,14 +59,14 @@ function FormulaireNom({ entree, annoncer }: { entree: EntreeHistorique; annonce
           onChange={(e) => setNom(e.target.value)}
           maxLength={NOM_LONGUEUR_MAX}
           placeholder="Ex : « Krach 2008 — profil défensif »"
-          className="h-10 w-full min-w-0 rounded-xl border border-line bg-surface px-3.5 text-sm outline-none transition placeholder:text-muted focus:border-accent focus:ring-2 focus:ring-accent/20"
+          className="h-10 w-full min-w-0 rounded-controle border border-line bg-surface px-3.5 text-sm outline-none transition placeholder:text-muted focus:border-accent focus:ring-2 focus:ring-accent/20"
         />
         <motion.button
           type="submit"
           disabled={inchange && !enregistre}
           whileTap={{ scale: 0.96 }}
           transition={RESSORT}
-          className={`relative inline-flex h-10 w-28 shrink-0 items-center justify-center gap-1.5 overflow-hidden rounded-xl border text-sm font-medium transition-colors disabled:cursor-not-allowed ${enregistre ? "border-gain/40 bg-gain-soft text-gain" : "border-line bg-surface hover:border-line-strong hover:bg-surface-2 disabled:opacity-50 disabled:hover:bg-surface"}`}
+          className={`relative inline-flex h-10 w-28 shrink-0 items-center justify-center gap-1.5 overflow-hidden rounded-controle border text-sm font-medium transition-colors disabled:cursor-not-allowed ${enregistre ? "border-gain/40 bg-gain-soft text-gain" : "border-line bg-surface hover:border-line-strong hover:bg-surface-2 disabled:opacity-50 disabled:hover:bg-surface"}`}
         >
           <AnimatePresence mode="popLayout" initial={false}>
             <motion.span
@@ -113,7 +110,6 @@ function Detail({ entree, onSupprimer, annoncer }: { entree: EntreeHistorique; o
         <Chiffre libelle="Capital initial">{euros(entree.capital)}</Chiffre>
         <Chiffre libelle="Valeur finale">{euros(entree.valeur_finale)}</Chiffre>
         <Chiffre libelle={gain >= 0 ? "Gain" : "Perte"} ton={gain >= 0 ? "gain" : "perte"}>
-          <span aria-hidden>{gain >= 0 ? "▲ " : "▼ "}</span>
           {gain >= 0 ? "+" : "−"}
           {euros(Math.abs(gain))}
         </Chiffre>
@@ -123,8 +119,8 @@ function Detail({ entree, onSupprimer, annoncer }: { entree: EntreeHistorique; o
         <FormulaireNom entree={entree} annoncer={annoncer} />
         <div className="flex shrink-0 gap-2">
           {chemin && (
-            <motion.span whileHover={{ y: -1 }} whileTap={{ scale: 0.97 }} transition={RESSORT} className="flex flex-1 sm:flex-none">
-              <Link href={chemin} className="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-xl bg-accent px-3.5 text-sm font-semibold text-white transition hover:brightness-110">
+            <motion.span whileTap={{ scale: 0.97 }} transition={RESSORT} className="flex flex-1 sm:flex-none">
+              <Link href={chemin} className="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-controle bg-accent px-3.5 text-sm font-semibold text-white transition hover:brightness-110">
                 <Play className="size-3.5" aria-hidden />
                 Relancer
               </Link>
@@ -133,10 +129,9 @@ function Detail({ entree, onSupprimer, annoncer }: { entree: EntreeHistorique; o
           <motion.button
             type="button"
             onClick={onSupprimer}
-            whileHover={{ y: -1 }}
             whileTap={{ scale: 0.97 }}
             transition={RESSORT}
-            className="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-xl border border-line px-3.5 text-sm font-medium text-ink-2 transition-colors hover:border-loss/40 hover:bg-loss-soft hover:text-loss sm:flex-none"
+            className="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-controle border border-line px-3.5 text-sm font-medium text-ink-2 transition-colors hover:border-loss/40 hover:bg-loss-soft hover:text-loss sm:flex-none"
           >
             <Trash2 className="size-3.5" aria-hidden />
             Supprimer
@@ -171,10 +166,10 @@ export function LigneHistorique({ entree, ouvert, onBasculer, onSupprimer, annon
           aria-expanded={ouvert}
           aria-controls={idPanneau}
           onClick={onBasculer}
-          className={`flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-surface-2/50 sm:gap-4 sm:px-5 ${ouvert ? "rounded-t-2xl" : "rounded-2xl"}`}
+          className={`flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-surface-2/50 sm:gap-4 sm:px-5 ${ouvert ? "rounded-t-carte" : "rounded-carte"}`}
         >
-          <span className={`hidden size-9 shrink-0 place-items-center rounded-xl sm:grid ${backtest ? "bg-warn-soft text-warn" : "bg-accent-soft text-accent-ink"}`}>
-            <Icone className="size-[18px]" aria-hidden />
+          <span className={`hidden size-9 shrink-0 place-items-center rounded-tuile sm:grid ${backtest ? "bg-warn-soft text-warn" : "bg-accent-soft text-accent-ink"}`}>
+            <Icone className="size-4.5" aria-hidden />
           </span>
           <span className="min-w-0 flex-1">
             <AnimatePresence mode="popLayout" initial={false}>
@@ -191,7 +186,7 @@ export function LigneHistorique({ entree, ouvert, onBasculer, onSupprimer, annon
             </AnimatePresence>
             {entree.nom && <span className="mt-0.5 line-clamp-1 text-xs text-ink-2">{entree.scenario}</span>}
             <span className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1.5 text-xs text-muted">
-              <time dateTime={entree.date} title={dateComplete(entree.date)}>
+              <time dateTime={entree.date} aria-label={dateComplete(entree.date)}>
                 {dateLisible(entree.date)}
               </time>
               <Pastille ton={backtest ? "alerte" : "accent"}>{entree.type}</Pastille>
@@ -206,7 +201,7 @@ export function LigneHistorique({ entree, ouvert, onBasculer, onSupprimer, annon
             </span>
           </span>
           <span className="flex shrink-0 flex-col items-end gap-0.5">
-            <Performance valeur={entree.performance_pct} className="text-[15px]" />
+            <Performance valeur={entree.performance_pct} className="text-titre" />
             <span className="hidden text-xs text-muted tabular-nums sm:block">{euros(entree.valeur_finale)}</span>
           </span>
           <motion.span animate={{ rotate: ouvert ? 180 : 0 }} transition={RESSORT} className="shrink-0 text-muted">

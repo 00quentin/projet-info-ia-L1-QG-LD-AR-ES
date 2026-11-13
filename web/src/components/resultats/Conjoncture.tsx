@@ -3,7 +3,8 @@
 import { motion } from "motion/react";
 import type { Conjoncture as TypeConjoncture } from "@/lib/api";
 import { dateFr, nombre } from "@/lib/format";
-import { EASE_SORTIE } from "@/components/motion/transitions";
+import { DUREE, EASE_SORTIE } from "@/components/motion/transitions";
+import { Infobulle } from "./Infobulle";
 
 /**
  * Taux et inflation du moment (FRED) : le point de depart dont l'IA a tenu compte.
@@ -13,22 +14,32 @@ export function Conjoncture({ conjoncture, titre = "Point de départ (conjonctur
   if (!conjoncture?.indicateurs.length) return null;
   return (
     <section aria-label={titre}>
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h4 className="text-xs font-medium text-muted">{titre}</h4>
-        <span className="text-[11px] text-muted">Source : FRED (Réserve fédérale de Saint-Louis)</span>
+      <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
+        <h4 className="text-aide font-medium text-muted">{titre}</h4>
+        <span className="inline-flex items-center gap-1 text-xs text-muted">
+          Source : FRED (Réserve fédérale de Saint-Louis)
+          <Infobulle libelle="Dates des données de conjoncture">
+            <span className="flex flex-col gap-0.5">
+              {conjoncture.indicateurs.map((i) => (
+                <span key={i.cle}>
+                  {i.nom} : {i.source}, donnée du {dateFr(i.date)}
+                </span>
+              ))}
+            </span>
+          </Infobulle>
+        </span>
       </div>
       <ul className={`mt-2.5 grid gap-2 ${compacte ? "grid-cols-2 sm:grid-cols-3" : "grid-cols-2 sm:grid-cols-3 xl:grid-cols-6"}`}>
         {conjoncture.indicateurs.map((i, k) => (
           <motion.li
             key={i.cle}
-            initial={{ opacity: 0, y: 6 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.35, ease: EASE_SORTIE, delay: k * 0.05 }}
-            title={`${i.source} · donnée du ${dateFr(i.date)}`}
-            className="rounded-xl bg-surface-2/70 px-3 py-2"
+            transition={{ duration: DUREE.normale, ease: EASE_SORTIE, delay: k * 0.04 }}
+            className="rounded-tuile bg-surface-2/70 px-3 py-2"
           >
-            <span className="block text-[11px] leading-tight text-muted">{i.nom}</span>
+            <span className="block text-xs leading-tight text-muted">{i.nom}</span>
             <span className="mt-0.5 block text-base font-semibold tabular-nums">{nombre(i.valeur, 2)} %</span>
           </motion.li>
         ))}

@@ -3,7 +3,7 @@
 import { motion } from "motion/react";
 import { ArrowRight, Bot, Database, FileText, Globe, Server, type LucideIcon } from "lucide-react";
 import { Cascade, ElementCascade } from "@/components/motion/Apparition";
-import { EASE_SORTIE, RESSORT } from "@/components/motion/transitions";
+import { EASE_SORTIE } from "@/components/motion/transitions";
 import { STACK } from "@/contenu/apropos";
 
 const ICONES: Record<string, LucideIcon> = { site: Globe, moteur: Server, donnees: Database, ia: Bot, rapports: FileText };
@@ -25,7 +25,7 @@ function Schema() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.35, ease: EASE_SORTIE, delay: i * 0.12 }}
-            className={`w-full rounded-xl border px-3 py-2.5 text-center sm:flex-1 ${i === 2 ? "border-accent/40 bg-accent-soft" : "border-line bg-surface"}`}
+            className={`w-full rounded-tuile border px-3 py-2.5 text-center sm:flex-1 ${i === 2 ? "border-accent/40 bg-accent-soft" : "border-line bg-surface"}`}
           >
             <p className="text-sm font-semibold text-ink">{e.titre}</p>
             <p className="mt-0.5 text-xs text-muted">{e.detail}</p>
@@ -56,12 +56,12 @@ export function Stack() {
         {STACK.map((b) => {
           const Icone = ICONES[b.id];
           return (
-            <ElementCascade key={b.id} whileHover={{ y: -3, transition: RESSORT }} className="flex flex-col gap-3 rounded-2xl border border-line bg-surface p-5 shadow-card">
+            <ElementCascade key={b.id} className="flex flex-col gap-3 rounded-carte border border-line bg-surface p-5 shadow-card">
               <div className="flex items-center gap-3">
-                <span className="grid size-9 place-items-center rounded-xl bg-accent-soft text-accent-ink">
+                <span className="grid size-9 place-items-center rounded-tuile bg-accent-soft text-accent-ink">
                   <Icone className="size-4.5" aria-hidden />
                 </span>
-                <h3 className="text-[15px] font-semibold tracking-tight text-ink">{b.titre}</h3>
+                <h3 className="text-titre font-semibold tracking-tight text-ink">{b.titre}</h3>
               </div>
               <p className="text-sm leading-relaxed text-ink-2">{b.role}</p>
               <ul className="mt-auto flex flex-wrap gap-1.5" aria-label={`Outils : ${b.titre}`}>

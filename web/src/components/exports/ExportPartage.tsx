@@ -57,7 +57,7 @@ export function ExportPartage({ lien }: { lien: string }) {
           value={lien}
           ref={selectionner}
           onFocus={(e) => e.currentTarget.select()}
-          className="w-full rounded-xl border border-line bg-surface px-3.5 py-2.5 font-mono text-xs text-ink outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+          className="w-full rounded-controle border border-line bg-surface px-3.5 py-2.5 font-mono text-xs text-ink outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
         />
       </Depliant>
       <Annonce message={copie ? "Lien copié dans le presse-papiers." : ""} />

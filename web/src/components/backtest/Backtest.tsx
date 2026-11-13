@@ -7,6 +7,7 @@ import { ajouterEntree } from "@/lib/historique";
 import { contexteBacktest, definirContexteChat } from "@/lib/contexteChat";
 import { euros, pourcentSigne } from "@/lib/format";
 import { Carte } from "@/components/ui/Carte";
+import { ReveilServeur, serveurEndormi } from "@/components/ui/ReveilServeur";
 import { DUREE, EASE_SORTIE } from "@/components/motion/transitions";
 import { FormulaireBacktest, periodeDemandee, reglagesInitiaux, type ReglagesBacktest } from "./FormulaireBacktest";
 import { ResultatsBacktest } from "./ResultatsBacktest";
@@ -17,6 +18,7 @@ export function Backtest() {
   const [catalogue, setCatalogue] = useState<Catalogue | null>(null);
   const [erreurCatalogue, setErreurCatalogue] = useState<string | null>(null);
   const [essai, setEssai] = useState(0);
+  const [serveurEnVeille, setServeurEnVeille] = useState(false);
   const [reglages, setReglages] = useState<ReglagesBacktest | null>(null);
   const [resultat, setResultat] = useState<{ id: number; reponse: ReponseBacktest } | null>(null);
   const [enCours, setEnCours] = useState(false);
@@ -31,10 +33,15 @@ export function Backtest() {
       .then((c) => {
         if (!actif) return;
         setErreurCatalogue(null);
+        setServeurEnVeille(false);
         setCatalogue(c);
         setReglages((r) => r ?? reglagesInitiaux(c));
       })
-      .catch((e: unknown) => actif && setErreurCatalogue(e instanceof ErreurApi ? e.message : "Chargement impossible."));
+      .catch((e: unknown) => {
+        if (!actif) return;
+        if (serveurEndormi(e)) setServeurEnVeille(true);
+        else setErreurCatalogue(e instanceof ErreurApi ? e.message : "Chargement impossible.");
+      });
     return () => {
       actif = false;
     };
@@ -79,7 +86,8 @@ export function Backtest() {
         nb_actifs: reponse.parametres.nb_actifs,
       });
     } catch (e) {
-      setErreur(e instanceof ErreurApi ? e.message : "Une erreur est survenue.");
+      if (serveurEndormi(e)) setServeurEnVeille(true);
+      else setErreur(e instanceof ErreurApi ? e.message : "Une erreur est survenue.");
     } finally {
       setEnCours(false);
     }
@@ -90,20 +98,22 @@ export function Backtest() {
       <div className="mx-auto max-w-xl px-4 py-16">
         <Erreur
           titre="Le backtest n'a pas pu se charger"
-          message={`${erreurCatalogue} Le serveur se réveille peut-être : patientez quelques secondes.`}
+          message={erreurCatalogue}
           onReessayer={() => setEssai((n) => n + 1)}
         />
       </div>
     );
   }
 
-  const etat = enCours ? "chargement" : erreur ? "erreur" : resultat ? `resultat-${resultat.id}` : "vide";
+  const etat = serveurEnVeille && catalogue ? "reveil" : enCours ? "chargement" : erreur ? "erreur" : resultat ? `resultat-${resultat.id}` : "vide";
 
   return (
     <div className="mx-auto grid max-w-[1400px] grid-cols-1 gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[23.5rem_minmax(0,1fr)] lg:items-start">
-      <aside className="lg:sticky lg:top-[7.75rem] lg:max-h-[calc(100dvh-9.25rem)] lg:overflow-y-auto lg:rounded-2xl">
+      <aside className="lg:sticky lg:top-(--haut-colle) lg:max-h-[calc(100dvh-var(--haut-colle)-1.5rem)] lg:overflow-y-auto lg:rounded-2xl">
         <Carte className="p-5">
-          {catalogue && reglages ? (
+          {serveurEnVeille && !catalogue ? (
+            <ReveilServeur onPret={() => setEssai((n) => n + 1)} />
+          ) : catalogue && reglages ? (
             <FormulaireBacktest catalogue={catalogue} reglages={reglages} onChange={setReglages} onLancer={lancer} enCours={enCours} />
           ) : (
             <div className="flex flex-col gap-3" aria-label="Chargement du formulaire">
@@ -117,7 +127,7 @@ export function Backtest() {
         </Carte>
       </aside>
 
-      <div ref={zoneResultats} className={`min-w-0 scroll-mt-4 lg:scroll-mt-[7.75rem] ${enCours ? "max-lg:min-h-dvh" : ""}`} aria-busy={enCours}>
+      <div ref={zoneResultats} className={`min-w-0 scroll-mt-4 lg:scroll-mt-(--haut-colle) ${enCours ? "max-lg:min-h-dvh" : ""}`} aria-busy={enCours}>
         <p className="sr-only" aria-live="polite">
           {resultat && !enCours && !erreur
             ? `Backtest terminé : ${euros(resultat.reponse.portefeuille.valeur_finale)}, soit ${pourcentSigne(resultat.reponse.portefeuille.performance_pct)}.`
@@ -130,7 +140,14 @@ export function Backtest() {
             animate={{ opacity: 1, y: 0, transition: { duration: DUREE.normale, ease: EASE_SORTIE } }}
             exit={{ opacity: 0, y: -6, transition: { duration: DUREE.rapide, ease: EASE_SORTIE } }}
           >
-            {enCours ? (
+            {serveurEnVeille && catalogue ? (
+              <ReveilServeur
+                onPret={() => {
+                  setServeurEnVeille(false);
+                  void lancer();
+                }}
+              />
+            ) : enCours ? (
               <Chargement libelle={libelleEnCours} convertirEur={reglages?.convertirEur ?? true} />
             ) : erreur ? (
               <Erreur message={erreur} onReessayer={lancer} />

@@ -8,11 +8,11 @@ import rehypeKatex from "rehype-katex";
 import "katex/dist/katex.min.css";
 import { CircleAlert, RotateCcw } from "lucide-react";
 import type { MessageConversation } from "./conversation";
-import { DUREE, EASE_SORTIE, RESSORT } from "@/components/motion/transitions";
+import { DUREE, EASE_SORTIE } from "@/components/motion/transitions";
 
 // Rendu des reponses de l'IA : balises sobres, titres ramenes a la taille du panneau,
 // liens ouverts dans un nouvel onglet.
-const titre = "mb-1.5 mt-3.5 text-[15px] font-semibold text-ink first:mt-0";
+const titre = "mb-1.5 mt-3.5 text-titre font-semibold text-ink first:mt-0";
 const sousTitre = "mb-1 mt-3 font-semibold text-ink first:mt-0";
 const composantsMarkdown: Components = {
   p: ({ children }) => <p className="my-2 first:mt-0 last:mb-0">{children}</p>,
@@ -37,7 +37,7 @@ const composantsMarkdown: Components = {
   ),
   blockquote: ({ children }) => <blockquote className="my-2 border-l-2 border-line-strong pl-3">{children}</blockquote>,
   hr: () => <hr className="my-3 border-line" />,
-  pre: ({ children }) => <pre className="my-2 overflow-x-auto rounded-lg bg-surface p-2.5 text-xs">{children}</pre>,
+  pre: ({ children }) => <pre className="my-2 overflow-x-auto rounded-controle bg-surface p-2.5 text-xs">{children}</pre>,
   code: ({ children }) => <code className="rounded bg-surface px-1 py-0.5 font-mono text-[0.85em]">{children}</code>,
 };
 
@@ -64,14 +64,13 @@ export function BulleMessage({ message }: { message: MessageConversation }) {
   return (
     <motion.li
       data-message=""
-      initial={{ opacity: 0, y: 10, scale: 0.97 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, transition: { duration: DUREE.rapide } }}
-      transition={RESSORT}
-      style={{ transformOrigin: utilisateur ? "bottom right" : "bottom left" }}
+      transition={{ duration: DUREE.normale, ease: EASE_SORTIE }}
       className={`flex ${utilisateur ? "justify-end" : "justify-start"}`}
     >
-      <span className="sr-only">{utilisateur ? "Vous :" : "L'analyste :"}</span>
+      <span className="sr-only">{utilisateur ? "Vous :" : "L'analyste (IA) :"}</span>
       {utilisateur ? (
         <div className="max-w-[85%] whitespace-pre-wrap break-words rounded-2xl rounded-br-md bg-accent px-3.5 py-2 text-sm leading-relaxed text-white">
           {message.content}
@@ -97,7 +96,7 @@ export function IndicateurEcriture() {
 
   return (
     <motion.li
-      initial={{ opacity: 0, y: 8 }}
+      initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: DUREE.normale, ease: EASE_SORTIE }}
       className="flex flex-col items-start gap-1.5"
@@ -126,10 +125,10 @@ export function BlocErreur({ message, onReessayer }: { message: string; onReessa
   return (
     <motion.li
       role="alert"
-      initial={{ opacity: 0, y: 8 }}
+      initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: DUREE.normale, ease: EASE_SORTIE }}
-      className="flex items-start gap-2.5 rounded-xl border border-loss/25 bg-loss-soft px-3 py-2.5 text-sm text-loss"
+      className="flex items-start gap-2.5 rounded-tuile border border-loss/25 bg-loss-soft px-3 py-2.5 text-sm text-loss"
     >
       <CircleAlert className="mt-0.5 size-4 shrink-0" aria-hidden />
       <div className="min-w-0 flex-1">
@@ -137,8 +136,8 @@ export function BlocErreur({ message, onReessayer }: { message: string; onReessa
         <motion.button
           type="button"
           onClick={onReessayer}
-          whileTap={{ scale: 0.95 }}
-          className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-loss/30 bg-surface px-2.5 py-1 text-xs font-semibold text-loss transition-colors hover:border-loss"
+          whileTap={{ scale: 0.97 }}
+          className="mt-2 inline-flex items-center gap-1.5 rounded-controle border border-loss/30 bg-surface px-2.5 py-1 text-xs font-semibold text-loss transition-colors hover:border-loss"
         >
           <RotateCcw className="size-3.5" aria-hidden />
           Réessayer

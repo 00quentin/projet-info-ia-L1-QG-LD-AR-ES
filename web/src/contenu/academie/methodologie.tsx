@@ -22,8 +22,8 @@ export function ContenuMethodologie() {
       <Section {...s("sharpe")}>
         <Formule tex={R`\text{Sharpe} = \frac{R_p - R_f}{\sigma_p}`} />
         <P>
-          <M tex="R_p" /> = rendement annualisé du portefeuille, <M tex="R_f" /> = taux sans risque (2% par défaut, correspondant approximativement au
-          rendement des Bons du Trésor US court terme), <M tex={R`\sigma_p`} /> = volatilité annualisée.
+          <M tex="R_p" /> = rendement annualisé du portefeuille, <M tex="R_f" /> = taux sans risque (le taux de dépôt de la BCE, lu sur FRED : c’est le
+          placement sans risque d’un épargnant en euros ; 2 % si FRED est injoignable), <M tex={R`\sigma_p`} /> = volatilité annualisée.
         </P>
         <P>
           Créé par William Sharpe en 1966 (Prix Nobel 1990). C’est <G>la</G> métrique universellement utilisée par les gérants professionnels. Un
@@ -63,7 +63,7 @@ export function ContenuMethodologie() {
         <Formule tex={R`S_{t+1} = S_t \times \exp(\mu + \sigma \cdot Z_t)`} />
         <P>
           Avec <M tex={R`Z_t \sim \mathcal{N}(0, 1)`} /> un tirage gaussien à chaque pas de temps. C’est exactement la formule utilisée dans le code de
-          Quant Terminal pour le modèle « Probabiliste ».
+          Quant Terminal pour le modèle « Classique » (Probabiliste).
         </P>
         <P>
           Le <M tex={R`\mu`} /> (drift) vient du choc estimé par notre IA : il est réglé pour que la trajectoire <G>médiane</G> atteigne ce choc à la fin

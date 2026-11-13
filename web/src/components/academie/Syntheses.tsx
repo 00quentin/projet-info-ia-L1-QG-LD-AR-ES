@@ -29,11 +29,10 @@ import {
 } from "lucide-react";
 import { Cascade, ElementCascade } from "@/components/motion/Apparition";
 import { NombreAnime } from "@/components/motion/NombreAnime";
-import { EASE_SORTIE, RESSORT } from "@/components/motion/transitions";
+import { EASE_SORTIE } from "@/components/motion/transitions";
 import { Pastille } from "@/components/ui/Carte";
 import { ImageWikimedia } from "./Photo";
 
-const survol = { y: -3, transition: RESSORT };
 
 /* ---------- 4. Cas historiques ---------- */
 
@@ -48,8 +47,8 @@ const CRISES = [
 function CarteCrise({ c }: { c: (typeof CRISES)[number] }) {
   const [cassee, setCassee] = useState(false);
   return (
-    <ElementCascade whileHover={survol} className="h-full">
-      <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-surface shadow-card">
+    <ElementCascade className="h-full">
+      <article className="flex h-full flex-col overflow-hidden rounded-carte border border-line bg-surface shadow-card">
         <div className="relative aspect-[16/10] overflow-hidden" style={{ background: `color-mix(in oklab, ${c.couleur} 14%, var(--surface-2))` }}>
           <c.Icone className="absolute left-1/2 top-1/2 size-10 -translate-x-1/2 -translate-y-1/2 opacity-60" style={{ color: c.couleur }} aria-hidden />
           {!cassee && <ImageWikimedia fichier={c.fichier} alt="" largeur={640} onCassee={() => setCassee(true)} className="relative block size-full object-cover" />}
@@ -59,7 +58,7 @@ function CarteCrise({ c }: { c: (typeof CRISES)[number] }) {
           </span>
         </div>
         <div className="flex flex-1 flex-col border-t-2 p-4" style={{ borderTopColor: c.couleur }}>
-          <h4 className="text-[15px] font-semibold tracking-tight text-ink">{c.nom}</h4>
+          <h4 className="text-titre font-semibold tracking-tight text-ink">{c.nom}</h4>
           <p className="mt-1.5 flex-1 text-sm leading-relaxed text-ink-2">{c.desc}</p>
           <p className="mt-3 text-xs text-muted">{c.credit}</p>
         </div>
@@ -121,9 +120,9 @@ export function SyntheseProfils() {
   return (
     <Cascade auDefilement className="grid max-w-[46rem] grid-cols-1 gap-3 sm:grid-cols-3">
       {PROFILS.map((p) => (
-        <ElementCascade key={p.nom} whileHover={survol} className="flex flex-col gap-4 rounded-2xl border border-line bg-surface p-5 shadow-card">
+        <ElementCascade key={p.nom} className="flex flex-col gap-4 rounded-carte border border-line bg-surface p-5 shadow-card">
           <div className="flex items-center justify-between gap-2">
-            <span className="grid size-10 place-items-center rounded-xl bg-accent-soft text-accent-ink">
+            <span className="grid size-10 place-items-center rounded-tuile bg-accent-soft text-accent-ink">
               <p.Icone className="size-5" aria-hidden />
             </span>
             <Pastille ton={p.ton}>{p.risque}</Pastille>
@@ -156,7 +155,7 @@ const ALLOCATION: { classe: Classe; pct: number }[] = [
 
 export function SyntheseAllocation() {
   return (
-    <div className="max-w-[46rem] rounded-2xl border border-line bg-surface p-5 shadow-card sm:p-6">
+    <div className="max-w-[46rem] rounded-carte border border-line bg-surface p-5 shadow-card sm:p-6">
       <BarreEmpilee parts={ALLOCATION} />
       <ul className="mt-5 flex flex-col gap-3.5" aria-label="Répartition de l’exemple d’allocation">
         {ALLOCATION.map((a, i) => {
@@ -201,15 +200,12 @@ export function SyntheseBiais() {
       {BIAIS.map((b) => (
         <ElementCascade
           key={b.nom}
-          whileHover={survol}
-          className="flex items-start gap-4 rounded-2xl border border-line bg-surface p-5 shadow-card"
+          className="flex items-start gap-4 rounded-carte border border-line bg-surface p-5 shadow-card"
           style={{ borderLeftColor: b.couleur, borderLeftWidth: 3 }}
         >
           <motion.span
-            className="grid size-11 shrink-0 place-items-center rounded-xl"
+            className="grid size-11 shrink-0 place-items-center rounded-tuile"
             style={{ background: `color-mix(in oklab, ${b.couleur} 14%, transparent)`, color: b.couleur }}
-            whileHover={{ rotate: -8, scale: 1.06 }}
-            transition={RESSORT}
           >
             <b.Icone className="size-5" aria-hidden />
           </motion.span>
@@ -238,9 +234,9 @@ export function SyntheseLexique() {
   return (
     <Cascade auDefilement className="grid max-w-[46rem] grid-cols-2 gap-3 sm:grid-cols-3">
       {TERMES.map((t) => (
-        <ElementCascade key={t.terme} whileHover={survol} className="rounded-2xl border border-line bg-surface p-4 shadow-card">
-          <span className="grid size-10 place-items-center rounded-xl bg-accent-soft font-serif text-xl font-semibold text-accent-ink">{t.symbole}</span>
-          <h4 className="mt-3 text-[15px] font-semibold tracking-tight text-ink">{t.terme}</h4>
+        <ElementCascade key={t.terme} className="rounded-carte border border-line bg-surface p-4 shadow-card">
+          <span className="grid size-10 place-items-center rounded-tuile bg-accent-soft font-serif text-xl font-semibold text-accent-ink">{t.symbole}</span>
+          <h4 className="mt-3 text-titre font-semibold tracking-tight text-ink">{t.terme}</h4>
           <p className="mt-1 text-sm leading-relaxed text-ink-2">{t.desc}</p>
         </ElementCascade>
       ))}
@@ -273,9 +269,7 @@ export function SynthesePipeline() {
         {ETAPES.map((e, i) => (
           <ElementCascade key={e.libelle} className="flex items-center gap-4 sm:flex-col sm:text-center">
             <motion.span
-              whileHover={{ scale: 1.08 }}
-              transition={RESSORT}
-              className="relative grid size-[4.3rem] shrink-0 place-items-center rounded-2xl border border-line bg-surface text-accent-ink shadow-card"
+              className="relative grid size-[4.3rem] shrink-0 place-items-center rounded-carte border border-line bg-surface text-accent-ink shadow-card"
             >
               <e.Icone className="size-6" aria-hidden />
               <span className="absolute -right-1.5 -top-1.5 grid size-6 place-items-center rounded-full bg-accent text-xs font-semibold text-surface">{i + 1}</span>

@@ -5,7 +5,7 @@ import { Apparition } from "@/components/motion/Apparition";
 import { CONTENUS } from "@/contenu/academie";
 
 export const metadata: Metadata = {
-  title: "Académie — Quant Terminal",
+  title: "Académie",
   description: "Comprendre la finance de marché : lecture des graphiques, modèles mathématiques, macro-économie, crises historiques, stratégies, biais et lexique.",
 };
 
@@ -19,7 +19,7 @@ export default function Page() {
             Académie
           </p>
           <h1 className="mt-4 text-4xl font-semibold tracking-tight text-ink sm:text-5xl">Académie Quant Terminal</h1>
-          <p className="mt-4 max-w-[37rem] text-[17px] leading-[1.7] text-ink-2 sm:text-lg">
+          <p className="mt-4 max-w-[37rem] text-lg leading-relaxed text-ink-2">
             Bienvenue dans l’Académie. Ici, on ne récite pas des définitions : on cherche à <strong className="font-semibold text-ink">comprendre</strong>{" "}
             pourquoi les marchés se comportent comme ils le font. L’Académie est conçue pour être lue dans l’ordre — chaque partie s’appuie sur la
             précédente. Prenez votre temps.

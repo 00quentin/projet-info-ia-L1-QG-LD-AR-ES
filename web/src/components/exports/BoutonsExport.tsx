@@ -57,8 +57,9 @@ function ExportCsv({ csv }: { csv: PropsExport["csv"] }) {
 /** Exports d'un resultat : CSV (genere dans le navigateur), rapport PDF (API + IA), lien de partage. */
 export function BoutonsExport({ csv, rapport, lienPartage }: PropsExport) {
   return (
-    <Carte className="@container p-6">
-      <TitreCarte aide="Récupérez les chiffres bruts, un rapport complet ou un lien pour retrouver cette simulation.">Exporter et partager</TitreCarte>
+    <Carte taille="normale" className="@container">
+      <TitreCarte>Exporter et partager</TitreCarte>
+      <p className="sr-only">Récupérez les chiffres bruts, un rapport complet ou un lien pour retrouver cette simulation.</p>
       <ul className="divide-y divide-line">
         <ExportCsv csv={csv} />
         {rapport && <ExportPdf rapport={rapport} />}

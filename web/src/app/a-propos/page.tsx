@@ -9,7 +9,7 @@ import { Apparition } from "@/components/motion/Apparition";
 import { FONCTIONNALITES } from "@/contenu/apropos";
 
 export const metadata: Metadata = {
-  title: "À propos — Quant Terminal",
+  title: "À propos",
   description: "Le projet Quant Terminal : équipe, genèse, ambitions, stack technique, fonctionnalités, sources et limites.",
 };
 
@@ -28,12 +28,12 @@ function Rubrique({ id, titre, children }: { id: string; titre: string; children
 
 function CarteRecit({ icone, titre, children }: { icone: ReactNode; titre: string; children: ReactNode }) {
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-line bg-surface p-6 shadow-card">
+    <div className="flex flex-col gap-3 rounded-carte border border-line bg-surface p-6 shadow-card">
       <h2 className="flex items-center gap-3 text-xl font-semibold tracking-tight text-ink">
-        <span className="grid size-9 place-items-center rounded-xl bg-accent-soft text-accent-ink">{icone}</span>
+        <span className="grid size-9 place-items-center rounded-tuile bg-accent-soft text-accent-ink">{icone}</span>
         {titre}
       </h2>
-      <div className="flex flex-col gap-3 text-base leading-[1.75] text-ink-2">{children}</div>
+      <div className="flex flex-col gap-3 text-base leading-relaxed text-ink-2">{children}</div>
     </div>
   );
 }
@@ -44,7 +44,7 @@ export default function Page() {
       <Apparition>
         <p className="inline-flex rounded-full bg-accent-soft px-3 py-1 text-xs font-medium text-accent-ink">Université Paris Nanterre · Licence 1 · Semestre 2</p>
         <h1 className="mt-4 text-4xl font-semibold tracking-tight text-ink sm:text-5xl">À propos de Quant Terminal</h1>
-        <p className="mt-5 max-w-[40rem] text-[17px] leading-[1.7] text-ink-2 sm:text-lg">
+        <p className="mt-5 max-w-[40rem] text-lg leading-relaxed text-ink-2">
           Quant Terminal est un projet réalisé dans le cadre de notre cours d’<G>informatique de L1, semestre 2</G>, au sein de la licence <G>MIASHS</G>{" "}
           (Mathématiques et Informatique Appliquées aux Sciences Humaines et Sociales), que nous suivons en <G>double licence avec Économie et Gestion</G>{" "}
           à l’Université Paris Nanterre.
@@ -86,12 +86,12 @@ export default function Page() {
       </Rubrique>
 
       <Rubrique id="fonctionnalites" titre="Fonctionnalités principales">
-        <ul className="grid grid-cols-1 gap-x-6 gap-y-1 rounded-2xl border border-line bg-surface p-3 shadow-card sm:grid-cols-2 sm:p-4">
+        <ul className="grid grid-cols-1 gap-x-6 gap-y-1 rounded-carte border border-line bg-surface p-3 shadow-card sm:grid-cols-2 sm:p-4">
           {FONCTIONNALITES.map((f) => {
             const texte = (
               <>
                 <Check className="mt-0.5 size-4 shrink-0 text-gain" aria-hidden />
-                <span className="text-[15px] leading-relaxed text-ink-2">
+                <span className="text-titre leading-relaxed text-ink-2">
                   <G>{f.titre}</G> : {f.texte}
                 </span>
                 {f.lien && <ArrowUpRight className="ml-auto mt-0.5 size-4 shrink-0 text-muted transition group-hover:text-accent" aria-hidden />}
@@ -100,7 +100,7 @@ export default function Page() {
             return (
               <li key={f.titre}>
                 {f.lien ? (
-                  <Link href={f.lien} className="group flex gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-surface-2">
+                  <Link href={f.lien} className="group flex gap-3 rounded-tuile px-3 py-2.5 transition-colors hover:bg-surface-2">
                     {texte}
                   </Link>
                 ) : (
@@ -127,6 +127,12 @@ export default function Page() {
           </p>
           <p>
             Pour un usage professionnel, il faudrait calibrer le modèle sur des données institutionnelles et modéliser les changements de régime en crise.
+          </p>
+          <p>
+            <Link href="/methodologie" className="font-medium text-accent-ink underline decoration-accent/40 underline-offset-2 hover:decoration-accent">
+              Lire la méthodologie complète
+            </Link>{" "}
+            : sources, modèle, calibration de l&apos;IA, bornes et limites.
           </p>
         </Encadre>
       </Rubrique>

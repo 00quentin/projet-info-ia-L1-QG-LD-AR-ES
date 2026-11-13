@@ -9,8 +9,9 @@ export function Formule({ tex, description }: { tex: string; description?: strin
   const html = katex.renderToString(tex, { throwOnError: false, displayMode: true });
   return (
     <div
-      className="formule max-w-[46rem] overflow-x-auto rounded-2xl border border-line bg-surface px-4 py-1 text-ink shadow-card transition-colors hover:border-line-strong [&_.katex-display]:my-4 [&_.katex]:text-[1.15em]"
-      title={description}
+      className="formule max-w-[46rem] overflow-x-auto rounded-carte border border-line bg-surface px-4 py-1 text-ink shadow-card transition-colors [&_.katex-display]:my-4 [&_.katex]:text-[1.15em]"
+      role={description ? "figure" : undefined}
+      aria-label={description}
       dangerouslySetInnerHTML={{ __html: html }}
     />
   );

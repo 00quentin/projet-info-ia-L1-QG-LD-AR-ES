@@ -61,15 +61,15 @@ export function EtatVide() {
     <Carte className="grid min-h-[26rem] place-items-center p-8 text-center">
       <div className="max-w-md">
         <motion.span
-          className="mx-auto grid size-12 place-items-center rounded-2xl bg-accent-soft text-accent-ink"
-          initial={{ rotate: 40, scale: 0.8, opacity: 0 }}
-          animate={{ rotate: 0, scale: 1, opacity: 1 }}
+          className="mx-auto grid size-12 place-items-center rounded-carte bg-accent-soft text-accent-ink"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={RESSORT}
         >
           <History className="size-6" aria-hidden />
         </motion.span>
         <h2 className="mt-5 text-xl font-semibold tracking-tight">Rejouez l&apos;histoire avec les vrais cours</h2>
-        <p className="mt-2 text-[15px] leading-relaxed text-ink-2">
+        <p className="mt-2 text-titre leading-relaxed text-ink-2">
           Krach de 2008, COVID-19, bulle internet… Mesurez ce qu&apos;aurait réellement donné votre portefeuille, jour après jour, avec les cours de Yahoo Finance convertis en euros.
         </p>
         <div className="mt-6">
@@ -78,7 +78,7 @@ export function EtatVide() {
         <Cascade className="mt-6">
           <ol className="flex flex-col gap-2 text-left text-sm">
             {ETAPES_GUIDE.map((etape, i) => (
-              <LigneCascade key={etape} className="flex items-center gap-3 rounded-xl border border-line px-3.5 py-2.5">
+              <LigneCascade key={etape} className="flex items-center gap-3 rounded-tuile border border-line px-3.5 py-2.5">
                 <span className="grid size-6 shrink-0 place-items-center rounded-full bg-surface-2 text-xs font-semibold text-ink-2 tabular-nums">{i + 1}</span>
                 <span className="text-ink-2">{etape}</span>
               </LigneCascade>
@@ -115,20 +115,20 @@ export function Chargement({ libelle, convertirEur }: { libelle: string; convert
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
               transition={{ duration: DUREE.rapide }}
-              className="text-[15px] font-medium"
+              className="text-titre font-medium"
             >
               {etapes[etape]}
             </motion.span>
           </AnimatePresence>
         </div>
         <p className="mt-2 text-sm text-muted">Backtest : {libelle}. Quelques secondes suffisent en général.</p>
-        <div className="chargement mt-6 h-14 w-64 max-w-full rounded-xl" />
+        <div className="chargement mt-6 h-14 w-64 max-w-full rounded-tuile" />
         <div className="chargement mt-3 h-4 w-80 max-w-full rounded-md" />
       </Carte>
-      <div className="chargement h-80 rounded-2xl border border-line" />
+      <div className="chargement h-80 rounded-carte border border-line" />
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {[0, 1, 2, 3].map((i) => (
-          <div key={i} className="chargement h-28 rounded-xl border border-line" />
+          <div key={i} className="chargement h-28 rounded-tuile border border-line" />
         ))}
       </div>
     </div>
@@ -141,16 +141,15 @@ export function Erreur({ titre = "Le backtest n'a pas abouti", message, onReessa
       <div className="flex gap-3" role="alert">
         <CircleAlert className="mt-0.5 size-5 shrink-0 text-loss" aria-hidden />
         <div>
-          <h2 className="text-[15px] font-semibold">{titre}</h2>
+          <h2 className="text-titre font-semibold">{titre}</h2>
           <p className="mt-1 text-sm leading-relaxed text-ink-2">{message}</p>
           {onReessayer && (
             <motion.button
               type="button"
               onClick={onReessayer}
-              whileHover={{ y: -1 }}
               whileTap={{ scale: 0.97 }}
               transition={RESSORT}
-              className="mt-4 inline-flex items-center gap-2 rounded-lg border border-line px-3 py-2 text-sm font-medium transition-colors hover:border-line-strong"
+              className="mt-4 inline-flex items-center gap-2 rounded-controle border border-line px-3 py-2 text-sm font-medium transition-colors hover:border-line-strong"
             >
               <RotateCw className="size-4" aria-hidden />
               Réessayer

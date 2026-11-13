@@ -50,10 +50,9 @@ export function BoutonEffacer({ nombre, onConfirmer }: { nombre: number; onConfi
         aria-expanded={ouvert}
         aria-haspopup="dialog"
         aria-controls={ouvert ? idFenetre : undefined}
-        whileHover={{ y: -1 }}
         whileTap={{ scale: 0.97 }}
         transition={RESSORT}
-        className="inline-flex h-9 items-center gap-2 rounded-xl border border-line bg-surface px-3 text-sm font-medium text-ink-2 transition-colors hover:border-loss/40 hover:text-loss"
+        className="inline-flex h-9 items-center gap-2 rounded-controle border border-line bg-surface px-3 text-sm font-medium text-ink-2 transition-colors hover:border-loss/40 hover:text-loss"
       >
         <Trash2 className="size-4" aria-hidden />
         Effacer l&apos;historique
@@ -70,7 +69,7 @@ export function BoutonEffacer({ nombre, onConfirmer }: { nombre: number; onConfi
             exit={{ opacity: 0, scale: 0.97, y: -4, transition: { duration: DUREE.rapide } }}
             transition={{ duration: DUREE.rapide, ease: EASE_SORTIE }}
             style={{ transformOrigin: "top right" }}
-            className="absolute right-0 top-full z-20 mt-2 w-72 max-w-[calc(100vw-2rem)] rounded-xl border border-line bg-surface p-4 shadow-[0_8px_32px_rgba(15,17,21,0.14)]"
+            className="absolute right-0 top-full z-20 mt-2 w-72 max-w-[calc(100vw-2rem)] rounded-tuile border border-line bg-surface p-4 shadow-[0_8px_32px_rgba(15,17,21,0.14)]"
           >
             <p id={`${idFenetre}-titre`} className="text-sm font-semibold">
               Effacer tout l&apos;historique ?
@@ -84,7 +83,7 @@ export function BoutonEffacer({ nombre, onConfirmer }: { nombre: number; onConfi
                 type="button"
                 onClick={fermer}
                 whileTap={{ scale: 0.97 }}
-                className="h-8 rounded-lg border border-line px-3 text-sm font-medium transition-colors hover:bg-surface-2"
+                className="h-8 rounded-controle border border-line px-3 text-sm font-medium transition-colors hover:bg-surface-2"
               >
                 Annuler
               </motion.button>
@@ -95,7 +94,7 @@ export function BoutonEffacer({ nombre, onConfirmer }: { nombre: number; onConfi
                   onConfirmer();
                 }}
                 whileTap={{ scale: 0.97 }}
-                className="h-8 rounded-lg bg-loss px-3 text-sm font-semibold text-white transition hover:brightness-110"
+                className="h-8 rounded-controle bg-loss px-3 text-sm font-semibold text-white transition hover:brightness-110"
               >
                 Tout effacer
               </motion.button>
