@@ -146,3 +146,15 @@ def creer_rapport(demande: DemandeRapport) -> Response:
         content=pdf, media_type="application/pdf",
         headers={"Content-Disposition": 'attachment; filename="rapport-quant-terminal.pdf"'},
     )
+
+
+# === Validation historique de l'IA ==========================================
+# Ajoute en fin de fichier pour rester independant des autres routes.
+from api.validation import resultats_validation  # noqa: E402
+
+
+@app.get("/api/validation-ia", tags=["Données"], dependencies=[limite_donnees])
+def lire_validation_ia() -> dict:
+    """L'IA à l'épreuve de l'histoire : estimations de l'IA face aux vraies crises passées
+    (calculées une fois par scripts/valider_ia_historique.py, aucun appel IA ici)."""
+    return resultats_validation()
