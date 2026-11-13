@@ -380,3 +380,28 @@ SERIES_FRED = {
 }
 SERIE_TAUX_SANS_RISQUE = "taux_bce"
 CONJONCTURE_HISTORIQUE_ANNEES = 3
+
+
+# ==========================================
+# PROTÉGER MON PORTEFEUILLE (core/couverture.py, api/couverture.py)
+# ==========================================
+COUVERTURE_POIDS_MAX_LIGNE = 40          # % : aucune ligne au-dessus
+COUVERTURE_ECART_MAX_LIGNE = 15          # points : variation maximale d'une ligne
+COUVERTURE_ROTATION_MAX = 30             # % du portefeuille qui peut changer de main
+COUVERTURE_PAS_TRANSFERT = 5             # points déplacés à chaque étape
+COUVERTURE_ETAPES_MAX = 12               # 12 x 5 points : couvre largement la rotation maximale
+COUVERTURE_GAIN_MIN_RELATIF = 0.01       # un transfert doit gagner au moins 1 % de score
+COUVERTURE_PLANCHER_PROBA_PERTE = 5.0    # % : évite de diviser par une probabilité quasi nulle
+COUVERTURE_PLANCHER_PERTE_MAX = 0.1      # % : idem pour un portefeuille quasi immobile
+COUVERTURE_NB_TRAJECTOIRES_RECHERCHE = 400
+COUVERTURE_NB_TRAJECTOIRES_EVALUATION = 1000
+COUVERTURE_GRAINE = 2026                 # résultat reproductible pour une même demande
+COUVERTURE_TAILLE_LOT = 48               # portefeuilles évalués ensemble (borne la mémoire)
+JOURS_PAR_AN = 252                       # jours de bourse par an (annualisation)
+# Bornes des actifs personnalises (miroir de schemas._BORNE_GENERIQUE_CUSTOM).
+COUVERTURE_BORNES_ACTIF_PERSO = (-0.80, 2.00)
+# Tolerance d'arrondi sur la somme des poids envoyes par le site (fractions).
+COUVERTURE_TOLERANCE_SOMME_POIDS = 0.01
+# Longueurs maximales des textes rediges par l'IA (au-dela : tronques).
+COUVERTURE_JUSTIFICATION_LONGUEUR_MAX = 280
+COUVERTURE_SYNTHESE_LONGUEUR_MAX = 320

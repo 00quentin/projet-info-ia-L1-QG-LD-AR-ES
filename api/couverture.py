@@ -25,6 +25,7 @@ from config import (
     ACTIF_TAUX_EUR_USD, API_ACTIFS_MAX, API_SCENARIO_LONGUEUR_MAX, API_TICKERS_PERSO_MAX,
     BENCHMARKS, CAPITAL_DEFAUT, CAPITAL_MAX, CAPITAL_MIN, DEVISE_ACTIF,
     HORIZON_DEFAUT, HORIZON_MAX, HORIZON_MIN, IA_CHAT, MODELES_SIMULATION, NOM_AFFICHAGE,
+    COUVERTURE_BORNES_ACTIF_PERSO, COUVERTURE_TOLERANCE_SOMME_POIDS, COUVERTURE_JUSTIFICATION_LONGUEUR_MAX, COUVERTURE_SYNTHESE_LONGUEUR_MAX,
 )
 from core.cache import cache_ttl
 from core.couverture import (
@@ -41,14 +42,6 @@ from simulation import generer_chemins
 
 log = get_logger("api_couverture")
 
-# === Constantes (à déplacer dans config.py) =================================
-# Bornes des actifs personnalises (miroir de schemas._BORNE_GENERIQUE_CUSTOM).
-COUVERTURE_BORNES_ACTIF_PERSO = (-0.80, 2.00)
-# Tolerance d'arrondi sur la somme des poids envoyes par le site (fractions).
-COUVERTURE_TOLERANCE_SOMME_POIDS = 0.01
-# Longueurs maximales des textes rediges par l'IA (au-dela : tronques).
-COUVERTURE_JUSTIFICATION_LONGUEUR_MAX = 280
-COUVERTURE_SYNTHESE_LONGUEUR_MAX = 320
 _CHIFFRES_SIGNIFICATIFS = 6
 
 

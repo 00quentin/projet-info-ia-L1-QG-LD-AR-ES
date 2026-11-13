@@ -31,20 +31,9 @@ import numpy as np
 
 from core.metrics import bandes_portefeuille_monte_carlo, calculer_metriques_monte_carlo
 
-# === Constantes (à déplacer dans config.py) =================================
-COUVERTURE_POIDS_MAX_LIGNE = 40          # % : aucune ligne au-dessus
-COUVERTURE_ECART_MAX_LIGNE = 15          # points : variation maximale d'une ligne
-COUVERTURE_ROTATION_MAX = 30             # % du portefeuille qui peut changer de main
-COUVERTURE_PAS_TRANSFERT = 5             # points déplacés à chaque étape
-COUVERTURE_ETAPES_MAX = 12               # 12 x 5 points : couvre largement la rotation maximale
-COUVERTURE_GAIN_MIN_RELATIF = 0.01       # un transfert doit gagner au moins 1 % de score
-COUVERTURE_PLANCHER_PROBA_PERTE = 5.0    # % : évite de diviser par une probabilité quasi nulle
-COUVERTURE_PLANCHER_PERTE_MAX = 0.1      # % : idem pour un portefeuille quasi immobile
-COUVERTURE_NB_TRAJECTOIRES_RECHERCHE = 400
-COUVERTURE_NB_TRAJECTOIRES_EVALUATION = 1000
-COUVERTURE_GRAINE = 2026                 # résultat reproductible pour une même demande
-COUVERTURE_TAILLE_LOT = 48               # portefeuilles évalués ensemble (borne la mémoire)
-JOURS_PAR_AN = 252
+from config import (
+    COUVERTURE_POIDS_MAX_LIGNE, COUVERTURE_ECART_MAX_LIGNE, COUVERTURE_ROTATION_MAX, COUVERTURE_PAS_TRANSFERT, COUVERTURE_ETAPES_MAX, COUVERTURE_GAIN_MIN_RELATIF, COUVERTURE_PLANCHER_PROBA_PERTE, COUVERTURE_PLANCHER_PERTE_MAX, COUVERTURE_NB_TRAJECTOIRES_RECHERCHE, COUVERTURE_NB_TRAJECTOIRES_EVALUATION, COUVERTURE_GRAINE, COUVERTURE_TAILLE_LOT, JOURS_PAR_AN,
+)
 
 
 # === Répartitions entières ==================================================
