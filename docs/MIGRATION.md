@@ -3,7 +3,7 @@
 Liste de contrôle de non-régression : chaque fonction de l'app Streamlit et son équivalent
 sur le nouveau site. Tenue à jour par l'agent `superviseur` (voir `.claude/agents/superviseur.md`).
 Légende : ✅ fait et vérifié · 🟡 partiel · ❌ manquant.
-Dernière vérification : 12/11/2026, version en ligne comprise (voir `docs/RAPPORT_AVANCEMENT.md`).
+Dernière vérification : 13/11/2026 (rapport n° 3, branche `claude/site-analysis-redesign-k1pqb4`, commit `ef135a3`, en local ; pas encore déployée). Voir `docs/RAPPORT_AVANCEMENT.md`.
 
 **Règle** : on ne coupe l'app Streamlit que lorsque toutes les lignes sont ✅ et que le site est en ligne.
 
