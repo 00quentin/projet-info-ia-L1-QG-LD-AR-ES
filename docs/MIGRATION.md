@@ -51,5 +51,5 @@ Dernière vérification : 12/11/2026, version en ligne comprise (voir `docs/RAPP
 |---|---|
 | Déployer l'API sur Render (`render.yaml`, clé OpenAI) | ✅ en ligne sur https://quant-terminal-api-baxq.onrender.com (vérifié le 12/11 : clé OpenAI active, CORS limité au site) |
 | Déployer le site sur Vercel (`NEXT_PUBLIC_API_URL`) | ✅ en ligne sur https://quant-terminal-qg-team.vercel.app (vérifié le 12/11 : simulation, comparaison, backtest, chat, PDF, CSV, historique) |
-| Vérifier les photos de l'Académie (Wikimedia) en ligne (8 fichiers, `web/src/components/academie/Photo.tsx`) | 🟡 le repli (légende + icône) s'affiche bien en ligne ; les photos elles-mêmes restent à regarder dans un navigateur normal (Wikimedia bloqué par le réseau de l'agent les 11 et 12/11) |
+| Vérifier les photos de l'Académie (Wikimedia) en ligne (8 fichiers, `web/src/components/academie/Photo.tsx`) | ✅ vérifiées en ligne le 13/11 (téléphone) |
 | Faire relire 3.3 de l'Académie (courbe des taux : « 100 % de précision », `web/src/contenu/academie/macro.tsx` l. 111) | ✅ corrigé (phrase nuancée, `41e1b3d`, visible en ligne) |
