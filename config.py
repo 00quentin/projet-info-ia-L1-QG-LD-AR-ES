@@ -76,8 +76,8 @@ EVENEMENTS_PRESETS = {
     "Révolution IA":         "Une intelligence artificielle générale (AGI) est annoncée par une grande entreprise tech, remplaçant une large part des emplois intellectuels en quelques années.",
     "Krach 2008 bis":        "Une crise bancaire majeure éclate aux États-Unis avec la faillite de plusieurs grandes banques, provoquant une panique financière mondiale.",
     "Fusion nucléaire":      "Des chercheurs annoncent la maîtrise industrielle de la fusion nucléaire, promettant une énergie illimitée et bon marché d'ici 5 ans.",
-    "Choc pétrolier":        "Un conflit au Moyen-Orient coupe 30% de la production mondiale de pétrole, faisant exploser les prix de l'énergie.",
-    "Hausse brutale FED":    "La FED annonce une hausse surprise des taux directeurs de +2% pour combattre une inflation hors de contrôle.",
+    "Choc pétrolier":        "Un conflit au Moyen-Orient coupe 30 % de la production mondiale de pétrole, faisant exploser les prix de l'énergie.",
+    "Hausse brutale de la Fed": "La Fed annonce une hausse surprise de ses taux directeurs de 2 points pour combattre une inflation hors de contrôle.",
     "Crise Chine-Taïwan":    "La Chine impose un blocus militaire autour de Taïwan, paralysant la production mondiale de semi-conducteurs.",
 }
 
@@ -87,7 +87,7 @@ EVENEMENTS_PRESETS = {
 # ==========================================
 SCENARIO_A_DEFAUT = "Les États-Unis annoncent une impression massive de monnaie face à une crise soudaine."
 SCENARIO_B_DEFAUT = "Une percée majeure dans l'intelligence artificielle dope la productivité mondiale."
-SCENARIO_C_DEFAUT = "Un choc geopolitique majeur (tensions Taiwan, conflit énergétique) déstabilise les marchés."
+SCENARIO_C_DEFAUT = "Un choc géopolitique majeur (tensions autour de Taïwan, conflit énergétique) déstabilise les marchés."
 
 # Comparaison multi-scenarios : labels ordonnes utilisables pour 1, 2 ou 3 simulations
 LABELS_SCENARIOS = ["A", "B", "C"]
