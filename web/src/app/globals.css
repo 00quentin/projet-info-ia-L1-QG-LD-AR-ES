@@ -40,7 +40,7 @@
   --marge-carte: 1.25rem;
   /* Hauteur de ce qui reste colle en haut de page (en-tete + bandeau des cours) + un peu d'air :
      les colonnes collantes des formulaires se calent dessous. */
-  --haut-colle: 7.75rem;
+  --haut-colle: 4.75rem;
 }
 
 [data-theme="dark"] {

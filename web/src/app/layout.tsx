@@ -50,8 +50,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {/* En-tete et cours restent visibles au defilement sur grand ecran */}
           <div className="z-30 lg:sticky lg:top-0">
             <EnTete />
-            <BandeMarches />
           </div>
+          <BandeMarches />
           <main id="contenu">{children}</main>
           <PiedDePage />
           <BulleChat />
