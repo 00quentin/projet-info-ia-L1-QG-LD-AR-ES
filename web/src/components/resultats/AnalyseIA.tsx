@@ -64,7 +64,7 @@ function CalibreeVsLibre({ s, noms }: { s: ResultatScenario; noms: Map<string, s
           ))}
         </dl>
       )}
-      <div className="mt-3 overflow-x-auto">
+      <div tabIndex={0} className="mt-3 overflow-x-auto">
         <table className="w-full min-w-[26rem] text-sm tabular-nums">
           <thead className="text-xs text-muted">
             <tr>

@@ -74,7 +74,7 @@ export default function Page() {
       <div className="mt-12 flex flex-col gap-14">
         <Rubrique id="sources" icone={Database} titre="Sources des données">
           <p>Toutes les sources sont publiques. Chaque donnée est gardée en mémoire un temps limité pour ne pas surcharger les fournisseurs.</p>
-          <div className="overflow-x-auto rounded-tuile border border-line bg-surface">
+          <div tabIndex={0} className="overflow-x-auto rounded-tuile border border-line bg-surface">
             <table className="w-full min-w-[34rem] text-left text-sm">
               <caption className="sr-only">Sources des données, usage et fraîcheur</caption>
               <thead className="bg-surface-2 text-xs text-muted">
@@ -208,7 +208,7 @@ export default function Page() {
             fourchette respectent les mêmes bornes. Ces garde-fous existent depuis un bug resté célèbre dans l&apos;équipe : l&apos;or à
             +1 222 891 %.
           </p>
-          <div className="overflow-x-auto rounded-tuile border border-line bg-surface">
+          <div tabIndex={0} className="overflow-x-auto rounded-tuile border border-line bg-surface">
             <table className="w-full min-w-[30rem] text-sm tabular-nums">
               <caption className="sr-only">Bornes des chocs acceptés pour chaque actif</caption>
               <thead className="bg-surface-2 text-xs text-muted">

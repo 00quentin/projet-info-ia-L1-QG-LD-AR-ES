@@ -61,7 +61,7 @@ export function Photo({ fichier, alt, legende, credit }: Props) {
       <figcaption className={`flex gap-2 text-sm leading-relaxed text-muted ${cassee ? "" : "mt-2.5"}`}>
         {cassee && <ImageOff className="mt-0.5 size-4 shrink-0" aria-hidden />}
         <span>
-          {legende} <span className="text-xs opacity-80">· {credit}</span>
+          {legende} <span className="text-xs">· {credit}</span>
         </span>
       </figcaption>
     </figure>

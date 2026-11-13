@@ -154,7 +154,7 @@ function Sommaire({ module, aller }: { module: IdModule; aller: (id: string) => 
                 }}
                 className={`block py-1.5 pl-4 text-aide leading-snug transition-colors ${actif ? "font-medium text-ink" : "text-muted hover:text-ink"}`}
               >
-                {s.numero && <span className="mr-1.5 tabular-nums text-accent">{s.numero}</span>}
+                {s.numero && <span className="mr-1.5 tabular-nums text-accent-ink">{s.numero}</span>}
                 {s.titre}
               </a>
             </li>
@@ -187,7 +187,7 @@ function SommaireMobile({ module, aller }: { module: IdModule; aller: (id: strin
               }}
               className="block py-1 text-sm text-ink-2 hover:text-ink"
             >
-              {s.numero && <span className="mr-1.5 tabular-nums text-accent">{s.numero}</span>}
+              {s.numero && <span className="mr-1.5 tabular-nums text-accent-ink">{s.numero}</span>}
               {s.titre}
             </a>
           </li>

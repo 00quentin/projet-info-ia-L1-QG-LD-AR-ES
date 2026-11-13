@@ -123,6 +123,7 @@ export function GraphiqueLignes({ series, bande, etiquettesX, formatY, formatVal
         height={hauteur}
         viewBox={`0 0 ${largeur} ${hauteur}`}
         role="img"
+        aria-label={description}
         aria-describedby={idDesc}
         tabIndex={0}
         onKeyDown={surClavier}

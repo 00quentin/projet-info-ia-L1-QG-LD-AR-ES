@@ -22,7 +22,7 @@ export function DetailPortefeuille({ allocations, capital, valeurFinale, perform
   return (
     <Carte taille="normale">
       <TitreCarte>Détail du portefeuille</TitreCarte>
-      <div className="overflow-x-auto">
+      <div tabIndex={0} className="overflow-x-auto">
         <table className="w-full min-w-[34rem] text-sm">
           <caption className="sr-only">{aide}</caption>
           <thead className="text-xs text-muted">

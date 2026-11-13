@@ -131,7 +131,7 @@ function TuileAvantApres({ titre, avant, apres, format, mieux }: { titre: string
 
 function TableauAvantApres({ d }: { d: ReponseCouverture }) {
   return (
-    <div className="overflow-x-auto">
+    <div tabIndex={0} className="overflow-x-auto">
       <table className="w-full text-sm tabular-nums">
         <caption className="sr-only">Métriques du portefeuille avant et après protection ; la meilleure valeur de chaque ligne est marquée d&apos;une étoile.</caption>
         <thead className="text-xs text-muted">

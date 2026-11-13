@@ -20,9 +20,9 @@
   --accent-soft: #eef0fe;
   /* Texte pose sur l'accent plein (boutons principaux, pastilles pleines). */
   --on-accent: #ffffff;
-  --gain: #0a8a3c;
+  --gain: #087f37;
   --gain-soft: #e6f6ec;
-  --loss: #cf3838;
+  --loss: #c02f2f;
   --loss-soft: #fdecec;
   --warn: #b26a00;
   --warn-soft: #fff4dc;

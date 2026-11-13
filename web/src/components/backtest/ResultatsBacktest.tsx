@@ -181,7 +181,7 @@ function Synthese({ r, catalogue }: { r: ReponseBacktest; catalogue: Catalogue }
         >
           <Tendance className="size-4" aria-hidden />
           {pourcentSigne(pf.performance_pct)}
-          <span className="font-medium opacity-80">
+          <span className="font-medium">
             ({hausse ? "+" : "−"}
             {euros(Math.abs(gain))})
           </span>
@@ -210,7 +210,7 @@ function TableauDepliable({ dates, series, format, legende }: { dates: string[];
 
   return (
     <Depliable libelle="Voir les valeurs en tableau" libelleOuvert="Masquer le tableau" className="mt-3">
-      <div className="overflow-x-auto">
+      <div tabIndex={0} className="overflow-x-auto">
         <table className="w-full min-w-96 text-right text-xs tabular-nums">
           <caption className="sr-only">{legende}</caption>
           <thead className="text-muted">

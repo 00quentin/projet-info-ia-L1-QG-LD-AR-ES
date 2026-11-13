@@ -150,7 +150,7 @@ function Evolution({ s, p }: { s: ResultatScenario; p: ParametresSimulation }) {
         description={`Évolution simulée du portefeuille sur ${p.duree} jours, de ${euros(pf.capital)} à ${euros(pf.valeur_finale)}, comparée aux indices de référence.`}
       />
       <Depliable libelle="Voir les valeurs en tableau" libelleOuvert="Masquer le tableau" className="mt-3">
-        <div className="overflow-x-auto">
+        <div tabIndex={0} className="overflow-x-auto">
           <table className="w-full min-w-96 text-right text-xs tabular-nums">
             <thead className="text-muted">
               <tr>

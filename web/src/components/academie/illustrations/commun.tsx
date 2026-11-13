@@ -75,7 +75,7 @@ export function CadreSchema({ legende, credit, children }: { legende: ReactNode;
       <div className="rounded-carte border border-line bg-surface p-4 shadow-card sm:p-6">{children}</div>
       <figcaption className="mt-2.5 text-sm leading-relaxed text-muted">
         {legende}
-        {credit && <span className="text-xs opacity-80"> · {credit}</span>}
+        {credit && <span className="text-xs"> · {credit}</span>}
       </figcaption>
     </figure>
   );

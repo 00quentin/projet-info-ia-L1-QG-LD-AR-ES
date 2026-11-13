@@ -29,7 +29,7 @@ function fond(v: number, diagonale: boolean) {
 export function MatriceCorrelations() {
   return (
     <figure className="max-w-[46rem]">
-      <div className="overflow-x-auto rounded-carte border border-line bg-surface p-3 shadow-card sm:p-4">
+      <div tabIndex={0} className="overflow-x-auto rounded-carte border border-line bg-surface p-3 shadow-card sm:p-4">
         <motion.table className="w-full min-w-[30rem] border-separate border-spacing-1 text-sm" initial="cache" whileInView="visible" viewport={{ once: true }}>
           <caption className="sr-only">Corrélations entre classes d’actifs en régime normal</caption>
           <thead>

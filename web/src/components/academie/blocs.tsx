@@ -13,7 +13,7 @@ export function Section({ id, numero, titre, etiquette, children }: { id: string
       <Apparition auDefilement decalage={10}>
         {etiquette && <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-accent">{etiquette}</p>}
         <h3 id={id} className="scroll-mt-6 text-xl font-semibold leading-snug tracking-tight text-ink lg:scroll-mt-36">
-          {numero && <span className="mr-2 font-semibold text-accent tabular-nums">{numero}</span>}
+          {numero && <span className="mr-2 font-semibold text-accent-ink tabular-nums">{numero}</span>}
           {titre}
         </h3>
         <div className="mt-4 flex flex-col gap-4">{children}</div>
@@ -111,7 +111,7 @@ export function Etape({ titre, ton = "neutre", children }: { titre: string; ton?
 /** Tableau lisible sur mobile : il défile horizontalement dans son cadre, jamais la page. */
 export function Tableau({ legende, entetes, lignes }: { legende: string; entetes: ReactNode[]; lignes: ReactNode[][] }) {
   return (
-    <div className="max-w-[46rem] overflow-x-auto rounded-carte border border-line bg-surface shadow-card">
+    <div tabIndex={0} className="max-w-[46rem] overflow-x-auto rounded-carte border border-line bg-surface shadow-card">
       <table className="w-full min-w-[34rem] border-collapse text-left text-sm">
         <caption className="sr-only">{legende}</caption>
         <thead className="bg-surface-2 text-xs uppercase tracking-wide text-muted">

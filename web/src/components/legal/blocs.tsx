@@ -15,7 +15,7 @@ export function Rubrique({ id, numero, titre, children }: { id: string; numero?:
     <section aria-labelledby={id}>
       <Apparition auDefilement decalage={10}>
         <h2 id={id} className="scroll-mt-6 text-xl font-semibold leading-snug tracking-tight text-ink sm:text-[22px] lg:scroll-mt-36">
-          {numero && <span className="mr-2 tabular-nums text-accent">{numero}</span>}
+          {numero && <span className="mr-2 tabular-nums text-accent-ink">{numero}</span>}
           {titre}
         </h2>
         <div className="mt-4 flex flex-col gap-4">{children}</div>

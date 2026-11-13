@@ -127,7 +127,7 @@ export function Comparaison({ scenarios, parametres: p, lienPartage, onVoirDetai
       <Apparition auDefilement>
         <Carte taille="normale">
           <TitreCarte aide="La valeur la plus favorable de chaque ligne est marquée d'une étoile.">Comparatif des métriques de risque</TitreCarte>
-          <div className="overflow-x-auto">
+          <div tabIndex={0} className="overflow-x-auto">
             <table className="w-full min-w-[30rem] text-sm tabular-nums">
               <thead className="text-xs text-muted">
                 <tr>

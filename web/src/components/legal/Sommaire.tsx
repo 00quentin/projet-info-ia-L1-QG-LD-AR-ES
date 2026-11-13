@@ -62,7 +62,7 @@ export function SommaireLateral({ entrees, libelle = "Sur cette page" }: { entre
                 aria-current={actif ? "location" : undefined}
                 className={`block py-1.5 pl-4 text-[13px] leading-snug transition-colors ${actif ? "font-medium text-ink" : "text-muted hover:text-ink"}`}
               >
-                {e.numero && <span className="mr-1.5 tabular-nums text-accent">{e.numero}</span>}
+                {e.numero && <span className="mr-1.5 tabular-nums text-accent-ink">{e.numero}</span>}
                 {e.titre}
               </a>
             </li>
@@ -88,7 +88,7 @@ export function SommaireMobile({ entrees }: { entrees: EntreeSommaire[] }) {
         {entrees.map((e) => (
           <li key={e.id}>
             <a href={`#${e.id}`} className="block py-1 text-sm text-ink-2 hover:text-ink">
-              {e.numero && <span className="mr-1.5 tabular-nums text-accent">{e.numero}</span>}
+              {e.numero && <span className="mr-1.5 tabular-nums text-accent-ink">{e.numero}</span>}
               {e.titre}
             </a>
           </li>

@@ -118,7 +118,7 @@ export function Synthese({ s, p, dateSimulation }: { s: ResultatScenario; p: Par
           >
             <Tendance className="size-4" aria-hidden />
             {pourcentSigne(pf.performance_pct)}
-            <span className="font-medium opacity-80">
+            <span className="font-medium">
               ({hausse ? "+" : "−"}
               {euros(Math.abs(gain))})
             </span>
