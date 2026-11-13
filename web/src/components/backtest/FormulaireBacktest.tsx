@@ -6,7 +6,7 @@ import { Info, Loader2, Play, RotateCcw } from "lucide-react";
 import type { Catalogue, EvenementHistorique } from "@/lib/api";
 import { dateFr } from "@/lib/format";
 import { ChoixPortefeuille, portefeuilleInitial, validerPortefeuille, type ValeurPortefeuille } from "@/components/formulaire/ChoixPortefeuille";
-import { champ, titreSection } from "@/components/formulaire/styles";
+import { barreLancement, boutonPrincipal, champ, titreSection } from "@/components/formulaire/styles";
 import { Interrupteur } from "@/components/ui/Carte";
 import { DUREE, EASE_SORTIE, RESSORT } from "@/components/motion/transitions";
 import { aujourdhui, dateMin, dureeLisible, periodeCourte, recouvreEvenement, validerPeriode } from "./outils";
@@ -82,12 +82,11 @@ function ChoixEvenement({ evenements, choisi, onChoisir }: { evenements: Eveneme
             aria-checked={actif}
             tabIndex={actif ? 0 : -1}
             onClick={() => onChoisir(e.nom)}
-            whileHover={{ y: -1 }}
             whileTap={{ scale: 0.98 }}
             transition={RESSORT}
-            className={`relative rounded-xl border px-3.5 py-3 text-left transition-colors ${actif ? "border-accent" : "border-line bg-surface hover:border-line-strong"}`}
+            className={`relative rounded-tuile border px-3.5 py-3 text-left transition-colors ${actif ? "border-accent" : "border-line bg-surface hover:border-line-strong"}`}
           >
-            {actif && <motion.span layoutId={`${idGroupe}-evenement`} className="absolute inset-0 rounded-[11px] bg-accent-soft" transition={RESSORT} />}
+            {actif && <motion.span layoutId={`${idGroupe}-evenement`} className="absolute inset-0 rounded-[calc(var(--radius-tuile)-1px)] bg-accent-soft" transition={RESSORT} />}
             <span className="relative block">
               <span className={`block text-sm font-semibold transition-colors ${actif ? "text-accent-ink" : ""}`}>{e.nom}</span>
               <span className="mt-0.5 block text-xs text-muted tabular-nums">
@@ -110,7 +109,7 @@ function ChoixPeriode({ r, evenement, maj }: { r: ReglagesBacktest; evenement: E
   const max = aujourdhui();
 
   return (
-    <div className="rounded-xl border border-line bg-surface">
+    <div className="rounded-tuile border border-line bg-surface">
       <div className="px-3.5">
         <Interrupteur
           actif={r.periodePerso}
@@ -161,7 +160,7 @@ function ChoixPeriode({ r, evenement, maj }: { r: ReglagesBacktest; evenement: E
                     initial={{ opacity: 0, y: -4 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0 }}
-                    className="flex gap-2 text-xs leading-relaxed text-ink-2"
+                    className="flex gap-2 text-aide leading-relaxed text-ink-2"
                     aria-live="polite"
                   >
                     <Info className="mt-0.5 size-3.5 shrink-0 text-accent-ink" aria-hidden />
@@ -173,7 +172,7 @@ function ChoixPeriode({ r, evenement, maj }: { r: ReglagesBacktest; evenement: E
                 <button
                   type="button"
                   onClick={() => maj({ dateDebut: evenement.debut, dateFin: evenement.fin })}
-                  className="inline-flex items-center gap-1.5 self-start text-xs font-medium text-accent-ink hover:underline"
+                  className="inline-flex items-center gap-1.5 self-start text-aide font-medium text-accent-ink hover:underline"
                 >
                   <RotateCcw className="size-3.5" aria-hidden />
                   Revenir aux dates de l&apos;événement
@@ -217,12 +216,12 @@ export function FormulaireBacktest({ catalogue, reglages: r, onChange, onLancer,
       }}
     >
       <div>
-        <h1 className="text-lg font-semibold tracking-tight">Backtest historique</h1>
+        <h1 className="text-section font-semibold tracking-tight">Backtest historique</h1>
         <p className="mt-1 text-sm leading-relaxed text-ink-2">Rejouez votre portefeuille sur une vraie crise passée, avec les cours réels de Yahoo Finance.</p>
       </div>
 
       <fieldset className="flex flex-col gap-3">
-        <legend className={titreSection}>1 · L&apos;événement</legend>
+        <legend className={titreSection}>L&apos;événement</legend>
         <div className="mt-3">
           <ChoixEvenement evenements={catalogue.evenements_historiques} choisi={r.evenement} onChoisir={choisirEvenement} />
         </div>
@@ -230,28 +229,28 @@ export function FormulaireBacktest({ catalogue, reglages: r, onChange, onLancer,
       </fieldset>
 
       <fieldset className="flex flex-col gap-3">
-        <legend className={titreSection}>2 · Votre portefeuille</legend>
+        <legend className={titreSection}>Votre portefeuille</legend>
         <div className="mt-3">
           <ChoixPortefeuille catalogue={catalogue} valeur={r.portefeuille} onChange={(portefeuille) => maj({ portefeuille })} autoriserActifsPerso={false} />
         </div>
       </fieldset>
 
       <fieldset className="flex flex-col gap-1">
-        <legend className={titreSection}>3 · Options</legend>
+        <legend className={titreSection}>Options</legend>
         <div className="mt-2">
           <Interrupteur
             actif={r.convertirEur}
             onChange={(v) => maj({ convertirEur: v })}
             libelle="Convertir en euros (taux BCE)"
-            aide="Votre capital est en euros, mais la plupart des actifs cotent en dollars : la performance tient compte du taux de change, comme pour un investisseur européen."
+            info="Votre capital est en euros, mais la plupart des actifs cotent en dollars : la performance tient compte du taux de change, comme pour un investisseur européen."
           />
         </div>
       </fieldset>
 
-      <div className="sticky bottom-0 z-10 -mx-5 -mb-5 flex flex-col gap-2 rounded-b-2xl border-t border-line bg-surface/95 px-5 py-4 backdrop-blur">
+      <div className={barreLancement}>
         <AnimatePresence initial={false}>
           {erreur && (
-            <motion.p key={erreur} role="alert" initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: DUREE.rapide }} className="text-xs text-warn">
+            <motion.p key={erreur} role="alert" initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: DUREE.rapide }} className="text-aide text-warn">
               {erreur}
             </motion.p>
           )}
@@ -259,10 +258,9 @@ export function FormulaireBacktest({ catalogue, reglages: r, onChange, onLancer,
         <motion.button
           type="submit"
           disabled={!!erreur || enCours}
-          whileHover={erreur || enCours ? undefined : { scale: 1.01 }}
           whileTap={erreur || enCours ? undefined : { scale: 0.98 }}
           transition={RESSORT}
-          className="flex h-11 items-center justify-center gap-2 rounded-xl bg-accent text-sm font-semibold text-white transition-[filter,opacity] hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+          className={boutonPrincipal}
         >
           {enCours ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <Play className="size-4" aria-hidden />}
           {enCours ? "Récupération des cours…" : "Lancer le backtest"}

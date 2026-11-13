@@ -36,6 +36,11 @@
   --on-series-4: #0b0b0b;
   --on-series-5: #ffffff;
   --shadow: 0 1px 2px rgba(15, 17, 21, 0.04), 0 4px 16px rgba(15, 17, 21, 0.04);
+  /* Marge interieure de la carte d'un formulaire : sa barre collante (bouton Lancer) s'y cale. */
+  --marge-carte: 1.25rem;
+  /* Hauteur de ce qui reste colle en haut de page (en-tete + bandeau des cours) + un peu d'air :
+     les colonnes collantes des formulaires se calent dessous. */
+  --haut-colle: 7.75rem;
 }
 
 [data-theme="dark"] {
