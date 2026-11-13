@@ -8,13 +8,14 @@ Documentation interactive : http://localhost:8000/docs
 """
 
 import os
+from typing import Optional
 
 from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 
 from api import services
-from api.limites import LimiteurAppels
+from api.limites import LimiteurAppels, PlafondJournalier, plafond_ia_du_jour
 from api.modeles import DemandeBacktest, DemandeChat, DemandeRapport, DemandeSimulation
 from config import (
     API_FENETRE_LIMITE_SECONDES, API_LIMITE_APPELS_DONNEES, API_LIMITE_APPELS_IA,
@@ -42,6 +43,7 @@ app.add_middleware(
 
 limiteur_ia = LimiteurAppels(API_LIMITE_APPELS_IA, API_FENETRE_LIMITE_SECONDES)
 limiteur_donnees = LimiteurAppels(API_LIMITE_APPELS_DONNEES, API_FENETRE_LIMITE_SECONDES)
+plafond_ia = PlafondJournalier(plafond_ia_du_jour())
 
 
 def _adresse_client(request: Request) -> str:
@@ -54,17 +56,24 @@ def _adresse_client(request: Request) -> str:
     return request.client.host if request.client else "inconnu"
 
 
-def _limiter(limiteur: LimiteurAppels):
+def _limiter(limiteur: LimiteurAppels, plafond: Optional[PlafondJournalier] = None):
     def verifier(request: Request) -> None:
         if not limiteur.autoriser(_adresse_client(request)):
             raise HTTPException(
                 status_code=429,
                 detail="Trop de demandes en peu de temps. Patientez une minute puis réessayez.",
             )
+        # Apres la limite par adresse : un visiteur trop insistant n'entame pas le plafond commun.
+        if plafond is not None and not plafond.autoriser():
+            raise HTTPException(
+                status_code=503,
+                detail="Le site a atteint son nombre maximal d'analyses par IA pour aujourd'hui "
+                       "(dépense plafonnée). Réessayez demain : le compteur repart à zéro à minuit (UTC).",
+            )
     return verifier
 
 
-limite_ia = Depends(_limiter(limiteur_ia))
+limite_ia = Depends(_limiter(limiteur_ia, plafond_ia))
 limite_donnees = Depends(_limiter(limiteur_donnees))
 
 

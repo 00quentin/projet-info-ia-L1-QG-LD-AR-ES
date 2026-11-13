@@ -43,12 +43,17 @@ export type SerieActif = { cle: string; nom: string; categorie: string; performa
 export type Portefeuille = { capital: number; valeur_finale: number; performance_pct: number; valeurs: number[]; valeurs_bas?: number[]; valeurs_haut?: number[] };
 export type Benchmark = { cle: string; nom: string; valeurs: number[] };
 
+/** Doute de l'IA sur un actif : choc bas ≤ central ≤ haut (décimaux, -0.15 = -15 %). */
+export type FourchetteChoc = { bas: number; central: number; haut: number };
+
 export type Analyse = {
   explication: string | null; inflation: number; taux_directeurs: number;
   evenement_reference: string | null;
   references_historiques: { evenement?: string; poids?: number }[];
   fiabilite: { niveau?: string; raison?: string } | null;
   chocs: Record<string, number>;
+  /** Fourchette de l'IA par actif ; en Monte-Carlo, chaque trajectoire tire son choc dedans. Absente des anciens résultats. */
+  fourchettes?: Record<string, FourchetteChoc>;
   chocs_sans_calibration: Record<string, number> | null;
   macro_sans_calibration: { inflation: number; taux_directeurs: number } | null;
 };

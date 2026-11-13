@@ -19,6 +19,9 @@ from logger import get_logger
 
 log = get_logger("runner")
 
+# Correlation historique MSCI World / S&P 500 (~85 %) : choc herite par le benchmark.
+_BETA_MSCI_WORLD = 0.85
+
 
 def _libelle_actif(sim_key: str) -> str:
     """Convertit un sim_key en libelle d'affichage (gere les actifs custom)."""
@@ -108,7 +111,13 @@ def lancer_simulation_scenario(
     sp500_choc = actifs_ia.get("S&P 500", 0.0)
     msci_choc = actifs_ia.get("MSCI_World", 0.0)
     if abs(msci_choc) < 0.001 and abs(sp500_choc) > 0.001:
-        chocs.setdefault("actifs", {})["MSCI_World"] = round(sp500_choc * 0.85, 4)
+        chocs.setdefault("actifs", {})["MSCI_World"] = round(sp500_choc * _BETA_MSCI_WORLD, 4)
+        # Sa fourchette suit, sinon le moteur l'ignorerait (calee sur un autre central)
+        fourchette_sp = (chocs.get("fourchettes") or {}).get("S&P 500")
+        if isinstance(fourchette_sp, dict):
+            chocs["fourchettes"]["MSCI_World"] = {
+                k: round(v * _BETA_MSCI_WORLD, 4) for k, v in fourchette_sp.items()
+                if isinstance(v, (int, float))}
 
     # On injecte toujours S&P 500 et MSCI_World comme benchmarks, même si
     # l'utilisateur ne les a pas sélectionnés. Ils sont exclus de perf_df.

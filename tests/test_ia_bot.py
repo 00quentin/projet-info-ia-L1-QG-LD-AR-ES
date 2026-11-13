@@ -106,6 +106,31 @@ def test_build_prompt_format_json_toujours_present():
         assert "explication_courte" in p
 
 
+def test_build_prompt_demande_une_fourchette_par_actif():
+    from schemas import BORNES_ACTIFS
+    customs = [{"sim_key": "PERSO_TSLA", "ticker": "TSLA", "nom": "Tesla"}]
+    p = ia_bot._build_prompt_macro("Test", custom_tickers=customs)
+    assert "FOURCHETTE D'INCERTITUDE" in p
+    for cle in list(BORNES_ACTIFS) + ["PERSO_TSLA"]:
+        assert f'"{cle}": {{"bas": 0.0, "central": 0.0, "haut": 0.0}}' in p
+
+
+def test_prompt_version_invalide_l_ancien_cache():
+    """Le format de reponse a change : les analyses en cache (sans fourchette) sont perimees."""
+    assert ia_bot.PROMPT_VERSION.startswith("v8")
+
+
+def test_analyse_avec_fourchettes_validee(monkeypatch):
+    contenu = ('{"macro": {"inflation": 1.3, "taux_directeurs": -0.4}, "actifs": {'
+               '"S&P 500": {"bas": -0.3, "central": -0.2, "haut": -0.1}, "Or": 0.1},'
+               ' "explication_courte": "test"}')
+    monkeypatch.setattr(ia_bot, "_get_openai_client", lambda: _FauxClient(contenu=contenu))
+    res = ia_bot._appel_openai_macro("prompt", "krach", False, None)
+    assert res["actifs"]["S&P 500"] == -0.2
+    assert res["fourchettes"]["S&P 500"] == {"bas": -0.3, "central": -0.2, "haut": -0.1}
+    assert res["fourchettes"]["Or"] == {"bas": 0.1, "central": 0.1, "haut": 0.1}
+
+
 def test_build_prompt_est_pure():
     """Deux appels avec memes args produisent exactement la meme chaine."""
     args = ("Scenario X", True, [{"sim_key": "PERSO_BTC", "ticker": "BTC-USD", "nom": "Bitcoin"}])

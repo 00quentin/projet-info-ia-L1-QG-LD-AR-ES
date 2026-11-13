@@ -304,6 +304,20 @@ def _benchmarks(df: pd.DataFrame, capital: float) -> List[Dict[str, Any]]:
 # === Simulation prospective ================================================
 
 
+def _fourchettes(chocs: Dict, actifs: List[str]) -> Dict[str, Dict[str, Optional[float]]]:
+    """Doute de l'IA par actif choisi : choc bas / central / haut (decimaux).
+    Sans fourchette (ancienne reponse), bas = haut = central."""
+    fourchettes = chocs.get("fourchettes") or {}
+    sortie = {}
+    for cle, central in (chocs.get("actifs") or {}).items():
+        if cle not in actifs:
+            continue
+        f = fourchettes.get(cle) or {}
+        sortie[cle] = {"bas": _nombre(f.get("bas", central)), "central": _nombre(central),
+                       "haut": _nombre(f.get("haut", central))}
+    return sortie
+
+
 def _formater_simulation(label: str, res: Dict, demande: DemandeSimulation,
                          poids: Dict[str, float], noms_perso: Dict[str, str],
                          taux_sans_risque: float) -> Dict[str, Any]:
@@ -322,6 +336,7 @@ def _formater_simulation(label: str, res: Dict, demande: DemandeSimulation,
             "fiabilite": chocs.get("fiabilite_calibration"),
             "chocs": {k: _nombre(v) for k, v in (chocs.get("actifs") or {}).items()
                       if k in demande.actifs},
+            "fourchettes": _fourchettes(chocs, demande.actifs),
             "chocs_sans_calibration": (
                 {k: _nombre(v) for k, v in (res["chocs_libre"].get("actifs") or {}).items()
                  if k in demande.actifs}
