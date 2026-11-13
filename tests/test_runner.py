@@ -355,3 +355,44 @@ def test_simulation_convertie_en_euros(monkeypatch):
     assert res["perf"]["CAC 40"] == pytest.approx(0.0, abs=2.0)
     # L'EUR/USD technique n'apparait pas dans le tableau des actifs choisis
     assert len(res["perf_df"]) == 2
+
+
+def test_msci_world_herite_aussi_de_la_fourchette_du_sp500(monkeypatch):
+    """Benchmark non calibre par l'IA : choc ET fourchette du S&P 500 x 0.85,
+    sinon le moteur ignorerait sa fourchette (calee sur un autre central)."""
+    chocs = {
+        "actifs": {"S&P 500": -0.20, "MSCI_World": 0.0, "Or": 0.10},
+        "fourchettes": {
+            "S&P 500": {"bas": -0.30, "central": -0.20, "haut": -0.10},
+            "MSCI_World": {"bas": 0.0, "central": 0.0, "haut": 0.0},
+            "Or": {"bas": 0.05, "central": 0.10, "haut": 0.20},
+        },
+    }
+    recus = {}
+
+    def faux_mc(chocs_ia, **kw):
+        recus.update(chocs_ia)
+        return {"mediane": pd.DataFrame({"Or": [100.0, 110.0]})}
+
+    monkeypatch.setattr(runner, "analyser_evenement_macro", lambda *a, **kw: chocs)
+    monkeypatch.setattr(runner, "simuler_monte_carlo", faux_mc)
+    runner.lancer_simulation_scenario(
+        scenario="krach", actifs_selectionnes=["Or"], duree=2, modele="Probabiliste (Réaliste)",
+        monte_carlo=True, prix_reels=None, vols_reelles=None, calibration_historique=False,
+    )
+    assert recus["actifs"]["MSCI_World"] == pytest.approx(-0.17)
+    assert recus["fourchettes"]["MSCI_World"] == pytest.approx(
+        {"bas": -0.255, "central": -0.17, "haut": -0.085})
+
+
+def test_runner_reste_compatible_sans_fourchettes(monkeypatch):
+    """Reponse IA a l'ancien format (sans fourchettes) : la simulation tourne."""
+    monkeypatch.setattr(runner, "analyser_evenement_macro",
+                        lambda *a, **kw: {"actifs": {"S&P 500": -0.20, "Or": 0.10}})
+    monkeypatch.setattr(runner, "NB_SIMULATIONS_MONTE_CARLO", 200)
+    res, err = runner.lancer_simulation_scenario(
+        scenario="krach", actifs_selectionnes=["S&P 500", "Or"], duree=30,
+        modele="Historique (Chocs violents)", monte_carlo=True, prix_reels=None,
+        vols_reelles=None, calibration_historique=False,
+    )
+    assert err is None and res["mc_data"]["chemins"].shape[1] == 30

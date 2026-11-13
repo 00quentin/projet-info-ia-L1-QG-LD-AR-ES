@@ -174,6 +174,16 @@ BOOTSTRAP_MIN_SEANCES = 120
 # Modele "Tendance" : autocorrelation des rendements et acceleration du choc.
 MOMENTUM_AUTOCORRELATION = 0.2
 MOMENTUM_ACCELERATION = 0.5
+# Profil de choc "crise" (modeles Probabiliste et Historique) : comme en 1987, 2008
+# ou 2020, l'essentiel du mouvement arrive vite, depasse sa cible puis se resorbe en
+# partie. Le point extreme tombe a CRISE_FRACTION_CREUX de l'horizon et va
+# CRISE_DEPASSEMENT plus loin que le choc final de l'IA (0.3 = 30 % plus profond).
+CRISE_FRACTION_CREUX = 0.2
+CRISE_DEPASSEMENT = 0.3
+# Doute de l'IA (Monte-Carlo) : chaque trajectoire tire son choc dans la fourchette
+# bas / central / haut de l'IA. Part commune du tirage a tous les actifs (le scenario
+# s'avere plus ou moins grave pour tous a la fois) : 0 = independants, 1 = identiques.
+INCERTITUDE_IA_CORRELATION = 0.8
 # Queues epaisses de secours (loi de Student) si l'historique reel manque.
 STUDENT_DEGRES_LIBERTE = 4
 # Garde-fou : pire variation possible sur une seule seance.
@@ -342,6 +352,10 @@ API_BACKTEST_JOURS_MAX = 3660          # ~10 ans
 API_FENETRE_LIMITE_SECONDES = 60
 API_LIMITE_APPELS_IA = 12              # simulations + rapports + chat, par minute et par IP
 API_LIMITE_APPELS_DONNEES = 120        # prix, catalogue, backtests, par minute et par IP
+# Plafond de depense OpenAI : demandes IA par jour (UTC), tous visiteurs confondus.
+# Une simulation compte pour 1 mais peut faire jusqu'a 6 appels OpenAI (3 scenarios
+# x calibration). Surchargeable sur l'hebergeur : QT_PLAFOND_IA_JOUR=500.
+API_PLAFOND_APPELS_IA_JOUR = 300
 API_ORIGINES_PAR_DEFAUT = ["http://localhost:3000", "http://127.0.0.1:3000"]
 # Un visiteur peut forcer le rechargement des prix, au plus une fois par periode
 # (protege Yahoo Finance d'un afflux de requetes).

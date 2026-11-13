@@ -11,10 +11,19 @@ Maintenant, toute réponse IA est :
 2. Normalisée (pourcentage → décimal si besoin)
 3. Bornée mathématiquement par classe d'actifs
 4. Rejetée si invalide
+
+Chaque actif peut arriver sous deux formes : un nombre (le choc central, ancien
+format) ou une fourchette {"bas", "central", "haut"} qui traduit le doute de l'IA.
 """
 
+import math
 from typing import Optional, Dict, List, Literal
-from pydantic import BaseModel, Field, field_validator, ConfigDict
+
+from pydantic import BaseModel, Field, field_validator, model_validator, ConfigDict, ValidationError
+
+from logger import get_logger
+
+log = get_logger("schemas")
 
 
 # ==========================================
@@ -69,6 +78,57 @@ def _normaliser_choc(valeur: float) -> float:
     if abs(v) > 5:
         v = v / 100.0
     return v
+
+
+class FourchetteChoc(BaseModel):
+    """
+    Doute de l'IA sur un actif : choc bas <= central <= haut (décimaux).
+    Le central est obligatoire ; sans bas ni haut, la fourchette se réduit au central.
+    """
+    model_config = ConfigDict(extra="ignore")
+
+    central: float
+    bas: Optional[float] = None
+    haut: Optional[float] = None
+
+    @field_validator("central")
+    @classmethod
+    def _central_fini(cls, v):
+        if not math.isfinite(v):
+            raise ValueError("choc central non fini")
+        return v
+
+    @field_validator("bas", "haut", mode="before")
+    @classmethod
+    def _borne_lisible(cls, v):
+        # Une borne illisible est ignorée : le central suffit à simuler.
+        try:
+            v = float(v)
+        except (TypeError, ValueError):
+            return None
+        return v if math.isfinite(v) else None
+
+    @model_validator(mode="after")
+    def _normaliser_et_ordonner(self):
+        valeurs = [v for v in (self.bas, self.central, self.haut) if v is not None]
+        # Les trois valeurs sont dans la même unité : si l'une est manifestement un
+        # pourcentage (25 au lieu de 0.25), toutes le sont.
+        diviseur = 100.0 if any(abs(v) > 5 for v in valeurs) else 1.0
+        c = self.central / diviseur
+        b = self.bas / diviseur if self.bas is not None else c
+        h = self.haut / diviseur if self.haut is not None else c
+        if b > h:  # bornes inversées par l'IA
+            b, h = h, b
+        self.central, self.bas, self.haut = c, min(b, c), max(h, c)
+        return self
+
+    def encadrer(self, central: float, mn: float, mx: float) -> Dict[str, float]:
+        """Fourchette autour du central final (déjà borné), bornée par classe d'actif."""
+        return {
+            "bas": max(mn, min(self.bas, central)),
+            "central": central,
+            "haut": min(mx, max(self.haut, central)),
+        }
 
 
 class ChocsMacro(BaseModel):
@@ -236,13 +296,61 @@ def _extraire_extras_actifs(brut: dict) -> Dict[str, float]:
     return extras
 
 
+def _separer_fourchettes(brut) -> tuple:
+    """Remplace chaque fourchette {"bas", "central", "haut"} de brut["actifs"] par
+    son central (le reste de la validation ne voit que des nombres).
+
+    Returns:
+        (brut avec des chocs centraux, {actif: FourchetteChoc})
+    """
+    if not isinstance(brut, dict) or not isinstance(brut.get("actifs"), dict):
+        return brut, {}
+    centraux, fourchettes = {}, {}
+    for nom, valeur in brut["actifs"].items():
+        if not isinstance(valeur, dict):
+            centraux[nom] = valeur  # ancien format : le nombre est le central
+            continue
+        try:
+            fourchettes[nom] = FourchetteChoc.model_validate(valeur)
+        except ValidationError:
+            log.warning("Fourchette IA sans choc central lisible pour %s : actif ignoré", nom)
+            continue
+        centraux[nom] = fourchettes[nom].central
+    return {**brut, "actifs": centraux}, fourchettes
+
+
+def _encadrer_actifs(actifs: Dict[str, float],
+                     fourchettes: Dict[str, FourchetteChoc]) -> Dict[str, Dict[str, float]]:
+    """Fourchette bas / central / haut de chaque actif, autour de son choc final."""
+    sortie = {}
+    for nom, central in actifs.items():
+        mn, mx = BORNES_ACTIFS.get(nom, _BORNE_GENERIQUE_CUSTOM)
+        fourchette = fourchettes.get(nom)
+        sortie[nom] = (fourchette.encadrer(central, mn, mx) if fourchette
+                       else {"bas": central, "central": central, "haut": central})
+    return sortie
+
+
 def valider_reponse_ia(brut: dict) -> dict:
     """
     Point d'entrée principal. Prend le JSON brut de l'IA, le valide,
     le normalise, le borne, et retourne un dict prêt à l'emploi.
 
+    "actifs" garde un choc central par actif ; "fourchettes" ajoute pour
+    chaque actif {"bas", "central", "haut"} (bas = haut = central si l'IA
+    n'a pas donné de fourchette).
+
     En cas d'échec total : retourne {"erreur": "..."}
     """
+    brut, fourchettes = _separer_fourchettes(brut)
+    resultat = _valider_centraux(brut)
+    if "actifs" in resultat:
+        resultat["fourchettes"] = _encadrer_actifs(resultat["actifs"], fourchettes)
+    return resultat
+
+
+def _valider_centraux(brut: dict) -> dict:
+    """Validation des chocs centraux, de la macro et des textes de l'IA."""
     try:
         reponse = ReponseAnalyseIA.model_validate(brut)
         resultat = reponse.to_legacy_dict()

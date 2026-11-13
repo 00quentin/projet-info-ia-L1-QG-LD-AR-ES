@@ -37,6 +37,7 @@ def _sans_reseau(monkeypatch):
     """Coupe tout acces externe et remet les compteurs a zero."""
     main.limiteur_ia.reinitialiser()
     main.limiteur_donnees.reinitialiser()
+    main.plafond_ia.reinitialiser()
     monkeypatch.setattr(ia_bot, "_cle_api", lambda: "cle-de-test")
     monkeypatch.setattr(services.market_data, "get_prix_actuels",
                         lambda actifs: ({a: 100.0 for a in actifs}, []))
@@ -162,6 +163,42 @@ def test_limite_d_appels(monkeypatch):
     monkeypatch.setattr(main.limiteur_ia, "maximum", 2)
     codes = [client.post("/api/simulations", json=DEMANDE).status_code for _ in range(3)]
     assert codes == [200, 200, 429]
+
+
+def test_plafond_quotidien_ia_renvoie_503(monkeypatch):
+    monkeypatch.setattr(main.plafond_ia, "maximum", 2)
+    codes = [client.post("/api/simulations", json=DEMANDE).status_code for _ in range(2)]
+    r = client.post("/api/chat", json={"messages": [{"role": "user", "content": "Sharpe ?"}]})
+    assert codes == [200, 200]
+    assert r.status_code == 503 and "aujourd'hui" in r.json()["detail"]
+    # Les routes de donnees ne sont pas concernees par le plafond IA
+    assert client.get("/api/catalogue").status_code == 200
+
+
+def test_limite_par_adresse_n_entame_pas_le_plafond_commun(monkeypatch):
+    monkeypatch.setattr(main.limiteur_ia, "maximum", 1)
+    monkeypatch.setattr(main.plafond_ia, "maximum", 2)
+    assert [client.post("/api/simulations", json=DEMANDE).status_code
+            for _ in range(3)] == [200, 429, 429]
+    main.limiteur_ia.reinitialiser()
+    # Les 2 refus 429 n'ont pas consomme le plafond : il reste une demande
+    assert client.post("/api/simulations", json=DEMANDE).status_code == 200
+
+
+def test_simulation_expose_la_fourchette_de_l_ia(monkeypatch):
+    import core.runner as runner
+    chocs = {**CHOCS, "actifs": dict(CHOCS["actifs"]), "fourchettes": {
+        "S&P 500": {"bas": -0.32, "central": -0.20, "haut": -0.11},
+        "Or": {"bas": 0.04, "central": 0.10, "haut": 0.22},
+    }}
+    monkeypatch.setattr(runner, "analyser_evenement_macro", lambda *a, **kw: chocs)
+    data = client.post("/api/simulations", json={**DEMANDE, "monte_carlo": True}).json()
+    analyse = data["scenarios"][0]["analyse"]
+    assert analyse["chocs"]["S&P 500"] == -0.2                 # champ existant inchange
+    assert analyse["fourchettes"]["S&P 500"] == {"bas": -0.32, "central": -0.2, "haut": -0.11}
+    # Actif sans fourchette (ancienne reponse) : reduite au central
+    assert analyse["fourchettes"]["CAC 40"] == {"bas": -0.15, "central": -0.15, "haut": -0.15}
+    assert set(analyse["fourchettes"]) == set(analyse["chocs"])
 
 
 def test_erreur_interne_ne_fuit_pas(monkeypatch):

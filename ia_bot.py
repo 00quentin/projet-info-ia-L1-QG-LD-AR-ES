@@ -11,7 +11,7 @@ from config import (
     IA_ANALYSE, IA_ANALYSE_SECOURS, IA_CHAT, IA_RAPPORT, IA_TIMEOUT_SECONDES,
 )
 from core.cache import cache_ttl
-from schemas import valider_reponse_ia
+from schemas import BORNES_ACTIFS, valider_reponse_ia
 from logger import get_logger
 
 log = get_logger("ia_bot")
@@ -39,7 +39,10 @@ def _get_openai_client() -> OpenAI:
 
 # Bump this version when the prompt structure changes, to invalidate
 # all old cached IA responses (they don't have the new fields).
-PROMPT_VERSION = "v7-conjoncture-2026-11"
+PROMPT_VERSION = "v8-fourchette-2026-11"
+
+# Gabarit d'un actif dans le format JSON demande a l'IA (choc bas / central / haut).
+_FOURCHETTE_VIDE = '{"bas": 0.0, "central": 0.0, "haut": 0.0}'
 
 
 # Patterns qui ressemblent a une tentative d'injection de prompt.
@@ -193,7 +196,6 @@ def _build_prompt_macro(evenement_utilisateur, calibration_historique=False,
 
     # Section actifs personnalises : injectee dans le prompt + dans le format JSON
     bloc_custom_instruction = ""
-    bloc_custom_format = ""
     if custom_tickers:
         lignes_tickers = "\n".join(
             f"    - {c['sim_key']} (ticker {c['ticker']}, {c.get('nom', c['ticker'])})"
@@ -218,11 +220,10 @@ def _build_prompt_macro(evenement_utilisateur, calibration_historique=False,
     Si tu n'es pas sur du secteur, raisonne par analogie avec l'actif standard
     le plus proche, et applique un choc legerement attenue (multiplicateur 0.7-1.0).
 """
-        cles_custom_json = ",\n            ".join(
-            f'"{c["sim_key"]}": 0.0' for c in custom_tickers
-        )
-        bloc_custom_format = f""",
-            {cles_custom_json}"""
+
+    # Format JSON des actifs : catalogue du schema de validation + actifs personnalises
+    cles_actifs = list(BORNES_ACTIFS) + [c["sim_key"] for c in custom_tickers or []]
+    lignes_actifs = ",\n            ".join(f'"{cle}": {_FOURCHETTE_VIDE}' for cle in cles_actifs)
 
     # Chiffres FRED (source fiable, pas une saisie du visiteur) : le point de depart reel.
     bloc_conjoncture = ""
@@ -300,7 +301,21 @@ def _build_prompt_macro(evenement_utilisateur, calibration_historique=False,
     b) Est-il plausible sur 100 jours (et pas sur 10 ans) ?
     c) Respecte-t-il les corrélations économiques ?
     d) Ai-je évité les valeurs aberrantes (>+500% ou <-90%) ?
+    e) Pour chaque actif, ai-je bien "bas" <= "central" <= "haut" ?
     Si une réponse est NON, recalibre AVANT de répondre.
+
+    *** FOURCHETTE D'INCERTITUDE (OBLIGATOIRE POUR CHAQUE ACTIF) ***
+    Ton estimation n'est pas une certitude : donne pour chaque actif trois chocs en décimal.
+    - "central" : ton estimation la plus probable (celle des étapes ci-dessus).
+    - "bas" : la valeur la plus basse encore plausible pour ce choc.
+    - "haut" : la valeur la plus haute encore plausible pour ce choc.
+    - Toujours "bas" <= "central" <= "haut" (pour une baisse, "bas" est la baisse la plus forte).
+    - La largeur traduit ton doute : étroite si un précédent historique proche existe
+      (fiabilité "elevee"), large si le scénario est inédit (fiabilité "faible").
+    - Elle peut être asymétrique (un krach peut s'aggraver plus qu'il ne s'atténue).
+    - Un actif peu concerné garde une fourchette étroite autour de son central.
+    - Ne mets pas le bruit normal du marché dans la fourchette : il est simulé à part.
+      La fourchette ne porte que sur l'ampleur de l'impact du scénario.
 
     *** REPÈRES D'AMPLITUDE TYPIQUES ***
     Pour t'aider à calibrer (ces ranges couvrent 95% des scénarios sérieux) :
@@ -317,12 +332,7 @@ def _build_prompt_macro(evenement_utilisateur, calibration_historique=False,
     {{
         "macro": {{"inflation": <CHIFFRE %>, "taux_directeurs": <CHIFFRE %>}},
         "actifs": {{
-            "S&P 500": 0.0, "NASDAQ": 0.0, "CAC 40": 0.0, "MSCI_World": 0.0, "Emerging_Markets": 0.0,
-            "Bons_Tresor_US_10Y": 0.0, "Bund_10Y": 0.0, "OAT_10Y": 0.0, "JGB_10Y": 0.0, "Gilt_10Y": 0.0,
-            "EUR_USD": 0.0, "Dollar_Index": 0.0, "VIX": 0.0,
-            "Or": 0.0, "Argent": 0.0, "Petrole": 0.0, "Cuivre": 0.0, "ETF_Terres_Rares": 0.0,
-            "ETF_Defense": 0.0,
-            "Bitcoin": 0.0, "Ethereum": 0.0, "XRP": 0.0, "Solana": 0.0{bloc_custom_format}
+            {lignes_actifs}
         }},
         "explication_courte": "Analyse en 4-5 phrases TRES specifiques au scenario decrit (cite des chiffres precis, secteurs, pays, mecanismes uniques). Evite les formulations generiques.",
         "evenement_reference": "Nom de l'evenement historique principal (le plus pondere). Ex: 'COVID 2020', 'Crise 2008'. Null si pas calibre.",
@@ -354,7 +364,7 @@ def _build_prompt_macro(evenement_utilisateur, calibration_historique=False,
     - "inflation" et "taux_directeurs" en pourcentage avec 2 decimales NON-RONDES.
       Evite imperativement 0.0, 1.0, 2.0, 5.0 — utilise des valeurs realistes type
       2.37, -0.84, 1.13, 4.62, 0.27. Les vraies donnees macro ne sont JAMAIS rondes.
-    - Actifs en décimal (ex: -0.15 pour -15%, 0.30 pour +30%).
+    - Actifs : objet {{"bas", "central", "haut"}} en décimal (ex: -0.15 pour -15%, 0.30 pour +30%).
 
     *** REGLES POUR L'EXPLICATION (CRUCIAL — DIVERSITE) ***
     L'explication DOIT etre unique a CE scenario. Ne reutilise pas de phrases types.
