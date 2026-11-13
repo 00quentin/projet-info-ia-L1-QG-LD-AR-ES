@@ -9,9 +9,21 @@ import { Guide } from "@/components/Guide";
 import { ZoneNotifications } from "@/components/ui/Notifications";
 
 export const metadata: Metadata = {
-  title: "Quant Terminal — Simulateur d'investissement",
+  // Même adresse que SITE_URL (contenu/legal.ts) : base des liens absolus (image de partage, etc.).
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://quant-terminal-qg-team.vercel.app"),
+  title: {
+    default: "Quant Terminal — Simulateur d'investissement",
+    template: "%s · Quant Terminal",
+  },
   description:
     "Testez l'impact d'un événement économique sur votre portefeuille : vrais prix de marché, analyse par IA, métriques de risque.",
+  applicationName: "Quant Terminal",
+  authors: [{ name: "Quentin Geldreich" }, { name: "Lukha Doazan" }, { name: "Evan Saadi" }, { name: "Alex Ruimy" }],
+  keywords: ["simulateur de portefeuille", "simulation financière", "backtest", "Monte-Carlo", "analyse IA", "finance de marché", "outil pédagogique"],
+  category: "finance",
+  // Sans titre ni description ici : chaque page reprend les siens pour le partage.
+  openGraph: { type: "website", locale: "fr_FR", siteName: "Quant Terminal" },
+  twitter: { card: "summary_large_image" },
 };
 
 export const viewport: Viewport = {
