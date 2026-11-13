@@ -105,6 +105,7 @@ export function ContenuOutils() {
         <P>
           <G>Pourquoi c’est essentiel ?</G> Parce qu’une simulation unique, c’est un coup de chance (ou de malchance). En moyennant 1 000 simulations,
           on obtient une vision <G>statistiquement robuste</G> de l’avenir. Plus la bande est large, plus l’incertitude est grande sur cet actif.
+          La bande tient compte du bruit du marché <G>et</G> du doute de l’IA, qui donne pour chaque actif un choc bas, central et haut.
         </P>
       </Section>
     </>

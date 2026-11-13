@@ -1,10 +1,15 @@
 import { Chapeau, Encadre, G, ListeEncadre, P, Point, Section } from "@/components/academie/blocs";
 import { Formule, M } from "@/components/academie/Formule";
 import { SynthesePipeline } from "@/components/academie/Syntheses";
+import Link from "next/link";
+import { PARAMETRES, extremeDeCrise } from "@/components/methodologie/donnees";
+import { pourcentSigne } from "@/lib/format";
 import { sectionsDe } from "./modules";
 
 const s = sectionsDe("methodologie");
 const R = String.raw;
+// Decimale a la francaise dans KaTeX ({,} evite l'espace apres la virgule).
+const texDecimal = (x: number) => String(x).replace(".", "{,}");
 
 export function ContenuMethodologie() {
   return (
@@ -75,6 +80,18 @@ export function ContenuMethodologie() {
           <M tex={R`Z = L \cdot \varepsilon`} />
           ). Ainsi, quand les actions chutent dans une simulation, le Nasdaq chute avec le S&amp;P 500 et l’or réagit comme il le fait en réalité.
         </P>
+        <P>
+          Le drift n’est pas le même chaque jour : il suit un <G>profil de crise</G> (modèles Classique et Crises réelles). Le choc de l’IA est découpé
+          en parts journalières <M tex="p_t" /> :
+        </P>
+        <Formule tex={R`\mu_t = p_t \times \ln(1 + \text{choc}), \qquad \sum_t p_t = 1`} />
+        <P>
+          Les premières parts sont grandes : la chute est rapide. Le cumul atteint{" "}
+          <M tex={texDecimal(1 + PARAMETRES.criseDepassementPct / 100)} /> fois le choc à{" "}
+          {PARAMETRES.criseCreuxPctHorizon} % de l’horizon (le point extrême). Ensuite, les parts deviennent négatives : le marché se reprend en partie.
+          Comme la somme vaut 1, la médiane finit quand même sur le choc de l’IA. Exemple : un choc final de −20 % passe par environ{" "}
+          {pourcentSigne(extremeDeCrise(-0.2) * 100, 0)} au point extrême. C’est la forme des krachs de 1987, 2008 et 2020.
+        </P>
       </Section>
 
       <Section {...s("euros")}>
@@ -101,6 +118,21 @@ export function ContenuMethodologie() {
           dans cette bande.
         </P>
         <P>
+          La bande mélange deux incertitudes : le bruit du marché (les <M tex="Z_t" />) et le <G>doute de l’IA</G>. Pour chaque actif, l’IA donne un
+          choc bas, un choc central et un choc haut. Chaque trajectoire <M tex="k" /> tire son propre choc dans cette fourchette, une chance sur deux
+          de chaque côté du central (la médiane des chocs reste donc le central). Le tirage est en grande partie <G>commun</G> à tous les actifs :
+        </P>
+        <Formule tex={R`z_{k,i} = \sqrt{\rho}\; G_k + \sqrt{1-\rho}\; \varepsilon_{k,i}, \qquad \rho = ${texDecimal(PARAMETRES.incertitudePartCommunePct / 100)}`} />
+        <P>
+          <M tex="G_k" /> est la « gravité » du scénario dans la trajectoire <M tex="k" />, la même pour tous les actifs ;{" "}
+          <M tex={R`\varepsilon_{k,i}`} /> est propre à l’actif <M tex="i" />. Si le scénario s’avère plus grave, chaque actif s’éloigne davantage de zéro,
+          dans le sens de son choc, et tous ensemble : les actions baissent plus, l’or monte plus si son choc est positif. Est-ce que cette fourchette contient le vrai mouvement ? On le mesure sur des crises passées :{" "}
+          <Link href="/validation" className="font-medium text-accent-ink hover:underline">
+            page Validation
+          </Link>
+          .
+        </P>
+        <P>
           Les métriques de risque (volatilité, drawdown, VaR) sont calculées <G>sur chaque trajectoire du portefeuille</G>, pas sur la médiane : la
           médiane est une courbe lissée où le hasard s’annule, y mesurer le risque le sous-estimerait fortement.
         </P>
@@ -125,7 +157,12 @@ export function ContenuMethodologie() {
               2008).
             </Point>
             <Point>
-              L’IA fournit une estimation <G>globale</G> du choc, pas une trajectoire fine dans le temps.
+              L’IA fournit une estimation <G>globale</G> du choc, pas une trajectoire fine dans le temps. Le moteur lui donne une forme de crise type
+              (chute rapide, dépassement, reprise partielle), la même pour tous les scénarios.
+            </Point>
+            <Point>
+              La <G>fourchette</G> bas / central / haut de l’IA est elle-même une estimation : le vrai mouvement peut en sortir (mesure sur la page
+              Validation).
             </Point>
             <Point>
               Les distributions restent <G>gaussiennes</G>, sauf dans le mode Historique (qui rejoue de vraies séances).
