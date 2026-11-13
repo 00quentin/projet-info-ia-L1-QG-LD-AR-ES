@@ -13,13 +13,14 @@ type Props = HTMLMotionProps<"div"> & {
 };
 
 /** Fondu + leger glissement vers le haut a l'apparition. */
-export function Apparition({ delai = 0, auDefilement = false, decalage = 12, children, ...reste }: Props) {
-  const cible = { opacity: 1, y: 0, filter: "blur(0px)" };
+// Sans flou : couteux sur les grands blocs et peu lisible (docs/BENCHMARK.md 3.6).
+export function Apparition({ delai = 0, auDefilement = false, decalage = 8, children, ...reste }: Props) {
+  const cible = { opacity: 1, y: 0 };
   return (
     <motion.div
-      initial={{ opacity: 0, y: decalage, filter: "blur(4px)" }}
+      initial={{ opacity: 0, y: decalage }}
       {...(auDefilement ? { whileInView: cible, viewport: { once: true, margin: "0px 0px -60px 0px" } } : { animate: cible })}
-      transition={{ duration: DUREE.lente, ease: EASE_SORTIE, delay: delai }}
+      transition={{ duration: DUREE.normale + 0.1, ease: EASE_SORTIE, delay: delai }}
       {...reste}
     >
       {children}
@@ -32,7 +33,7 @@ const conteneur = {
   visible: { transition: { staggerChildren: PAS_CASCADE } },
 };
 const element = {
-  cache: { opacity: 0, y: 10 },
+  cache: { opacity: 0, y: 8 },
   visible: { opacity: 1, y: 0, transition: { duration: DUREE.normale, ease: EASE_SORTIE } },
 };
 
