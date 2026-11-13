@@ -82,7 +82,7 @@ export function PageHistorique() {
           <h1 ref={titre} tabIndex={-1} className="text-2xl font-semibold tracking-tight outline-none sm:text-3xl">
             Historique
           </h1>
-          <p className="mt-1.5 max-w-xl text-[15px] leading-relaxed text-ink-2">
+          <p className="mt-1.5 max-w-xl text-titre leading-relaxed text-ink-2">
             Vos {HISTORIQUE_TAILLE_MAX} dernières simulations et backtests. Ils restent dans ce navigateur : rien n&apos;est envoyé sur un serveur.
           </p>
         </div>
@@ -107,7 +107,7 @@ export function PageHistorique() {
             ) : (
               <motion.div key="liste" exit={{ opacity: 0, y: -8, transition: { duration: DUREE.rapide } }} className="flex flex-col gap-5">
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div role="group" aria-label="Filtrer par type" className="inline-flex rounded-xl border border-line bg-surface p-1">
+                  <div role="group" aria-label="Filtrer par type" className="inline-flex rounded-controle border border-line bg-surface p-1">
                     {FILTRES.map((f) => {
                       const actif = filtre === f.valeur;
                       return (
@@ -116,9 +116,9 @@ export function PageHistorique() {
                           type="button"
                           aria-pressed={actif}
                           onClick={() => setFiltre(f.valeur)}
-                          className={`relative rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${actif ? "text-ink" : "text-muted hover:text-ink"}`}
+                          className={`relative rounded-controle px-3 py-1.5 text-sm font-medium transition-colors ${actif ? "text-ink" : "text-muted hover:text-ink"}`}
                         >
-                          {actif && <motion.span layoutId="filtre-historique" className="absolute inset-0 rounded-lg bg-surface-2" transition={RESSORT} />}
+                          {actif && <motion.span layoutId="filtre-historique" className="absolute inset-0 rounded-controle bg-surface-2" transition={RESSORT} />}
                           <span className="relative">
                             {f.libelle} <span className="text-xs text-muted tabular-nums">{filtrer(entrees, f.valeur).length}</span>
                           </span>
@@ -148,7 +148,7 @@ export function PageHistorique() {
                           animate={{ opacity: 1, y: 0, transition: { duration: DUREE.normale, ease: EASE_SORTIE, delay: Math.min(i, 10) * PAS_CASCADE } }}
                           exit={{ opacity: 0, x: -24, transition: { duration: 0.22, ease: EASE_SORTIE } }}
                           transition={RESSORT}
-                          className="rounded-2xl border border-line bg-surface shadow-card"
+                          className="rounded-carte border border-line bg-surface shadow-card"
                         >
                           <LigneHistorique entree={e} ouvert={ouverts.has(e.id)} onBasculer={() => basculer(e.id)} onSupprimer={() => supprimer(e.id)} annoncer={setAnnonce} />
                         </motion.li>

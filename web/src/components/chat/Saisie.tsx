@@ -42,7 +42,7 @@ export function Saisie({ valeur, onChange, onEnvoyer, enAttente, champRef }: Pro
       }}
     >
       <div
-        className={`flex items-end gap-2 rounded-2xl border bg-surface py-1.5 pl-3.5 pr-1.5 transition-colors focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20 ${enAttente ? "border-line opacity-70" : "border-line-strong"}`}
+        className={`flex items-end gap-2 rounded-tuile border bg-surface py-1.5 pl-3.5 pr-1.5 transition-colors focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20 ${enAttente ? "border-line opacity-70" : "border-line-strong"}`}
       >
         <label htmlFor={`${idAide}-champ`} className="sr-only">
           Votre question à l&apos;analyste
@@ -72,19 +72,17 @@ export function Saisie({ valeur, onChange, onEnvoyer, enAttente, champRef }: Pro
         <motion.button
           type="submit"
           disabled={vide || enAttente}
-          whileHover={vide || enAttente ? undefined : { scale: 1.06 }}
-          whileTap={vide || enAttente ? undefined : { scale: 0.9 }}
-          aria-label="Envoyer la question"
-          title="Envoyer (Entrée)"
-          className="grid size-9 shrink-0 place-items-center rounded-xl bg-accent text-white transition-[background-color,opacity] disabled:cursor-not-allowed disabled:bg-line-strong disabled:text-surface"
+          whileTap={vide || enAttente ? undefined : { scale: 0.97 }}
+          aria-label="Envoyer la question (Entrée)"
+          className="grid size-9 shrink-0 place-items-center rounded-controle bg-accent text-white transition-[background-color,opacity] disabled:cursor-not-allowed disabled:bg-line-strong disabled:text-surface"
         >
           <ArrowUp className="size-4" strokeWidth={2.5} aria-hidden />
         </motion.button>
       </div>
-      <div className="mt-1.5 flex items-center justify-between gap-3 px-1 text-[11px] leading-4 text-muted">
+      <div className="mt-1.5 flex items-center justify-between gap-3 px-1 text-xs leading-4 text-muted">
         <p id={idAide}>
           <span className="hidden sm:inline">Entrée pour envoyer, Maj + Entrée pour aller à la ligne · </span>
-          Outil pédagogique, pas un conseil en investissement.
+          Réponses générées par une IA, pas un conseil.
         </p>
         <AnimatePresence>
           {longueur >= SEUIL_COMPTEUR && (

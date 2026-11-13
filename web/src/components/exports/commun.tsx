@@ -48,11 +48,10 @@ export function BoutonExport({ cle, ton = "neutre", children, className = "", di
   return (
     <motion.button
       type="button"
-      whileHover={disabled ? undefined : { y: -1 }}
       whileTap={disabled ? undefined : { scale: 0.97 }}
       transition={RESSORT}
       disabled={disabled}
-      className={`relative inline-flex h-10 w-full min-w-44 items-center justify-center overflow-hidden rounded-xl border px-4 text-sm font-medium transition-colors disabled:cursor-wait disabled:bg-surface-2 @md:w-auto ${tons[ton]} ${className}`}
+      className={`relative inline-flex h-10 w-full min-w-44 items-center justify-center overflow-hidden rounded-controle border px-4 text-sm font-medium transition-colors disabled:cursor-wait disabled:bg-surface-2 @md:w-auto ${tons[ton]} ${className}`}
       {...reste}
     >
       <AnimatePresence mode="popLayout" initial={false}>
@@ -87,8 +86,8 @@ export function LigneExport({ icone: Icone, titre, description, meta, action, ch
     <li className="py-4 first:pt-0 last:pb-0">
       <div className="flex flex-col gap-3 @md:flex-row @md:items-center @md:justify-between @md:gap-6">
         <div className="flex min-w-0 gap-3">
-          <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-accent-soft text-accent-ink">
-            <Icone className="size-[18px]" aria-hidden />
+          <span className="grid size-9 shrink-0 place-items-center rounded-tuile bg-accent-soft text-accent-ink">
+            <Icone className="size-4.5" aria-hidden />
           </span>
           <div className="min-w-0">
             <h4 className="text-sm font-semibold">{titre}</h4>

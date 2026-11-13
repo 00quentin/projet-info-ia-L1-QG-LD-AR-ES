@@ -65,7 +65,7 @@ function Onglets({ actif, choisir }: { actif: IdModule; choisir: (id: IdModule) 
         role="tablist"
         aria-label="Modules de l’Académie"
         onKeyDown={clavier}
-        className="flex gap-0.5 overflow-x-auto rounded-2xl border border-line bg-surface-2 p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="flex gap-0.5 overflow-x-auto rounded-carte border border-line bg-surface-2 p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {MODULES.map((m) => {
           const choisi = m.id === actif;
@@ -78,17 +78,16 @@ function Onglets({ actif, choisir }: { actif: IdModule; choisir: (id: IdModule) 
               data-module={m.id}
               aria-selected={choisi}
               aria-controls={choisi ? `panneau-${m.id}` : undefined}
-              title={m.nom}
               tabIndex={choisi ? 0 : -1}
               onClick={() => choisir(m.id)}
               whileTap={{ scale: 0.96 }}
-              className={`relative flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-xl px-2.5 py-2 text-sm font-medium transition-colors ${
+              className={`relative flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-tuile px-2.5 py-2 text-sm font-medium transition-colors ${
                 choisi ? "text-ink" : "text-muted hover:text-ink"
               }`}
             >
-              {choisi && <motion.span layoutId="academie-onglet-actif" className="absolute inset-0 rounded-xl bg-surface shadow-card" transition={RESSORT} />}
+              {choisi && <motion.span layoutId="academie-onglet-actif" className="absolute inset-0 rounded-tuile bg-surface shadow-card" transition={RESSORT} />}
               <span
-                className={`relative grid size-5 place-items-center rounded-md text-[11px] font-semibold tabular-nums transition-colors ${
+                className={`relative grid size-5 place-items-center rounded-md text-xs font-semibold tabular-nums transition-colors ${
                   choisi ? "bg-accent text-surface" : "bg-line text-ink-2"
                 }`}
               >
@@ -153,7 +152,7 @@ function Sommaire({ module, aller }: { module: IdModule; aller: (id: string) => 
                   e.preventDefault();
                   aller(s.id);
                 }}
-                className={`block py-1.5 pl-4 text-[13px] leading-snug transition-colors ${actif ? "font-medium text-ink" : "text-muted hover:text-ink"}`}
+                className={`block py-1.5 pl-4 text-aide leading-snug transition-colors ${actif ? "font-medium text-ink" : "text-muted hover:text-ink"}`}
               >
                 {s.numero && <span className="mr-1.5 tabular-nums text-accent">{s.numero}</span>}
                 {s.titre}
@@ -169,7 +168,7 @@ function Sommaire({ module, aller }: { module: IdModule; aller: (id: string) => 
 /** Sommaire repliable affiché à la place de la table latérale sur mobile. */
 function SommaireMobile({ module, aller }: { module: IdModule; aller: (id: string) => void }) {
   return (
-    <details className="group rounded-2xl border border-line bg-surface px-4 py-3 shadow-card lg:hidden">
+    <details className="group rounded-carte border border-line bg-surface px-4 py-3 shadow-card lg:hidden">
       <summary className="flex cursor-pointer list-none items-center gap-2 text-sm font-medium text-ink [&::-webkit-details-marker]:hidden">
         <ListTree className="size-4 text-muted" aria-hidden />
         Sommaire du module
@@ -202,15 +201,15 @@ function NavigationModules({ module, choisir }: { module: IdModule; choisir: (id
   const i = MODULES.findIndex((m) => m.id === module);
   const precedent = MODULES[i - 1];
   const suivant = MODULES[i + 1];
-  const carte = "flex flex-1 flex-col gap-1 rounded-2xl border border-line bg-surface p-4 shadow-card transition-colors hover:border-accent/50";
+  const carte = "flex flex-1 flex-col gap-1 rounded-carte border border-line bg-surface p-4 shadow-card transition-colors hover:border-accent/50";
   return (
     <nav aria-label="Modules précédent et suivant" className="mt-4 flex max-w-[46rem] flex-col gap-3 border-t border-line pt-8 sm:flex-row">
       {precedent ? (
-        <motion.button type="button" onClick={() => choisir(precedent.id)} whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }} transition={RESSORT} className={`${carte} text-left`}>
+        <motion.button type="button" onClick={() => choisir(precedent.id)} whileTap={{ scale: 0.98 }} transition={RESSORT} className={`${carte} text-left`}>
           <span className="flex items-center gap-1.5 text-xs text-muted">
             <ArrowLeft className="size-3.5" aria-hidden /> Module précédent
           </span>
-          <span className="text-[15px] font-semibold text-ink">
+          <span className="text-titre font-semibold text-ink">
             {precedent.numero}. {precedent.nom}
           </span>
         </motion.button>
@@ -218,11 +217,11 @@ function NavigationModules({ module, choisir }: { module: IdModule; choisir: (id
         <span className="hidden flex-1 sm:block" />
       )}
       {suivant && (
-        <motion.button type="button" onClick={() => choisir(suivant.id)} whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }} transition={RESSORT} className={`${carte} items-end text-right`}>
+        <motion.button type="button" onClick={() => choisir(suivant.id)} whileTap={{ scale: 0.98 }} transition={RESSORT} className={`${carte} items-end text-right`}>
           <span className="flex items-center gap-1.5 text-xs text-muted">
             Module suivant <ArrowRight className="size-3.5" aria-hidden />
           </span>
-          <span className="text-[15px] font-semibold text-ink">
+          <span className="text-titre font-semibold text-ink">
             {suivant.numero}. {suivant.nom}
           </span>
         </motion.button>
@@ -260,12 +259,12 @@ function Panneau({ module, section, contenu, choisir }: { module: IdModule; sect
       <article className="flex min-w-0 max-w-[46rem] flex-col gap-12">
         <header className="flex flex-col gap-4">
           <p className="flex items-center gap-2.5 text-sm font-medium text-accent-ink">
-            <span className="grid size-8 place-items-center rounded-lg bg-accent-soft">
+            <span className="grid size-8 place-items-center rounded-controle bg-accent-soft">
               <Icone className="size-4" aria-hidden />
             </span>
             Module {meta.numero} · {meta.nom}
           </p>
-          <h2 className="text-[28px] font-semibold leading-tight tracking-tight text-ink sm:text-[32px]">{meta.titre}</h2>
+          <h2 className="text-3xl font-semibold leading-tight tracking-tight text-ink">{meta.titre}</h2>
           <SommaireMobile module={module} aller={aller} />
         </header>
         {contenu}

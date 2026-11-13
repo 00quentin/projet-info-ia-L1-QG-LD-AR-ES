@@ -1,14 +1,13 @@
 "use client";
 
 import { motion } from "motion/react";
-import { ArrowRight, Crown, Star } from "lucide-react";
+import { ArrowRight, Star } from "lucide-react";
 import type { ParametresSimulation, ResultatScenario } from "@/lib/api";
 import { euros, eurosCompacts, nombreSigne, pourcent, pourcentSigne } from "@/lib/format";
-import { Carte, Pastille, TitreCarte } from "@/components/ui/Carte";
+import { Carte, Pastille, TitreCarte, TitreSection } from "@/components/ui/Carte";
 import { GraphiqueLignes, Legende, type SerieLigne } from "@/components/charts/GraphiqueLignes";
 import { Apparition, Cascade, ElementCascade } from "@/components/motion/Apparition";
-import { NombreAnime } from "@/components/motion/NombreAnime";
-import { RESSORT } from "@/components/motion/transitions";
+import { DUREE, EASE_SORTIE } from "@/components/motion/transitions";
 import { BoutonsExport } from "@/components/exports/BoutonsExport";
 import { etiquettesJours } from "@/components/Resultats";
 
@@ -48,54 +47,54 @@ export function Comparaison({ scenarios, parametres: p, lienPartage, onVoirDetai
   return (
     <div className="flex flex-col gap-4">
       <Apparition>
-        <h2 className="text-xl font-semibold tracking-tight">{scenarios.length >= 3 ? "Tournoi" : "Duel"} de scénarios</h2>
+        <TitreSection>Comparaison de {scenarios.length} scénarios</TitreSection>
         <p className="mt-1 text-sm text-ink-2">
           Même portefeuille ({p.profil.split(" (")[0].toLowerCase()}, {euros(capital)}), même horizon ({p.duree} jours) : seule la cause change.
         </p>
       </Apparition>
 
-      {/* Cartes des scenarios */}
+      {/* Cartes des scenarios : toute la carte mene au detail */}
       <Cascade className={`grid grid-cols-1 gap-3 ${scenarios.length >= 3 ? "lg:grid-cols-3" : "sm:grid-cols-2"}`}>
         {scenarios.map((s) => {
           const r = rang.get(s.label)!;
           const hausse = s.portefeuille.performance_pct >= 0;
+          const enTete = r === 0 && !egalite;
           return (
             <ElementCascade key={s.label} className="min-w-0">
-              <motion.div whileHover={{ y: -3 }} transition={RESSORT} className={`relative flex h-full flex-col rounded-2xl border bg-surface p-5 shadow-card ${r === 0 && !egalite ? "border-accent/50" : "border-line"}`}>
+              <div
+                className={`relative flex h-full flex-col rounded-carte border bg-surface p-5 shadow-card transition-colors hover:border-line-strong has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-accent ${enTete ? "border-accent/50 hover:border-accent" : "border-line"}`}
+              >
                 <div className="flex items-center justify-between gap-2">
                   <span className="flex items-center gap-2 text-sm font-semibold">
-                    <span className="inline-block h-0.5 w-4 rounded-full" style={{ background: couleur.get(s.label) }} />
+                    <span className="inline-block h-0.5 w-4 rounded-full" style={{ background: couleur.get(s.label) }} aria-hidden />
                     Scénario {s.label}
                   </span>
-                  <Pastille ton={r === 0 && !egalite ? "accent" : "neutre"}>
-                    {r === 0 && !egalite && <Crown className="size-3" aria-hidden />}
-                    {egalite && r < 2 ? "Égalité" : RANGS[r]}
-                  </Pastille>
+                  <Pastille ton={enTete ? "accent" : "neutre"}>{egalite && r < 2 ? "Égalité" : RANGS[r]}</Pastille>
                 </div>
-                <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-ink-2" title={s.scenario}>
-                  {s.scenario}
-                </p>
+                <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-ink-2">{s.scenario}</p>
                 <div className="mt-auto pt-4">
-                  <NombreAnime valeur={s.portefeuille.valeur_finale} depuis={capital} format={(v) => euros(v)} className="block text-2xl font-semibold tracking-tight" />
+                  <span className="block text-2xl font-semibold tracking-tight tabular-nums">{euros(s.portefeuille.valeur_finale)}</span>
                   <div className="mt-1 flex items-center justify-between gap-2">
-                    <span className={`text-sm font-semibold ${hausse ? "text-gain" : "text-loss"}`}>
-                      <span aria-hidden>{hausse ? "▲ " : "▼ "}</span>
-                      {pourcentSigne(s.portefeuille.performance_pct)}
-                    </span>
-                    <button type="button" onClick={() => onVoirDetail(s.label)} className="group flex items-center gap-1 text-xs font-medium text-accent-ink">
+                    <span className={`text-sm font-semibold tabular-nums ${hausse ? "text-gain" : "text-loss"}`}>{pourcentSigne(s.portefeuille.performance_pct)}</span>
+                    <button
+                      type="button"
+                      onClick={() => onVoirDetail(s.label)}
+                      aria-label={`Voir le détail du scénario ${s.label} : ${s.scenario}`}
+                      className="group flex items-center gap-1 text-xs font-medium text-accent-ink outline-none after:absolute after:inset-0 after:rounded-carte after:content-['']"
+                    >
                       Voir le détail
                       <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden />
                     </button>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             </ElementCascade>
           );
         })}
       </Cascade>
 
       {/* Verdict */}
-      <Apparition delai={0.25} className="rounded-xl border border-line bg-surface-2/60 px-4 py-3 text-sm">
+      <Apparition delai={0.2} className="rounded-tuile border border-line bg-surface-2/60 px-4 py-3 text-sm">
         {egalite ? (
           <span>Égalité : les scénarios {premier.label} et {second.label} mènent au même résultat pour ce portefeuille.</span>
         ) : (
@@ -108,8 +107,8 @@ export function Comparaison({ scenarios, parametres: p, lienPartage, onVoirDetai
 
       {/* Evolution comparee */}
       <Apparition auDefilement>
-        <Carte className="p-6">
-          <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+        <Carte taille="normale">
+          <div className="mb-4 flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
             <TitreCarte aide="Valeur du même portefeuille dans chaque scénario (trajectoire médiane si Monte-Carlo).">Évolution comparée</TitreCarte>
             <Legende series={series} reference="Capital de départ" />
           </div>
@@ -126,7 +125,7 @@ export function Comparaison({ scenarios, parametres: p, lienPartage, onVoirDetai
 
       {/* Tableau des metriques */}
       <Apparition auDefilement>
-        <Carte className="p-6">
+        <Carte taille="normale">
           <TitreCarte aide="La valeur la plus favorable de chaque ligne est marquée d'une étoile.">Comparatif des métriques de risque</TitreCarte>
           <div className="overflow-x-auto">
             <table className="w-full min-w-[30rem] text-sm tabular-nums">
@@ -155,7 +154,7 @@ export function Comparaison({ scenarios, parametres: p, lienPartage, onVoirDetai
                         const best = unique && Math.abs(v - meilleure) < 1e-9;
                         return (
                           <td key={scenarios[i].label} className="py-2.5 text-right">
-                            <span className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 ${best ? "bg-gain-soft font-semibold text-gain" : ""}`}>
+                            <span className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 ${best ? "bg-accent-soft font-semibold text-accent-ink" : ""}`}>
                               {best && <Star className="size-3 fill-current" aria-label="Meilleure valeur" />}
                               <span className={best ? "" : "text-ink"}>{m.format(v)}</span>
                             </span>
@@ -173,7 +172,7 @@ export function Comparaison({ scenarios, parametres: p, lienPartage, onVoirDetai
 
       {/* Classement */}
       <Apparition auDefilement>
-        <Carte className="p-6">
+        <Carte taille="normale">
           <TitreCarte>Classement</TitreCarte>
           <ol className="flex flex-col gap-2">
             {classement.map((s, i) => {
@@ -181,14 +180,13 @@ export function Comparaison({ scenarios, parametres: p, lienPartage, onVoirDetai
               return (
                 <motion.li
                   key={s.label}
-                  layout
-                  initial={{ opacity: 0, x: -10 }}
-                  whileInView={{ opacity: 1, x: 0 }}
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
                   viewport={{ once: true }}
-                  transition={{ delay: i * 0.08 }}
-                  className="flex items-center gap-3 rounded-xl bg-surface-2/60 px-4 py-3 text-sm"
+                  transition={{ duration: DUREE.normale, ease: EASE_SORTIE, delay: i * 0.06 }}
+                  className="flex items-center gap-3 rounded-tuile bg-surface-2/60 px-4 py-3 text-sm"
                 >
-                  <span className={`grid size-7 shrink-0 place-items-center rounded-full text-xs font-bold ${i === 0 ? "bg-accent text-white" : "bg-surface text-ink-2"}`}>{i + 1}</span>
+                  <span className={`grid size-7 shrink-0 place-items-center rounded-full text-xs font-semibold ${i === 0 ? "bg-accent text-white" : "bg-surface text-ink-2"}`}>{i + 1}</span>
                   <span className="min-w-0 flex-1">
                     <strong className="font-semibold">Scénario {s.label}</strong>
                     <span className="text-ink-2"> · {pourcentSigne(s.portefeuille.performance_pct, 2)}</span>

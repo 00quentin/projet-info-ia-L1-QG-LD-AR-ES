@@ -101,7 +101,7 @@ export function Backtest() {
 
   return (
     <div className="mx-auto grid max-w-[1400px] grid-cols-1 gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[23.5rem_minmax(0,1fr)] lg:items-start">
-      <aside className="lg:sticky lg:top-[7.75rem] lg:max-h-[calc(100dvh-9.25rem)] lg:overflow-y-auto lg:rounded-2xl">
+      <aside className="lg:sticky lg:top-(--haut-colle) lg:max-h-[calc(100dvh-var(--haut-colle)-1.5rem)] lg:overflow-y-auto lg:rounded-2xl">
         <Carte className="p-5">
           {catalogue && reglages ? (
             <FormulaireBacktest catalogue={catalogue} reglages={reglages} onChange={setReglages} onLancer={lancer} enCours={enCours} />
@@ -117,7 +117,7 @@ export function Backtest() {
         </Carte>
       </aside>
 
-      <div ref={zoneResultats} className={`min-w-0 scroll-mt-4 lg:scroll-mt-[7.75rem] ${enCours ? "max-lg:min-h-dvh" : ""}`} aria-busy={enCours}>
+      <div ref={zoneResultats} className={`min-w-0 scroll-mt-4 lg:scroll-mt-(--haut-colle) ${enCours ? "max-lg:min-h-dvh" : ""}`} aria-busy={enCours}>
         <p className="sr-only" aria-live="polite">
           {resultat && !enCours && !erreur
             ? `Backtest terminé : ${euros(resultat.reponse.portefeuille.valeur_finale)}, soit ${pourcentSigne(resultat.reponse.portefeuille.performance_pct)}.`

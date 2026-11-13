@@ -44,7 +44,7 @@ export function Photo({ fichier, alt, legende, credit }: Props) {
     <figure className="max-w-[46rem]">
       {!cassee && (
         <motion.div
-          className="chargement aspect-[16/9] overflow-hidden rounded-2xl border border-line shadow-card"
+          className="chargement aspect-[16/9] overflow-hidden rounded-carte border border-line shadow-card"
           initial={{ opacity: 0, scale: 0.985 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true, margin: "0px 0px -40px 0px" }}

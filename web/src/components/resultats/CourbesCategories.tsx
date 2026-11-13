@@ -2,6 +2,7 @@
 
 import type { SerieActif } from "@/lib/api";
 import { nombre } from "@/lib/format";
+import { libelleCategorie, nomCourt } from "@/contenu/actifs";
 import { Carte, TitreCarte } from "@/components/ui/Carte";
 import { GraphiqueLignes, Legende, type SerieLigne } from "@/components/charts/GraphiqueLignes";
 import { Cascade, ElementCascade } from "@/components/motion/Apparition";
@@ -22,59 +23,56 @@ type Props = {
 
 /**
  * Prix de chaque actif ramenes a une base 100, regroupes par classe d'actifs
- * (au plus 5 courbes par graphique, au-dela un second graphique).
+ * (au plus 5 courbes par graphique, au-dela un second graphique), dans une seule carte.
  */
 export function CourbesCategories({ actifs, etiquettesX, avecFourchettes = true, description }: Props) {
   const groupes = new Map<string, SerieActif[]>();
   for (const a of actifs) groupes.set(a.categorie, [...(groupes.get(a.categorie) ?? []), a]);
   const blocs: { titre: string; actifs: SerieActif[] }[] = [];
   for (const [categorie, liste] of groupes) {
-    for (let i = 0; i < liste.length; i += SERIES_MAX) {
-      blocs.push({ titre: i === 0 ? categorie : `${categorie} (suite)`, actifs: liste.slice(i, i + SERIES_MAX) });
+    const nom = libelleCategorie(categorie);
+    const morceaux = Math.ceil(liste.length / SERIES_MAX);
+    for (let k = 0; k < morceaux; k++) {
+      blocs.push({ titre: morceaux > 1 ? `${nom} (${k + 1}/${morceaux})` : nom, actifs: liste.slice(k * SERIES_MAX, (k + 1) * SERIES_MAX) });
     }
   }
+  const avecBandes = avecFourchettes && actifs.some((a) => a.prix_bas);
 
   return (
-    <div className="flex flex-col gap-3">
-      <div>
-        <h3 className="mt-2 text-[15px] font-semibold tracking-tight">Évolution par classe d&apos;actifs</h3>
-        <p className="mt-1 text-sm text-ink-2">
-          {description ?? "Chaque prix est ramené à 100 au départ : 120 signifie +20 %."}
-          {avecFourchettes && actifs.some((a) => a.prix_bas) ? " La zone claire contient 90 % des trajectoires simulées." : ""}
-        </p>
-      </div>
-      <Cascade auDefilement className="grid grid-cols-1 gap-3 xl:grid-cols-2">
-        {blocs.map((b) => {
-          const series: SerieLigne[] = b.actifs.map((a, i) => {
+    <Carte taille="normale">
+      <TitreCarte aide={`${description ?? "Base 100 au départ : 120 signifie +20 %."}${avecBandes ? " Zone claire : 90 % des trajectoires." : ""}`}>Évolution par classe d&apos;actifs</TitreCarte>
+      <Cascade auDefilement className="grid grid-cols-1 gap-x-6 gap-y-8 xl:grid-cols-2">
+        {blocs.map((b, i) => {
+          const series: SerieLigne[] = b.actifs.map((a, k) => {
             const depart = a.prix[0];
             return {
-              nom: a.nom,
-              couleur: COULEURS[i],
+              nom: nomCourt(a.cle, a.nom),
+              couleur: COULEURS[k],
               valeurs: base100(a.prix, depart),
               bande: avecFourchettes && a.prix_bas && a.prix_haut ? { bas: base100(a.prix_bas, depart), haut: base100(a.prix_haut, depart) } : undefined,
             };
           });
+          // Un graphique seul sur sa ligne prend toute la largeur.
+          const seul = blocs.length % 2 === 1 && i === blocs.length - 1;
           return (
-            <ElementCascade key={b.titre} className="min-w-0">
-              <Carte className="h-full p-5">
-                <div className="mb-3 flex flex-col gap-2">
-                  <TitreCarte aide={series.length === 1 ? series[0].nom : undefined}>{b.titre}</TitreCarte>
-                  {series.length > 1 && <Legende series={series} />}
-                </div>
-                <GraphiqueLignes
-                  series={series}
-                  etiquettesX={etiquettesX}
-                  formatY={(v) => nombre(v, 0)}
-                  formatValeur={(v) => nombre(v, 1)}
-                  reference={{ valeur: 100, nom: "Départ" }}
-                  hauteur={240}
-                  description={`${b.titre} : évolution en base 100 de ${b.actifs.map((a) => a.nom).join(", ")}.`}
-                />
-              </Carte>
+            <ElementCascade key={b.titre} className={`min-w-0 ${seul ? "xl:col-span-2" : ""}`}>
+              <div className="mb-3 flex flex-wrap items-start justify-between gap-x-3 gap-y-1.5">
+                <h4 className="text-sm font-semibold">{b.titre}</h4>
+                <Legende series={series} />
+              </div>
+              <GraphiqueLignes
+                series={series}
+                etiquettesX={etiquettesX}
+                formatY={(v) => nombre(v, 0)}
+                formatValeur={(v) => nombre(v, 1)}
+                reference={{ valeur: 100, nom: "Départ" }}
+                hauteur={240}
+                description={`${b.titre} : évolution en base 100 de ${series.map((s) => s.nom).join(", ")}.`}
+              />
             </ElementCascade>
           );
         })}
       </Cascade>
-    </div>
+    </Carte>
   );
 }

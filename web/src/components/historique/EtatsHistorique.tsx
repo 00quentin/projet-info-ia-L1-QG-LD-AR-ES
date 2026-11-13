@@ -15,14 +15,14 @@ export function ChargementHistorique() {
         Chargement de l&apos;historique…
       </span>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3" aria-hidden>
-        <div className="chargement col-span-2 h-[6.5rem] rounded-xl sm:col-span-1" />
-        <div className="chargement h-[6.5rem] rounded-xl" />
-        <div className="chargement h-[6.5rem] rounded-xl" />
+        <div className="chargement col-span-2 h-[6.5rem] rounded-controle sm:col-span-1" />
+        <div className="chargement h-[6.5rem] rounded-controle" />
+        <div className="chargement h-[6.5rem] rounded-controle" />
       </div>
-      <div className="chargement h-9 w-72 max-w-full rounded-xl" aria-hidden />
+      <div className="chargement h-9 w-72 max-w-full rounded-controle" aria-hidden />
       <div className="flex flex-col gap-2.5" aria-hidden>
         {[0, 1, 2, 3].map((i) => (
-          <div key={i} className="chargement h-[4.75rem] rounded-2xl" />
+          <div key={i} className="chargement h-[4.75rem] rounded-carte" />
         ))}
       </div>
     </div>
@@ -69,25 +69,25 @@ function Illustration() {
   );
 }
 
-const lienPrincipal = "inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-accent px-4 text-sm font-semibold text-white transition hover:brightness-110";
-const lienSecondaire = "inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-line bg-surface px-4 text-sm font-medium transition-colors hover:border-line-strong hover:bg-surface-2";
+const lienPrincipal = "inline-flex h-10 items-center justify-center gap-2 rounded-controle bg-accent px-4 text-sm font-semibold text-white transition hover:brightness-110";
+const lienSecondaire = "inline-flex h-10 items-center justify-center gap-2 rounded-controle border border-line bg-surface px-4 text-sm font-medium transition-colors hover:border-line-strong hover:bg-surface-2";
 
 export function HistoriqueVide({ tailleMax }: { tailleMax: number }) {
   return (
     <Carte className="px-6 py-12 text-center sm:py-14">
       <Illustration />
       <h2 className="mt-6 text-xl font-semibold tracking-tight">Aucune simulation dans l&apos;historique</h2>
-      <p className="mx-auto mt-2 max-w-md text-[15px] leading-relaxed text-ink-2">
+      <p className="mx-auto mt-2 max-w-md text-titre leading-relaxed text-ink-2">
         Vos {tailleMax} dernières simulations et backtests apparaîtront ici automatiquement. Lancez votre première analyse pour commencer.
       </p>
       <div className="mt-6 flex flex-col justify-center gap-2 sm:flex-row">
-        <motion.span whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }} transition={RESSORT} className="flex">
+        <motion.span whileTap={{ scale: 0.97 }} transition={RESSORT} className="flex">
           <Link href="/" className={`${lienPrincipal} flex-1`}>
             <Play className="size-4" aria-hidden />
             Lancer une simulation
           </Link>
         </motion.span>
-        <motion.span whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }} transition={RESSORT} className="flex">
+        <motion.span whileTap={{ scale: 0.97 }} transition={RESSORT} className="flex">
           <Link href="/backtest" className={`${lienSecondaire} flex-1`}>
             <History className="size-4 text-accent" aria-hidden />
             Rejouer une crise passée
@@ -102,7 +102,7 @@ export function HistoriqueVide({ tailleMax }: { tailleMax: number }) {
 export function FiltreVide({ filtre }: { filtre: Exclude<Filtre, "tout"> }) {
   const backtest = filtre === "Backtest";
   return (
-    <div className="rounded-2xl border border-dashed border-line-strong px-6 py-10 text-center">
+    <div className="rounded-carte border border-dashed border-line-strong px-6 py-10 text-center">
       <p className="text-sm font-medium">{backtest ? "Aucun backtest dans l'historique." : "Aucune simulation dans l'historique."}</p>
       <p className="mt-1 text-sm text-ink-2">{backtest ? "Rejouez votre portefeuille sur une vraie crise passée." : "Testez un événement économique sur votre portefeuille."}</p>
       <Link href={backtest ? "/backtest" : "/"} className={`${lienSecondaire} mt-4`}>

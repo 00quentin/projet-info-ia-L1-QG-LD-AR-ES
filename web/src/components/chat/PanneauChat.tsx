@@ -2,7 +2,7 @@
 
 import { useEffect, useEffectEvent, useId, useRef, useState, useSyncExternalStore, type KeyboardEvent } from "react";
 import { AnimatePresence, motion, useReducedMotion, type Variants } from "motion/react";
-import { ArrowUpRight, ChartLine, Sparkles, Trash2, X } from "lucide-react";
+import { ArrowUpRight, Bot, ChartLine, Sparkles, Trash2, X } from "lucide-react";
 import type { MessageConversation } from "./conversation";
 import { BlocErreur, BulleMessage, IndicateurEcriture } from "./Message";
 import { Saisie } from "./Saisie";
@@ -38,14 +38,14 @@ function useEstMobile() {
 
 // Ordinateur : la fenetre jaillit de la bulle. Mobile : la feuille monte du bas.
 const FENETRE: Variants = {
-  cache: { opacity: 0, scale: 0.5, y: 24 },
-  visible: { opacity: 1, scale: 1, y: 0, transition: { type: "spring", stiffness: 380, damping: 30, mass: 0.9 } },
-  sortie: { opacity: 0, scale: 0.6, y: 16, transition: { duration: DUREE.rapide, ease: EASE_SORTIE } },
+  cache: { opacity: 0, y: 12 },
+  visible: { opacity: 1, y: 0, transition: { duration: DUREE.normale, ease: EASE_SORTIE } },
+  sortie: { opacity: 0, y: 8, transition: { duration: DUREE.rapide, ease: EASE_SORTIE } },
 };
 const FEUILLE: Variants = {
   cache: { y: "100%" },
-  visible: { y: 0, transition: { type: "spring", stiffness: 360, damping: 40 } },
-  sortie: { y: "100%", transition: { duration: 0.24, ease: [0.4, 0, 1, 1] } },
+  visible: { y: 0, transition: { duration: DUREE.normale + 0.05, ease: EASE_SORTIE } },
+  sortie: { y: "100%", transition: { duration: DUREE.rapide + 0.03, ease: EASE_SORTIE } },
 };
 
 const LISTE_EXEMPLES: Variants = { cache: {}, visible: { transition: { staggerChildren: PAS_CASCADE * 0.7, delayChildren: 0.08 } } };
@@ -177,17 +177,17 @@ export function PanneauChat({ id, messages, enAttente, erreur, brouillon, onBrou
       animate="visible"
       exit="sortie"
       style={{ transformOrigin: "bottom right" }}
-      className="fixed inset-0 z-50 flex flex-col overflow-hidden bg-surface outline-none sm:inset-auto sm:bottom-6 sm:right-6 sm:h-[min(600px,calc(100dvh-7.5rem))] sm:w-[400px] sm:rounded-2xl sm:border sm:border-line sm:shadow-[0_24px_60px_-16px_rgba(15,17,21,0.28)] dark:sm:shadow-[0_24px_60px_-16px_rgba(0,0,0,0.7)]"
+      className="fixed inset-0 z-50 flex flex-col overflow-hidden bg-surface outline-none sm:inset-auto sm:bottom-6 sm:right-6 sm:h-[min(600px,calc(100dvh-7.5rem))] sm:w-[400px] sm:rounded-carte sm:border sm:border-line sm:shadow-[0_24px_60px_-16px_rgba(15,17,21,0.28)] dark:sm:shadow-[0_24px_60px_-16px_rgba(0,0,0,0.7)]"
     >
       <header className="flex shrink-0 items-center gap-3 border-b border-line py-3 pl-4 pr-2.5 pt-[max(0.75rem,env(safe-area-inset-top))] sm:pt-3">
-        <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-accent text-white">
-          <Sparkles className="size-[18px]" aria-hidden />
+        <span className="grid size-9 shrink-0 place-items-center rounded-tuile bg-accent text-white">
+          <Bot className="size-4.5" aria-hidden />
         </span>
         <div className="min-w-0 flex-1">
-          <h2 id={idTitre} className="truncate text-[15px] font-semibold leading-5 tracking-tight">
+          <h2 id={idTitre} className="truncate text-titre font-semibold leading-5 tracking-tight">
             Analyste IA
           </h2>
-          <p className="truncate text-xs leading-4 text-muted">Marchés, macro, votre simulation</p>
+          <p className="truncate text-xs leading-4 text-muted">Assistant IA · marchés, macro, votre simulation</p>
         </div>
         <AnimatePresence initial={false}>
           {nbMessages > 0 && (
@@ -195,13 +195,12 @@ export function PanneauChat({ id, messages, enAttente, erreur, brouillon, onBrou
               key="effacer"
               type="button"
               onClick={effacer}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              whileTap={{ scale: 0.92 }}
-              aria-label={confirmer ? "Confirmer : effacer toute la conversation" : "Effacer la conversation"}
-              title={confirmer ? "Cliquez encore pour confirmer" : "Effacer la conversation"}
-              className={`flex h-9 items-center gap-1.5 rounded-lg px-2.5 text-xs font-semibold transition-colors ${confirmer ? "bg-loss-soft text-loss" : "text-muted hover:bg-surface-2 hover:text-ink"}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              whileTap={{ scale: 0.97 }}
+              aria-label={confirmer ? "Confirmer : effacer toute la conversation (cliquez encore)" : "Effacer la conversation"}
+              className={`flex h-9 items-center gap-1.5 rounded-controle px-2.5 text-xs font-semibold transition-colors ${confirmer ? "bg-loss-soft text-loss" : "text-muted hover:bg-surface-2 hover:text-ink"}`}
             >
               <Trash2 className="size-4" aria-hidden />
               <AnimatePresence initial={false}>
@@ -223,30 +222,30 @@ export function PanneauChat({ id, messages, enAttente, erreur, brouillon, onBrou
         <motion.button
           type="button"
           onClick={onFermer}
-          whileHover={{ rotate: 90 }}
-          whileTap={{ scale: 0.9 }}
-          aria-label="Fermer l'analyste IA"
-          title="Fermer (Échap)"
-          className="grid size-9 shrink-0 place-items-center rounded-lg text-muted transition-colors hover:bg-surface-2 hover:text-ink"
+          whileTap={{ scale: 0.97 }}
+          aria-label="Fermer l'analyste IA (Échap)"
+          className="grid size-9 shrink-0 place-items-center rounded-controle text-muted transition-colors hover:bg-surface-2 hover:text-ink"
         >
-          <X className="size-[18px]" aria-hidden />
+          <X className="size-4.5" aria-hidden />
         </motion.button>
       </header>
 
       <div ref={zoneRef} className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain">
         <section aria-label="Présentation de l'analyste" className="px-4 pb-3 pt-4">
-          <div className="flex items-start gap-3 rounded-2xl bg-accent-soft/60 p-3.5">
-            <motion.span
-              initial={{ scale: 0.6, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ type: "spring", stiffness: 300, damping: 18, delay: 0.05 }}
-              className="grid size-9 shrink-0 place-items-center rounded-xl bg-surface text-accent-ink shadow-card"
-            >
-              <Sparkles className="size-[18px]" aria-hidden />
-            </motion.span>
+          {/* Transparence (AI Act, art. 50) : on sait d'emblee qu'on parle a une IA. */}
+          <p role="note" className="mb-3 flex gap-2 rounded-tuile border border-line bg-surface-2 px-3 py-2 text-xs leading-relaxed text-ink-2">
+            <Bot className="mt-0.5 size-3.5 shrink-0 text-muted" aria-hidden />
+            <span>
+              Réponses générées par une IA (OpenAI), elles peuvent contenir des erreurs. Ce n&apos;est pas un conseil en investissement.
+            </span>
+          </p>
+          <div className="flex items-start gap-3 rounded-tuile bg-accent-soft/60 p-3.5">
+            <span className="grid size-9 shrink-0 place-items-center rounded-tuile bg-surface text-accent-ink shadow-card">
+              <Sparkles className="size-4.5" aria-hidden />
+            </span>
             <div className="min-w-0">
               <p className="text-sm font-semibold tracking-tight text-ink">Votre analyste financier</p>
-              <p className="mt-0.5 text-[13px] leading-relaxed text-ink-2">
+              <p className="mt-0.5 text-aide leading-relaxed text-ink-2">
                 Marchés, macro, crises historiques : je réponds en pro et j&apos;explique simplement.
               </p>
             </div>
@@ -259,9 +258,8 @@ export function PanneauChat({ id, messages, enAttente, erreur, brouillon, onBrou
                   type="button"
                   onClick={() => poserExemple(q)}
                   disabled={enAttente}
-                  whileHover={enAttente ? undefined : { x: 2 }}
                   whileTap={enAttente ? undefined : { scale: 0.98 }}
-                  className="group flex w-full items-center justify-between gap-3 rounded-xl border border-line bg-surface px-3 py-1.5 text-left text-sm leading-5 text-ink-2 transition-colors hover:border-accent/50 hover:bg-accent-soft hover:text-accent-ink disabled:cursor-not-allowed disabled:opacity-50"
+                  className="group flex w-full items-center justify-between gap-3 rounded-controle border border-line bg-surface px-3 py-1.5 text-left text-sm leading-5 text-ink-2 transition-colors hover:border-accent/50 hover:bg-accent-soft hover:text-accent-ink disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <span>{q}</span>
                   <ArrowUpRight className="size-4 shrink-0 text-muted transition-colors group-hover:text-accent-ink" aria-hidden />
@@ -294,10 +292,11 @@ export function PanneauChat({ id, messages, enAttente, erreur, brouillon, onBrou
               transition={{ duration: DUREE.rapide }}
               className="overflow-hidden"
             >
-              <div className="mb-2 flex items-center gap-2 rounded-lg bg-accent-soft px-2.5 py-1.5 text-xs text-accent-ink">
+              <div className="mb-2 flex items-center gap-2 rounded-controle bg-accent-soft px-2.5 py-1.5 text-xs text-accent-ink">
                 <ChartLine className="size-3.5 shrink-0" aria-hidden />
-                <span className="min-w-0 flex-1 truncate" title="L'analyste connaît les chiffres de ce résultat">
+                <span className="min-w-0 flex-1 truncate">
                   Contexte : <strong className="font-semibold">{contexte}</strong>
+                  <span className="sr-only"> (l&apos;analyste connaît les chiffres de ce résultat)</span>
                 </span>
                 <button type="button" onClick={onRetirerContexte} aria-label="Ne plus transmettre ce résultat à l'analyste" className="grid size-5 shrink-0 place-items-center rounded hover:bg-surface/60">
                   <X className="size-3" aria-hidden />

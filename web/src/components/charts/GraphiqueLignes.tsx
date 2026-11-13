@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { motion } from "motion/react";
-import { EASE_SORTIE } from "@/components/motion/transitions";
+import { DUREE, EASE_SORTIE } from "@/components/motion/transitions";
 import { scaleLinear } from "d3-scale";
 import { area, line } from "d3-shape";
 
@@ -34,7 +34,9 @@ type Props = {
 const MARGE = { haut: 16, droite: 16, bas: 28, gauche: 56 };
 // Echantillon de libelles pour estimer leur largeur (sans mesurer le DOM).
 const ticksCandidats = (etiquettes: string[]) => (etiquettes.length ? [etiquettes[0], etiquettes[Math.floor(etiquettes.length / 2)], etiquettes[etiquettes.length - 1]] : [""]);
-const DUREE_TRACE = 1.2;
+const DUREE_TRACE = DUREE.donnees * 1.25;
+// Taille des graduations : jamais sous 12 px (docs/BENCHMARK.md 3.2).
+const TAILLE_GRADUATION = 12;
 
 function graduations(min: number, max: number, nb: number): number[] {
   return scaleLinear().domain([min, max]).nice(nb).ticks(nb);
@@ -79,8 +81,8 @@ export function GraphiqueLignes({ series, bande, etiquettesX, formatY, formatVal
 
   // Graduations "rondes" (0, 20, 40…) gardees de gauche a droite seulement si elles laissent
   // assez de place a leurs voisines ; la derniere abscisse est toujours etiquetee.
-  // Largeur estimee des libelles (11 px, ~7 px par caractere) : prudent pour les dates longues.
-  const largeurLibelle = Math.max(...ticksCandidats(etiquettesX).map((t) => t.length)) * 7 + 16;
+  // Largeur estimee des libelles (12 px, ~7,5 px par caractere) : prudent pour les dates longues.
+  const largeurLibelle = Math.max(...ticksCandidats(etiquettesX).map((t) => t.length)) * 7.5 + 16;
   const placeX = largeur - MARGE.gauche - MARGE.droite;
   const nbTicksX = Math.max(2, Math.min(6, Math.floor(placeX / largeurLibelle)));
   const ticksX: number[] = [];
@@ -132,7 +134,7 @@ export function GraphiqueLignes({ series, bande, etiquettesX, formatY, formatVal
         {ticksY.map((t) => (
           <g key={t}>
             <line x1={MARGE.gauche} x2={largeur - MARGE.droite} y1={y(t)} y2={y(t)} stroke="var(--line)" strokeWidth={1} />
-            <text x={MARGE.gauche - 8} y={y(t)} dy="0.32em" textAnchor="end" fontSize={11} fill="var(--muted)" style={{ fontVariantNumeric: "tabular-nums" }}>
+            <text x={MARGE.gauche - 8} y={y(t)} dy="0.32em" textAnchor="end" fontSize={TAILLE_GRADUATION} fill="var(--muted)" style={{ fontVariantNumeric: "tabular-nums" }}>
               {formatY(t)}
             </text>
           </g>
@@ -143,7 +145,7 @@ export function GraphiqueLignes({ series, bande, etiquettesX, formatY, formatVal
             x={x(i)}
             y={hauteur - 8}
             textAnchor={k === 0 ? "start" : k === ticksX.length - 1 ? "end" : "middle"}
-            fontSize={11}
+            fontSize={TAILLE_GRADUATION}
             fill="var(--muted)"
           >
             {etiquettesX[i]}
@@ -220,9 +222,9 @@ export function GraphiqueLignes({ series, bande, etiquettesX, formatY, formatVal
                   fill={s.couleur}
                   stroke="var(--surface)"
                   strokeWidth={2}
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: "spring", stiffness: 500, damping: 18, delay: DUREE_TRACE * 0.85 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: DUREE.rapide, delay: DUREE_TRACE * 0.85 }}
                   style={{ transformBox: "fill-box", transformOrigin: "center" }}
                 />
               );
@@ -254,7 +256,7 @@ export function GraphiqueLignes({ series, bande, etiquettesX, formatY, formatVal
 
       {survol != null && (
         <div
-          className="pointer-events-none absolute top-2 z-10 min-w-44 rounded-lg border border-line bg-surface/95 px-3 py-2 text-xs shadow-card backdrop-blur transition-[left,right] duration-75 ease-out"
+          className="pointer-events-none absolute top-2 z-10 min-w-44 rounded-controle border border-line bg-surface/95 px-3 py-2 text-xs shadow-card backdrop-blur transition-[left,right] duration-75 ease-out"
           style={bulleAGauche ? { right: largeur - x(survol) + 12 } : { left: x(survol) + 12 }}
         >
           <div className="mb-1.5 font-medium text-ink-2">{etiquettesX[survol]}</div>

@@ -115,8 +115,7 @@ export function BulleChat() {
         tabIndex={ouvert ? -1 : undefined}
         initial={{ scale: 0.6, opacity: 0 }}
         animate={ouvert ? { scale: 0.5, opacity: 0 } : { scale: 1, opacity: 1 }}
-        whileHover={{ scale: 1.07 }}
-        whileTap={{ scale: 0.92 }}
+        whileTap={{ scale: 0.97 }}
         transition={RESSORT}
         // Sous lg, le bouton "Lancer" du simulateur est colle en bas de l'ecran : la bulle se tient au-dessus.
         className={`group fixed bottom-[calc(5.75rem+env(safe-area-inset-bottom))] right-4 z-40 grid size-12 place-items-center rounded-full bg-accent text-white shadow-[0_10px_28px_-8px_color-mix(in_oklab,var(--accent)_75%,transparent)] sm:size-14 lg:bottom-6 lg:right-6 ${ouvert ? "pointer-events-none" : ""}`}
@@ -142,7 +141,7 @@ export function BulleChat() {
             />
           )}
         </AnimatePresence>
-        <span className="pointer-events-none absolute right-full top-1/2 mr-3 hidden -translate-y-1/2 translate-x-1 whitespace-nowrap rounded-lg bg-ink px-2.5 py-1.5 text-xs font-medium text-bg opacity-0 shadow-lg transition duration-200 group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100 sm:block">
+        <span className="pointer-events-none absolute right-full top-1/2 mr-3 hidden -translate-y-1/2 translate-x-1 whitespace-nowrap rounded-controle bg-ink px-2.5 py-1.5 text-xs font-medium text-bg opacity-0 shadow-lg transition duration-200 group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100 sm:block">
           {nonLu ? "Nouvelle réponse de l'analyste" : "Une question ? L'analyste IA"}
         </span>
       </motion.button>

@@ -29,7 +29,7 @@ function fond(v: number, diagonale: boolean) {
 export function MatriceCorrelations() {
   return (
     <figure className="max-w-[46rem]">
-      <div className="overflow-x-auto rounded-2xl border border-line bg-surface p-3 shadow-card sm:p-4">
+      <div className="overflow-x-auto rounded-carte border border-line bg-surface p-3 shadow-card sm:p-4">
         <motion.table className="w-full min-w-[30rem] border-separate border-spacing-1 text-sm" initial="cache" whileInView="visible" viewport={{ once: true }}>
           <caption className="sr-only">Corrélations entre classes d’actifs en régime normal</caption>
           <thead>
@@ -53,7 +53,7 @@ export function MatriceCorrelations() {
                     key={j}
                     variants={cellule}
                     custom={i + j}
-                    className={`rounded-lg px-2 py-2.5 text-center tabular-nums ${i === j ? "text-muted" : "font-medium text-ink"}`}
+                    className={`rounded-controle px-2 py-2.5 text-center tabular-nums ${i === j ? "text-muted" : "font-medium text-ink"}`}
                     style={{ background: fond(v, i === j) }}
                   >
                     {nombreSigne(v, 2)}

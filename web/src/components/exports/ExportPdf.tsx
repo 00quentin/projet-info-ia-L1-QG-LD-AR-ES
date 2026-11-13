@@ -41,7 +41,7 @@ function Progression() {
   const etape = ETAPES.findLastIndex((e) => ecoule >= e.debut);
 
   return (
-    <div className="rounded-xl border border-line bg-surface-2/60 p-4">
+    <div className="rounded-tuile border border-line bg-surface-2/60 p-4">
       <div className="flex items-center justify-between gap-3 text-xs text-muted">
         <span>Comptez 15 à 30 secondes : l&apos;IA rédige une vraie analyse.</span>
         <span className="shrink-0 tabular-nums" aria-hidden>
@@ -165,7 +165,7 @@ export function ExportPdf({ rapport }: { rapport: DemandeRapport }) {
         {etat.phase === "en-cours" ? (
           <Progression />
         ) : etat.phase === "erreur" ? (
-          <div role="alert" className="flex gap-3 rounded-xl border border-loss/30 bg-loss-soft px-4 py-3 text-sm">
+          <div role="alert" className="flex gap-3 rounded-tuile border border-loss/30 bg-loss-soft px-4 py-3 text-sm">
             <CircleAlert className="mt-0.5 size-4 shrink-0 text-loss" aria-hidden />
             <span className="text-ink">
               <strong className="font-semibold">Le rapport n&apos;a pas pu être généré.</strong> {etat.message}
