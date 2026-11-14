@@ -207,3 +207,12 @@ from api.explication import DemandeExplication, expliquer  # noqa: E402
 def expliquer_actifs(demande: DemandeExplication) -> dict:
     """Une phrase par actif expliquant le sens du choc estimé pour ce scénario (IA, mise en cache)."""
     return expliquer(demande)
+
+# === Comparaison de deux portefeuilles ======================================
+from api.comparaison import DemandeComparaison, comparer_portefeuilles  # noqa: E402
+
+
+@app.post("/api/comparaison-portefeuilles", tags=["Simulation"], dependencies=[limite_ia])
+def comparer_deux_portefeuilles(demande: DemandeComparaison) -> dict:
+    """Deux portefeuilles face au même scénario : une seule analyse de l IA, deux simulations."""
+    return comparer_portefeuilles(demande)

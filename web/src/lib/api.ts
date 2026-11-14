@@ -238,3 +238,30 @@ export type ReponseExplication = { explications: Record<string, string>; modele:
 /** `chocs` : variation estimee par actif, en % (ex : -12.3). */
 export const expliquerActifs = (demande: DemandeExplication) =>
   appeler<ReponseExplication>("/api/explication-actifs", { method: "POST", body: JSON.stringify(demande) });
+
+// === Comparaison de deux portefeuilles ====================================
+
+export type DemandeComparaison = {
+  scenario: string;
+  portefeuille_a: DemandePortefeuille;
+  portefeuille_b: DemandePortefeuille;
+  duree: number; modele: string; monte_carlo: boolean; prix_reels: boolean; calibration: boolean; convertir_eur: boolean;
+};
+
+/** Ecarts « B moins A » : performance en points de %, le reste dans l'unite de la metrique. */
+export type EcartsComparaison = {
+  perf_pts: number | null; valeur_finale: number | null;
+  volatilite: number | null; sharpe: number | null; var: number | null; drawdown: number | null;
+};
+
+export type ReponseComparaison = {
+  a: ResultatScenario; b: ResultatScenario;
+  /** Une seule analyse de l'IA pour les deux portefeuilles. */
+  analyse_partagee: boolean;
+  ecarts: EcartsComparaison;
+  date: string; parametres: ParametresSimulation;
+  prix_de_secours: { cle: string; nom: string; date: string }[];
+};
+
+export const comparerPortefeuilles = (demande: DemandeComparaison) =>
+  appeler<ReponseComparaison>("/api/comparaison-portefeuilles", { method: "POST", body: JSON.stringify(demande) });
