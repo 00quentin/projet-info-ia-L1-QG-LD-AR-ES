@@ -101,6 +101,31 @@ export const FAQ: ThemeFaq[] = [
         ],
         liens: [{ href: "/backtest", libelle: "Lancer un backtest" }],
       },
+      {
+        id: "fourchette-ia",
+        question: "Que veut dire la fourchette de l’IA ? Et le score de 78 % ?",
+        reponse: [
+          "Pour chaque actif, l’IA ne donne pas un chiffre unique mais trois : un choc bas, un choc central et un choc haut. En mode Monte-Carlo, chaque trajectoire tire son propre choc dans cette fourchette : le doute de l’IA se retrouve ainsi dans l’éventail des résultats.",
+          "Testée sur 6 crises passées dont on connaît l’issue, la fourchette contient le vrai mouvement pour 80 actifs sur 102, soit 78 %. Ce score est un peu flatteur : l’élargissement de la fourchette a été réglé sur ces mêmes crises, et une crise inédite pourrait faire moins bien.",
+        ],
+        liens: [{ href: "/validation", libelle: "L’IA à l’épreuve de l’histoire" }],
+      },
+      {
+        id: "portefeuilles-exemple",
+        question: "Que sont les portefeuilles d’exemple (60/40, tout actions monde) ?",
+        reponse: [
+          "Ce sont deux portefeuilles connus des débutants, à appliquer en un clic dans le formulaire : le « 60/40 classique » (60 % d’actions, 40 % d’obligations) et « Tout actions monde » (surtout des actions mondiales, avec une part de pays émergents).",
+          "Le clic passe le profil en « Personnalisé », coche les actifs et remplit les pourcentages. Vous pouvez ensuite tout modifier avant de lancer la simulation ou le backtest.",
+        ],
+      },
+      {
+        id: "demo-reveil",
+        question: "À quoi sert « Essayer avec un exemple » ? Pourquoi le premier chargement est-il parfois lent ?",
+        reponse: [
+          "Le bouton affiche tout de suite une vraie simulation calculée à l’avance : pratique pour découvrir les résultats sans attendre. Vous pouvez ensuite la relancer en direct ou décrire votre propre scénario.",
+          "Le serveur de calcul est hébergé gratuitement et se met en veille quand personne ne l’utilise. Au premier appel, il lui faut parfois une minute environ pour se réveiller ; un écran d’attente l’indique, et la suite est rapide.",
+        ],
+      },
     ],
   },
   {

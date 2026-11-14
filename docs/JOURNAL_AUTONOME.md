@@ -28,3 +28,17 @@ Périmètres disjoints : tâche 1 = `config.py`, `api/services.py`, `tests/test_
 ## Cycle 2 — relecture
 - T1 corrections mineures (espace dans `nomCourtProfil`, nombre de tests retiré du README) : faites directement par l'orchestrateur (2 lignes, moins coûteux qu'un agent). ACCEPTÉE.
 - T2 `docs/PITCH.md` : chiffres vérifiés (1 000 trajectoires, horizon 30-250, VaR 95 % = percentile 5 % dans core/metrics.py, 6 crises dont « Krach 2008 (Lehman) », 78 % = 80/102, 53 % avant). ACCEPTÉE.
+
+## Cycle 3 — décisions
+
+*Dernier cycle de l'après-midi. Le benchmark est quasi soldé (P6, U1 déjà faits) ; on reste sur du sûr, sans nouvelle fonction.*
+
+1. **Audit mobile 390 px + clair/sombre des pages statiques** (méthodologie, validation, a-propos, contact, pages légales) : corrections de débordement ou de contraste uniquement. Sonnet. Fichiers : `web/src/app/{methodologie,validation,a-propos,contact,cgu,confidentialite,mentions-legales}/`, `web/src/components/{methodologie,validation,apropos,legal}/`.
+2. **FAQ enrichie** : questions sur les portefeuilles d'exemple, le mode démo, la fourchette IA / le score de 78 % (avec la réserve : réglé sur les mêmes 6 crises). Ajout pur de contenu, aide l'utilisateur et le jury. Haiku. Fichier : `web/src/contenu/faq.ts`.
+
+Périmètres disjoints ; aucun appel IA, aucun déploiement, rien retiré.
+- Note de l'orchestrateur : T1 (audit 390 px des pages statiques) non lancée, doublon de l'audit Playwright + axe du 13/11 (14 pages, 390/1440, clair/sombre : 0 débordement, 0 violation) ; ces pages n'ont pas changé depuis. T2 (FAQ) lancée sur Haiku.
+
+## Cycle 3 — relecture
+- T2 FAQ : l'agent Haiku a été bloqué par le hook GateGuard (aucune modification). Faite directement par l'orchestrateur : 3 questions ajoutées (fourchette et 78 %, portefeuilles d'exemple, démo et réveil du serveur) ; « conseil en investissement » existait déjà. tsc, lint, build, pytest OK. ACCEPTÉE.
+- Fin du mode autonome (3 cycles), voir le bilan.
