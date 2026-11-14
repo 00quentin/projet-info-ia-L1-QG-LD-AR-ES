@@ -61,3 +61,8 @@ Périmètres disjoints ; aucun appel IA, aucun déploiement, rien retiré.
 - P7 coupure Streamlit préparée : ACCEPTÉE (bandeau + `docs/COUPURE_STREAMLIT.md`, rien supprimé).
 - Conflits d'ajout dans `api/main.py`, `config.py`, `web/src/lib/api.ts` : résolus en gardant les deux côtés.
 - Vérifications : 493 tests, tsc, lint, build (21 pages) ; audit Playwright + axe sur 15 pages × 2 tailles × 2 thèmes : 0 débordement, 0 erreur console, 0 violation.
+
+## Chantier 2 — déploiement
+- developpement = 16556ef. Render : premier déploiement annoncé « live » mais servait l'ancien code ; redéployé avec vidage du cache, vérifié en ligne (9 crises, /api/parametres, /api/actualite).
+- Vercel : production en attente du code de vérification e-mail de Quentin (préversion prête).
+- Point 8 : diaporama de pitch de 10 diapositives publié (artifact privé).
