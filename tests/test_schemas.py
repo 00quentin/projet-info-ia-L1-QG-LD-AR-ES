@@ -271,36 +271,51 @@ def test_erreur_ia_sans_fourchette():
 
 # === Recalage de la fourchette sur les crises passees ======================
 
+# Reglages d'essai (ceux de l'epoque du prompt v8) : la fonction est testee
+# independamment des valeurs actuelles de config.py.
+_ESSAI = {"aggravation": 1.75, "attenuation": 1.25, "demi_largeur_min": 0.15}
+
+
 def test_fourchette_recalee_elargit_le_cote_aggravation():
-    out = valider_reponse_ia({"actifs": {
-        "S&P 500": {"bas": -0.30, "central": -0.18, "haut": -0.10}}})
-    f = out["fourchettes"]["S&P 500"]
     mn, mx = BORNES_ACTIFS["S&P 500"]
-    minimum = FOURCHETTE_DEMI_LARGEUR_MIN * min(mx - mn, FOURCHETTE_AMPLITUDE_REF_MAX)
+    f = elargir_fourchette({"bas": -0.30, "central": -0.18, "haut": -0.10}, mn, mx, **_ESSAI)
+    minimum = 0.15 * min(mx - mn, FOURCHETTE_AMPLITUDE_REF_MAX)
     assert f["central"] == -0.18
-    assert f["bas"] == pytest.approx(-0.18 - max(0.12 * FOURCHETTE_ELARGISSEMENT_AGGRAVATION, minimum))
-    assert f["haut"] == pytest.approx(-0.18 + max(0.08 * FOURCHETTE_ELARGISSEMENT_ATTENUATION, minimum))
+    assert f["bas"] == pytest.approx(-0.18 - max(0.12 * 1.75, minimum))
+    assert f["haut"] == pytest.approx(-0.18 + max(0.08 * 1.25, minimum))
 
 
 def test_fourchette_recalee_hausse_elargit_le_haut():
-    f = elargir_fourchette({"bas": 0.05, "central": 0.10, "haut": 0.20}, -0.25, 0.60)
-    assert f["haut"] == pytest.approx(0.10 + 0.10 * FOURCHETTE_ELARGISSEMENT_AGGRAVATION)
-    assert f["bas"] < 0.05
+    f = elargir_fourchette({"bas": 0.05, "central": 0.10, "haut": 0.20}, -0.25, 0.60,
+                           aggravation=1.5, attenuation=1.25, demi_largeur_min=0.0)
+    assert f["haut"] == pytest.approx(0.10 + 0.10 * 1.5)
+    assert f["bas"] == pytest.approx(0.10 - 0.05 * 1.25)
 
 
 def test_fourchette_recalee_demi_largeur_minimale():
     mn, mx = BORNES_ACTIFS["EUR_USD"]
-    f = elargir_fourchette({"bas": 0.0, "central": 0.01, "haut": 0.02}, mn, mx)
-    minimum = FOURCHETTE_DEMI_LARGEUR_MIN * min(mx - mn, FOURCHETTE_AMPLITUDE_REF_MAX)
+    f = elargir_fourchette({"bas": 0.0, "central": 0.01, "haut": 0.02}, mn, mx, **_ESSAI)
+    minimum = 0.15 * min(mx - mn, FOURCHETTE_AMPLITUDE_REF_MAX)
     assert f["haut"] - f["central"] == pytest.approx(minimum)
     assert f["central"] - f["bas"] == pytest.approx(minimum)
 
 
 def test_fourchette_recalee_reste_dans_les_bornes():
     mn, mx = BORNES_ACTIFS["S&P 500"]
-    out = valider_reponse_ia({"actifs": {"S&P 500": {"bas": -0.50, "central": -0.40, "haut": 0.40}}})
-    f = out["fourchettes"]["S&P 500"]
+    f = elargir_fourchette({"bas": -0.50, "central": -0.40, "haut": 0.40}, mn, mx, **_ESSAI)
     assert f["bas"] == mn and f["haut"] == mx
+
+
+def test_fourchette_reglage_actuel_de_config():
+    """valider_reponse_ia applique le recalage de config.py a la fourchette de l'IA."""
+    out = valider_reponse_ia({"actifs": {
+        "S&P 500": {"bas": -0.30, "central": -0.18, "haut": -0.10}}})
+    mn, mx = BORNES_ACTIFS["S&P 500"]
+    attendu = elargir_fourchette(out["fourchettes_ia"]["S&P 500"], mn, mx,
+                                 FOURCHETTE_ELARGISSEMENT_AGGRAVATION,
+                                 FOURCHETTE_ELARGISSEMENT_ATTENUATION, FOURCHETTE_DEMI_LARGEUR_MIN)
+    assert out["fourchettes"]["S&P 500"] == attendu
+    assert out["fourchettes"]["S&P 500"]["bas"] <= -0.30 and out["fourchettes"]["S&P 500"]["haut"] >= -0.10
 
 
 def test_fourchette_sans_doute_non_elargie():

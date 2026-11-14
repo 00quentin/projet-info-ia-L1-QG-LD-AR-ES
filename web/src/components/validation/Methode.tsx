@@ -73,9 +73,10 @@ export function Methode({ v }: { v: ValidationIA }) {
             montre qu’elle traduit bien une crise connue en chiffres, pas qu’elle prévoit un événement inédit.
           </Point>
           <Point>
-            <G>Fourchette recalée sur ces mêmes crises.</G> Brute, la fourchette de l’IA ne contenait le vrai mouvement qu’environ une fois sur deux.
-            Elle est donc élargie (surtout du côté de l’aggravation) avant d’être simulée, et c’est cette fourchette recalée qui est mesurée ici.
-            Les réglages de ce recalage ont été choisis sur ces 6 crises : le score est donc un peu flatteur, une crise inédite pourrait faire moins bien.
+            <G>Consigne réécrite après un premier test.</G> Avec l’ancienne consigne, la fourchette de l’IA ne contenait le vrai mouvement qu’environ
+            une fois sur deux. La consigne actuelle demande une fourchette du 10<sup>e</sup> au 90<sup>e</sup> centile et prévient l’IA qu’elle
+            sous-estime l’ampleur des crises, un constat tiré de ces mêmes crises : le score reste donc un peu flatteur, une crise inédite pourrait
+            faire moins bien. Aucun élargissement n’est ajouté après coup.
           </Point>
           <Point>
             <G>Un seul tirage par crise.</G> L’IA n’est pas déterministe : relancée, elle donnerait des chiffres un peu différents.

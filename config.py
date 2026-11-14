@@ -201,14 +201,16 @@ CRISE_DEPASSEMENT = 0.3
 # bas / central / haut de l'IA. Part commune du tirage a tous les actifs (le scenario
 # s'avere plus ou moins grave pour tous a la fois) : 0 = independants, 1 = identiques.
 INCERTITUDE_IA_CORRELATION = 0.8
-# Recalage de la fourchette de l'IA sur les crises passees (scripts/valider_ia_historique.py) :
-# l'IA sous-estime l'ampleur des crises (~40 %) et donne des fourchettes trop etroites.
-# Le cote "aggravation" (loin de zero) et le cote "attenuation" sont elargis, avec une
-# demi-largeur minimale en part de l'amplitude des bornes de l'actif (schemas.BORNES_ACTIFS),
-# amplitude plafonnee pour ne pas noyer les cryptos et le VIX.
-FOURCHETTE_ELARGISSEMENT_AGGRAVATION = 1.75
-FOURCHETTE_ELARGISSEMENT_ATTENUATION = 1.25
-FOURCHETTE_DEMI_LARGEUR_MIN = 0.15
+# Recalage de la fourchette de l'IA (schemas.elargir_fourchette) : elargit le cote
+# "aggravation" (loin de zero), le cote "attenuation" et impose une demi-largeur minimale
+# (part de l'amplitude des bornes de l'actif, plafonnee). Avec le prompt v8, l'IA donnait
+# des fourchettes trop etroites (53 % de couverture) et le recalage 1.75 / 1.25 / 0.15
+# montait a 78 %. Le prompt v9 demande lui-meme des fourchettes 10e-90e centile : seul,
+# il couvre 84 % des vrais mouvements (scripts/valider_ia_historique.py), sans reglage
+# choisi sur ces crises. Le recalage est donc neutre (1, 1, 0) mais reste disponible.
+FOURCHETTE_ELARGISSEMENT_AGGRAVATION = 1.0
+FOURCHETTE_ELARGISSEMENT_ATTENUATION = 1.0
+FOURCHETTE_DEMI_LARGEUR_MIN = 0.0
 FOURCHETTE_AMPLITUDE_REF_MAX = 1.2
 # Queues epaisses de secours (loi de Student) si l'historique reel manque.
 STUDENT_DEGRES_LIBERTE = 4

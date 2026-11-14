@@ -15,7 +15,7 @@ Les autres outils rejouent le passé (backtest) ou prolongent une tendance (proj
 
 ## Points forts
 
-- **Une IA testée sur l'histoire.** Sur 6 crises passées (COVID 2020, Lehman 2008, bulle internet, krach pétrolier 2014-2016, Russie-Ukraine 2022, Brexit), le vrai mouvement tombe dans la fourchette de l'IA **78 % du temps (80 actifs sur 102)**, contre 53 % avant recalage. Ce score est **un peu flatteur** : le recalage de la fourchette a été choisi sur ces mêmes crises. Résultats détaillés sur la page `/validation` (données : `data/validation_ia.json`, script : `scripts/valider_ia_historique.py`).
+- **Une IA testée sur l'histoire.** Sur 6 crises passées (COVID 2020, Lehman 2008, bulle internet, krach pétrolier 2014-2016, Russie-Ukraine 2022, Brexit), le vrai mouvement tombe dans la fourchette de l'IA **84 % du temps (86 actifs sur 102)**, contre 53 % avec l'ancienne consigne. Ce score est **un peu flatteur** : la consigne de l'IA a été réécrite après un premier test sur ces mêmes crises. Résultats détaillés sur la page `/validation` (données : `data/validation_ia.json`, script : `scripts/valider_ia_historique.py`).
 - **Une méthode expliquée.** La page `/methodologie` détaille le moteur ; chaque réponse de l'IA est validée par Pydantic avec des bornes par actif (`schemas.py`) avant d'être simulée.
 - **Apprendre en manipulant.** Une Académie (volatilité, Sharpe, drawdown, VaR…) et un backtest qui rejoue une vraie crise sur votre portefeuille.
 - **Un analyste IA intégré**, en bulle de chat, qui annonce clairement être une IA (OpenAI) et rappelle que ce n'est pas un conseil en investissement.

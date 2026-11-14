@@ -128,8 +128,8 @@ def test_analyse_avec_fourchettes_validee(monkeypatch):
     res = ia_bot._appel_openai_macro("prompt", "krach", False, None)
     assert res["actifs"]["S&P 500"] == -0.2
     assert res["fourchettes_ia"]["S&P 500"] == {"bas": -0.3, "central": -0.2, "haut": -0.1}
-    f = res["fourchettes"]["S&P 500"]  # recalee sur les crises passees : plus large
-    assert f["bas"] < -0.3 and f["haut"] > -0.1 and f["central"] == -0.2
+    f = res["fourchettes"]["S&P 500"]  # recalee (config.py) : jamais plus etroite
+    assert f["bas"] <= -0.3 and f["haut"] >= -0.1 and f["central"] == -0.2
     assert res["fourchettes"]["Or"] == {"bas": 0.1, "central": 0.1, "haut": 0.1}
 
 

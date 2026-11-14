@@ -330,7 +330,10 @@ def bornes_actif(nom: str) -> tuple:
     return BORNES_ACTIFS.get(nom, _BORNE_GENERIQUE_CUSTOM)
 
 
-def elargir_fourchette(fourchette: Dict[str, float], mn: float, mx: float) -> Dict[str, float]:
+def elargir_fourchette(fourchette: Dict[str, float], mn: float, mx: float,
+                       aggravation: float = FOURCHETTE_ELARGISSEMENT_AGGRAVATION,
+                       attenuation: float = FOURCHETTE_ELARGISSEMENT_ATTENUATION,
+                       demi_largeur_min: float = FOURCHETTE_DEMI_LARGEUR_MIN) -> Dict[str, float]:
     """Recale une fourchette de l'IA sur les crises passées (voir config.py) :
     élargit le côté aggravation (loin de zéro) et le côté atténuation, impose une
     demi-largeur minimale proportionnelle à l'amplitude de l'actif, puis reborne.
@@ -338,12 +341,12 @@ def elargir_fourchette(fourchette: Dict[str, float], mn: float, mx: float) -> Di
     bas, central, haut = fourchette["bas"], fourchette["central"], fourchette["haut"]
     if bas == central == haut:
         return dict(fourchette)
-    minimum = FOURCHETTE_DEMI_LARGEUR_MIN * min(mx - mn, FOURCHETTE_AMPLITUDE_REF_MAX)
+    minimum = demi_largeur_min * min(mx - mn, FOURCHETTE_AMPLITUDE_REF_MAX)
     baisse = central < 0
     ecart_aggravation = (central - bas) if baisse else (haut - central)
     ecart_attenuation = (haut - central) if baisse else (central - bas)
-    ecart_aggravation = max(ecart_aggravation * FOURCHETTE_ELARGISSEMENT_AGGRAVATION, minimum)
-    ecart_attenuation = max(ecart_attenuation * FOURCHETTE_ELARGISSEMENT_ATTENUATION, minimum)
+    ecart_aggravation = max(ecart_aggravation * aggravation, minimum)
+    ecart_attenuation = max(ecart_attenuation * attenuation, minimum)
     if baisse:
         bas, haut = central - ecart_aggravation, central + ecart_attenuation
     else:

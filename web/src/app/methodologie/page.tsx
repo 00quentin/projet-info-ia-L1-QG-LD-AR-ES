@@ -185,11 +185,12 @@ export default function Page() {
           </p>
           <p>
             Pour chaque actif, l&apos;IA ne donne pas un seul chiffre mais une <G>fourchette</G> : un choc bas (le chiffre le plus faible qu&apos;elle
-            envisage), un choc central (le plus probable) et un choc haut (le plus élevé). Plus elle hésite, plus la fourchette est large. Testée sur
-            des crises passées, l&apos;IA sous-estime l&apos;ampleur des crises : sa fourchette est donc <G>recalée</G> avant la simulation. Le côté
-            « aggravation » est allongé ×{String(PARAMETRES.fourchetteAggravation).replace(".", ",")}, l&apos;autre côté ×
-            {String(PARAMETRES.fourchetteAttenuation).replace(".", ",")}, et chaque côté fait au moins {PARAMETRES.fourchetteDemiLargeurMinPct} % de
-            l&apos;amplitude permise pour l&apos;actif. Est-ce que cette fourchette contient vraiment ce
+            envisage), un choc central (le plus probable) et un choc haut (le plus élevé). Plus elle hésite, plus la fourchette est large. Un premier
+            test sur des crises passées a montré que l&apos;IA sous-estimait l&apos;ampleur des crises et donnait des fourchettes trop étroites. Sa
+            consigne lui demande donc désormais une fourchette qui contienne le vrai mouvement <G>8 fois sur 10</G> (du 10<sup>e</sup> au 90
+            <sup>e</sup> centile). Le moteur sait aussi élargir la fourchette après coup ; ce recalage est aujourd&apos;hui neutre (×
+            {String(PARAMETRES.fourchetteAggravation).replace(".", ",")} côté aggravation, ×{String(PARAMETRES.fourchetteAttenuation).replace(".", ",")}
+            de l&apos;autre, minimum {PARAMETRES.fourchetteDemiLargeurMinPct} %), la nouvelle consigne suffisant. Est-ce que cette fourchette contient vraiment ce
             qui s&apos;est passé ? On le vérifie sur des crises passées, dont on connaît le résultat : la page{" "}
             <Link href="/validation" className="font-medium text-accent-ink hover:underline">
               Validation
