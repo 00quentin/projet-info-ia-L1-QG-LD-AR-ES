@@ -6,9 +6,9 @@ import { points } from "./outils";
 
 const ETAPES = [
   {
-    titre: "On décrit la crise sans la nommer",
+    titre: "On décrit l’événement sans le nommer",
     texte:
-      "Deux ou trois phrases sur le mécanisme (« une grande banque d’affaires fait faillite… ») et sa durée. Aucune année, aucun mois, aucun nom propre : le script le vérifie avant d’envoyer quoi que ce soit.",
+      "Deux ou trois phrases sur le mécanisme (« une grande banque d’affaires fait faillite… ») et sa durée, sur une fenêtre de quelques jours à quelques mois adaptée à chaque événement. Aucune année, aucun mois, aucun chiffre, aucun nom propre : le script le vérifie avant d’envoyer quoi que ce soit.",
   },
   {
     titre: "Même IA, même consigne que le simulateur",
@@ -34,14 +34,19 @@ export function Methode({ v }: { v: ValidationIA }) {
   const p = v.protocole;
   const local = v.global_devise_locale;
   const ecretes = v.crises.flatMap((c) => c.actifs.filter((a) => a.ecrete).map((a) => `${a.nom_court}, ${c.nom.replace(/\s*\(.*\)$/, "").toLowerCase()}`));
+  // Fichier récent : le groupe « hors échantillon » est calculé par le script. Ancien fichier : repli sur les 3 crises citées.
+  const groupe = v.hors_echantillon;
   const horsCrises = v.crises.filter((c) => NOMS_HORS_ECHANTILLON.some((n) => c.nom.startsWith(n)));
-  const horsEchantillon = horsCrises.length === NOMS_HORS_ECHANTILLON.length
-    ? (() => {
-        const nb = horsCrises.reduce((t, c) => t + (c.metriques.nb_dans_fourchette ?? 0), 0);
-        const total = horsCrises.reduce((t, c) => t + (c.metriques.nb_fourchettes ?? 0), 0);
-        return total > 0 ? { nb, total, part: nb / total } : null;
-      })()
-    : null;
+  const horsEchantillon = groupe && groupe.nb_fourchettes
+    ? { nb: groupe.nb_dans_fourchette ?? 0, total: groupe.nb_fourchettes, part: groupe.part_dans_fourchette ?? 0, evenements: groupe.nb_evenements ?? 0 }
+    : !groupe && horsCrises.length === NOMS_HORS_ECHANTILLON.length
+      ? (() => {
+          const nb = horsCrises.reduce((t, c) => t + (c.metriques.nb_dans_fourchette ?? 0), 0);
+          const total = horsCrises.reduce((t, c) => t + (c.metriques.nb_fourchettes ?? 0), 0);
+          return total > 0 ? { nb, total, part: nb / total, evenements: horsCrises.length } : null;
+        })()
+      : null;
+  const nbHors = horsEchantillon?.evenements ?? 0;
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:items-start">
       <Carte className="p-5 sm:p-6">
@@ -90,17 +95,20 @@ export function Methode({ v }: { v: ValidationIA }) {
           </Point>
           {horsEchantillon && (
             <Point>
-              <G>Test hors échantillon.</G> Les trois dernières crises (zone euro, Chine, SVB) ont été ajoutées après l’écriture de la consigne : la
-              fourchette y contient le vrai mouvement pour {horsEchantillon.nb} actifs sur {horsEchantillon.total}, soit {nombre(horsEchantillon.part * 100, 0)} %.
-              C’est la mesure la plus honnête, mais sur seulement trois crises.
+              <G>Test hors échantillon.</G>{" "}
+              {nbHors > 3
+                ? `Les ${nbHors} événements qui n’ont pas servi à écrire la consigne (tous sauf les six premières crises)`
+                : "Les trois dernières crises (zone euro, Chine, SVB), ajoutées après l’écriture de la consigne,"}{" "}
+              donnent une fourchette qui contient le vrai mouvement pour {horsEchantillon.nb} actifs sur {horsEchantillon.total}, soit{" "}
+              {nombre(horsEchantillon.part * 100, 0)} %. C’est la mesure la plus honnête{nbHors > 3 ? "" : ", mais sur seulement trois crises"}.
             </Point>
           )}
           <Point>
-            <G>Un seul tirage par crise.</G> L’IA n’est pas déterministe : relancée, elle donnerait des chiffres un peu différents.
+            <G>Un seul tirage par événement.</G> L’IA n’est pas déterministe : relancée, elle donnerait des chiffres un peu différents.
           </Point>
           <Point>
-            <G>Petit échantillon.</G> {v.global.nb_crises} crises et {v.global.nb_actifs} comparaisons ; la corrélation est tirée vers le haut par les
-            très gros mouvements (VIX, pétrole).
+            <G>Échantillon limité.</G> {v.crises.length} événements et {v.global.nb_actifs} comparaisons ; la corrélation est tirée vers le haut par les
+            très gros mouvements (VIX, pétrole). Les scores par catégorie reposent sur peu d’événements chacune : à lire avec prudence.
           </Point>
           <Point>
             <G>Conversion en euros.</G> Une erreur de l’IA sur l’euro-dollar se répercute sur tous les actifs en dollars. En devise d’origine, l’erreur
@@ -111,7 +119,7 @@ export function Methode({ v }: { v: ValidationIA }) {
             {ecretes.length > 0 ? ` (ici : ${ecretes.join(" ; ")})` : ""}.
           </Point>
           <Point>
-            <G>Le passé ne garantit pas l’avenir.</G> Bien estimer neuf crises connues ne dit pas comment l’IA jugera la prochaine.
+            <G>Le passé ne garantit pas l’avenir.</G> Bien estimer {v.crises.length} événements connus ne dit pas comment l’IA jugera le prochain.
           </Point>
         </ListeEncadre>
       </Encadre>

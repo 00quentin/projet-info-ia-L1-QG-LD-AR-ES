@@ -56,7 +56,7 @@ export function CarteCrise({ crise }: { crise: CriseValidee }) {
         <Statistique libelle="Bon sens" valeur={`${m.nb_sens_corrects} / ${m.nb_sens_comptes}`} />
         <Statistique libelle="Erreur moyenne" valeur={points(m.erreur_moyenne_pts)} />
         <Statistique libelle="Corrélation" valeur={coefficient(m.correlation)} />
-        <Statistique libelle="Avec la date" valeur={crise.avec_date ? points(crise.avec_date.metriques.erreur_moyenne_pts) : "—"} />
+        <Statistique libelle="Avec la date" valeur={crise.avec_date ? points(crise.avec_date.metriques.erreur_moyenne_pts) : "non testé"} />
       </dl>
 
       {m.part_dans_fourchette != null && (

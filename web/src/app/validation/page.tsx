@@ -4,7 +4,7 @@ import { PageValidation } from "@/components/validation/PageValidation";
 export const metadata: Metadata = {
   title: "L'IA à l'épreuve de l'histoire — Quant Terminal",
   description:
-    "Les chocs estimés par l'IA comparés aux vrais cours de neuf crises passées (COVID-19, 2008, bulle internet…), décrites sans être nommées ni datées.",
+    "Les chocs estimés par l'IA comparés aux vrais cours de dizaines d'événements de marché passés (grandes crises, décisions de banques centrales, élections, chocs pétroliers…), décrits sans être nommés ni datés.",
 };
 
 export default function Page() {

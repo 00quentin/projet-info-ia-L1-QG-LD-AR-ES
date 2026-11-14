@@ -1,7 +1,7 @@
 {
-  "genere_le": "2026-11-14T16:20:15",
+  "genere_le": "2026-11-14T20:07:38",
   "protocole": {
-    "version": "validation-v2-fourchette",
+    "version": "validation-v3-evenements",
     "version_prompt": "v9-fourchette-large-2026-11",
     "modele": "gpt-6.1-terra",
     "reglages_ia": {
@@ -22,40 +22,202 @@
     "source_cours": "Yahoo Finance, convertis en euros au taux de référence BCE"
   },
   "global": {
-    "nb_actifs": 159,
-    "erreur_moyenne_pts": 11.73,
-    "erreur_mediane_pts": 6.47,
-    "biais_moyen_pts": 0.09,
-    "nb_sens_comptes": 140,
-    "nb_sens_corrects": 126,
-    "part_sens_correct": 0.9,
-    "correlation": 0.878,
-    "correlation_rangs": 0.832,
-    "ratio_amplitude": 0.578,
-    "nb_fourchettes": 159,
-    "nb_dans_fourchette": 135,
-    "part_dans_fourchette": 0.849,
-    "largeur_moyenne_pts": 45.43,
-    "nb_sorties_plus_fortes": 21,
-    "nb_crises": 9
+    "nb_actifs": 210,
+    "erreur_moyenne_pts": 11.85,
+    "erreur_mediane_pts": 6.42,
+    "biais_moyen_pts": -0.3,
+    "nb_sens_comptes": 174,
+    "nb_sens_corrects": 146,
+    "part_sens_correct": 0.839,
+    "correlation": 0.781,
+    "correlation_rangs": 0.69,
+    "ratio_amplitude": 0.62,
+    "nb_fourchettes": 210,
+    "nb_dans_fourchette": 179,
+    "part_dans_fourchette": 0.852,
+    "largeur_moyenne_pts": 42.0,
+    "nb_sorties_plus_fortes": 25,
+    "nb_crises": 12
   },
   "global_devise_locale": {
-    "nb_actifs": 159,
-    "erreur_moyenne_pts": 11.07,
-    "erreur_mediane_pts": 5.96,
-    "biais_moyen_pts": 0.08,
-    "nb_sens_comptes": 142,
-    "nb_sens_corrects": 126,
-    "part_sens_correct": 0.887,
-    "correlation": 0.887,
-    "correlation_rangs": 0.842,
-    "ratio_amplitude": 0.62,
-    "nb_fourchettes": 159,
-    "nb_dans_fourchette": 137,
-    "part_dans_fourchette": 0.862,
-    "largeur_moyenne_pts": 44.11,
+    "nb_actifs": 210,
+    "erreur_moyenne_pts": 11.18,
+    "erreur_mediane_pts": 5.77,
+    "biais_moyen_pts": -0.7,
+    "nb_sens_comptes": 174,
+    "nb_sens_corrects": 146,
+    "part_sens_correct": 0.839,
+    "correlation": 0.792,
+    "correlation_rangs": 0.699,
+    "ratio_amplitude": 0.674,
+    "nb_fourchettes": 210,
+    "nb_dans_fourchette": 185,
+    "part_dans_fourchette": 0.881,
+    "largeur_moyenne_pts": 40.89,
     "nb_sorties_plus_fortes": 20,
-    "nb_crises": 9
+    "nb_crises": 12
+  },
+  "par_categorie": {
+    "pandémie": {
+      "nb_actifs": 22,
+      "erreur_moyenne_pts": 6.82,
+      "erreur_mediane_pts": 3.87,
+      "biais_moyen_pts": 0.4,
+      "nb_sens_comptes": 18,
+      "nb_sens_corrects": 18,
+      "part_sens_correct": 1.0,
+      "correlation": 0.981,
+      "correlation_rangs": 0.923,
+      "ratio_amplitude": 0.867,
+      "nb_fourchettes": 22,
+      "nb_dans_fourchette": 20,
+      "part_dans_fourchette": 0.909,
+      "largeur_moyenne_pts": 41.52,
+      "nb_sorties_plus_fortes": 2,
+      "nb_crises": 1,
+      "nb_evenements": 1,
+      "nb_reconnues_sans_date": 1
+    },
+    "crise financière": {
+      "nb_actifs": 76,
+      "erreur_moyenne_pts": 11.49,
+      "erreur_mediane_pts": 6.11,
+      "biais_moyen_pts": 0.14,
+      "nb_sens_comptes": 69,
+      "nb_sens_corrects": 63,
+      "part_sens_correct": 0.913,
+      "correlation": 0.919,
+      "correlation_rangs": 0.892,
+      "ratio_amplitude": 0.543,
+      "nb_fourchettes": 76,
+      "nb_dans_fourchette": 63,
+      "part_dans_fourchette": 0.829,
+      "largeur_moyenne_pts": 43.04,
+      "nb_sorties_plus_fortes": 11,
+      "nb_crises": 5,
+      "nb_evenements": 5,
+      "nb_reconnues_sans_date": 5
+    },
+    "énergie": {
+      "nb_actifs": 41,
+      "erreur_moyenne_pts": 18.06,
+      "erreur_mediane_pts": 9.93,
+      "biais_moyen_pts": -8.02,
+      "nb_sens_comptes": 29,
+      "nb_sens_corrects": 21,
+      "part_sens_correct": 0.724,
+      "correlation": 0.276,
+      "correlation_rangs": 0.334,
+      "ratio_amplitude": 0.694,
+      "nb_fourchettes": 41,
+      "nb_dans_fourchette": 35,
+      "part_dans_fourchette": 0.854,
+      "largeur_moyenne_pts": 45.42,
+      "nb_sorties_plus_fortes": 4,
+      "nb_crises": 2,
+      "nb_evenements": 2,
+      "nb_reconnues_sans_date": 2
+    },
+    "géopolitique": {
+      "nb_actifs": 33,
+      "erreur_moyenne_pts": 11.24,
+      "erreur_mediane_pts": 6.23,
+      "biais_moyen_pts": 9.05,
+      "nb_sens_comptes": 26,
+      "nb_sens_corrects": 20,
+      "part_sens_correct": 0.769,
+      "correlation": 0.738,
+      "correlation_rangs": 0.507,
+      "ratio_amplitude": 0.773,
+      "nb_fourchettes": 33,
+      "nb_dans_fourchette": 30,
+      "part_dans_fourchette": 0.909,
+      "largeur_moyenne_pts": 50.18,
+      "nb_sorties_plus_fortes": 2,
+      "nb_crises": 2,
+      "nb_evenements": 2,
+      "nb_reconnues_sans_date": 2
+    },
+    "élection / politique": {
+      "nb_actifs": 20,
+      "erreur_moyenne_pts": 12.16,
+      "erreur_mediane_pts": 7.77,
+      "biais_moyen_pts": -6.09,
+      "nb_sens_comptes": 16,
+      "nb_sens_corrects": 10,
+      "part_sens_correct": 0.625,
+      "correlation": 0.0,
+      "correlation_rangs": -0.045,
+      "ratio_amplitude": 0.271,
+      "nb_fourchettes": 20,
+      "nb_dans_fourchette": 17,
+      "part_dans_fourchette": 0.85,
+      "largeur_moyenne_pts": 37.87,
+      "nb_sorties_plus_fortes": 2,
+      "nb_crises": 1,
+      "nb_evenements": 1,
+      "nb_reconnues_sans_date": 1
+    },
+    "banque centrale": {
+      "nb_actifs": 18,
+      "erreur_moyenne_pts": 6.18,
+      "erreur_mediane_pts": 5.35,
+      "biais_moyen_pts": 3.85,
+      "nb_sens_comptes": 16,
+      "nb_sens_corrects": 14,
+      "part_sens_correct": 0.875,
+      "correlation": 0.951,
+      "correlation_rangs": 0.775,
+      "ratio_amplitude": 0.373,
+      "nb_fourchettes": 18,
+      "nb_dans_fourchette": 14,
+      "part_dans_fourchette": 0.778,
+      "largeur_moyenne_pts": 19.94,
+      "nb_sorties_plus_fortes": 4,
+      "nb_crises": 1,
+      "nb_evenements": 1,
+      "nb_reconnues_sans_date": 1
+    }
+  },
+  "hors_echantillon": {
+    "nb_actifs": 108,
+    "erreur_moyenne_pts": 11.13,
+    "erreur_mediane_pts": 5.19,
+    "biais_moyen_pts": -0.83,
+    "nb_sens_comptes": 84,
+    "nb_sens_corrects": 65,
+    "part_sens_correct": 0.774,
+    "correlation": 0.461,
+    "correlation_rangs": 0.429,
+    "ratio_amplitude": 0.612,
+    "nb_fourchettes": 108,
+    "nb_dans_fourchette": 93,
+    "part_dans_fourchette": 0.861,
+    "largeur_moyenne_pts": 36.08,
+    "nb_sorties_plus_fortes": 10,
+    "nb_crises": 6,
+    "nb_evenements": 6,
+    "nb_reconnues_sans_date": 6
+  },
+  "echantillon_prompt": {
+    "nb_actifs": 102,
+    "erreur_moyenne_pts": 12.62,
+    "erreur_mediane_pts": 7.34,
+    "biais_moyen_pts": 0.26,
+    "nb_sens_comptes": 90,
+    "nb_sens_corrects": 81,
+    "part_sens_correct": 0.9,
+    "correlation": 0.894,
+    "correlation_rangs": 0.83,
+    "ratio_amplitude": 0.624,
+    "nb_fourchettes": 102,
+    "nb_dans_fourchette": 86,
+    "part_dans_fourchette": 0.843,
+    "largeur_moyenne_pts": 48.25,
+    "nb_sorties_plus_fortes": 15,
+    "nb_crises": 6,
+    "nb_evenements": 6,
+    "nb_reconnues_sans_date": 6
   },
   "biais_connaissance": {
     "nb_crises": 9,
@@ -101,6 +263,8 @@
   "crises": [
     {
       "nom": "COVID-19 (mars 2020)",
+      "categorie": "pandémie",
+      "hors_echantillon": false,
       "debut": "2020-02-15",
       "fin": "2020-04-15",
       "premiere_seance": "2020-02-17",
@@ -1208,6 +1372,8 @@
     },
     {
       "nom": "Krach 2008 (Lehman)",
+      "categorie": "crise financière",
+      "hors_echantillon": false,
       "debut": "2008-09-01",
       "fin": "2009-03-09",
       "premiere_seance": "2008-09-01",
@@ -2201,6 +2367,8 @@
     },
     {
       "nom": "Bulle internet (2000-2002)",
+      "categorie": "crise financière",
+      "hors_echantillon": false,
       "debut": "2000-03-10",
       "fin": "2002-10-09",
       "premiere_seance": "2000-03-10",
@@ -3053,6 +3221,8 @@
     },
     {
       "nom": "Krach pétrolier (2014-2016)",
+      "categorie": "énergie",
+      "hors_echantillon": false,
       "debut": "2014-06-01",
       "fin": "2016-02-11",
       "premiere_seance": "2014-06-02",
@@ -4100,6 +4270,8 @@
     },
     {
       "nom": "Guerre Russie-Ukraine (2022)",
+      "categorie": "géopolitique",
+      "hors_echantillon": false,
       "debut": "2022-02-24",
       "fin": "2022-12-31",
       "premiere_seance": "2022-02-24",
@@ -5221,6 +5393,8 @@
     },
     {
       "nom": "Brexit (2016)",
+      "categorie": "élection / politique",
+      "hors_echantillon": false,
       "debut": "2016-06-23",
       "fin": "2016-12-31",
       "premiere_seance": "2016-06-23",
@@ -6298,6 +6472,8 @@
     },
     {
       "nom": "Crise de la dette en zone euro (2011)",
+      "categorie": "crise financière",
+      "hors_echantillon": true,
       "debut": "2011-07-22",
       "fin": "2011-10-03",
       "premiere_seance": "2011-07-22",
@@ -7300,6 +7476,8 @@
     },
     {
       "nom": "Dévaluation chinoise (2015-2016)",
+      "categorie": "crise financière",
+      "hors_echantillon": true,
       "debut": "2015-08-10",
       "fin": "2016-02-11",
       "premiere_seance": "2015-08-10",
@@ -8368,6 +8546,8 @@
     },
     {
       "nom": "Faillite de SVB (2023)",
+      "categorie": "crise financière",
+      "hors_echantillon": true,
       "debut": "2023-03-08",
       "fin": "2023-04-28",
       "premiere_seance": "2023-03-08",
@@ -9486,6 +9666,2096 @@
           }
         }
       }
+    },
+    {
+      "nom": "Invasion de l'Irak (2003)",
+      "categorie": "géopolitique",
+      "hors_echantillon": true,
+      "debut": "2003-03-17",
+      "fin": "2003-04-17",
+      "premiere_seance": "2003-03-17",
+      "derniere_seance": "2003-04-16",
+      "nb_seances": 23,
+      "duree": "environ 1 mois",
+      "description_neutre": "Une coalition menée par la première puissance militaire mondiale lance une opération pour renverser le régime d'un pays exportateur de pétrole du Moyen-Orient, dans un contexte déjà marqué par des tensions sur l'approvisionnement énergétique. L'incertitude porte sur la durée du conflit, la stabilité régionale et l'évolution des flux de pétrole.",
+      "scenario_envoye": "Une coalition menée par la première puissance militaire mondiale lance une opération pour renverser le régime d'un pays exportateur de pétrole du Moyen-Orient, dans un contexte déjà marqué par des tensions sur l'approvisionnement énergétique. L'incertitude porte sur la durée du conflit, la stabilité régionale et l'évolution des flux de pétrole. La période étudiée dure environ 1 mois (23 séances de bourse), à partir du début de l'événement.",
+      "reconnue": true,
+      "evenement_cite": "Guerre d'Irak",
+      "explication": "La guerre d'Irak de 2003 est le précédent principal ; la sévérité retenue est modérée sur 23 séances. Une coalition menée par les États-Unis peut perturber les exportations moyen-orientales et les assurances maritimes : le pétrole gagne 4 % dans le scénario central, malgré une prime de guerre déjà partiellement intégrée. La fuite vers les Treasuries soutient leur prix de 1,5 %, tandis que le S&P 500 recule de 2,5 % et que les valeurs de défense gagnent 4 %. Les chiffres macro représentent des variations en points de pourcentage, respectivement de l'inflation et des taux directeurs, et non leurs niveaux ; les obligations sont exprimées en variations de prix. Une victoire rapide préservant les terminaux et le détroit d'Ormuz pourrait au contraire faire retomber la prime pétrolière, comme en 2003.",
+      "modele": "gpt-6.1-terra",
+      "metriques": {
+        "nb_actifs": 10,
+        "erreur_moyenne_pts": 9.64,
+        "erreur_mediane_pts": 3.7,
+        "biais_moyen_pts": 7.95,
+        "nb_sens_comptes": 6,
+        "nb_sens_corrects": 2,
+        "part_sens_correct": 0.333,
+        "correlation": -0.87,
+        "correlation_rangs": -0.646,
+        "ratio_amplitude": 0.636,
+        "nb_fourchettes": 10,
+        "nb_dans_fourchette": 9,
+        "part_dans_fourchette": 0.9,
+        "largeur_moyenne_pts": 28.23,
+        "nb_sorties_plus_fortes": 0
+      },
+      "metriques_devise_locale": {
+        "nb_actifs": 10,
+        "erreur_moyenne_pts": 9.0,
+        "erreur_mediane_pts": 3.83,
+        "biais_moyen_pts": 6.67,
+        "nb_sens_comptes": 6,
+        "nb_sens_corrects": 2,
+        "part_sens_correct": 0.333,
+        "correlation": -0.875,
+        "correlation_rangs": -0.642,
+        "ratio_amplitude": 0.616,
+        "nb_fourchettes": 10,
+        "nb_dans_fourchette": 10,
+        "part_dans_fourchette": 1.0,
+        "largeur_moyenne_pts": 28.0,
+        "nb_sorties_plus_fortes": 0
+      },
+      "actifs": [
+        {
+          "cle": "S&P 500",
+          "estime_pct": -1.02,
+          "reel_pct": 1.65,
+          "ecart_pts": -2.67,
+          "sens_correct": null,
+          "bas_pct": -8.63,
+          "haut_pct": 7.61,
+          "largeur_pts": 16.24,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
+          "nom": "S&P 500 (USA)",
+          "nom_court": "S&P 500",
+          "categorie": "Actions & Indices",
+          "devise": "EUR",
+          "estime_devise_pct": -2.5,
+          "ecrete": false
+        },
+        {
+          "cle": "NASDAQ",
+          "estime_pct": -2.03,
+          "reel_pct": -2.37,
+          "ecart_pts": 0.34,
+          "sens_correct": true,
+          "bas_pct": -11.68,
+          "haut_pct": 9.64,
+          "largeur_pts": 21.32,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
+          "nom": "NASDAQ 100 (Tech US)",
+          "nom_court": "NASDAQ 100",
+          "categorie": "Actions & Indices",
+          "devise": "EUR",
+          "estime_devise_pct": -3.5,
+          "ecrete": false
+        },
+        {
+          "cle": "CAC 40",
+          "estime_pct": -3.5,
+          "reel_pct": 2.24,
+          "ecart_pts": -5.74,
+          "sens_correct": false,
+          "bas_pct": -12.0,
+          "haut_pct": 6.0,
+          "largeur_pts": 18.0,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
+          "nom": "CAC 40 (France)",
+          "nom_court": "CAC 40",
+          "categorie": "Actions & Indices",
+          "devise": "EUR",
+          "estime_devise_pct": -3.5,
+          "ecrete": false
+        },
+        {
+          "cle": "Bons_Tresor_US_10Y",
+          "estime_pct": 3.05,
+          "reel_pct": -0.51,
+          "ecart_pts": 3.56,
+          "sens_correct": null,
+          "bas_pct": -2.54,
+          "haut_pct": 8.63,
+          "largeur_pts": 11.17,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
+          "nom": "U.S. Treasury 10Y",
+          "nom_court": "U.S. Treasury 10Y",
+          "categorie": "Obligations d'État (10 ans)",
+          "devise": "EUR",
+          "estime_devise_pct": 1.5,
+          "ecrete": false
+        },
+        {
+          "cle": "Dollar_Index",
+          "estime_pct": 1.5,
+          "reel_pct": -1.67,
+          "ecart_pts": 3.17,
+          "sens_correct": null,
+          "bas_pct": -4.0,
+          "haut_pct": 7.0,
+          "largeur_pts": 11.0,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
+          "nom": "DXY (US Dollar Index)",
+          "nom_court": "DXY",
+          "categorie": "Devises & Volatilité",
+          "devise": null,
+          "estime_devise_pct": 1.5,
+          "ecrete": false
+        },
+        {
+          "cle": "VIX",
+          "estime_pct": 15.0,
+          "reel_pct": -29.07,
+          "ecart_pts": 44.07,
+          "sens_correct": false,
+          "bas_pct": -30.0,
+          "haut_pct": 70.0,
+          "largeur_pts": 100.0,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
+          "nom": "VIX (CBOE Volatility Index)",
+          "nom_court": "VIX",
+          "categorie": "Devises & Volatilité",
+          "devise": null,
+          "estime_devise_pct": 15.0,
+          "ecrete": false
+        },
+        {
+          "cle": "Or",
+          "estime_pct": 4.57,
+          "reel_pct": -3.66,
+          "ecart_pts": 8.23,
+          "sens_correct": false,
+          "bas_pct": -3.55,
+          "haut_pct": 11.68,
+          "largeur_pts": 15.23,
+          "dans_fourchette": false,
+          "sortie_plus_forte": false,
+          "nom": "Or (Gold Spot, $/oz)",
+          "nom_court": "Or",
+          "categorie": "Matières Premières",
+          "devise": "EUR",
+          "estime_devise_pct": 3.0,
+          "ecrete": false
+        },
+        {
+          "cle": "Argent",
+          "estime_pct": 3.05,
+          "reel_pct": 0.62,
+          "ecart_pts": 2.43,
+          "sens_correct": null,
+          "bas_pct": -10.66,
+          "haut_pct": 14.72,
+          "largeur_pts": 25.38,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
+          "nom": "Argent (Silver Spot, $/oz)",
+          "nom_court": "Argent",
+          "categorie": "Matières Premières",
+          "devise": "EUR",
+          "estime_devise_pct": 1.5,
+          "ecrete": false
+        },
+        {
+          "cle": "Petrole",
+          "estime_pct": 5.58,
+          "reel_pct": -16.73,
+          "ecart_pts": 22.32,
+          "sens_correct": false,
+          "bas_pct": -16.75,
+          "haut_pct": 26.9,
+          "largeur_pts": 43.65,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
+          "nom": "Pétrole WTI (Crude Oil)",
+          "nom_court": "Pétrole WTI",
+          "categorie": "Matières Premières",
+          "devise": "EUR",
+          "estime_devise_pct": 4.0,
+          "ecrete": false
+        },
+        {
+          "cle": "Cuivre",
+          "estime_pct": -1.02,
+          "reel_pct": -4.87,
+          "ecart_pts": 3.85,
+          "sens_correct": true,
+          "bas_pct": -10.66,
+          "haut_pct": 9.64,
+          "largeur_pts": 20.3,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
+          "nom": "Cuivre (Copper Futures)",
+          "nom_court": "Cuivre",
+          "categorie": "Matières Premières",
+          "devise": "EUR",
+          "estime_devise_pct": -2.5,
+          "ecrete": false
+        }
+      ],
+      "actifs_absents": [
+        {
+          "cle": "MSCI_World",
+          "nom": "MSCI World (Global)"
+        },
+        {
+          "cle": "Emerging_Markets",
+          "nom": "MSCI Emerging Markets"
+        },
+        {
+          "cle": "Bund_10Y",
+          "nom": "Bund Allemagne 10Y"
+        },
+        {
+          "cle": "OAT_10Y",
+          "nom": "OAT France 10Y"
+        },
+        {
+          "cle": "JGB_10Y",
+          "nom": "JGB Japon 10Y"
+        },
+        {
+          "cle": "Gilt_10Y",
+          "nom": "Gilt Royaume-Uni 10Y"
+        },
+        {
+          "cle": "EUR_USD",
+          "nom": "EUR/USD (Euro-Dollar)"
+        },
+        {
+          "cle": "ETF_Terres_Rares",
+          "nom": "ETF Terres Rares (REMX)"
+        },
+        {
+          "cle": "ETF_Defense",
+          "nom": "ETF Aérospatiale & Défense (ITA)"
+        },
+        {
+          "cle": "Bitcoin",
+          "nom": "Bitcoin (BTC)"
+        },
+        {
+          "cle": "Ethereum",
+          "nom": "Ethereum (ETH)"
+        },
+        {
+          "cle": "XRP",
+          "nom": "XRP (Ripple)"
+        },
+        {
+          "cle": "Solana",
+          "nom": "Solana (SOL)"
+        }
+      ],
+      "avec_date": null,
+      "estimation": {
+        "empreinte": "7843444c300cbc7e",
+        "date": "2026-11-14T19:56:41",
+        "modele": "gpt-6.1-terra",
+        "reglages": {
+          "model": "gpt-6.1-terra",
+          "reasoning_effort": "low"
+        },
+        "scenario": "Une coalition menée par la première puissance militaire mondiale lance une opération pour renverser le régime d'un pays exportateur de pétrole du Moyen-Orient, dans un contexte déjà marqué par des tensions sur l'approvisionnement énergétique. L'incertitude porte sur la durée du conflit, la stabilité régionale et l'évolution des flux de pétrole. La période étudiée dure environ 1 mois (23 séances de bourse), à partir du début de l'événement.",
+        "chocs": {
+          "S&P 500": -0.025,
+          "NASDAQ": -0.035,
+          "CAC 40": -0.035,
+          "MSCI_World": -0.025,
+          "Emerging_Markets": -0.04,
+          "Bons_Tresor_US_10Y": 0.015,
+          "Bund_10Y": 0.01,
+          "OAT_10Y": 0.005,
+          "JGB_10Y": 0.005,
+          "Gilt_10Y": 0.005,
+          "EUR_USD": -0.015,
+          "Dollar_Index": 0.015,
+          "VIX": 0.15,
+          "Or": 0.03,
+          "Argent": 0.015,
+          "Petrole": 0.04,
+          "Cuivre": -0.025,
+          "ETF_Terres_Rares": -0.03,
+          "ETF_Defense": 0.04,
+          "Bitcoin": -0.04,
+          "Ethereum": -0.06,
+          "XRP": -0.07,
+          "Solana": -0.08
+        },
+        "chocs_bruts": {
+          "S&P 500": -0.025,
+          "NASDAQ": -0.035,
+          "CAC 40": -0.035,
+          "MSCI_World": -0.025,
+          "Emerging_Markets": -0.04,
+          "Bons_Tresor_US_10Y": 0.015,
+          "Bund_10Y": 0.01,
+          "OAT_10Y": 0.005,
+          "JGB_10Y": 0.005,
+          "Gilt_10Y": 0.005,
+          "EUR_USD": -0.015,
+          "Dollar_Index": 0.015,
+          "VIX": 0.15,
+          "Or": 0.03,
+          "Argent": 0.015,
+          "Petrole": 0.04,
+          "Cuivre": -0.025,
+          "ETF_Terres_Rares": -0.03,
+          "ETF_Defense": 0.04,
+          "Bitcoin": -0.04,
+          "Ethereum": -0.06,
+          "XRP": -0.07,
+          "Solana": -0.08
+        },
+        "fourchettes_ia": {
+          "S&P 500": {
+            "bas": -0.1,
+            "central": -0.025,
+            "haut": 0.06
+          },
+          "NASDAQ": {
+            "bas": -0.13,
+            "central": -0.035,
+            "haut": 0.08
+          },
+          "CAC 40": {
+            "bas": -0.12,
+            "central": -0.035,
+            "haut": 0.06
+          },
+          "MSCI_World": {
+            "bas": -0.1,
+            "central": -0.025,
+            "haut": 0.06
+          },
+          "Emerging_Markets": {
+            "bas": -0.13,
+            "central": -0.04,
+            "haut": 0.06
+          },
+          "Bons_Tresor_US_10Y": {
+            "bas": -0.04,
+            "central": 0.015,
+            "haut": 0.07
+          },
+          "Bund_10Y": {
+            "bas": -0.04,
+            "central": 0.01,
+            "haut": 0.06
+          },
+          "OAT_10Y": {
+            "bas": -0.05,
+            "central": 0.005,
+            "haut": 0.055
+          },
+          "JGB_10Y": {
+            "bas": -0.045,
+            "central": 0.005,
+            "haut": 0.055
+          },
+          "Gilt_10Y": {
+            "bas": -0.055,
+            "central": 0.005,
+            "haut": 0.055
+          },
+          "EUR_USD": {
+            "bas": -0.07,
+            "central": -0.015,
+            "haut": 0.04
+          },
+          "Dollar_Index": {
+            "bas": -0.04,
+            "central": 0.015,
+            "haut": 0.07
+          },
+          "VIX": {
+            "bas": -0.3,
+            "central": 0.15,
+            "haut": 0.7
+          },
+          "Or": {
+            "bas": -0.05,
+            "central": 0.03,
+            "haut": 0.1
+          },
+          "Argent": {
+            "bas": -0.12,
+            "central": 0.015,
+            "haut": 0.13
+          },
+          "Petrole": {
+            "bas": -0.18,
+            "central": 0.04,
+            "haut": 0.25
+          },
+          "Cuivre": {
+            "bas": -0.12,
+            "central": -0.025,
+            "haut": 0.08
+          },
+          "ETF_Terres_Rares": {
+            "bas": -0.16,
+            "central": -0.03,
+            "haut": 0.1
+          },
+          "ETF_Defense": {
+            "bas": -0.08,
+            "central": 0.04,
+            "haut": 0.14
+          },
+          "Bitcoin": {
+            "bas": -0.25,
+            "central": -0.04,
+            "haut": 0.18
+          },
+          "Ethereum": {
+            "bas": -0.3,
+            "central": -0.06,
+            "haut": 0.22
+          },
+          "XRP": {
+            "bas": -0.38,
+            "central": -0.07,
+            "haut": 0.3
+          },
+          "Solana": {
+            "bas": -0.4,
+            "central": -0.08,
+            "haut": 0.3
+          }
+        },
+        "evenement_cite": "Guerre d'Irak",
+        "references": [
+          {
+            "evenement": "Guerre d'Irak",
+            "annee": 2003,
+            "poids": 0.7,
+            "raison": "Une coalition menée par les États-Unis a renversé le régime d'un exportateur de pétrole, avec une prime de guerre partiellement anticipée."
+          },
+          {
+            "evenement": "Invasion du Koweït et guerre du Golfe",
+            "annee": 1990,
+            "poids": 0.3,
+            "raison": "Ce précédent éclaire le risque de perturbation régionale des approvisionnements pétroliers, même si son contexte diffère."
+          }
+        ],
+        "explication": "La guerre d'Irak de 2003 est le précédent principal ; la sévérité retenue est modérée sur 23 séances. Une coalition menée par les États-Unis peut perturber les exportations moyen-orientales et les assurances maritimes : le pétrole gagne 4 % dans le scénario central, malgré une prime de guerre déjà partiellement intégrée. La fuite vers les Treasuries soutient leur prix de 1,5 %, tandis que le S&P 500 recule de 2,5 % et que les valeurs de défense gagnent 4 %. Les chiffres macro représentent des variations en points de pourcentage, respectivement de l'inflation et des taux directeurs, et non leurs niveaux ; les obligations sont exprimées en variations de prix. Une victoire rapide préservant les terminaux et le détroit d'Ormuz pourrait au contraire faire retomber la prime pétrolière, comme en 2003.",
+        "fourchettes": {
+          "S&P 500": {
+            "bas": -0.1,
+            "central": -0.025,
+            "haut": 0.06
+          },
+          "NASDAQ": {
+            "bas": -0.13,
+            "central": -0.035,
+            "haut": 0.08
+          },
+          "CAC 40": {
+            "bas": -0.12,
+            "central": -0.035,
+            "haut": 0.06
+          },
+          "MSCI_World": {
+            "bas": -0.1,
+            "central": -0.025,
+            "haut": 0.06
+          },
+          "Emerging_Markets": {
+            "bas": -0.13,
+            "central": -0.04,
+            "haut": 0.06
+          },
+          "Bons_Tresor_US_10Y": {
+            "bas": -0.04,
+            "central": 0.015,
+            "haut": 0.07
+          },
+          "Bund_10Y": {
+            "bas": -0.04,
+            "central": 0.01,
+            "haut": 0.06
+          },
+          "OAT_10Y": {
+            "bas": -0.05,
+            "central": 0.005,
+            "haut": 0.055
+          },
+          "JGB_10Y": {
+            "bas": -0.045,
+            "central": 0.005,
+            "haut": 0.055
+          },
+          "Gilt_10Y": {
+            "bas": -0.055,
+            "central": 0.005,
+            "haut": 0.055
+          },
+          "EUR_USD": {
+            "bas": -0.07,
+            "central": -0.015,
+            "haut": 0.04
+          },
+          "Dollar_Index": {
+            "bas": -0.04,
+            "central": 0.015,
+            "haut": 0.07
+          },
+          "VIX": {
+            "bas": -0.3,
+            "central": 0.15,
+            "haut": 0.7
+          },
+          "Or": {
+            "bas": -0.05,
+            "central": 0.03,
+            "haut": 0.1
+          },
+          "Argent": {
+            "bas": -0.12,
+            "central": 0.015,
+            "haut": 0.13
+          },
+          "Petrole": {
+            "bas": -0.18,
+            "central": 0.04,
+            "haut": 0.25
+          },
+          "Cuivre": {
+            "bas": -0.12,
+            "central": -0.025,
+            "haut": 0.08
+          },
+          "ETF_Terres_Rares": {
+            "bas": -0.16,
+            "central": -0.03,
+            "haut": 0.1
+          },
+          "ETF_Defense": {
+            "bas": -0.08,
+            "central": 0.04,
+            "haut": 0.14
+          },
+          "Bitcoin": {
+            "bas": -0.25,
+            "central": -0.04,
+            "haut": 0.18
+          },
+          "Ethereum": {
+            "bas": -0.3,
+            "central": -0.06,
+            "haut": 0.22
+          },
+          "XRP": {
+            "bas": -0.38,
+            "central": -0.07,
+            "haut": 0.3
+          },
+          "Solana": {
+            "bas": -0.4,
+            "central": -0.08,
+            "haut": 0.3
+          }
+        }
+      },
+      "estimation_avec_date": null
+    },
+    {
+      "nom": "Taper tantrum (2013)",
+      "categorie": "banque centrale",
+      "hors_echantillon": true,
+      "debut": "2013-05-21",
+      "fin": "2013-06-24",
+      "premiere_seance": "2013-05-21",
+      "derniere_seance": "2013-06-21",
+      "nb_seances": 24,
+      "duree": "environ 1 mois",
+      "description_neutre": "La banque centrale américaine laisse entendre qu’elle pourrait réduire plus tôt que prévu ses achats d’actifs, alors que les taux longs sont restés très bas. Les investisseurs réévaluent brutalement les flux de capitaux, surtout vers les économies dépendantes des financements étrangers.",
+      "scenario_envoye": "La banque centrale américaine laisse entendre qu’elle pourrait réduire plus tôt que prévu ses achats d’actifs, alors que les taux longs sont restés très bas. Les investisseurs réévaluent brutalement les flux de capitaux, surtout vers les économies dépendantes des financements étrangers. La période étudiée dure environ 1 mois (24 séances de bourse), à partir du début de l'événement.",
+      "reconnue": true,
+      "evenement_cite": "Taper tantrum",
+      "explication": "Le taper tantrum de 2013 fournit le précédent principal ; la sévérité retenue est modérée sur 24 séances. L'anticipation d'une réduction accélérée des achats de la Fed relève les rendements longs et réduit le prix estimé du Treasury à 10 ans de 2 %, tandis que le dollar gagne 2 %. Le désendettement et les sorties de capitaux pénalisent particulièrement les marchés émergents dépendants des financements étrangers, notamment l'Indonésie et la Turquie : l'indice émergent perd 7 % dans le scénario central. Les chiffres macro sont des niveaux annuels indicatifs en pourcentage, et les chocs obligataires concernent les prix, non les rendements. Une nuance essentielle est qu'un ralentissement des achats n'implique pas forcément une hausse immédiate des taux directeurs ; une clarification accommodante de la Fed pourrait rapidement inverser une partie du mouvement.",
+      "modele": "gpt-6.1-terra",
+      "metriques": {
+        "nb_actifs": 18,
+        "erreur_moyenne_pts": 6.18,
+        "erreur_mediane_pts": 5.35,
+        "biais_moyen_pts": 3.85,
+        "nb_sens_comptes": 16,
+        "nb_sens_corrects": 14,
+        "part_sens_correct": 0.875,
+        "correlation": 0.951,
+        "correlation_rangs": 0.775,
+        "ratio_amplitude": 0.373,
+        "nb_fourchettes": 18,
+        "nb_dans_fourchette": 14,
+        "part_dans_fourchette": 0.778,
+        "largeur_moyenne_pts": 19.94,
+        "nb_sorties_plus_fortes": 4
+      },
+      "metriques_devise_locale": {
+        "nb_actifs": 18,
+        "erreur_moyenne_pts": 3.95,
+        "erreur_mediane_pts": 2.56,
+        "biais_moyen_pts": 1.3,
+        "nb_sens_comptes": 15,
+        "nb_sens_corrects": 14,
+        "part_sens_correct": 0.933,
+        "correlation": 0.967,
+        "correlation_rangs": 0.862,
+        "ratio_amplitude": 0.591,
+        "nb_fourchettes": 18,
+        "nb_dans_fourchette": 18,
+        "part_dans_fourchette": 1.0,
+        "largeur_moyenne_pts": 19.72,
+        "nb_sorties_plus_fortes": 0
+      },
+      "actifs": [
+        {
+          "cle": "S&P 500",
+          "estime_pct": -1.53,
+          "reel_pct": -6.87,
+          "ecart_pts": 5.34,
+          "sens_correct": true,
+          "bas_pct": -7.14,
+          "haut_pct": 5.61,
+          "largeur_pts": 12.76,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
+          "nom": "S&P 500 (USA)",
+          "nom_court": "S&P 500",
+          "categorie": "Actions & Indices",
+          "devise": "EUR",
+          "estime_devise_pct": -3.5,
+          "ecrete": false
+        },
+        {
+          "cle": "NASDAQ",
+          "estime_pct": -2.55,
+          "reel_pct": -7.17,
+          "ecart_pts": 4.62,
+          "sens_correct": true,
+          "bas_pct": -10.2,
+          "haut_pct": 6.63,
+          "largeur_pts": 16.84,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
+          "nom": "NASDAQ 100 (Tech US)",
+          "nom_court": "NASDAQ 100",
+          "categorie": "Actions & Indices",
+          "devise": "EUR",
+          "estime_devise_pct": -4.5,
+          "ecrete": false
+        },
+        {
+          "cle": "CAC 40",
+          "estime_pct": -4.0,
+          "reel_pct": -9.37,
+          "ecart_pts": 5.37,
+          "sens_correct": true,
+          "bas_pct": -11.0,
+          "haut_pct": 3.5,
+          "largeur_pts": 14.5,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
+          "nom": "CAC 40 (France)",
+          "nom_court": "CAC 40",
+          "categorie": "Actions & Indices",
+          "devise": "EUR",
+          "estime_devise_pct": -4.0,
+          "ecrete": false
+        },
+        {
+          "cle": "MSCI_World",
+          "estime_pct": -1.53,
+          "reel_pct": -8.24,
+          "ecart_pts": 6.71,
+          "sens_correct": true,
+          "bas_pct": -7.14,
+          "haut_pct": 5.61,
+          "largeur_pts": 12.76,
+          "dans_fourchette": false,
+          "sortie_plus_forte": true,
+          "nom": "MSCI World (Global)",
+          "nom_court": "MSCI World",
+          "categorie": "Actions & Indices",
+          "devise": "EUR",
+          "estime_devise_pct": -3.5,
+          "ecrete": false
+        },
+        {
+          "cle": "Emerging_Markets",
+          "estime_pct": -5.1,
+          "reel_pct": -15.93,
+          "ecart_pts": 10.83,
+          "sens_correct": true,
+          "bas_pct": -14.29,
+          "haut_pct": 5.61,
+          "largeur_pts": 19.9,
+          "dans_fourchette": false,
+          "sortie_plus_forte": true,
+          "nom": "MSCI Emerging Markets",
+          "nom_court": "MSCI Emerging Markets",
+          "categorie": "Actions & Indices",
+          "devise": "EUR",
+          "estime_devise_pct": -7.0,
+          "ecrete": false
+        },
+        {
+          "cle": "Bons_Tresor_US_10Y",
+          "estime_pct": 0.0,
+          "reel_pct": -6.9,
+          "ecart_pts": 6.9,
+          "sens_correct": false,
+          "bas_pct": -3.57,
+          "haut_pct": 5.1,
+          "largeur_pts": 8.67,
+          "dans_fourchette": false,
+          "sortie_plus_forte": true,
+          "nom": "U.S. Treasury 10Y",
+          "nom_court": "U.S. Treasury 10Y",
+          "categorie": "Obligations d'État (10 ans)",
+          "devise": "EUR",
+          "estime_devise_pct": -2.0,
+          "ecrete": false
+        },
+        {
+          "cle": "Bund_10Y",
+          "estime_pct": -1.2,
+          "reel_pct": -1.5,
+          "ecart_pts": 0.3,
+          "sens_correct": null,
+          "bas_pct": -4.5,
+          "haut_pct": 3.8,
+          "largeur_pts": 8.3,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
+          "nom": "Bund Allemagne 10Y",
+          "nom_court": "Bund Allemagne 10Y",
+          "categorie": "Obligations d'État (10 ans)",
+          "devise": "EUR",
+          "estime_devise_pct": -1.2,
+          "ecrete": false
+        },
+        {
+          "cle": "OAT_10Y",
+          "estime_pct": -1.5,
+          "reel_pct": -3.3,
+          "ecart_pts": 1.8,
+          "sens_correct": true,
+          "bas_pct": -5.0,
+          "haut_pct": 3.5,
+          "largeur_pts": 8.5,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
+          "nom": "OAT France 10Y",
+          "nom_court": "OAT France 10Y",
+          "categorie": "Obligations d'État (10 ans)",
+          "devise": "EUR",
+          "estime_devise_pct": -1.5,
+          "ecrete": false
+        },
+        {
+          "cle": "Gilt_10Y",
+          "estime_pct": -1.8,
+          "reel_pct": -2.76,
+          "ecart_pts": 0.96,
+          "sens_correct": true,
+          "bas_pct": -6.0,
+          "haut_pct": 3.2,
+          "largeur_pts": 9.2,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
+          "nom": "Gilt Royaume-Uni 10Y",
+          "nom_court": "Gilt Royaume-Uni 10Y",
+          "categorie": "Obligations d'État (10 ans)",
+          "devise": "GBP",
+          "estime_devise_pct": -1.8,
+          "ecrete": false
+        },
+        {
+          "cle": "EUR_USD",
+          "estime_pct": -2.0,
+          "reel_pct": 2.67,
+          "ecart_pts": -4.67,
+          "sens_correct": false,
+          "bas_pct": -7.0,
+          "haut_pct": 3.0,
+          "largeur_pts": 10.0,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
+          "nom": "EUR/USD (Euro-Dollar)",
+          "nom_court": "EUR/USD",
+          "categorie": "Devises & Volatilité",
+          "devise": null,
+          "estime_devise_pct": -2.0,
+          "ecrete": false
+        },
+        {
+          "cle": "Dollar_Index",
+          "estime_pct": 2.0,
+          "reel_pct": -1.84,
+          "ecart_pts": 3.84,
+          "sens_correct": null,
+          "bas_pct": -3.0,
+          "haut_pct": 7.0,
+          "largeur_pts": 10.0,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
+          "nom": "DXY (US Dollar Index)",
+          "nom_court": "DXY",
+          "categorie": "Devises & Volatilité",
+          "devise": null,
+          "estime_devise_pct": 2.0,
+          "ecrete": false
+        },
+        {
+          "cle": "VIX",
+          "estime_pct": 25.0,
+          "reel_pct": 41.36,
+          "ecart_pts": -16.36,
+          "sens_correct": true,
+          "bas_pct": -20.0,
+          "haut_pct": 80.0,
+          "largeur_pts": 100.0,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
+          "nom": "VIX (CBOE Volatility Index)",
+          "nom_court": "VIX",
+          "categorie": "Devises & Volatilité",
+          "devise": null,
+          "estime_devise_pct": 25.0,
+          "ecrete": false
+        },
+        {
+          "cle": "Or",
+          "estime_pct": -2.04,
+          "reel_pct": -8.49,
+          "ecart_pts": 6.45,
+          "sens_correct": true,
+          "bas_pct": -10.2,
+          "haut_pct": 8.16,
+          "largeur_pts": 18.37,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
+          "nom": "Or (Gold Spot, $/oz)",
+          "nom_court": "Or",
+          "categorie": "Matières Premières",
+          "devise": "EUR",
+          "estime_devise_pct": -4.0,
+          "ecrete": false
+        },
+        {
+          "cle": "Argent",
+          "estime_pct": -3.57,
+          "reel_pct": -13.19,
+          "ecart_pts": 9.62,
+          "sens_correct": true,
+          "bas_pct": -15.31,
+          "haut_pct": 10.2,
+          "largeur_pts": 25.51,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
+          "nom": "Argent (Silver Spot, $/oz)",
+          "nom_court": "Argent",
+          "categorie": "Matières Premières",
+          "devise": "EUR",
+          "estime_devise_pct": -5.5,
+          "ecrete": false
+        },
+        {
+          "cle": "Petrole",
+          "estime_pct": -1.53,
+          "reel_pct": -4.89,
+          "ecart_pts": 3.36,
+          "sens_correct": true,
+          "bas_pct": -12.24,
+          "haut_pct": 10.2,
+          "largeur_pts": 22.45,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
+          "nom": "Pétrole WTI (Crude Oil)",
+          "nom_court": "Pétrole WTI",
+          "categorie": "Matières Premières",
+          "devise": "EUR",
+          "estime_devise_pct": -3.5,
+          "ecrete": false
+        },
+        {
+          "cle": "Cuivre",
+          "estime_pct": -2.04,
+          "reel_pct": -9.47,
+          "ecart_pts": 7.43,
+          "sens_correct": true,
+          "bas_pct": -11.22,
+          "haut_pct": 8.16,
+          "largeur_pts": 19.39,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
+          "nom": "Cuivre (Copper Futures)",
+          "nom_court": "Cuivre",
+          "categorie": "Matières Premières",
+          "devise": "EUR",
+          "estime_devise_pct": -4.0,
+          "ecrete": false
+        },
+        {
+          "cle": "ETF_Terres_Rares",
+          "estime_pct": -3.57,
+          "reel_pct": -17.9,
+          "ecart_pts": 14.33,
+          "sens_correct": true,
+          "bas_pct": -16.33,
+          "haut_pct": 10.2,
+          "largeur_pts": 26.53,
+          "dans_fourchette": false,
+          "sortie_plus_forte": true,
+          "nom": "ETF Terres Rares (REMX)",
+          "nom_court": "ETF Terres Rares",
+          "categorie": "Matières Premières",
+          "devise": "EUR",
+          "estime_devise_pct": -5.5,
+          "ecrete": false
+        },
+        {
+          "cle": "ETF_Defense",
+          "estime_pct": -0.51,
+          "reel_pct": -2.94,
+          "ecart_pts": 2.43,
+          "sens_correct": true,
+          "bas_pct": -8.16,
+          "haut_pct": 7.14,
+          "largeur_pts": 15.31,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
+          "nom": "ETF Aérospatiale & Défense (ITA)",
+          "nom_court": "ETF Aérospatiale & Défense",
+          "categorie": "Sectoriels",
+          "devise": "EUR",
+          "estime_devise_pct": -2.5,
+          "ecrete": false
+        }
+      ],
+      "actifs_absents": [
+        {
+          "cle": "JGB_10Y",
+          "nom": "JGB Japon 10Y"
+        },
+        {
+          "cle": "Bitcoin",
+          "nom": "Bitcoin (BTC)"
+        },
+        {
+          "cle": "Ethereum",
+          "nom": "Ethereum (ETH)"
+        },
+        {
+          "cle": "XRP",
+          "nom": "XRP (Ripple)"
+        },
+        {
+          "cle": "Solana",
+          "nom": "Solana (SOL)"
+        }
+      ],
+      "avec_date": null,
+      "estimation": {
+        "empreinte": "f92c63ee356d9ecb",
+        "date": "2026-11-14T19:56:57",
+        "modele": "gpt-6.1-terra",
+        "reglages": {
+          "model": "gpt-6.1-terra",
+          "reasoning_effort": "low"
+        },
+        "scenario": "La banque centrale américaine laisse entendre qu’elle pourrait réduire plus tôt que prévu ses achats d’actifs, alors que les taux longs sont restés très bas. Les investisseurs réévaluent brutalement les flux de capitaux, surtout vers les économies dépendantes des financements étrangers. La période étudiée dure environ 1 mois (24 séances de bourse), à partir du début de l'événement.",
+        "chocs": {
+          "S&P 500": -0.035,
+          "NASDAQ": -0.045,
+          "CAC 40": -0.04,
+          "MSCI_World": -0.035,
+          "Emerging_Markets": -0.07,
+          "Bons_Tresor_US_10Y": -0.02,
+          "Bund_10Y": -0.012,
+          "OAT_10Y": -0.015,
+          "JGB_10Y": -0.005,
+          "Gilt_10Y": -0.018,
+          "EUR_USD": -0.02,
+          "Dollar_Index": 0.02,
+          "VIX": 0.25,
+          "Or": -0.04,
+          "Argent": -0.055,
+          "Petrole": -0.035,
+          "Cuivre": -0.04,
+          "ETF_Terres_Rares": -0.055,
+          "ETF_Defense": -0.025,
+          "Bitcoin": -0.08,
+          "Ethereum": -0.1,
+          "XRP": -0.11,
+          "Solana": -0.12
+        },
+        "chocs_bruts": {
+          "S&P 500": -0.035,
+          "NASDAQ": -0.045,
+          "CAC 40": -0.04,
+          "MSCI_World": -0.035,
+          "Emerging_Markets": -0.07,
+          "Bons_Tresor_US_10Y": -0.02,
+          "Bund_10Y": -0.012,
+          "OAT_10Y": -0.015,
+          "JGB_10Y": -0.005,
+          "Gilt_10Y": -0.018,
+          "EUR_USD": -0.02,
+          "Dollar_Index": 0.02,
+          "VIX": 0.25,
+          "Or": -0.04,
+          "Argent": -0.055,
+          "Petrole": -0.035,
+          "Cuivre": -0.04,
+          "ETF_Terres_Rares": -0.055,
+          "ETF_Defense": -0.025,
+          "Bitcoin": -0.08,
+          "Ethereum": -0.1,
+          "XRP": -0.11,
+          "Solana": -0.12
+        },
+        "fourchettes_ia": {
+          "S&P 500": {
+            "bas": -0.09,
+            "central": -0.035,
+            "haut": 0.035
+          },
+          "NASDAQ": {
+            "bas": -0.12,
+            "central": -0.045,
+            "haut": 0.045
+          },
+          "CAC 40": {
+            "bas": -0.11,
+            "central": -0.04,
+            "haut": 0.035
+          },
+          "MSCI_World": {
+            "bas": -0.09,
+            "central": -0.035,
+            "haut": 0.035
+          },
+          "Emerging_Markets": {
+            "bas": -0.16,
+            "central": -0.07,
+            "haut": 0.035
+          },
+          "Bons_Tresor_US_10Y": {
+            "bas": -0.055,
+            "central": -0.02,
+            "haut": 0.03
+          },
+          "Bund_10Y": {
+            "bas": -0.045,
+            "central": -0.012,
+            "haut": 0.038
+          },
+          "OAT_10Y": {
+            "bas": -0.05,
+            "central": -0.015,
+            "haut": 0.035
+          },
+          "JGB_10Y": {
+            "bas": -0.035,
+            "central": -0.005,
+            "haut": 0.045
+          },
+          "Gilt_10Y": {
+            "bas": -0.06,
+            "central": -0.018,
+            "haut": 0.032
+          },
+          "EUR_USD": {
+            "bas": -0.07,
+            "central": -0.02,
+            "haut": 0.03
+          },
+          "Dollar_Index": {
+            "bas": -0.03,
+            "central": 0.02,
+            "haut": 0.07
+          },
+          "VIX": {
+            "bas": -0.2,
+            "central": 0.25,
+            "haut": 0.8
+          },
+          "Or": {
+            "bas": -0.12,
+            "central": -0.04,
+            "haut": 0.06
+          },
+          "Argent": {
+            "bas": -0.17,
+            "central": -0.055,
+            "haut": 0.08
+          },
+          "Petrole": {
+            "bas": -0.14,
+            "central": -0.035,
+            "haut": 0.08
+          },
+          "Cuivre": {
+            "bas": -0.13,
+            "central": -0.04,
+            "haut": 0.06
+          },
+          "ETF_Terres_Rares": {
+            "bas": -0.18,
+            "central": -0.055,
+            "haut": 0.08
+          },
+          "ETF_Defense": {
+            "bas": -0.1,
+            "central": -0.025,
+            "haut": 0.05
+          },
+          "Bitcoin": {
+            "bas": -0.27,
+            "central": -0.08,
+            "haut": 0.18
+          },
+          "Ethereum": {
+            "bas": -0.32,
+            "central": -0.1,
+            "haut": 0.2
+          },
+          "XRP": {
+            "bas": -0.38,
+            "central": -0.11,
+            "haut": 0.25
+          },
+          "Solana": {
+            "bas": -0.4,
+            "central": -0.12,
+            "haut": 0.25
+          }
+        },
+        "evenement_cite": "Taper tantrum",
+        "references": [
+          {
+            "evenement": "Taper tantrum",
+            "annee": 2013,
+            "poids": 0.8,
+            "raison": "L'évocation d'une réduction des achats de la Fed avait provoqué une remontée des rendements et des sorties de capitaux émergents."
+          },
+          {
+            "evenement": "Resserrement monétaire américain",
+            "annee": 2022,
+            "poids": 0.2,
+            "raison": "La hausse des taux réels et du dollar illustre la pression sur les obligations, les actifs de croissance et les financements extérieurs."
+          }
+        ],
+        "explication": "Le taper tantrum de 2013 fournit le précédent principal ; la sévérité retenue est modérée sur 24 séances. L'anticipation d'une réduction accélérée des achats de la Fed relève les rendements longs et réduit le prix estimé du Treasury à 10 ans de 2 %, tandis que le dollar gagne 2 %. Le désendettement et les sorties de capitaux pénalisent particulièrement les marchés émergents dépendants des financements étrangers, notamment l'Indonésie et la Turquie : l'indice émergent perd 7 % dans le scénario central. Les chiffres macro sont des niveaux annuels indicatifs en pourcentage, et les chocs obligataires concernent les prix, non les rendements. Une nuance essentielle est qu'un ralentissement des achats n'implique pas forcément une hausse immédiate des taux directeurs ; une clarification accommodante de la Fed pourrait rapidement inverser une partie du mouvement.",
+        "fourchettes": {
+          "S&P 500": {
+            "bas": -0.09,
+            "central": -0.035,
+            "haut": 0.035
+          },
+          "NASDAQ": {
+            "bas": -0.12,
+            "central": -0.045,
+            "haut": 0.045
+          },
+          "CAC 40": {
+            "bas": -0.11,
+            "central": -0.04,
+            "haut": 0.035
+          },
+          "MSCI_World": {
+            "bas": -0.09,
+            "central": -0.035,
+            "haut": 0.035
+          },
+          "Emerging_Markets": {
+            "bas": -0.16,
+            "central": -0.07,
+            "haut": 0.035
+          },
+          "Bons_Tresor_US_10Y": {
+            "bas": -0.055,
+            "central": -0.02,
+            "haut": 0.03
+          },
+          "Bund_10Y": {
+            "bas": -0.045,
+            "central": -0.012,
+            "haut": 0.038
+          },
+          "OAT_10Y": {
+            "bas": -0.05,
+            "central": -0.015,
+            "haut": 0.035
+          },
+          "JGB_10Y": {
+            "bas": -0.035,
+            "central": -0.005,
+            "haut": 0.045
+          },
+          "Gilt_10Y": {
+            "bas": -0.06,
+            "central": -0.018,
+            "haut": 0.032
+          },
+          "EUR_USD": {
+            "bas": -0.07,
+            "central": -0.02,
+            "haut": 0.03
+          },
+          "Dollar_Index": {
+            "bas": -0.03,
+            "central": 0.02,
+            "haut": 0.07
+          },
+          "VIX": {
+            "bas": -0.2,
+            "central": 0.25,
+            "haut": 0.8
+          },
+          "Or": {
+            "bas": -0.12,
+            "central": -0.04,
+            "haut": 0.06
+          },
+          "Argent": {
+            "bas": -0.17,
+            "central": -0.055,
+            "haut": 0.08
+          },
+          "Petrole": {
+            "bas": -0.14,
+            "central": -0.035,
+            "haut": 0.08
+          },
+          "Cuivre": {
+            "bas": -0.13,
+            "central": -0.04,
+            "haut": 0.06
+          },
+          "ETF_Terres_Rares": {
+            "bas": -0.18,
+            "central": -0.055,
+            "haut": 0.08
+          },
+          "ETF_Defense": {
+            "bas": -0.1,
+            "central": -0.025,
+            "haut": 0.05
+          },
+          "Bitcoin": {
+            "bas": -0.27,
+            "central": -0.08,
+            "haut": 0.18
+          },
+          "Ethereum": {
+            "bas": -0.32,
+            "central": -0.1,
+            "haut": 0.2
+          },
+          "XRP": {
+            "bas": -0.38,
+            "central": -0.11,
+            "haut": 0.25
+          },
+          "Solana": {
+            "bas": -0.4,
+            "central": -0.12,
+            "haut": 0.25
+          }
+        }
+      },
+      "estimation_avec_date": null
+    },
+    {
+      "nom": "Pétrole à prix négatif (2020)",
+      "categorie": "énergie",
+      "hors_echantillon": true,
+      "debut": "2020-04-17",
+      "fin": "2020-05-15",
+      "premiere_seance": "2020-04-17",
+      "derniere_seance": "2020-05-14",
+      "nb_seances": 20,
+      "duree": "environ 1 mois",
+      "description_neutre": "La chute brutale de la demande mondiale, liée à un arrêt massif de l’activité économique, remplit les capacités de stockage et bloque les débouchés physiques. Les détenteurs de contrats arrivant à échéance cherchent à se défaire de leurs positions dans un marché où l’espace de stockage devient rare.",
+      "scenario_envoye": "La chute brutale de la demande mondiale, liée à un arrêt massif de l’activité économique, remplit les capacités de stockage et bloque les débouchés physiques. Les détenteurs de contrats arrivant à échéance cherchent à se défaire de leurs positions dans un marché où l’espace de stockage devient rare. La période étudiée dure environ 1 mois (20 séances de bourse), à partir du début de l'événement.",
+      "reconnue": true,
+      "evenement_cite": "COVID 2020",
+      "explication": "La crise COVID de 2020 sert de référence à ce choc fort sur 20 séances : l'arrêt de l'activité comprime simultanément la demande de carburants et de métaux industriels. La saturation des capacités de Cushing pousse les détenteurs du WTI proche de l'échéance à vendre, avec un choc central de -35 % sur un contrat liquide non arrivé à expiration. La fuite vers les Treasuries soutient leur prix de 4 %, tandis que le dollar s'apprécie et que le S&P 500 perd 12 %. Les chiffres macro représentent des variations indicatives en points de pourcentage de l'inflation annuelle et des taux directeurs américains, non leurs niveaux finaux. Le 20 avril 2020, le contrat WTI de mai est devenu négatif : une échéance livrable précise peut donc subir une baisse bien supérieure à la fourchette retenue pour le contrat liquide.",
+      "modele": "gpt-6.1-terra",
+      "metriques": {
+        "nb_actifs": 23,
+        "erreur_moyenne_pts": 18.05,
+        "erreur_mediane_pts": 9.6,
+        "biais_moyen_pts": -9.83,
+        "nb_sens_comptes": 12,
+        "nb_sens_corrects": 4,
+        "part_sens_correct": 0.333,
+        "correlation": -0.509,
+        "correlation_rangs": -0.333,
+        "ratio_amplitude": 1.634,
+        "nb_fourchettes": 23,
+        "nb_dans_fourchette": 21,
+        "part_dans_fourchette": 0.913,
+        "largeur_moyenne_pts": 41.5,
+        "nb_sorties_plus_fortes": 0
+      },
+      "metriques_devise_locale": {
+        "nb_actifs": 23,
+        "erreur_moyenne_pts": 18.54,
+        "erreur_mediane_pts": 11.23,
+        "biais_moyen_pts": -10.82,
+        "nb_sens_comptes": 11,
+        "nb_sens_corrects": 4,
+        "part_sens_correct": 0.364,
+        "correlation": -0.501,
+        "correlation_rangs": -0.325,
+        "ratio_amplitude": 1.811,
+        "nb_fourchettes": 23,
+        "nb_dans_fourchette": 20,
+        "part_dans_fourchette": 0.87,
+        "largeur_moyenne_pts": 40.78,
+        "nb_sorties_plus_fortes": 0
+      },
+      "actifs": [
+        {
+          "cle": "S&P 500",
+          "estime_pct": -9.74,
+          "reel_pct": -0.14,
+          "ecart_pts": -9.6,
+          "sens_correct": null,
+          "bas_pct": -22.05,
+          "haut_pct": 5.64,
+          "largeur_pts": 27.69,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
+          "nom": "S&P 500 (USA)",
+          "nom_court": "S&P 500",
+          "categorie": "Actions & Indices",
+          "devise": "EUR",
+          "estime_devise_pct": -12.0,
+          "ecrete": false
+        },
+        {
+          "cle": "NASDAQ",
+          "estime_pct": -10.77,
+          "reel_pct": 3.62,
+          "ecart_pts": -14.38,
+          "sens_correct": false,
+          "bas_pct": -25.13,
+          "haut_pct": 6.67,
+          "largeur_pts": 31.79,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
+          "nom": "NASDAQ 100 (Tech US)",
+          "nom_court": "NASDAQ 100",
+          "categorie": "Actions & Indices",
+          "devise": "EUR",
+          "estime_devise_pct": -13.0,
+          "ecrete": false
+        },
+        {
+          "cle": "CAC 40",
+          "estime_pct": -14.0,
+          "reel_pct": -5.02,
+          "ecart_pts": -8.98,
+          "sens_correct": true,
+          "bas_pct": -28.0,
+          "haut_pct": 2.0,
+          "largeur_pts": 30.0,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
+          "nom": "CAC 40 (France)",
+          "nom_court": "CAC 40",
+          "categorie": "Actions & Indices",
+          "devise": "EUR",
+          "estime_devise_pct": -14.0,
+          "ecrete": false
+        },
+        {
+          "cle": "MSCI_World",
+          "estime_pct": -9.74,
+          "reel_pct": 0.19,
+          "ecart_pts": -9.93,
+          "sens_correct": null,
+          "bas_pct": -23.08,
+          "haut_pct": 5.64,
+          "largeur_pts": 28.72,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
+          "nom": "MSCI World (Global)",
+          "nom_court": "MSCI World",
+          "categorie": "Actions & Indices",
+          "devise": "EUR",
+          "estime_devise_pct": -12.0,
+          "ecrete": false
+        },
+        {
+          "cle": "Emerging_Markets",
+          "estime_pct": -10.77,
+          "reel_pct": 1.38,
+          "ecart_pts": -12.15,
+          "sens_correct": null,
+          "bas_pct": -26.15,
+          "haut_pct": 5.64,
+          "largeur_pts": 31.79,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
+          "nom": "MSCI Emerging Markets",
+          "nom_court": "MSCI Emerging Markets",
+          "categorie": "Actions & Indices",
+          "devise": "EUR",
+          "estime_devise_pct": -13.0,
+          "ecrete": false
+        },
+        {
+          "cle": "Bons_Tresor_US_10Y",
+          "estime_pct": 6.67,
+          "reel_pct": 0.97,
+          "ecart_pts": 5.7,
+          "sens_correct": null,
+          "bas_pct": -0.51,
+          "haut_pct": 11.79,
+          "largeur_pts": 12.31,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
+          "nom": "U.S. Treasury 10Y",
+          "nom_court": "U.S. Treasury 10Y",
+          "categorie": "Obligations d'État (10 ans)",
+          "devise": "EUR",
+          "estime_devise_pct": 4.0,
+          "ecrete": false
+        },
+        {
+          "cle": "Bund_10Y",
+          "estime_pct": 2.5,
+          "reel_pct": 0.3,
+          "ecart_pts": 2.2,
+          "sens_correct": null,
+          "bas_pct": -3.0,
+          "haut_pct": 7.5,
+          "largeur_pts": 10.5,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
+          "nom": "Bund Allemagne 10Y",
+          "nom_court": "Bund Allemagne 10Y",
+          "categorie": "Obligations d'État (10 ans)",
+          "devise": "EUR",
+          "estime_devise_pct": 2.5,
+          "ecrete": false
+        },
+        {
+          "cle": "OAT_10Y",
+          "estime_pct": 1.5,
+          "reel_pct": 0.4,
+          "ecart_pts": 1.1,
+          "sens_correct": null,
+          "bas_pct": -4.0,
+          "haut_pct": 6.5,
+          "largeur_pts": 10.5,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
+          "nom": "OAT France 10Y",
+          "nom_court": "OAT France 10Y",
+          "categorie": "Obligations d'État (10 ans)",
+          "devise": "EUR",
+          "estime_devise_pct": 1.5,
+          "ecrete": false
+        },
+        {
+          "cle": "JGB_10Y",
+          "estime_pct": 1.0,
+          "reel_pct": 0.8,
+          "ecart_pts": 0.2,
+          "sens_correct": null,
+          "bas_pct": -3.5,
+          "haut_pct": 6.0,
+          "largeur_pts": 9.5,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
+          "nom": "JGB Japon 10Y",
+          "nom_court": "JGB Japon 10Y",
+          "categorie": "Obligations d'État (10 ans)",
+          "devise": "JPY",
+          "estime_devise_pct": 1.0,
+          "ecrete": false
+        },
+        {
+          "cle": "Gilt_10Y",
+          "estime_pct": 3.0,
+          "reel_pct": 0.84,
+          "ecart_pts": 2.16,
+          "sens_correct": null,
+          "bas_pct": -4.0,
+          "haut_pct": 8.0,
+          "largeur_pts": 12.0,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
+          "nom": "Gilt Royaume-Uni 10Y",
+          "nom_court": "Gilt Royaume-Uni 10Y",
+          "categorie": "Obligations d'État (10 ans)",
+          "devise": "GBP",
+          "estime_devise_pct": 3.0,
+          "ecrete": false
+        },
+        {
+          "cle": "EUR_USD",
+          "estime_pct": -2.5,
+          "reel_pct": -0.32,
+          "ecart_pts": -2.18,
+          "sens_correct": null,
+          "bas_pct": -8.0,
+          "haut_pct": 3.0,
+          "largeur_pts": 11.0,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
+          "nom": "EUR/USD (Euro-Dollar)",
+          "nom_court": "EUR/USD",
+          "categorie": "Devises & Volatilité",
+          "devise": null,
+          "estime_devise_pct": -2.5,
+          "ecrete": false
+        },
+        {
+          "cle": "Dollar_Index",
+          "estime_pct": 3.0,
+          "reel_pct": 0.69,
+          "ecart_pts": 2.31,
+          "sens_correct": null,
+          "bas_pct": -2.5,
+          "haut_pct": 8.0,
+          "largeur_pts": 10.5,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
+          "nom": "DXY (US Dollar Index)",
+          "nom_court": "DXY",
+          "categorie": "Devises & Volatilité",
+          "devise": null,
+          "estime_devise_pct": 3.0,
+          "ecrete": false
+        },
+        {
+          "cle": "VIX",
+          "estime_pct": 60.0,
+          "reel_pct": -14.52,
+          "ecart_pts": 74.52,
+          "sens_correct": false,
+          "bas_pct": -20.0,
+          "haut_pct": 180.0,
+          "largeur_pts": 200.0,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
+          "nom": "VIX (CBOE Volatility Index)",
+          "nom_court": "VIX",
+          "categorie": "Devises & Volatilité",
+          "devise": null,
+          "estime_devise_pct": 60.0,
+          "ecrete": false
+        },
+        {
+          "cle": "Or",
+          "estime_pct": 5.64,
+          "reel_pct": 3.54,
+          "ecart_pts": 2.1,
+          "sens_correct": true,
+          "bas_pct": -5.64,
+          "haut_pct": 14.87,
+          "largeur_pts": 20.51,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
+          "nom": "Or (Gold Spot, $/oz)",
+          "nom_court": "Or",
+          "categorie": "Matières Premières",
+          "devise": "EUR",
+          "estime_devise_pct": 3.0,
+          "ecrete": false
+        },
+        {
+          "cle": "Argent",
+          "estime_pct": -2.56,
+          "reel_pct": 6.57,
+          "ecart_pts": -9.13,
+          "sens_correct": false,
+          "bas_pct": -17.95,
+          "haut_pct": 12.82,
+          "largeur_pts": 30.77,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
+          "nom": "Argent (Silver Spot, $/oz)",
+          "nom_court": "Argent",
+          "categorie": "Matières Premières",
+          "devise": "EUR",
+          "estime_devise_pct": -5.0,
+          "ecrete": false
+        },
+        {
+          "cle": "Petrole",
+          "estime_pct": -33.33,
+          "reel_pct": 51.8,
+          "ecart_pts": -85.13,
+          "sens_correct": false,
+          "bas_pct": -69.23,
+          "haut_pct": 7.69,
+          "largeur_pts": 76.92,
+          "dans_fourchette": false,
+          "sortie_plus_forte": false,
+          "nom": "Pétrole WTI (Crude Oil)",
+          "nom_court": "Pétrole WTI",
+          "categorie": "Matières Premières",
+          "devise": "EUR",
+          "estime_devise_pct": -35.0,
+          "ecrete": false
+        },
+        {
+          "cle": "Cuivre",
+          "estime_pct": -9.74,
+          "reel_pct": 0.52,
+          "ecart_pts": -10.27,
+          "sens_correct": null,
+          "bas_pct": -23.08,
+          "haut_pct": 6.67,
+          "largeur_pts": 29.74,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
+          "nom": "Cuivre (Copper Futures)",
+          "nom_court": "Cuivre",
+          "categorie": "Matières Premières",
+          "devise": "EUR",
+          "estime_devise_pct": -12.0,
+          "ecrete": false
+        },
+        {
+          "cle": "ETF_Terres_Rares",
+          "estime_pct": -12.82,
+          "reel_pct": 2.62,
+          "ecart_pts": -15.45,
+          "sens_correct": false,
+          "bas_pct": -30.26,
+          "haut_pct": 8.72,
+          "largeur_pts": 38.97,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
+          "nom": "ETF Terres Rares (REMX)",
+          "nom_court": "ETF Terres Rares",
+          "categorie": "Matières Premières",
+          "devise": "EUR",
+          "estime_devise_pct": -15.0,
+          "ecrete": false
+        },
+        {
+          "cle": "ETF_Defense",
+          "estime_pct": -5.64,
+          "reel_pct": -9.88,
+          "ecart_pts": 4.23,
+          "sens_correct": true,
+          "bas_pct": -21.03,
+          "haut_pct": 7.69,
+          "largeur_pts": 28.72,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
+          "nom": "ETF Aérospatiale & Défense (ITA)",
+          "nom_court": "ETF Aérospatiale & Défense",
+          "categorie": "Sectoriels",
+          "devise": "EUR",
+          "estime_devise_pct": -8.0,
+          "ecrete": false
+        },
+        {
+          "cle": "Bitcoin",
+          "estime_pct": -17.95,
+          "reel_pct": 38.03,
+          "ecart_pts": -55.98,
+          "sens_correct": false,
+          "bas_pct": -43.59,
+          "haut_pct": 17.95,
+          "largeur_pts": 61.54,
+          "dans_fourchette": false,
+          "sortie_plus_forte": false,
+          "nom": "Bitcoin (BTC)",
+          "nom_court": "Bitcoin",
+          "categorie": "Cryptomonnaies",
+          "devise": "EUR",
+          "estime_devise_pct": -20.0,
+          "ecrete": false
+        },
+        {
+          "cle": "Ethereum",
+          "estime_pct": -23.08,
+          "reel_pct": 18.99,
+          "ecart_pts": -42.06,
+          "sens_correct": false,
+          "bas_pct": -53.85,
+          "haut_pct": 21.03,
+          "largeur_pts": 74.87,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
+          "nom": "Ethereum (ETH)",
+          "nom_court": "Ethereum",
+          "categorie": "Cryptomonnaies",
+          "devise": "EUR",
+          "estime_devise_pct": -25.0,
+          "ecrete": false
+        },
+        {
+          "cle": "XRP",
+          "estime_pct": -25.13,
+          "reel_pct": 7.47,
+          "ecart_pts": -32.6,
+          "sens_correct": false,
+          "bas_pct": -58.97,
+          "haut_pct": 23.08,
+          "largeur_pts": 82.05,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
+          "nom": "XRP (Ripple)",
+          "nom_court": "XRP",
+          "categorie": "Cryptomonnaies",
+          "devise": "EUR",
+          "estime_devise_pct": -27.0,
+          "ecrete": false
+        },
+        {
+          "cle": "Solana",
+          "estime_pct": -26.15,
+          "reel_pct": -13.32,
+          "ecart_pts": -12.83,
+          "sens_correct": true,
+          "bas_pct": -58.97,
+          "haut_pct": 25.13,
+          "largeur_pts": 84.1,
+          "dans_fourchette": true,
+          "sortie_plus_forte": false,
+          "nom": "Solana (SOL)",
+          "nom_court": "Solana",
+          "categorie": "Cryptomonnaies",
+          "devise": "EUR",
+          "estime_devise_pct": -28.0,
+          "ecrete": false
+        }
+      ],
+      "actifs_absents": [],
+      "avec_date": null,
+      "estimation": {
+        "empreinte": "735ece2b278cdfe8",
+        "date": "2026-11-14T19:57:12",
+        "modele": "gpt-6.1-terra",
+        "reglages": {
+          "model": "gpt-6.1-terra",
+          "reasoning_effort": "low"
+        },
+        "scenario": "La chute brutale de la demande mondiale, liée à un arrêt massif de l’activité économique, remplit les capacités de stockage et bloque les débouchés physiques. Les détenteurs de contrats arrivant à échéance cherchent à se défaire de leurs positions dans un marché où l’espace de stockage devient rare. La période étudiée dure environ 1 mois (20 séances de bourse), à partir du début de l'événement.",
+        "chocs": {
+          "S&P 500": -0.12,
+          "NASDAQ": -0.13,
+          "CAC 40": -0.14,
+          "MSCI_World": -0.12,
+          "Emerging_Markets": -0.13,
+          "Bons_Tresor_US_10Y": 0.04,
+          "Bund_10Y": 0.025,
+          "OAT_10Y": 0.015,
+          "JGB_10Y": 0.01,
+          "Gilt_10Y": 0.03,
+          "EUR_USD": -0.025,
+          "Dollar_Index": 0.03,
+          "VIX": 0.6,
+          "Or": 0.03,
+          "Argent": -0.05,
+          "Petrole": -0.35,
+          "Cuivre": -0.12,
+          "ETF_Terres_Rares": -0.15,
+          "ETF_Defense": -0.08,
+          "Bitcoin": -0.2,
+          "Ethereum": -0.25,
+          "XRP": -0.27,
+          "Solana": -0.28
+        },
+        "chocs_bruts": {
+          "S&P 500": -0.12,
+          "NASDAQ": -0.13,
+          "CAC 40": -0.14,
+          "MSCI_World": -0.12,
+          "Emerging_Markets": -0.13,
+          "Bons_Tresor_US_10Y": 0.04,
+          "Bund_10Y": 0.025,
+          "OAT_10Y": 0.015,
+          "JGB_10Y": 0.01,
+          "Gilt_10Y": 0.03,
+          "EUR_USD": -0.025,
+          "Dollar_Index": 0.03,
+          "VIX": 0.6,
+          "Or": 0.03,
+          "Argent": -0.05,
+          "Petrole": -0.35,
+          "Cuivre": -0.12,
+          "ETF_Terres_Rares": -0.15,
+          "ETF_Defense": -0.08,
+          "Bitcoin": -0.2,
+          "Ethereum": -0.25,
+          "XRP": -0.27,
+          "Solana": -0.28
+        },
+        "fourchettes_ia": {
+          "S&P 500": {
+            "bas": -0.24,
+            "central": -0.12,
+            "haut": 0.03
+          },
+          "NASDAQ": {
+            "bas": -0.27,
+            "central": -0.13,
+            "haut": 0.04
+          },
+          "CAC 40": {
+            "bas": -0.28,
+            "central": -0.14,
+            "haut": 0.02
+          },
+          "MSCI_World": {
+            "bas": -0.25,
+            "central": -0.12,
+            "haut": 0.03
+          },
+          "Emerging_Markets": {
+            "bas": -0.28,
+            "central": -0.13,
+            "haut": 0.03
+          },
+          "Bons_Tresor_US_10Y": {
+            "bas": -0.03,
+            "central": 0.04,
+            "haut": 0.09
+          },
+          "Bund_10Y": {
+            "bas": -0.03,
+            "central": 0.025,
+            "haut": 0.075
+          },
+          "OAT_10Y": {
+            "bas": -0.04,
+            "central": 0.015,
+            "haut": 0.065
+          },
+          "JGB_10Y": {
+            "bas": -0.035,
+            "central": 0.01,
+            "haut": 0.06
+          },
+          "Gilt_10Y": {
+            "bas": -0.04,
+            "central": 0.03,
+            "haut": 0.08
+          },
+          "EUR_USD": {
+            "bas": -0.08,
+            "central": -0.025,
+            "haut": 0.03
+          },
+          "Dollar_Index": {
+            "bas": -0.025,
+            "central": 0.03,
+            "haut": 0.08
+          },
+          "VIX": {
+            "bas": -0.2,
+            "central": 0.6,
+            "haut": 1.8
+          },
+          "Or": {
+            "bas": -0.08,
+            "central": 0.03,
+            "haut": 0.12
+          },
+          "Argent": {
+            "bas": -0.2,
+            "central": -0.05,
+            "haut": 0.1
+          },
+          "Petrole": {
+            "bas": -0.7,
+            "central": -0.35,
+            "haut": 0.05
+          },
+          "Cuivre": {
+            "bas": -0.25,
+            "central": -0.12,
+            "haut": 0.04
+          },
+          "ETF_Terres_Rares": {
+            "bas": -0.32,
+            "central": -0.15,
+            "haut": 0.06
+          },
+          "ETF_Defense": {
+            "bas": -0.23,
+            "central": -0.08,
+            "haut": 0.05
+          },
+          "Bitcoin": {
+            "bas": -0.45,
+            "central": -0.2,
+            "haut": 0.15
+          },
+          "Ethereum": {
+            "bas": -0.55,
+            "central": -0.25,
+            "haut": 0.18
+          },
+          "XRP": {
+            "bas": -0.6,
+            "central": -0.27,
+            "haut": 0.2
+          },
+          "Solana": {
+            "bas": -0.6,
+            "central": -0.28,
+            "haut": 0.22
+          }
+        },
+        "evenement_cite": "COVID 2020",
+        "references": [
+          {
+            "evenement": "COVID 2020",
+            "annee": 2020,
+            "poids": 0.8,
+            "raison": "L'effondrement de la demande et la rareté du stockage à Cushing ont provoqué une dislocation du WTI à l'approche de l'échéance."
+          },
+          {
+            "evenement": "Crise financière mondiale",
+            "annee": 2008,
+            "poids": 0.2,
+            "raison": "La récession mondiale offre un point de comparaison pour les ventes d'actifs risqués et la fuite vers les obligations souveraines."
+          }
+        ],
+        "explication": "La crise COVID de 2020 sert de référence à ce choc fort sur 20 séances : l'arrêt de l'activité comprime simultanément la demande de carburants et de métaux industriels. La saturation des capacités de Cushing pousse les détenteurs du WTI proche de l'échéance à vendre, avec un choc central de -35 % sur un contrat liquide non arrivé à expiration. La fuite vers les Treasuries soutient leur prix de 4 %, tandis que le dollar s'apprécie et que le S&P 500 perd 12 %. Les chiffres macro représentent des variations indicatives en points de pourcentage de l'inflation annuelle et des taux directeurs américains, non leurs niveaux finaux. Le 20 avril 2020, le contrat WTI de mai est devenu négatif : une échéance livrable précise peut donc subir une baisse bien supérieure à la fourchette retenue pour le contrat liquide.",
+        "fourchettes": {
+          "S&P 500": {
+            "bas": -0.24,
+            "central": -0.12,
+            "haut": 0.03
+          },
+          "NASDAQ": {
+            "bas": -0.27,
+            "central": -0.13,
+            "haut": 0.04
+          },
+          "CAC 40": {
+            "bas": -0.28,
+            "central": -0.14,
+            "haut": 0.02
+          },
+          "MSCI_World": {
+            "bas": -0.25,
+            "central": -0.12,
+            "haut": 0.03
+          },
+          "Emerging_Markets": {
+            "bas": -0.28,
+            "central": -0.13,
+            "haut": 0.03
+          },
+          "Bons_Tresor_US_10Y": {
+            "bas": -0.03,
+            "central": 0.04,
+            "haut": 0.09
+          },
+          "Bund_10Y": {
+            "bas": -0.03,
+            "central": 0.025,
+            "haut": 0.075
+          },
+          "OAT_10Y": {
+            "bas": -0.04,
+            "central": 0.015,
+            "haut": 0.065
+          },
+          "JGB_10Y": {
+            "bas": -0.035,
+            "central": 0.01,
+            "haut": 0.06
+          },
+          "Gilt_10Y": {
+            "bas": -0.04,
+            "central": 0.03,
+            "haut": 0.08
+          },
+          "EUR_USD": {
+            "bas": -0.08,
+            "central": -0.025,
+            "haut": 0.03
+          },
+          "Dollar_Index": {
+            "bas": -0.025,
+            "central": 0.03,
+            "haut": 0.08
+          },
+          "VIX": {
+            "bas": -0.2,
+            "central": 0.6,
+            "haut": 1.8
+          },
+          "Or": {
+            "bas": -0.08,
+            "central": 0.03,
+            "haut": 0.12
+          },
+          "Argent": {
+            "bas": -0.2,
+            "central": -0.05,
+            "haut": 0.1
+          },
+          "Petrole": {
+            "bas": -0.7,
+            "central": -0.35,
+            "haut": 0.05
+          },
+          "Cuivre": {
+            "bas": -0.25,
+            "central": -0.12,
+            "haut": 0.04
+          },
+          "ETF_Terres_Rares": {
+            "bas": -0.32,
+            "central": -0.15,
+            "haut": 0.06
+          },
+          "ETF_Defense": {
+            "bas": -0.23,
+            "central": -0.08,
+            "haut": 0.05
+          },
+          "Bitcoin": {
+            "bas": -0.45,
+            "central": -0.2,
+            "haut": 0.15
+          },
+          "Ethereum": {
+            "bas": -0.55,
+            "central": -0.25,
+            "haut": 0.18
+          },
+          "XRP": {
+            "bas": -0.6,
+            "central": -0.27,
+            "haut": 0.2
+          },
+          "Solana": {
+            "bas": -0.6,
+            "central": -0.28,
+            "haut": 0.22
+          }
+        }
+      },
+      "estimation_avec_date": null
     }
   ]
 }

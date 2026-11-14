@@ -4,12 +4,15 @@ tests/test_validation_ia.py
 Calculs purs de « L'IA à l'épreuve de l'histoire » (core/validation_ia.py).
 """
 
+import json
 import math
 from datetime import date
+from pathlib import Path
 
 import pandas as pd
 import pytest
 
+import market_data
 from core.validation_ia import (
     agreger, arrondir, comparer_actifs, convertir_estimations_en_euros,
     convertir_fourchettes_en_euros, correlation, dans_fourchette, sortie_plus_forte,
@@ -178,11 +181,74 @@ class TestNeutralite:
     def test_description_vide(self):
         assert verifier_neutralite("  ", "Brexit (2016)") == "Description vide."
 
+    def test_chiffre_refuse(self):
+        assert "chiffre" in verifier_neutralite("Les marchés perdent 10 % en une séance.", "Brexit (2016)")
+
+    def test_nom_propre_connu_refuse_meme_absent_du_titre(self):
+        assert "trump" in verifier_neutralite("Le président Trump annonce des mesures.", "Élection américaine (2016)")
+        assert "bitcoin" in verifier_neutralite("Le bitcoin chute.", "Éclatement d'une bulle (2018)")
+
+    def test_mots_courants_du_titre_autorises_mais_pas_les_mots_distinctifs(self):
+        titre = "Abandon du plancher du franc suisse (2015)"
+        assert verifier_neutralite("La banque centrale annonce une baisse de taux.", "Baisse de taux (2001)") is None
+        assert "suisse" in verifier_neutralite("La banque centrale suisse renonce à son plancher.", titre)
+
     def test_crise_reconnue_si_annee_de_la_periode_citee(self):
         debut, fin = date(2014, 6, 1), date(2016, 2, 11)
         assert crise_reconnue(["Le contre-choc de 2015 sert de référence."], debut, fin)
         assert not crise_reconnue(["Comme le contre-choc de 1986.", None], debut, fin)
         assert not crise_reconnue([], debut, fin)
+
+
+RACINE = Path(__file__).resolve().parent.parent
+FICHIER_EVENEMENTS = RACINE / "data" / "evenements_validation.json"
+
+
+@pytest.fixture(scope="module")
+def evenements():
+    return json.loads(FICHIER_EVENEMENTS.read_text(encoding="utf-8"))["evenements"]
+
+
+class TestFichierDesEvenements:
+    def test_entre_60_et_90_evenements_aux_noms_uniques(self, evenements):
+        assert 60 <= len(evenements) <= 90
+        noms = [e["nom"] for e in evenements]
+        assert len(set(noms)) == len(noms)
+
+    def test_champs_et_fenetres_valides(self, evenements):
+        for e in evenements:
+            assert {"nom", "debut", "fin", "categorie", "description_neutre"} <= set(e), e["nom"]
+            debut, fin = date.fromisoformat(e["debut"]), date.fromisoformat(e["fin"])
+            assert date(1999, 1, 1) <= debut < fin <= date.today(), e["nom"]
+            # Nouveaux événements : de 5 à 60 séances (jours ouvrés, fériés compris : marge de 3).
+            # Les 9 crises d'origine gardent leurs fenêtres longues.
+            seances = len(pd.bdate_range(debut, fin))
+            if e["nom"] not in market_data.EVENEMENTS_HISTORIQUES:
+                assert 5 <= seances <= 63, f"{e['nom']} : {seances} jours ouvrés"
+
+    def test_au_moins_six_categories_et_aucune_trop_isolee(self, evenements):
+        par_categorie = {}
+        for e in evenements:
+            par_categorie[e["categorie"]] = par_categorie.get(e["categorie"], 0) + 1
+        assert len(par_categorie) >= 6
+        assert min(par_categorie.values()) >= 2
+
+    def test_les_9_crises_historiques_sont_reprises_telles_quelles(self, evenements):
+        par_nom = {e["nom"]: e for e in evenements}
+        for nom, infos in market_data.EVENEMENTS_HISTORIQUES.items():
+            assert (par_nom[nom]["debut"], par_nom[nom]["fin"]) == (infos["debut"], infos["fin"])
+        # Les 6 premières ont servi à écrire le prompt, et elles seules.
+        noms_prompt = [e["nom"] for e in evenements if e.get("sert_au_prompt")]
+        assert noms_prompt == list(market_data.EVENEMENTS_HISTORIQUES)[:6]
+
+    def test_toutes_les_descriptions_sont_neutres(self, evenements):
+        for e in evenements:
+            assert verifier_neutralite(e["description_neutre"], e["nom"]) is None, e["nom"]
+            assert 150 <= len(e["description_neutre"]) <= 700, e["nom"]
+
+    def test_descriptions_distinctes(self, evenements):
+        textes = [e["description_neutre"] for e in evenements]
+        assert len(set(textes)) == len(textes)
 
 
 def test_correlation_resiste_aux_flottants():

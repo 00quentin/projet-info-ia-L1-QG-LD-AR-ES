@@ -66,7 +66,7 @@ export function ChiffresCles({ v }: { v: ValidationIA }) {
           <p key={phrase}>{phrase}</p>
         ))}
         <p className="text-xs text-muted">
-          {g.nb_crises} crises · {g.nb_actifs} comparaisons actif par actif · en euros, comme le backtest.
+          {v.crises.length} événements · {g.nb_actifs} comparaisons actif par actif · en euros, comme le backtest.
         </p>
       </div>
     </Carte>

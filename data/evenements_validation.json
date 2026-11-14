@@ -1,0 +1,521 @@
+{
+ "evenements": [
+  {
+   "nom": "COVID-19 (mars 2020)",
+   "debut": "2020-02-15",
+   "fin": "2020-04-15",
+   "categorie": "pandémie",
+   "description_neutre": "Un nouveau virus respiratoire très contagieux, apparu en Asie, se propage en quelques semaines à l'Europe et aux États-Unis. Les gouvernements ferment les frontières et imposent des confinements stricts : des pans entiers de l'économie mondiale s'arrêtent brutalement.",
+   "sert_au_prompt": true
+  },
+  {
+   "nom": "Krach 2008 (Lehman)",
+   "debut": "2008-09-01",
+   "fin": "2009-03-09",
+   "categorie": "crise financière",
+   "description_neutre": "Une crise bancaire américaine : après l'effondrement du marché immobilier et des crédits hypothécaires à risque, une grande banque d'affaires fait faillite, d'autres institutions financières doivent être sauvées en urgence et le crédit se bloque dans le monde entier.",
+   "sert_au_prompt": true
+  },
+  {
+   "nom": "Bulle internet (2000-2002)",
+   "debut": "2000-03-10",
+   "fin": "2002-10-09",
+   "categorie": "crise financière",
+   "description_neutre": "L'éclatement d'une bulle spéculative sur les valeurs technologiques : après des années d'euphorie autour des jeunes entreprises d'une nouvelle technologie de communication, leurs valorisations s'effondrent, beaucoup font faillite et l'investissement des entreprises recule.",
+   "sert_au_prompt": true
+  },
+  {
+   "nom": "Krach pétrolier (2014-2016)",
+   "debut": "2014-06-01",
+   "fin": "2016-02-11",
+   "categorie": "énergie",
+   "description_neutre": "Un effondrement durable du prix du pétrole : la production américaine de pétrole de schiste explose, le cartel des pays producteurs refuse de réduire la sienne pour défendre ses parts de marché, et la croissance chinoise ralentit.",
+   "sert_au_prompt": true
+  },
+  {
+   "nom": "Guerre Russie-Ukraine (2022)",
+   "debut": "2022-02-24",
+   "fin": "2022-12-31",
+   "categorie": "géopolitique",
+   "description_neutre": "Une grande puissance militaire, gros exportateur de gaz et de pétrole, envahit un pays voisin en Europe de l'Est. L'Occident répond par des sanctions économiques massives et les prix de l'énergie flambent en Europe, alors que l'inflation est déjà élevée et que la banque centrale américaine s'apprête à remonter fortement ses taux.",
+   "sert_au_prompt": true
+  },
+  {
+   "nom": "Brexit (2016)",
+   "debut": "2016-06-23",
+   "fin": "2016-12-31",
+   "categorie": "élection / politique",
+   "description_neutre": "Un grand pays européen, membre de l'union économique du continent mais doté de sa propre monnaie, vote par référendum, à la surprise générale, pour quitter cette union.",
+   "sert_au_prompt": true
+  },
+  {
+   "nom": "Crise de la dette en zone euro (2011)",
+   "debut": "2011-07-22",
+   "fin": "2011-10-03",
+   "categorie": "crise financière",
+   "description_neutre": "Plusieurs États d'un grand ensemble monétaire européen, très endettés, voient les investisseurs douter de leur capacité à rembourser : leurs taux d'emprunt montent fortement, les banques détentrices de ces titres sont jugées fragiles, et la note de crédit de la première puissance économique mondiale est elle-même abaissée dans le même temps."
+  },
+  {
+   "nom": "Dévaluation chinoise (2015-2016)",
+   "debut": "2015-08-10",
+   "fin": "2016-02-11",
+   "categorie": "crise financière",
+   "description_neutre": "La deuxième économie mondiale abaisse brusquement et sans prévenir la valeur de sa monnaie, alors que son activité ralentit. Ses marchés d'actions chutent, des capitaux quittent le pays, les matières premières s'effondrent et les investisseurs craignent un ralentissement de toute l'économie mondiale."
+  },
+  {
+   "nom": "Faillite de SVB (2023)",
+   "debut": "2023-03-08",
+   "fin": "2023-04-28",
+   "categorie": "crise financière",
+   "description_neutre": "Une banque américaine spécialisée dans le financement des jeunes entreprises technologiques, qui détenait beaucoup d'obligations dont la valeur a chuté avec la hausse des taux, subit des retraits massifs de dépôts et s'effondre en quelques jours. La panique gagne d'autres banques de taille moyenne, et une grande banque européenne déjà fragile doit être rachetée en urgence."
+  },
+  {
+   "nom": "Baisse surprise des taux américains (janvier 2001)",
+   "debut": "2001-01-02",
+   "fin": "2001-01-31",
+   "categorie": "banque centrale",
+   "description_neutre": "Après le ralentissement de l’activité et la dégradation des perspectives des entreprises, la banque centrale américaine assouplit plus tôt que prévu sa politique monétaire. Cette décision vise à soutenir le crédit, l’investissement et la confiance alors que les signes de faiblesse se multiplient."
+  },
+  {
+   "nom": "Attentats du 11 septembre (2001)",
+   "debut": "2001-09-10",
+   "fin": "2001-10-11",
+   "categorie": "géopolitique",
+   "description_neutre": "Des attaques coordonnées frappent des symboles majeurs de la puissance économique et militaire américaine, provoquant une fermeture temporaire de l’espace aérien et une forte montée des mesures de sécurité. Les marchés doivent aussi intégrer le risque d’une réponse militaire et d’un choc durable sur les transports et l’assurance."
+  },
+  {
+   "nom": "Invasion de l'Irak (2003)",
+   "debut": "2003-03-17",
+   "fin": "2003-04-17",
+   "categorie": "géopolitique",
+   "description_neutre": "Une coalition menée par la première puissance militaire mondiale lance une opération pour renverser le régime d'un pays exportateur de pétrole du Moyen-Orient, dans un contexte déjà marqué par des tensions sur l'approvisionnement énergétique. L'incertitude porte sur la durée du conflit, la stabilité régionale et l'évolution des flux de pétrole."
+  },
+  {
+   "nom": "Attentats de Madrid (2004)",
+   "debut": "2004-03-10",
+   "fin": "2004-04-09",
+   "categorie": "géopolitique",
+   "description_neutre": "Des explosions visent des trains de banlieue dans une grande capitale européenne à la veille d’un scrutin national, créant un choc politique et sécuritaire immédiat. L’événement ravive les craintes sur la vulnérabilité des transports publics et sur la sécurité intérieure en Europe."
+  },
+  {
+   "nom": "Attentats de Londres (2005)",
+   "debut": "2005-07-06",
+   "fin": "2005-07-29",
+   "categorie": "géopolitique",
+   "description_neutre": "Des attaques coordonnées touchent le réseau de transport urbain d’une grande capitale financière, en pleine heure de pointe. Elles soulèvent des inquiétudes sur la sécurité des infrastructures, la mobilité quotidienne et le risque d’autres actions similaires dans d’autres métropoles."
+  },
+  {
+   "nom": "Ouragan sur la Louisiane (2005)",
+   "debut": "2005-08-26",
+   "fin": "2005-09-30",
+   "categorie": "catastrophe naturelle",
+   "description_neutre": "Un ouragan très puissant frappe la côte sud d'un grand pays d'Amérique du Nord, où se concentrent raffineries et ports pétroliers, et submerge une grande ville construite en partie sous le niveau de la mer. Les digues cèdent et les opérations de secours se heurtent à des inondations prolongées."
+  },
+  {
+   "nom": "Krach des Bourses chinoises (2007)",
+   "debut": "2007-02-26",
+   "fin": "2007-03-23",
+   "categorie": "crise financière",
+   "description_neutre": "Après une longue hausse alimentée par l’enthousiasme des particuliers, les actions de plusieurs grandes places chinoises deviennent très volatiles. Les autorités tentent de calmer les excès spéculatifs tandis que les investisseurs redoutent un retournement brutal de la confiance."
+  },
+  {
+   "nom": "Début de la crise des subprimes (2007)",
+   "debut": "2007-08-08",
+   "fin": "2007-09-14",
+   "categorie": "crise financière",
+   "description_neutre": "Des prêts immobiliers accordés à des ménages fragiles commencent à faire défaut, puis les produits financiers qui les regroupent perdent de la valeur. Les banques et fonds exposés peinent à se refinancer, car personne ne sait vraiment où se cachent les pertes."
+  },
+  {
+   "nom": "Première baisse de taux de la crise (2007)",
+   "debut": "2007-09-17",
+   "fin": "2007-10-17",
+   "categorie": "banque centrale",
+   "description_neutre": "Les tensions sur le financement interbancaire et la montée des pertes liées au crédit immobilier fragilisent le système financier. La banque centrale américaine commence alors à réduire ses taux pour éviter que le resserrement du crédit ne se propage à l’économie réelle."
+  },
+  {
+   "nom": "Baisse d'urgence des taux américains (2008)",
+   "debut": "2008-01-18",
+   "fin": "2008-02-15",
+   "categorie": "banque centrale",
+   "description_neutre": "La détérioration rapide des marchés du crédit et la crainte d’un enchaînement de défauts poussent la banque centrale américaine à agir entre ses réunions habituelles. Elle cherche à empêcher un blocage du financement des banques, des entreprises et des ménages."
+  },
+  {
+   "nom": "Sauvetage de Bear Stearns (2008)",
+   "debut": "2008-03-10",
+   "fin": "2008-04-10",
+   "categorie": "crise financière",
+   "description_neutre": "Une grande banque d’investissement très présente sur les marchés de crédit manque de liquidités à cause de ses positions liées à l’immobilier risqué. Pour éviter une faillite désordonnée, les autorités facilitent son rachat par un concurrent avec l’appui de la banque centrale américaine."
+  },
+  {
+   "nom": "Flambée du pétrole de l'été 2008",
+   "debut": "2008-07-11",
+   "fin": "2008-08-29",
+   "categorie": "énergie",
+   "description_neutre": "Les prix du pétrole ont fortement augmenté pendant des mois, portés par une demande mondiale soutenue et des capacités de production tendues. Mais l'économie des pays riches ralentit, la consommation de carburant y recule et la monnaie américaine se redresse."
+  },
+  {
+   "nom": "Rebond de mars 2009",
+   "debut": "2009-03-09",
+   "fin": "2009-04-23",
+   "categorie": "crise financière",
+   "description_neutre": "Après une longue phase de stress financier, les autorités multiplient les mesures de soutien aux banques et à l'économie réelle, alors que les indicateurs d'activité restent très dégradés. Les investisseurs cherchent des signes que le système bancaire se stabilise."
+  },
+  {
+   "nom": "Grippe H1N1 (2009)",
+   "debut": "2009-04-24",
+   "fin": "2009-06-05",
+   "categorie": "pandémie",
+   "description_neutre": "Un nouveau virus respiratoire se diffuse rapidement entre continents, poussant les autorités à renforcer la surveillance sanitaire, les restrictions de voyage et les plans d’urgence. La crainte porte sur l’absentéisme, la perturbation des chaînes d’approvisionnement et le ralentissement de l’activité."
+  },
+  {
+   "nom": "Faillite d'un constructeur automobile américain (2009)",
+   "debut": "2009-05-29",
+   "fin": "2009-07-02",
+   "categorie": "entreprise / secteur",
+   "description_neutre": "Un grand constructeur automobile américain, déjà fragilisé par la crise du crédit et la chute des ventes, n’obtient pas le financement nécessaire pour poursuivre son activité. L’entreprise se place sous la protection de la justice et prépare une restructuration avec l’appui des pouvoirs publics."
+  },
+  {
+   "nom": "Défaut de Dubaï World (2009)",
+   "debut": "2009-11-25",
+   "fin": "2009-12-18",
+   "categorie": "crise financière",
+   "description_neutre": "Un conglomérat public très endetté demande un report de paiement sur une partie de ses obligations, après l’éclatement d’un cycle immobilier et de grands projets financés à crédit. Les créanciers s’inquiètent de la capacité de l’émirat à honorer l’ensemble de ses engagements."
+  },
+  {
+   "nom": "Crise de la dette grecque (2010)",
+   "debut": "2010-04-22",
+   "fin": "2010-06-04",
+   "categorie": "crise financière",
+   "description_neutre": "Un État de la zone euro révèle que ses finances publiques sont bien plus dégradées qu’annoncé et doit demander une aide extérieure. Les marchés craignent qu’un défaut souverain ne fragilise les banques exposées et ne mette à l’épreuve la solidarité monétaire européenne."
+  },
+  {
+   "nom": "Flash crash américain (2010)",
+   "debut": "2010-05-05",
+   "fin": "2010-05-25",
+   "categorie": "crise financière",
+   "description_neutre": "En pleine séance, des ordres de vente automatiques et une liquidité très faible provoquent des mouvements extrêmes sur de nombreuses actions et contrats. Les opérateurs découvrent qu’un enchaînement technique peut faire disparaître les prix affichés en quelques instants."
+  },
+  {
+   "nom": "Plan de sauvetage de l'Irlande (2010)",
+   "debut": "2010-11-15",
+   "fin": "2010-12-15",
+   "categorie": "crise financière",
+   "description_neutre": "Après l’éclatement d’une bulle immobilière et la reprise des pertes bancaires par l’État, le pays perd l’accès normal au financement de marché. Les autorités européennes et internationales préparent une aide conditionnée à des mesures d’austérité et de recapitalisation."
+  },
+  {
+   "nom": "Soulèvement en Libye (2011)",
+   "debut": "2011-02-18",
+   "fin": "2011-03-09",
+   "categorie": "géopolitique",
+   "description_neutre": "Un soulèvement populaire contre le pouvoir en place dégénère en conflit armé, dans un pays exportateur d’hydrocarbures situé au cœur d’une région déjà instable. Les acteurs de marché surveillent surtout la continuité de la production, des exportations et la propagation des troubles."
+  },
+  {
+   "nom": "Séisme et tsunami au Japon (2011)",
+   "debut": "2011-03-10",
+   "fin": "2011-04-08",
+   "categorie": "catastrophe naturelle",
+   "description_neutre": "Un très fort séisme sous-marin au large de l’archipel déclenche une vague géante qui inonde la côte nord-est et endommage gravement des installations industrielles et portuaires. La crise est aggravée par des coupures d’électricité, des perturbations logistiques et des inquiétudes sur plusieurs réacteurs nucléaires."
+  },
+  {
+   "nom": "Engagement « quoi qu'il en coûte » de la BCE (2012)",
+   "debut": "2012-07-24",
+   "fin": "2012-08-24",
+   "categorie": "banque centrale",
+   "description_neutre": "Dans une zone monétaire sous pression, les écarts de financement entre pays se creusent et certains investisseurs doutent de la cohésion de l’ensemble. La banque centrale européenne promet d’intervenir sans limite prédéfinie pour préserver l’intégrité de l’union monétaire et calmer les tensions."
+  },
+  {
+   "nom": "Crise bancaire de Chypre (2013)",
+   "debut": "2013-03-15",
+   "fin": "2013-04-12",
+   "categorie": "crise financière",
+   "description_neutre": "Le système bancaire d’une petite économie insulaire est trop exposé aux pertes sur les dettes souveraines et à un secteur financier surdimensionné. Pour éviter l’effondrement, les autorités imposent une restructuration forcée des dépôts et une recapitalisation d’urgence."
+  },
+  {
+   "nom": "Taper tantrum (2013)",
+   "debut": "2013-05-21",
+   "fin": "2013-06-24",
+   "categorie": "banque centrale",
+   "description_neutre": "La banque centrale américaine laisse entendre qu’elle pourrait réduire plus tôt que prévu ses achats d’actifs, alors que les taux longs sont restés très bas. Les investisseurs réévaluent brutalement les flux de capitaux, surtout vers les économies dépendantes des financements étrangers."
+  },
+  {
+   "nom": "Blocage budgétaire américain (2013)",
+   "debut": "2013-09-30",
+   "fin": "2013-10-31",
+   "categorie": "élection / politique",
+   "description_neutre": "Le pouvoir exécutif et le parlement ne parviennent pas à s’entendre sur le budget fédéral, ce qui bloque une partie de l’administration et menace le financement de services publics. Les investisseurs s’inquiètent aussi du risque de retard sur le paiement de certaines obligations de l’État."
+  },
+  {
+   "nom": "Annexion de la Crimée (2014)",
+   "debut": "2014-02-28",
+   "fin": "2014-03-28",
+   "categorie": "géopolitique",
+   "description_neutre": "Une puissance régionale prend le contrôle d’une péninsule stratégique après la chute du pouvoir voisin, ce qui déclenche des sanctions et une rupture profonde avec les pays occidentaux. Le risque porte sur l’énergie, le commerce et la sécurité dans l’est de l’Europe."
+  },
+  {
+   "nom": "Taux négatifs de la BCE (2014)",
+   "debut": "2014-06-04",
+   "fin": "2014-07-03",
+   "categorie": "banque centrale",
+   "description_neutre": "Face à une inflation trop faible et à une reprise fragile, la banque centrale européenne pousse sa politique monétaire encore plus loin en abaissant son taux de dépôt sous zéro. L’objectif est d’inciter les banques à prêter davantage plutôt que de laisser leurs liquidités dormir."
+  },
+  {
+   "nom": "Abandon du plancher du franc suisse (2015)",
+   "debut": "2015-01-14",
+   "fin": "2015-02-13",
+   "categorie": "banque centrale",
+   "description_neutre": "La banque centrale d'un petit pays européen très ouvert, qui défendait depuis plusieurs années un cours plancher de sa monnaie face à la monnaie unique voisine, y renonce soudain et sans prévenir. Les opérateurs qui comptaient sur cette protection se retrouvent exposés à un mouvement de change immédiat."
+  },
+  {
+   "nom": "Référendum grec (2015)",
+   "debut": "2015-06-25",
+   "fin": "2015-07-31",
+   "categorie": "crise financière",
+   "description_neutre": "Un gouvernement confronté à des négociations tendues avec ses créanciers soumet à référendum les conditions d’un nouveau programme d’aide. Le vote intervient alors que le pays dépend déjà de contrôles sur les capitaux et d’un soutien d’urgence au système bancaire."
+  },
+  {
+   "nom": "Attentats de Paris (2015)",
+   "debut": "2015-11-12",
+   "fin": "2015-12-11",
+   "categorie": "géopolitique",
+   "description_neutre": "Des attaques coordonnées frappent des lieux de spectacle, de restauration et de rassemblement dans une grande capitale européenne, en soirée. Elles renforcent les craintes sur la sécurité intérieure, l’activité touristique et la possibilité de nouvelles mesures de contrôle."
+  },
+  {
+   "nom": "Accord de production de l'OPEP à Alger (2016)",
+   "debut": "2016-09-27",
+   "fin": "2016-10-28",
+   "categorie": "énergie",
+   "description_neutre": "Plusieurs grands producteurs de pétrole se réunissent pour tenter de limiter l’excès d’offre qui pèse sur les prix depuis des mois. Les discussions portent sur un gel ou une réduction coordonnée de la production afin de stabiliser le marché mondial de l’énergie."
+  },
+  {
+   "nom": "Élection américaine (2016)",
+   "debut": "2016-11-08",
+   "fin": "2016-12-09",
+   "categorie": "élection / politique",
+   "description_neutre": "Le scrutin oppose deux visions très différentes sur la fiscalité, le commerce, la régulation et les dépenses publiques, dans un contexte de méfiance envers les élites et de croissance inégale. Les marchés cherchent à anticiper l’orientation future de la politique économique et extérieure."
+  },
+  {
+   "nom": "Présidentielle française (2017)",
+   "debut": "2017-04-21",
+   "fin": "2017-05-19",
+   "categorie": "élection / politique",
+   "description_neutre": "Le premier tour élimine les grands partis traditionnels et ouvre la voie à un duel entre un candidat pro-réformes et une candidate hostile à l’intégration européenne. L’incertitude porte sur la politique budgétaire, le marché du travail et la place du pays dans l’union monétaire."
+  },
+  {
+   "nom": "Éclatement de la bulle des cryptomonnaies (2017-2018)",
+   "debut": "2017-12-18",
+   "fin": "2018-02-05",
+   "categorie": "cryptomonnaies",
+   "description_neutre": "Après une envolée spéculative alimentée par les levées de fonds en actifs numériques et l’arrivée massive de nouveaux investisseurs, les autorités multiplient les avertissements sur les risques et les fraudes. Plusieurs plateformes ferment ou restreignent l’accès à certains produits, ce qui assèche la liquidité du marché."
+  },
+  {
+   "nom": "Volmageddon (2018)",
+   "debut": "2018-02-01",
+   "fin": "2018-03-01",
+   "categorie": "crise financière",
+   "description_neutre": "Une stratégie très répandue consistant à vendre de la protection contre la volatilité fonctionne tant que les marchés restent calmes. Quand les mouvements deviennent brusques, les pertes forcent des rachats en chaîne et les intermédiaires doivent couvrir rapidement leurs positions, ce qui tend à amplifier les variations."
+  },
+  {
+   "nom": "Premiers droits de douane punitifs (2018)",
+   "debut": "2018-03-22",
+   "fin": "2018-04-23",
+   "categorie": "géopolitique",
+   "description_neutre": "Une grande puissance industrielle annonce des droits de douane ciblés sur des importations jugées stratégiques, en invoquant des pratiques commerciales qu’elle estime déloyales. La mesure fait craindre des représailles et ouvre une phase d’incertitude sur les chaînes d’approvisionnement mondiales."
+  },
+  {
+   "nom": "Crise politique italienne (2018)",
+   "debut": "2018-05-25",
+   "fin": "2018-06-22",
+   "categorie": "élection / politique",
+   "description_neutre": "La formation d’un gouvernement devient difficile après un scrutin fragmenté, avec des forces politiques qui contestent les règles budgétaires et la discipline imposée par l’union monétaire. Cette impasse fait craindre des tensions sur la dette souveraine et sur le rapport avec les institutions européennes."
+  },
+  {
+   "nom": "Crise de la livre turque (2018)",
+   "debut": "2018-08-10",
+   "fin": "2018-09-07",
+   "categorie": "crise financière",
+   "description_neutre": "Un grand pays émergent très endetté en devises voit sa monnaie subir une forte pression alors que l’inflation est élevée et que les relations avec les investisseurs se tendent. Les inquiétudes portent sur la capacité des banques et des entreprises à refinancer leurs dettes et à importer des biens essentiels."
+  },
+  {
+   "nom": "Repli de fin d'année (2018)",
+   "debut": "2018-10-03",
+   "fin": "2018-12-24",
+   "categorie": "banque centrale",
+   "description_neutre": "Après une longue période de resserrement monétaire, le dirigeant de la banque centrale américaine affirme que les taux sont encore loin d'un niveau neutre, dans un climat de tensions commerciales. Les investisseurs s'interrogent sur la croissance mondiale et sur la marge de manœuvre de la politique monétaire."
+  },
+  {
+   "nom": "Escalade commerciale sino-américaine (août 2019)",
+   "debut": "2019-08-01",
+   "fin": "2019-09-03",
+   "categorie": "géopolitique",
+   "description_neutre": "Deux grandes économies s’échangent de nouvelles mesures tarifaires après l’échec de négociations sur le commerce, la technologie et les transferts de savoir-faire. Les entreprises exportatrices et les secteurs dépendants des échanges transfrontaliers redoutent un durcissement durable des conditions d’accès aux marchés."
+  },
+  {
+   "nom": "Attaque sur des installations pétrolières saoudiennes (2019)",
+   "debut": "2019-09-13",
+   "fin": "2019-10-11",
+   "categorie": "énergie",
+   "description_neutre": "Des installations clés de traitement et d’exportation de pétrole sont visées par une attaque qui perturbe temporairement l’offre d’un grand exportateur. L’épisode révèle la vulnérabilité des infrastructures énergétiques du Golfe et ravive les craintes sur la sécurité des approvisionnements."
+  },
+  {
+   "nom": "Frappe contre un général iranien (2020)",
+   "debut": "2020-01-02",
+   "fin": "2020-01-24",
+   "categorie": "géopolitique",
+   "description_neutre": "Une opération militaire ciblée élimine un haut responsable de la sécurité d’un grand pays du Moyen-Orient, dans un contexte de tensions déjà élevées avec une puissance occidentale. L’épisode fait monter la crainte d’une riposte asymétrique et d’un élargissement du conflit régional."
+  },
+  {
+   "nom": "Pétrole à prix négatif (2020)",
+   "debut": "2020-04-17",
+   "fin": "2020-05-15",
+   "categorie": "énergie",
+   "description_neutre": "La chute brutale de la demande mondiale, liée à un arrêt massif de l’activité économique, remplit les capacités de stockage et bloque les débouchés physiques. Les détenteurs de contrats arrivant à échéance cherchent à se défaire de leurs positions dans un marché où l’espace de stockage devient rare."
+  },
+  {
+   "nom": "Annonce d'un vaccin efficace (2020)",
+   "debut": "2020-11-06",
+   "fin": "2020-12-04",
+   "categorie": "pandémie",
+   "description_neutre": "Des essais cliniques montrent qu’un vaccin contre le nouveau virus respiratoire offre une protection élevée, ce qui laisse entrevoir une sortie progressive des restrictions sanitaires. L’annonce améliore la visibilité sur la réouverture de secteurs fermés et sur le retour de la mobilité."
+  },
+  {
+   "nom": "Frénésie boursière autour d'une action (GameStop, 2021)",
+   "debut": "2021-01-22",
+   "fin": "2021-02-12",
+   "categorie": "entreprise / secteur",
+   "description_neutre": "Une action très vendue à découvert devient la cible d’une mobilisation coordonnée de particuliers sur les réseaux sociaux, qui achètent massivement pour forcer les vendeurs à découvert à se couvrir. La hausse rapide du titre met sous pression plusieurs fonds spéculatifs exposés."
+  },
+  {
+   "nom": "Retrait d'un soutien majeur aux cryptomonnaies (2021)",
+   "debut": "2021-05-11",
+   "fin": "2021-06-11",
+   "categorie": "cryptomonnaies",
+   "description_neutre": "Un grand constructeur de véhicules électriques annonce qu'il suspend l'acceptation de la cryptomonnaie la plus connue comme moyen de paiement pour ses achats, en invoquant des préoccupations environnementales liées à la consommation d'électricité du réseau. Le signal est d'autant plus important que cette société avait récemment apporté une légitimité commerciale à cet actif."
+  },
+  {
+   "nom": "Reprise en main des géants chinois du numérique (2021)",
+   "debut": "2021-07-22",
+   "fin": "2021-08-20",
+   "categorie": "entreprise / secteur",
+   "description_neutre": "Les autorités renforcent brusquement la surveillance des grandes plateformes numériques, en ciblant leurs pratiques de concurrence, de collecte de données et de financement. Plusieurs projets de cotation et de développement sont remis en cause, ce qui accroît l’incertitude sur le modèle de croissance du secteur."
+  },
+  {
+   "nom": "Défaut d'un promoteur immobilier chinois (2021)",
+   "debut": "2021-09-17",
+   "fin": "2021-10-18",
+   "categorie": "entreprise / secteur",
+   "description_neutre": "Un grand promoteur immobilier très endetté ne parvient plus à honorer ses paiements sur le marché obligataire, alors que le secteur est déjà fragilisé par un durcissement des règles de financement. Les acheteurs de logements et les créanciers s’inquiètent de l’achèvement des projets et de la contagion au reste du secteur."
+  },
+  {
+   "nom": "Apparition du variant Omicron (2021)",
+   "debut": "2021-11-24",
+   "fin": "2021-12-20",
+   "categorie": "pandémie",
+   "description_neutre": "Un nouveau variant d’un virus respiratoire très contagieux est détecté en Afrique australe, avec de nombreuses mutations qui inquiètent sur sa transmissibilité et une éventuelle baisse de l’efficacité des vaccins. Plusieurs pays rétablissent des restrictions de voyage et renforcent la surveillance sanitaire."
+  },
+  {
+   "nom": "Effondrement d'une cryptomonnaie stable (2022)",
+   "debut": "2022-05-06",
+   "fin": "2022-05-27",
+   "categorie": "cryptomonnaies",
+   "description_neutre": "Une cryptomonnaie conçue pour rester arrimée à une valeur de référence perd brutalement cet ancrage après des retraits massifs et la vente de ses réserves. Le mécanisme de stabilisation se révèle insuffisant, ce qui fait craindre des effets en chaîne sur d’autres actifs numériques liés au même écosystème."
+  },
+  {
+   "nom": "Mini-budget britannique (2022)",
+   "debut": "2022-09-22",
+   "fin": "2022-10-21",
+   "categorie": "élection / politique",
+   "description_neutre": "Le gouvernement annonce un ensemble de baisses d’impôts et de mesures de soutien sans financement clairement crédible, alors que l’inflation est déjà élevée et que la banque centrale resserre sa politique. Les opérateurs doutent de la soutenabilité budgétaire et de la cohérence avec la lutte contre l’inflation."
+  },
+  {
+   "nom": "Réduction de production de l'OPEP+ (octobre 2022)",
+   "debut": "2022-10-04",
+   "fin": "2022-11-04",
+   "categorie": "énergie",
+   "description_neutre": "Plusieurs grands exportateurs de pétrole coordonnent une baisse de leur offre pour soutenir les prix dans un contexte où l’inflation reste élevée et où l’énergie pèse déjà sur l’activité. Cette décision ravive les craintes sur l’équilibre entre demande mondiale, coûts de transport et pouvoir d’achat."
+  },
+  {
+   "nom": "Faillite d'une plateforme de cryptomonnaies (2022)",
+   "debut": "2022-11-07",
+   "fin": "2022-12-07",
+   "categorie": "cryptomonnaies",
+   "description_neutre": "Une grande plateforme d’échange de cryptomonnaies cesse brutalement ses retraits puis se place sous protection judiciaire, après des soupçons sur l’usage des dépôts des clients et des pertes liées à une société sœur. L’affaire révèle des failles de gouvernance, de liquidité et de contrôle dans un secteur déjà fragilisé."
+  },
+  {
+   "nom": "Résultats d'un fabricant de puces pour l'IA (2023)",
+   "debut": "2023-05-23",
+   "fin": "2023-06-23",
+   "categorie": "entreprise / secteur",
+   "description_neutre": "Un fabricant de semi-conducteurs spécialisé dans les puces utilisées pour entraîner des modèles d’intelligence artificielle publie des résultats très supérieurs aux attentes, portés par une demande exceptionnelle des grands acteurs du cloud et du logiciel. L’entreprise relève aussi ses perspectives, signalant une tension persistante sur l’offre de composants."
+  },
+  {
+   "nom": "Attaque du 7 octobre (2023)",
+   "debut": "2023-10-06",
+   "fin": "2023-11-03",
+   "categorie": "géopolitique",
+   "description_neutre": "Un mouvement armé lance une offensive surprise depuis un territoire enclavé contre des localités et des positions militaires voisines, en prenant des otages et en provoquant de lourdes pertes civiles. Les autorités réagissent par une opération militaire d’ampleur, tandis que la perspective d’un conflit prolongé s’installe."
+  },
+  {
+   "nom": "Virage de la banque centrale américaine (décembre 2023)",
+   "debut": "2023-12-12",
+   "fin": "2024-01-12",
+   "categorie": "banque centrale",
+   "description_neutre": "Après une longue phase de resserrement monétaire, la banque centrale américaine laisse entendre que le cycle de hausse touche à sa fin et que des baisses pourraient suivre si l’inflation continue de ralentir. Les investisseurs réévaluent alors la trajectoire des taux, du crédit et du coût du capital dans l’ensemble de l’économie."
+  },
+  {
+   "nom": "Fonds cotés sur les cryptomonnaies approuvés (2024)",
+   "debut": "2024-01-09",
+   "fin": "2024-02-09",
+   "categorie": "cryptomonnaies",
+   "description_neutre": "Le régulateur américain des marchés autorise pour la première fois des produits financiers cotés qui répliquent directement le cours de la cryptomonnaie la plus connue. Cette validation ouvre l'accès à un public plus large via des comptes de courtage classiques et légitime davantage cet actif auprès des investisseurs institutionnels."
+  },
+  {
+   "nom": "Dissolution de l'Assemblée nationale (2024)",
+   "debut": "2024-06-07",
+   "fin": "2024-07-12",
+   "categorie": "élection / politique",
+   "description_neutre": "Le chef de l’État dissout la chambre basse après un revers électoral, provoquant une campagne éclair et la possibilité d’une cohabitation. Les investisseurs doivent réévaluer le cap futur sur les finances publiques, les réformes et la stabilité politique."
+  },
+  {
+   "nom": "Dénouement du carry trade yen (2024)",
+   "debut": "2024-07-30",
+   "fin": "2024-08-30",
+   "categorie": "banque centrale",
+   "description_neutre": "Pendant des mois, des opérateurs ont emprunté dans une monnaie à faible coût pour financer des achats d’actifs plus rémunérateurs ailleurs. Quand les anticipations sur les taux japonais changent et que la devise se renforce, ces positions deviennent moins rentables et doivent être réduites rapidement."
+  },
+  {
+   "nom": "Baisse de taux de 0,5 point aux États-Unis (2024)",
+   "debut": "2024-09-17",
+   "fin": "2024-10-18",
+   "categorie": "banque centrale",
+   "description_neutre": "La banque centrale américaine choisit d’assouplir sa politique plus nettement que lors d’un ajustement habituel, après une période où l’inflation a commencé à refluer. Cette décision modifie les attentes sur le coût de financement, la demande intérieure et la vitesse du ralentissement économique."
+  },
+  {
+   "nom": "Élection américaine (2024)",
+   "debut": "2024-11-05",
+   "fin": "2024-12-06",
+   "categorie": "élection / politique",
+   "description_neutre": "Le scrutin se déroule dans un climat de polarisation, avec des enjeux sur les impôts, les droits de douane, l’immigration et l’indépendance de la banque centrale. Les marchés tentent d’anticiper si la prochaine administration privilégiera davantage la dérégulation, le protectionnisme ou la continuité."
+  },
+  {
+   "nom": "Modèle d'IA chinois à bas coût (2025)",
+   "debut": "2025-01-24",
+   "fin": "2025-02-21",
+   "categorie": "entreprise / secteur",
+   "description_neutre": "Une jeune entreprise chinoise présente un modèle d’intelligence artificielle présenté comme beaucoup moins coûteux à entraîner et à utiliser que ceux des leaders du secteur. Cette annonce alimente les interrogations sur l’avantage technologique des acteurs dominants et sur l’ampleur des besoins futurs en calcul."
+  },
+  {
+   "nom": "Droits de douane généralisés (avril 2025)",
+   "debut": "2025-04-02",
+   "fin": "2025-05-02",
+   "categorie": "géopolitique",
+   "description_neutre": "Une grande puissance économique élargit brutalement ses barrières douanières à une large gamme de biens importés, au nom de la protection de son industrie et de sa sécurité économique. Les partenaires commerciaux redoutent des mesures de rétorsion et une perturbation des flux mondiaux de marchandises."
+  },
+  {
+   "nom": "Guerre de douze jours Iran-Israël (2025)",
+   "debut": "2025-06-12",
+   "fin": "2025-07-11",
+   "categorie": "géopolitique",
+   "description_neutre": "Une série d’échanges militaires directs oppose deux puissances régionales longtemps engagées dans une rivalité de l’ombre, après une montée rapide des tensions et des frappes croisées. Le risque d’embrasement plus large inquiète les marchés de l’énergie et les acteurs exposés au Moyen-Orient."
+  }
+ ]
+}

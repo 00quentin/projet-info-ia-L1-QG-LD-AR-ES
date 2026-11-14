@@ -1,20 +1,25 @@
 """
 scripts/valider_ia_historique.py
 ================================
-L'IA à l'épreuve de l'histoire : pour chaque crise de
-market_data.EVENEMENTS_HISTORIQUES, on décrit l'événement à l'IA sans le nommer
-ni le dater, puis on compare ses chocs estimés aux vrais cours (Yahoo Finance,
-en euros comme le backtest). Résultat : data/validation_ia.json, servi tel quel
-par l'API (aucun appel IA pendant les visites).
+L'IA à l'épreuve de l'histoire : pour chaque événement de
+data/evenements_validation.json (grandes crises et chocs plus petits depuis 1999),
+on décrit l'événement à l'IA sans le nommer ni le dater, puis on compare ses chocs
+estimés aux vrais cours (Yahoo Finance, en euros comme le backtest). Résultat :
+data/validation_ia.json, servi tel quel par l'API (aucun appel IA pendant les visites).
 
 Usage (depuis la racine du projet) :
     python scripts/valider_ia_historique.py                  # complète le fichier
     python scripts/valider_ia_historique.py --crise "Brexit (2016)"
     python scripts/valider_ia_historique.py --sans-ia        # cours et scores seulement
     python scripts/valider_ia_historique.py --forcer         # refait tous les appels IA
+    python scripts/valider_ia_historique.py --sans-variante-date --max-appels 100
+        # validation complète : 1 seul appel par nouvel événement (la variante
+        # « avec date » ne sert qu'aux 9 crises historiques)
 
 Une estimation déjà enregistrée est réutilisée tant que le prompt envoyé et le
-modèle sont identiques : relancer le script ne coûte rien si rien n'a changé.
+modèle sont identiques : relancer le script (même après une interruption) ne
+refait que ce qui manque. Si le plafond d'appels est atteint, le travail déjà
+fait est écrit dans le fichier avant l'arrêt.
 """
 
 import argparse
@@ -49,8 +54,15 @@ from schemas import BORNES_ACTIFS, elargir_fourchettes, valider_reponse_ia  # no
 log = get_logger("validation_ia")
 
 FICHIER_SORTIE = RACINE / "data" / "validation_ia.json"
+FICHIER_EVENEMENTS = RACINE / "data" / "evenements_validation.json"
 # Change quand la méthode de ce script change (pas le prompt du simulateur, suivi à part).
-VERSION_PROTOCOLE = "validation-v2-fourchette"
+VERSION_PROTOCOLE = "validation-v3-evenements"
+# En dessous, trop peu d'actifs cotaient à l'époque pour que la comparaison ait un sens.
+NB_ACTIFS_MIN = 5
+CATEGORIE_PAR_DEFAUT = "autre"
+# Les 6 premières crises de market_data ont servi à écrire le prompt : les autres
+# événements sont « hors échantillon » (l'IA n'a pas été réglée dessus).
+NB_CRISES_DU_PROMPT = 6
 
 # Ce que l'on dit à l'IA : le mécanisme de la crise, sans nom, sans date, sans
 # chiffre de marché. Volontairement proche de ce qu'un visiteur taperait.
@@ -124,6 +136,22 @@ BLOC_HORIZON = """
     d'amplitude a cette duree.
     """
 
+def charger_evenements() -> list[dict]:
+    """Événements à valider : {nom, debut, fin, categorie, description_neutre, sert_au_prompt?}.
+    Repli sans fichier : les crises de market_data (descriptions de DESCRIPTIONS_NEUTRES)."""
+    if FICHIER_EVENEMENTS.exists():
+        evenements = json.loads(FICHIER_EVENEMENTS.read_text(encoding="utf-8"))["evenements"]
+    else:
+        evenements = [{"nom": nom, "debut": i["debut"], "fin": i["fin"], "categorie": CATEGORIE_PAR_DEFAUT,
+                       "sert_au_prompt": rang < NB_CRISES_DU_PROMPT}
+                      for rang, (nom, i) in enumerate(market_data.EVENEMENTS_HISTORIQUES.items())]
+    noms = [e["nom"] for e in evenements]
+    doublons = sorted({n for n in noms if noms.count(n) > 1})
+    if doublons:
+        raise SystemExit(f"Événement en double dans {FICHIER_EVENEMENTS.name} : {', '.join(doublons)}")
+    return evenements
+
+
 _ORDRE_CATALOGUE = list(NOM_AFFICHAGE)
 _CATEGORIE = {cle: cat for cat, actifs in ACTIFS_DISPONIBLES.items() for cle in actifs.values()}
 
@@ -140,6 +168,10 @@ def _jour(iso: str) -> date:
 # === Appel IA ==============================================================
 
 
+class PlafondAtteint(RuntimeError):
+    """Le nombre maximal d'appels IA de l'exécution est atteint."""
+
+
 class CompteurAppels:
     """Compte les appels IA de l'exécution et refuse d'aller au-delà du plafond."""
 
@@ -149,7 +181,7 @@ class CompteurAppels:
 
     def reserver(self) -> None:
         if self.nb >= self.maximum:
-            raise RuntimeError(f"Plafond de {self.maximum} appels IA atteint : arrêt.")
+            raise PlafondAtteint(f"Plafond de {self.maximum} appels IA atteint : arrêt.")
         self.nb += 1
 
 
@@ -292,13 +324,20 @@ def _reconnue(estimation: dict, debut: date, fin: date) -> bool:
 
 
 def traiter_crise(nom: str, infos: dict, ancienne: dict | None, appeler: bool,
-                  forcer: bool, compteur: CompteurAppels) -> dict | None:
-    description = DESCRIPTIONS_NEUTRES.get(nom)
+                  forcer: bool, compteur: CompteurAppels, variante_date: bool = True) -> dict | None:
+    """`infos` : un événement de charger_evenements(). `variante_date=False` : pas de nouvel
+    appel « avec date » (une estimation « avec date » déjà enregistrée est conservée)."""
+    description = infos.get("description_neutre") or DESCRIPTIONS_NEUTRES.get(nom)
     if description is None:
-        raise SystemExit(f"Pas de description neutre pour « {nom} » : ajoutez-la dans DESCRIPTIONS_NEUTRES.")
+        raise SystemExit(f"Pas de description neutre pour « {nom} » : ajoutez-la dans "
+                         f"{FICHIER_EVENEMENTS.name}.")
     probleme = verifier_neutralite(description, nom)
     if probleme:
         raise SystemExit(f"Description de « {nom} » non neutre : {probleme}")
+
+    if not appeler and not (ancienne and ancienne.get("estimation")):
+        log.debug("Aucune estimation enregistrée pour « %s » : événement ignoré.", nom)
+        return None
 
     debut, fin = _jour(infos["debut"]), _jour(infos["fin"])
     cles = list(market_data.TICKERS_YAHOO)
@@ -311,22 +350,30 @@ def traiter_crise(nom: str, infos: dict, ancienne: dict | None, appeler: bool,
     reels_eur = {c: v for c, v in performances_reelles(df_eur).items() if c in _ORDRE_CATALOGUE}
     reels_eur = {c: reels_eur[c] for c in _ORDRE_CATALOGUE if c in reels_eur}
     reels_local = performances_reelles(df_local)
+    if len(reels_eur) < NB_ACTIFS_MIN:
+        message = (f"« {nom} » ignoré : seulement {len(reels_eur)} actif(s) cotés sur la période "
+                   f"(minimum {NB_ACTIFS_MIN}).")
+        log.warning(message)
+        print(f"  {message}")
+        return None
 
     nb_seances = len(df_eur)
     duree = duree_en_mots(debut, fin)
+    # Libellé historique conservé tel quel pour les 9 crises d'origine (empreinte inchangée).
+    cadre = "de la crise" if nom in market_data.EVENEMENTS_HISTORIQUES else "de l'événement"
     scenario = (f"{description} La période étudiée dure {duree} ({nb_seances} séances de bourse), "
-                f"à partir du début de la crise.")
+                f"à partir du début {cadre}.")
     scenario_date = f"{scenario} {indice_date(debut, fin)}"
     anciennes = ancienne or {}
 
     estimation = obtenir_estimation(construire_prompt(scenario, nb_seances, duree), scenario,
                                     anciennes.get("estimation"), appeler, forcer, compteur)
     if estimation is None:
-        log.warning("Aucune estimation enregistrée pour « %s » : crise ignorée.", nom)
+        log.warning("Aucune estimation enregistrée pour « %s » : événement ignoré.", nom)
         return None
     estimation_date = obtenir_estimation(construire_prompt(scenario_date, nb_seances, duree),
                                          scenario_date, anciennes.get("estimation_avec_date"),
-                                         appeler, forcer, compteur)
+                                         appeler and variante_date, forcer, compteur)
 
     lignes, lignes_local = comparer(estimation, reels_eur, reels_local)
     actifs = []
@@ -358,6 +405,9 @@ def traiter_crise(nom: str, infos: dict, ancienne: dict | None, appeler: bool,
     index = [d.strftime("%Y-%m-%d") for d in df_eur.index]
     return {
         "nom": nom,
+        "categorie": infos.get("categorie") or CATEGORIE_PAR_DEFAUT,
+        # Vrai si le prompt n'a pas été écrit en regardant cet événement.
+        "hors_echantillon": not infos.get("sert_au_prompt", False),
         "debut": infos["debut"],
         "fin": infos["fin"],
         "premiere_seance": index[0],
@@ -386,7 +436,25 @@ def traiter_crise(nom: str, infos: dict, ancienne: dict | None, appeler: bool,
 # === Assemblage du fichier =================================================
 
 
+def _groupe(crises: list[dict]) -> dict:
+    """Scores d'un groupe d'événements (même calcul que le global) + nombre reconnus sans date."""
+    resultat = agreger(c["_lignes"] for c in crises)
+    resultat["nb_evenements"] = len(crises)
+    resultat["nb_reconnues_sans_date"] = sum(1 for c in crises if c["reconnue"])
+    return resultat
+
+
+def par_categorie(crises: list[dict]) -> dict:
+    """{catégorie: scores}, dans l'ordre de première apparition dans le fichier d'événements."""
+    groupes: dict[str, list[dict]] = {}
+    for c in crises:
+        groupes.setdefault(c["categorie"], []).append(c)
+    return {cat: _groupe(liste) for cat, liste in groupes.items()}
+
+
 def assembler(crises: list[dict]) -> dict:
+    hors = [c for c in crises if c["hors_echantillon"]]
+    du_prompt = [c for c in crises if not c["hors_echantillon"]]
     avec_variante = [c for c in crises if c["avec_date"]]
     modeles = sorted({c["modele"] for c in crises if c.get("modele")}
                      | {c["estimation_avec_date"]["modele"] for c in avec_variante})
@@ -407,6 +475,10 @@ def assembler(crises: list[dict]) -> dict:
         },
         "global": agreger(c["_lignes"] for c in crises),
         "global_devise_locale": agreger(c["_lignes_local"] for c in crises),
+        "par_categorie": par_categorie(crises),
+        # « Hors échantillon » : événements qui n'ont pas servi à écrire le prompt.
+        "hors_echantillon": _groupe(hors) if hors else None,
+        "echantillon_prompt": _groupe(du_prompt) if du_prompt else None,
         "biais_connaissance": {
             "nb_crises": len(avec_variante),
             "sans_date": agreger(c["_lignes"] for c in avec_variante),
@@ -434,8 +506,10 @@ def _arrondir_fichier(resultat: dict) -> dict:
                 est["chocs_bruts"] = arrondir(est["chocs_bruts"], 4)
                 est["fourchettes"] = arrondir(est.get("fourchettes") or {}, 4)
                 est["fourchettes_ia"] = arrondir(est.get("fourchettes_ia") or {}, 4)
-    for bloc in (resultat["global"], resultat["global_devise_locale"],
-                 resultat["biais_connaissance"]["sans_date"], resultat["biais_connaissance"]["avec_date"]):
+    blocs = [resultat["global"], resultat["global_devise_locale"], *resultat["par_categorie"].values(),
+             resultat["biais_connaissance"]["sans_date"], resultat["biais_connaissance"]["avec_date"]]
+    blocs += [resultat[c] for c in ("hors_echantillon", "echantillon_prompt") if resultat[c]]
+    for bloc in blocs:
         _arrondir_metriques(bloc)
     for crise in resultat["crises"]:
         _arrondir_metriques(crise["metriques"])
@@ -470,6 +544,14 @@ def _afficher_resume(resultat: dict) -> None:
         ligne(crise["nom"], crise["metriques"])
         if crise["avec_date"]:
             ligne("   … avec la date", crise["avec_date"]["metriques"])
+    print("\nPar catégorie :")
+    for categorie, m in resultat["par_categorie"].items():
+        ligne(f"{categorie} ({m['nb_evenements']})", m)
+    print("\nÉchantillon :")
+    for nom, cle in (("Hors échantillon", "hors_echantillon"), ("Ayant servi au prompt", "echantillon_prompt")):
+        if resultat[cle]:
+            ligne(f"{nom} ({resultat[cle]['nb_evenements']})", resultat[cle])
+    print()
     ligne("GLOBAL", resultat["global"])
     ligne("GLOBAL (devise d'origine)", resultat["global_devise_locale"])
     b = resultat["biais_connaissance"]
@@ -481,15 +563,19 @@ def _afficher_resume(resultat: dict) -> None:
 
 def main(arguments=None) -> int:
     parseur = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parseur.add_argument("--crise", action="append", help="limiter les appels IA à cette crise (répétable)")
+    parseur.add_argument("--crise", action="append", help="limiter les appels IA à cet événement (répétable)")
+    parseur.add_argument("--sans-variante-date", action="store_true",
+                         help="un seul appel IA par événement : pas de variante « avec date » "
+                              "pour les événements qui ne sont pas parmi les 9 crises historiques")
     parseur.add_argument("--sans-ia", action="store_true", help="aucun appel IA : réutilise les estimations enregistrées")
     parseur.add_argument("--forcer", action="store_true", help="refait les appels IA même si rien n'a changé")
     parseur.add_argument("--max-appels", type=int, default=VALIDATION_MAX_APPELS, help="plafond d'appels IA")
     args = parseur.parse_args(arguments)
 
-    inconnues = set(args.crise or []) - set(market_data.EVENEMENTS_HISTORIQUES)
+    evenements = charger_evenements()
+    inconnues = set(args.crise or []) - {e["nom"] for e in evenements}
     if inconnues:
-        raise SystemExit(f"Crise inconnue : {', '.join(sorted(inconnues))}")
+        raise SystemExit(f"Événement inconnu : {', '.join(sorted(inconnues))}")
     if not args.sans_ia and not ia_bot._cle_api():
         raise SystemExit("OPENAI_API_KEY absente : utilisez --sans-ia ou renseignez la clé.")
 
@@ -499,19 +585,39 @@ def main(arguments=None) -> int:
 
     compteur = CompteurAppels(args.max_appels)
     crises = []
-    for nom, infos in market_data.EVENEMENTS_HISTORIQUES.items():
-        appeler = not args.sans_ia and (not args.crise or nom in args.crise)
-        resultat = traiter_crise(nom, infos, anciennes.get(nom), appeler, args.forcer, compteur)
+    interruption = None
+    for infos in evenements:
+        nom = infos["nom"]
+        historique = nom in market_data.EVENEMENTS_HISTORIQUES
+        variante = historique or not args.sans_variante_date
+        appeler = not args.sans_ia and (not args.crise or nom in args.crise) and interruption is None
+        try:
+            resultat = traiter_crise(nom, infos, anciennes.get(nom), appeler, args.forcer, compteur, variante)
+        except (PlafondAtteint, RateLimitError) as e:
+            # Plafond atteint ou quota IA épuisé : on garde ce qui est déjà estimé, sans nouvel appel.
+            interruption = e
+            log.error("Arrêt des appels IA : %s", e)
+            resultat = traiter_crise(nom, infos, anciennes.get(nom), False, args.forcer, compteur, variante)
+        except RuntimeError as e:
+            # Réponse IA inexploitable : cet événement sera refait à la prochaine exécution.
+            log.warning("« %s » ignoré pour cette exécution : %s", nom, e)
+            print(f"  « {nom} » ignoré : {e}")
+            resultat = traiter_crise(nom, infos, anciennes.get(nom), False, args.forcer, compteur, variante)
         if resultat:
             crises.append(resultat)
     if not crises:
-        raise SystemExit("Aucune crise estimée : rien à écrire.")
+        if interruption:
+            raise interruption
+        raise SystemExit("Aucun événement estimé : rien à écrire.")
 
     resultat = assembler(crises)
     FICHIER_SORTIE.parent.mkdir(parents=True, exist_ok=True)
     FICHIER_SORTIE.write_text(json.dumps(resultat, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     _afficher_resume(resultat)
-    print(f"\n{compteur.nb} appel(s) IA. Écrit : {FICHIER_SORTIE}")
+    print(f"\n{compteur.nb} appel(s) IA, {len(crises)} événement(s) sur {len(evenements)}. Écrit : {FICHIER_SORTIE}")
+    if interruption:
+        print("Interrompu avant la fin : relancez la même commande pour reprendre.")
+        raise interruption
     return 0
 
 

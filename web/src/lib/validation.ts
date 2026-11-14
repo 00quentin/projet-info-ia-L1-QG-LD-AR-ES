@@ -28,6 +28,9 @@ export type MetriquesValidation = {
   /** Sorties de fourchette où le vrai mouvement a été plus fort que prévu, dans le sens vu par l'IA. */
   nb_sorties_plus_fortes?: number;
   nb_crises?: number;
+  /** Groupes (catégorie, hors échantillon) : nombre d'événements et de ceux reconnus sans date. */
+  nb_evenements?: number;
+  nb_reconnues_sans_date?: number;
 };
 
 export type ActifValide = {
@@ -64,6 +67,10 @@ export type VarianteAvecDate = {
 
 export type CriseValidee = {
   nom: string;
+  /** Catégorie de l'événement (crise financière, banque centrale…) ; absente des anciens fichiers. */
+  categorie?: string;
+  /** Vrai si le prompt n'a pas été écrit en regardant cet événement ; absent des anciens fichiers. */
+  hors_echantillon?: boolean;
   debut: string;
   fin: string;
   premiere_seance: string;
@@ -100,6 +107,12 @@ export type ValidationIA = {
   };
   global: MetriquesValidation;
   global_devise_locale: MetriquesValidation;
+  /** Scores par catégorie, dans l'ordre du fichier d'événements. */
+  par_categorie?: Record<string, MetriquesValidation>;
+  /** Événements qui n'ont pas servi à écrire le prompt (null si aucun). */
+  hors_echantillon?: MetriquesValidation | null;
+  /** Les crises qui ont servi à écrire le prompt. */
+  echantillon_prompt?: MetriquesValidation | null;
   biais_connaissance: {
     nb_crises: number;
     sans_date: MetriquesValidation;

@@ -21,6 +21,7 @@ from core.validation_ia import agreger, verifier_neutralite
 
 RACINE = Path(__file__).resolve().parent.parent
 FICHIER = RACINE / "data" / "validation_ia.json"
+FICHIER_EVENEMENTS = RACINE / "data" / "evenements_validation.json"
 
 client = TestClient(main.app, raise_server_exceptions=False)
 
@@ -37,10 +38,13 @@ def test_route_sert_le_fichier_sans_les_estimations_internes():
     reponse = client.get("/api/validation-ia")
     assert reponse.status_code == 200
     corps = reponse.json()
-    assert {"genere_le", "protocole", "global", "biais_connaissance", "crises"} <= set(corps)
+    assert {"genere_le", "protocole", "global", "biais_connaissance", "crises",
+            "par_categorie", "hors_echantillon"} <= set(corps)
     for crise in corps["crises"]:
         assert "estimation" not in crise and "estimation_avec_date" not in crise
         assert crise["actifs"]
+        assert crise["categorie"] in corps["par_categorie"]
+        assert isinstance(crise["hors_echantillon"], bool)
 
 
 def test_route_fichier_absent(monkeypatch, tmp_path):
@@ -79,10 +83,31 @@ def donnees():
 
 def test_toutes_les_crises_du_catalogue_sont_validees(donnees):
     noms = [c["nom"] for c in donnees["crises"]]
-    assert noms == list(market_data.EVENEMENTS_HISTORIQUES)
+    # Les 9 crises historiques restent en tête, dans l'ordre du catalogue.
+    assert noms[:len(market_data.EVENEMENTS_HISTORIQUES)] == list(market_data.EVENEMENTS_HISTORIQUES)
+    evenements = {e["nom"]: e for e in json.loads(FICHIER_EVENEMENTS.read_text(encoding="utf-8"))["evenements"]}
     for crise in donnees["crises"]:
-        infos = market_data.EVENEMENTS_HISTORIQUES[crise["nom"]]
-        assert (crise["debut"], crise["fin"]) == (infos["debut"], infos["fin"])
+        source = evenements[crise["nom"]]
+        assert (crise["debut"], crise["fin"]) == (source["debut"], source["fin"])
+        assert crise["categorie"] == source["categorie"]
+        assert crise["description_neutre"] == source["description_neutre"]
+
+
+def test_scores_par_categorie_et_hors_echantillon_coherents_avec_le_detail(donnees):
+    assert sum(g["nb_evenements"] for g in donnees["par_categorie"].values()) == len(donnees["crises"])
+    for categorie, groupe in donnees["par_categorie"].items():
+        crises = [c for c in donnees["crises"] if c["categorie"] == categorie]
+        recalcul = agreger(c["actifs"] for c in crises)
+        assert groupe["nb_evenements"] == len(crises)
+        assert groupe["nb_actifs"] == recalcul["nb_actifs"]
+        assert groupe["nb_sens_corrects"] == recalcul["nb_sens_corrects"]
+        assert groupe["erreur_moyenne_pts"] == pytest.approx(recalcul["erreur_moyenne_pts"], abs=0.02)
+    hors = [c for c in donnees["crises"] if c["hors_echantillon"]]
+    assert donnees["hors_echantillon"]["nb_evenements"] == len(hors)
+    assert donnees["hors_echantillon"]["nb_actifs"] == agreger(c["actifs"] for c in hors)["nb_actifs"]
+    # Les 6 crises qui ont servi à écrire le prompt ne sont jamais « hors échantillon ».
+    assert [c["hors_echantillon"] for c in donnees["crises"][:6]] == [False] * 6
+    assert donnees["echantillon_prompt"]["nb_evenements"] == 6
 
 
 def test_descriptions_envoyees_neutres(donnees):
@@ -125,10 +150,20 @@ def _charger_script():
     return module
 
 
+def _petit_fichier_evenements(chemin: Path) -> list:
+    """2 crises historiques + 2 nouveaux événements, copiés du vrai fichier d'événements."""
+    tous = json.loads(FICHIER_EVENEMENTS.read_text(encoding="utf-8"))["evenements"]
+    choisis = tous[:2] + tous[10:12]
+    chemin.write_text(json.dumps({"evenements": choisis}, ensure_ascii=False), encoding="utf-8")
+    return choisis
+
+
 @pytest.fixture
 def script(monkeypatch, tmp_path):
     module = _charger_script()
     monkeypatch.setattr(module, "FICHIER_SORTIE", tmp_path / "validation_ia.json")
+    monkeypatch.setattr(module, "FICHIER_EVENEMENTS", tmp_path / "evenements.json")
+    module.evenements_test = _petit_fichier_evenements(tmp_path / "evenements.json")
     monkeypatch.setattr(module.ia_bot, "_cle_api", lambda: "cle-de-test")
 
     def historique(actifs, debut, fin, convertir_eur=True, avec_dates=False):
@@ -157,27 +192,93 @@ def script(monkeypatch, tmp_path):
 
 
 def test_script_complet_puis_reutilise_les_estimations(script):
-    nb_crises = len(market_data.EVENEMENTS_HISTORIQUES)
+    nb = len(script.evenements_test)
     assert script.main(["--max-appels", "20"]) == 0
-    assert len(script.appels) == 2 * nb_crises  # sans date + avec date
+    assert len(script.appels) == 2 * nb  # sans date + avec date
     donnees = json.loads(script.FICHIER_SORTIE.read_text(encoding="utf-8"))
-    assert len(donnees["crises"]) == nb_crises
+    assert len(donnees["crises"]) == nb
     crise = donnees["crises"][0]
     assert {a["cle"] for a in crise["actifs_absents"]} == {"Solana", "XRP"}
     assert "Indice : la période étudiée va du" in crise["estimation_avec_date"]["scenario"]
     assert "PRIORITAIRE SUR L'ETAPE 2" in script.appels[0]
-    assert donnees["biais_connaissance"]["nb_crises"] == nb_crises
+    assert donnees["biais_connaissance"]["nb_crises"] == nb
     assert donnees["global"]["nb_fourchettes"] == donnees["global"]["nb_actifs"]
     assert all("dans_fourchette" in a for a in crise["actifs"])
 
     # Rien n'a change : aucune nouvelle depense d'IA.
     assert script.main([]) == 0
-    assert len(script.appels) == 2 * nb_crises
+    assert len(script.appels) == 2 * nb
 
 
-def test_script_plafond_d_appels(script):
+def test_script_sans_variante_date_un_seul_appel_pour_les_nouveaux_evenements(script):
+    nb_historiques = sum(1 for e in script.evenements_test if e["nom"] in market_data.EVENEMENTS_HISTORIQUES)
+    nb_nouveaux = len(script.evenements_test) - nb_historiques
+    assert (nb_historiques, nb_nouveaux) == (2, 2)
+    assert script.main(["--sans-variante-date", "--max-appels", "20"]) == 0
+    assert len(script.appels) == 2 * nb_historiques + nb_nouveaux
+    donnees = json.loads(script.FICHIER_SORTIE.read_text(encoding="utf-8"))
+    for crise in donnees["crises"]:
+        historique = crise["nom"] in market_data.EVENEMENTS_HISTORIQUES
+        assert (crise["avec_date"] is not None) == historique
+        assert (crise["estimation_avec_date"] is not None) == historique
+    assert donnees["biais_connaissance"]["nb_crises"] == nb_historiques
+    assert donnees["global"]["nb_crises"] == len(donnees["crises"])
+    # Les nouveaux événements disent « de l'événement », les crises d'origine gardent leur libellé.
+    for crise in donnees["crises"]:
+        fin = "de la crise." if crise["nom"] in market_data.EVENEMENTS_HISTORIQUES else "de l'événement."
+        assert crise["scenario_envoye"].endswith(f"à partir du début {fin}")
+
+    # Sans l'option, on n'ajoute que les variantes « avec date » manquantes.
+    assert script.main(["--max-appels", "20"]) == 0
+    assert len(script.appels) == 2 * nb_historiques + 2 * nb_nouveaux
+
+
+def test_script_scores_par_categorie_et_hors_echantillon(script):
+    assert script.main(["--sans-variante-date", "--max-appels", "20"]) == 0
+    donnees = json.loads(script.FICHIER_SORTIE.read_text(encoding="utf-8"))
+    categories = [e["categorie"] for e in script.evenements_test]
+    assert list(donnees["par_categorie"]) == list(dict.fromkeys(categories))
+    for categorie, groupe in donnees["par_categorie"].items():
+        assert groupe["nb_evenements"] == categories.count(categorie)
+        crises = [c for c in donnees["crises"] if c["categorie"] == categorie]
+        assert groupe["nb_actifs"] == sum(len(c["actifs"]) for c in crises)
+    # Les 2 crises historiques de la fixture sont parmi les 6 du prompt ; les 2 autres sont hors échantillon.
+    assert [c["hors_echantillon"] for c in donnees["crises"]] == [False, False, True, True]
+    assert donnees["hors_echantillon"]["nb_evenements"] == 2
+    assert donnees["echantillon_prompt"]["nb_evenements"] == 2
+    assert (donnees["hors_echantillon"]["nb_actifs"] + donnees["echantillon_prompt"]["nb_actifs"]
+            == donnees["global"]["nb_actifs"])
+
+
+def test_script_plafond_d_appels_garde_le_travail_fait_et_reprend(script):
     with pytest.raises(RuntimeError, match="Plafond"):
         script.main(["--max-appels", "3"])
+    # Le plafond coupe le 2e événement : le 1er est enregistré, la reprise ne refait que le reste.
+    partiel = json.loads(script.FICHIER_SORTIE.read_text(encoding="utf-8"))
+    assert len(partiel["crises"]) == 1
+    assert len(script.appels) == 3
+    assert script.main(["--max-appels", "20"]) == 0
+    assert len(script.appels) == 3 + (2 * len(script.evenements_test) - 2)
+
+
+def test_script_ignore_un_evenement_dont_les_cours_manquent(script, monkeypatch):
+    historique = script.market_data.get_historique
+    ignore = script.evenements_test[2]
+
+    def peu_de_cours(actifs, debut, fin, convertir_eur=True, avec_dates=False):
+        df = historique(actifs, debut, fin, convertir_eur, avec_dates)
+        return df.iloc[:, :script.NB_ACTIFS_MIN - 1] if debut == ignore["debut"] else df
+
+    monkeypatch.setattr(script.market_data, "get_historique", peu_de_cours)
+    assert script.main(["--sans-variante-date", "--max-appels", "20"]) == 0
+    donnees = json.loads(script.FICHIER_SORTIE.read_text(encoding="utf-8"))
+    assert ignore["nom"] not in [c["nom"] for c in donnees["crises"]]
+    assert len(donnees["crises"]) == len(script.evenements_test) - 1
+
+
+def test_script_evenement_inconnu(script):
+    with pytest.raises(SystemExit, match="inconnu"):
+        script.main(["--crise", "Événement imaginaire"])
 
 
 def test_script_sans_ia_sans_fichier(script):
@@ -186,7 +287,19 @@ def test_script_sans_ia_sans_fichier(script):
     assert script.appels == []
 
 
-def test_script_refuse_une_description_qui_trahit_la_crise(script, monkeypatch):
+def test_script_refuse_une_description_qui_trahit_l_evenement(script):
+    contenu = json.loads(script.FICHIER_EVENEMENTS.read_text(encoding="utf-8"))
+    contenu["evenements"][0]["description_neutre"] = "Une pandémie comme en 2020."
+    script.FICHIER_EVENEMENTS.write_text(json.dumps(contenu, ensure_ascii=False), encoding="utf-8")
+    with pytest.raises(SystemExit, match="non neutre"):
+        script.main([])
+    assert script.appels == []
+
+
+def test_script_repli_sur_descriptions_neutres_sans_fichier_d_evenements(script, monkeypatch):
+    # Sans fichier d'événements : les crises de market_data et DESCRIPTIONS_NEUTRES (compatibilité).
+    script.FICHIER_EVENEMENTS.unlink()
+    assert [e["nom"] for e in script.charger_evenements()] == list(market_data.EVENEMENTS_HISTORIQUES)
     nom = next(iter(market_data.EVENEMENTS_HISTORIQUES))
     monkeypatch.setitem(script.DESCRIPTIONS_NEUTRES, nom, "Une pandémie comme en 2020.")
     with pytest.raises(SystemExit, match="non neutre"):
