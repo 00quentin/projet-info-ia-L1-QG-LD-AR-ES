@@ -208,3 +208,14 @@ export async function telechargerRapportPdf(demande: DemandeRapport): Promise<Bl
   }
   return reponse.blob();
 }
+
+/** Scenario neutre condense depuis les gros titres du jour (GET /api/actualite). */
+export type ActualiteDuJour = {
+  disponible: boolean;
+  scenario: string | null;
+  themes: string[];
+  date: string;
+  sources: string[];
+  message: string | null;
+};
+export const lireActualite = () => appeler<ActualiteDuJour>("/api/actualite");

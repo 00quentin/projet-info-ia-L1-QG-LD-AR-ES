@@ -450,3 +450,22 @@ MOTS_GENERIQUES = {"krach", "crise", "bulle", "guerre", "petrolier", "petroliere
 VALIDATION_DEVISES_EN_LOCAL = {"GBP", "JPY"}
 # Garde-fou de coût : nombre maximal d'appels IA par exécution.
 VALIDATION_MAX_APPELS = 14
+
+
+# ==========================================
+# ACTUALITÉ DU JOUR (ia_actualite.py, api/actualite.py)
+# ==========================================
+# Flux RSS publics FIXES (jamais fournis par le visiteur) : (nom affiché, URL).
+ACTUALITE_FLUX = (
+    ("Le Monde Économie", "https://www.lemonde.fr/economie/rss_full.xml"),
+    ("France 24 Éco", "https://www.france24.com/fr/%C3%A9co-tech/rss"),
+    ("BBC Business", "https://feeds.bbci.co.uk/news/business/rss.xml"),
+)
+ACTUALITE_TIMEOUT_S = 5
+ACTUALITE_TAILLE_MAX_OCTETS = 600_000     # un flux plus gros est ignoré
+ACTUALITE_TITRES_PAR_FLUX = 15
+ACTUALITE_TITRE_LONGUEUR_MAX = 160
+ACTUALITE_SCENARIO_MIN = 40
+ACTUALITE_SCENARIO_MAX = 600
+ACTUALITE_THEMES_MAX = 3
+ACTUALITE_TTL_S = 86400                   # 1 appel IA par jour et par instance

@@ -179,3 +179,13 @@ def lire_validation_ia() -> dict:
     """L'IA à l'épreuve de l'histoire : estimations de l'IA face aux vraies crises passées
     (calculées une fois par scripts/valider_ia_historique.py, aucun appel IA ici)."""
     return resultats_validation()
+
+
+# === Actualité du jour ======================================================
+from api.actualite import lire_actualite  # noqa: E402
+
+
+@app.get("/api/actualite", tags=["IA"], dependencies=[limite_ia])
+def actualite_du_jour() -> dict:
+    """Scénario neutre condensé depuis les gros titres du jour (cache journalier, repli propre)."""
+    return lire_actualite()
