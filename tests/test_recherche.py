@@ -69,3 +69,18 @@ def test_cache_et_panne_non_memorisee(monkeypatch):
     monkeypatch.setattr(recherche, "_interroger_yahoo", instable)
     assert recherche.rechercher_actifs("apple")["message"]
     assert recherche.rechercher_actifs("apple")["resultats"]
+
+
+def test_alias_francais_trouve_totalenergies(monkeypatch):
+    """« Total » doit proposer TotalEnergies (TTE.PA) en tête, même si Yahoo ne le renvoie pas."""
+    from api import recherche
+    monkeypatch.setattr(recherche, "_interroger_yahoo", lambda q: [{"symbol": "VTI", "quoteType": "ETF", "longname": "Vanguard Total"}])
+    res = recherche._rechercher.__wrapped__("total") if hasattr(recherche._rechercher, "__wrapped__") else recherche._alias("total")
+    symboles = [r["symbole"] for r in (res["resultats"] if isinstance(res, dict) else res)]
+    assert symboles[0] == "TTE.PA"
+
+
+def test_alias_insensible_aux_accents():
+    from api import recherche
+    assert [r["symbole"] for r in recherche._alias("hermès")] == ["RMS.PA"]
+    assert recherche._alias("ab") == []

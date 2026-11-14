@@ -490,3 +490,22 @@ RECHERCHE_TTL_S = 3600
 RECHERCHE_TIMEOUT_S = 5
 RECHERCHE_URL_YAHOO = "https://query2.finance.yahoo.com/v1/finance/search"
 RECHERCHE_TYPES = {"EQUITY": "action", "ETF": "ETF", "INDEX": "indice", "CRYPTOCURRENCY": "crypto", "MUTUALFUND": "fonds"}
+# Recherche : noms francais courants que la recherche Yahoo ne trouve pas (« Total »
+# renvoie des ETF americains). Symbole verifie aupres de Yahoo au moment de l'ajout.
+RECHERCHE_ALIAS = {
+    "totalenergies": ("TTE.PA", "TotalEnergies"), "lvmh": ("MC.PA", "LVMH"),
+    "l'oreal loreal oreal": ("OR.PA", "L'Oréal"), "airbus": ("AIR.PA", "Airbus"),
+    "sanofi": ("SAN.PA", "Sanofi"), "bnp paribas": ("BNP.PA", "BNP Paribas"),
+    "schneider electric": ("SU.PA", "Schneider Electric"), "air liquide": ("AI.PA", "Air Liquide"),
+    "hermes": ("RMS.PA", "Hermès"), "kering": ("KER.PA", "Kering"), "axa": ("CS.PA", "AXA"),
+    "vinci": ("DG.PA", "Vinci"), "safran": ("SAF.PA", "Safran"),
+    "essilorluxottica essilor": ("EL.PA", "EssilorLuxottica"), "danone": ("BN.PA", "Danone"),
+    "capgemini": ("CAP.PA", "Capgemini"), "credit agricole": ("ACA.PA", "Crédit Agricole"),
+    "societe generale": ("GLE.PA", "Société Générale"), "orange": ("ORA.PA", "Orange"),
+    "pernod ricard": ("RI.PA", "Pernod Ricard"), "saint-gobain saint gobain": ("SGO.PA", "Saint-Gobain"),
+    "engie": ("ENGI.PA", "Engie"), "veolia": ("VIE.PA", "Veolia"), "michelin": ("ML.PA", "Michelin"),
+    "renault": ("RNO.PA", "Renault"), "stellantis": ("STLAP.PA", "Stellantis"), "thales": ("HO.PA", "Thales"),
+    "dassault systemes": ("DSY.PA", "Dassault Systèmes"), "publicis": ("PUB.PA", "Publicis"),
+    "legrand": ("LR.PA", "Legrand"), "bouygues": ("EN.PA", "Bouygues"), "carrefour": ("CA.PA", "Carrefour"),
+    "accor": ("AC.PA", "Accor"), "vivendi": ("VIV.PA", "Vivendi"),
+}

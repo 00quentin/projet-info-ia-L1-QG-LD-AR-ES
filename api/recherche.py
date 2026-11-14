@@ -5,12 +5,13 @@ Recherche d'actifs par nom (« Total », « Apple »...) via Yahoo Finance.
 Ne leve jamais d'exception : en cas de panne, repli sur une liste vide + message.
 """
 import re
+import unicodedata
 from typing import Any, Dict, List
 
 import requests
 
 from config import (
-    RECHERCHE_LONGUEUR_MAX, RECHERCHE_LONGUEUR_MIN, RECHERCHE_RESULTATS_MAX, RECHERCHE_TIMEOUT_S,
+    RECHERCHE_ALIAS, RECHERCHE_LONGUEUR_MAX, RECHERCHE_LONGUEUR_MIN, RECHERCHE_RESULTATS_MAX, RECHERCHE_TIMEOUT_S,
     RECHERCHE_TTL_S, RECHERCHE_TYPES, RECHERCHE_URL_YAHOO,
 )
 from core.cache import cache_ttl
@@ -75,14 +76,42 @@ def _interroger_yahoo(q: str) -> List[dict]:
     return r.json().get("quotes", [])
 
 
+def _sans_accents(texte: str) -> str:
+    return "".join(c for c in unicodedata.normalize("NFD", texte.lower()) if unicodedata.category(c) != "Mn")
+
+
+def _alias(q: str) -> List[Dict[str, Any]]:
+    """Grandes valeurs françaises que Yahoo ne trouve pas par leur nom courant."""
+    cle = _sans_accents(q).strip()
+    if len(cle) < 3:
+        return []
+    trouves = []
+    for noms, (symbole, nom) in RECHERCHE_ALIAS.items():
+        if any(n.startswith(cle) or cle in n for n in noms.split()) or cle in noms:
+            trouves.append({"symbole": symbole, "nom": nom, "type": "action", "bourse": "Paris", "devise": "EUR"})
+    return trouves
+
+
+def _fusionner(premiers: List[Dict[str, Any]], suivants: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    vus, sortie = set(), []
+    for r in premiers + suivants:
+        if r["symbole"] not in vus:
+            vus.add(r["symbole"])
+            sortie.append(r)
+    return sortie[:RECHERCHE_RESULTATS_MAX]
+
+
 @cache_ttl(RECHERCHE_TTL_S, garder=lambda res: res.get("message") is None)
 def _rechercher(q: str) -> Dict[str, Any]:
+    alias = _alias(q)
     try:
         resultats = _normaliser(_interroger_yahoo(q))
     except Exception as e:
         log.warning("Recherche Yahoo en echec pour %r : %s", q, e)
+        if alias:
+            return {"resultats": alias[:RECHERCHE_RESULTATS_MAX], "message": None}
         return {"resultats": [], "message": _MESSAGE_PANNE}
-    return {"resultats": resultats, "message": None}
+    return {"resultats": _fusionner(alias, resultats), "message": None}
 
 
 def rechercher_actifs(q: str) -> Dict[str, Any]:
