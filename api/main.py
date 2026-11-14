@@ -198,3 +198,12 @@ from api.actualite import lire_actualite  # noqa: E402
 def actualite_du_jour() -> dict:
     """Scénario neutre condensé depuis les gros titres du jour (cache journalier, repli propre)."""
     return lire_actualite()
+
+# === Explication par actif ==================================================
+from api.explication import DemandeExplication, expliquer  # noqa: E402
+
+
+@app.post("/api/explication-actifs", tags=["IA"], dependencies=[limite_ia])
+def expliquer_actifs(demande: DemandeExplication) -> dict:
+    """Une phrase par actif expliquant le sens du choc estimé pour ce scénario (IA, mise en cache)."""
+    return expliquer(demande)
