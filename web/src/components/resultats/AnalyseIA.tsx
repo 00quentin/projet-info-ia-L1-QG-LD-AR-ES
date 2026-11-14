@@ -10,6 +10,7 @@ import { Carte, Pastille, TitreCarte } from "@/components/ui/Carte";
 import { DUREE, EASE_SORTIE } from "@/components/motion/transitions";
 import { Depliable } from "./Depliable";
 import { FourchettesIA } from "./FourchettesIA";
+import { ExplicationActifs } from "./ExplicationActifs";
 
 // Un statut n'est ni vert ni rouge (couleurs reservees aux gains et pertes) : accent, neutre ou alerte.
 const FIABILITES = {
@@ -126,6 +127,10 @@ export function AnalyseIA({ s, calibration, noms, conjoncture }: { s: ResultatSc
         </div>
       </dl>
       <FourchettesIA a={a} noms={noms} />
+      <ExplicationActifs
+        scenario={s.scenario}
+        actifs={Object.keys(a.chocs).map((cle) => ({ cle, nom: nomCourt(cle, noms.get(cle)), performance_pct: (a.chocs[cle] ?? 0) * 100 }))}
+      />
       {calibration && (refs.length > 0 || a.evenement_reference || a.fiabilite?.raison) && (
         <div className="mt-5 border-t border-line pt-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">

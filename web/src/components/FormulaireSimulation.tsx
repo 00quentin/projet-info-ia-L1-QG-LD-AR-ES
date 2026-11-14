@@ -6,6 +6,7 @@ import { ChevronDown, GitCompareArrows, Loader2, Play, Plus, Settings2, X } from
 import type { Catalogue } from "@/lib/api";
 import { Interrupteur } from "@/components/ui/Carte";
 import { ChoixPortefeuille, portefeuilleInitial, validerPortefeuille, type ValeurPortefeuille } from "@/components/formulaire/ChoixPortefeuille";
+import { ActualiteDuJour } from "@/components/formulaire/ActualiteDuJour";
 import { barreLancement, boutonPrincipal, champ, puce, titreSection } from "@/components/formulaire/styles";
 import { DUREE, EASE_SORTIE, RESSORT } from "@/components/motion/transitions";
 
@@ -168,6 +169,8 @@ export function FormulaireSimulation({ catalogue, reglages: r, onChange, onLance
             ))}
           </AnimatePresence>
         </div>
+
+        <ActualiteDuJour onUtiliser={(texte) => majScenario(actif, texte)} />
 
         {r.scenarios.length > 1 && r.scenarios.length < max && (
           <motion.button
