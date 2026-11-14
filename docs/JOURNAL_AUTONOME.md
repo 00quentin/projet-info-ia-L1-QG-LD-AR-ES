@@ -42,3 +42,12 @@ Périmètres disjoints ; aucun appel IA, aucun déploiement, rien retiré.
 ## Cycle 3 — relecture
 - T2 FAQ : l'agent Haiku a été bloqué par le hook GateGuard (aucune modification). Faite directement par l'orchestrateur : 3 questions ajoutées (fourchette et 78 %, portefeuilles d'exemple, démo et réveil du serveur) ; « conseil en investissement » existait déjà. tsc, lint, build, pytest OK. ACCEPTÉE.
 - Fin du mode autonome (3 cycles), voir le bilan.
+
+## Chantier 2 — plan
+- P1 « Actualité du jour » (sonnet) : `api/actualite.py`, `ia_actualite.py`, `web/src/components/formulaire/ActualiteDuJour.tsx`, `tests/test_actualite.py` ; endpoint `GET /api/actualite`, cache journalier (≤ 1 appel IA/jour), repli si flux RSS injoignable. Plafond 5 appels IA.
+- P2 « Comparer deux portefeuilles » (sonnet) : `api/comparaison.py`, page `web/src/app/comparer/`, `web/src/components/comparaison/`, `tests/test_comparaison.py` ; endpoint `POST /api/comparaison-portefeuilles` (2e simulation servie par le cache IA). Plafond 3 appels IA.
+- P3 « 3 crises de plus dans la validation » (sonnet) : `scripts/valider_ia_historique.py`, `market_data.py` (EVENEMENTS_HISTORIQUES), `data/validation_ia.json`, textes README/PITCH/FAQ/validation. Plafond 10 appels IA au total.
+- P4 « Expliquer chaque actif » (sonnet) : `ia_explication.py`, `api/explication.py`, `web/src/components/resultats/ExplicationActifs.tsx`, `tests/test_explication.py` ; endpoint `POST /api/explication-actifs`, modèle de secours. Plafond 5 appels IA.
+- P5 « GET /api/parametres » (sonnet) : `api/parametres.py`, `tests/test_api_parametres.py` ; l'endpoint et `donnees.ts` concordent (test). Aucun appel IA.
+- P7 « Préparer la coupure de Streamlit » (haiku) : `components/bandeau_migration.py`, une ligne dans `app.py`, `docs/COUPURE_STREAMLIT.md` ; rien supprimé. Aucun appel IA.
+- Fichiers partagés en ajout seul : `api/main.py` et `web/src/lib/api.ts` (fin de fichier, bloc par agent), `config.py` (fin de fichier, bloc par agent) ; l'orchestrateur résout les conflits d'ajout.
