@@ -56,11 +56,11 @@ def _lire_valeur(brut: str):
     return float(brut)
 
 
-def _entrees_parametres() -> dict:
+def _entrees_parametres(nom: str = "PARAMETRES") -> dict:
     """{cle: (valeur, commentaire)} pour chaque ligne `cle: valeur, // commentaire`."""
     entrees = {}
     motif = re.compile(r'^\s*(\w+)\s*:\s*("[^"]*"|-?[\d.]+)\s*,\s*//\s*(.*)$')
-    for ligne in _bloc("PARAMETRES").splitlines():
+    for ligne in _bloc(nom).splitlines():
         m = motif.match(ligne)
         if m:
             entrees[m.group(1)] = (_lire_valeur(m.group(2)), m.group(3).strip())
@@ -129,6 +129,19 @@ CORRESPONDANCES_PARAMETRES = {
     "fourchetteAggravation": ("FOURCHETTE_ELARGISSEMENT_AGGRAVATION", config.FOURCHETTE_ELARGISSEMENT_AGGRAVATION),
     "fourchetteAttenuation": ("FOURCHETTE_ELARGISSEMENT_ATTENUATION", config.FOURCHETTE_ELARGISSEMENT_ATTENUATION),
     "fourchetteDemiLargeurMinPct": ("FOURCHETTE_DEMI_LARGEUR_MIN", _en_pct(config.FOURCHETTE_DEMI_LARGEUR_MIN)),
+}
+
+# cle de PARAMETRES_CRISE (forme du choc, regime de crise) -> (constante, valeur attendue)
+CORRESPONDANCES_CRISE = {
+    "rebondCreuxPctHorizon": ("REBOND_FRACTION_CREUX", _en_pct(config.REBOND_FRACTION_CREUX)),
+    "rebondDepassementPct": ("REBOND_DEPASSEMENT", _en_pct(config.REBOND_DEPASSEMENT)),
+    "criseSeuilBaisseSp500Pct": ("REGIME_CRISE_SEUIL_SP500", _en_pct(config.REGIME_CRISE_SEUIL_SP500)),
+    "crisePleineBaisseSp500Pct": ("REGIME_CRISE_PLEIN_SP500", _en_pct(config.REGIME_CRISE_PLEIN_SP500)),
+    "criseMultiplicateurVol": ("REGIME_CRISE_MULT_VOL", config.REGIME_CRISE_MULT_VOL),
+    "criseRapprochementCorrelationPct": ("REGIME_CRISE_MELANGE_CORRELATION",
+                                         _en_pct(config.REGIME_CRISE_MELANGE_CORRELATION)),
+    "criseQuantileVolPct": ("REGIME_CRISE_QUANTILE_VOL", _en_pct(config.REGIME_CRISE_QUANTILE_VOL)),
+    "criseFenetreVolSeances": ("REGIME_CRISE_FENETRE_VOL", config.REGIME_CRISE_FENETRE_VOL),
 }
 
 # cle de PARAMETRES -> (nom du réglage IA, identifiant du modèle)
@@ -238,4 +251,21 @@ def test_borne_ia_synchronisee(actif):
     assert math.isclose(mn, mn_attendu, abs_tol=1e-9) and math.isclose(mx, mx_attendu, abs_tol=1e-9), (
         f'schemas.BORNES_ACTIFS["{actif}"] vaut ({mn_attendu}, {mx_attendu}) '
         f"mais donnees.ts BORNES_IA affiche ({mn}, {mx})"
+    )
+
+
+def test_parametres_crise_tous_couverts():
+    assert set(_entrees_parametres("PARAMETRES_CRISE")) == set(CORRESPONDANCES_CRISE)
+
+
+@pytest.mark.parametrize("cle", sorted(CORRESPONDANCES_CRISE))
+def test_parametre_crise_synchronise(cle):
+    constante, attendu = CORRESPONDANCES_CRISE[cle]
+    valeur, commentaire = _entrees_parametres("PARAMETRES_CRISE")[cle]
+    assert constante in commentaire, (
+        f"donnees.ts PARAMETRES_CRISE.{cle} : le commentaire « {commentaire} » devrait nommer {constante}"
+    )
+    assert math.isclose(valeur, attendu, rel_tol=1e-9, abs_tol=1e-9), (
+        f"{constante} a changé côté moteur ({attendu}) mais donnees.ts "
+        f"PARAMETRES_CRISE.{cle} vaut encore {valeur}"
     )

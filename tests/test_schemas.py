@@ -321,3 +321,36 @@ def test_fourchette_reglage_actuel_de_config():
 def test_fourchette_sans_doute_non_elargie():
     out = valider_reponse_ia({"actifs": {"Or": 0.08}})
     assert out["fourchettes"]["Or"] == {"bas": 0.08, "central": 0.08, "haut": 0.08}
+
+
+# === profil_choc (prompt v10) ==============================================
+
+@pytest.mark.parametrize("entree, attendu", [
+    ("brutal", "brutal"),
+    ("progressif", "progressif"),
+    ("rebond", "rebond"),
+    ("  Progressif ", "progressif"),   # casse et espaces tolerees
+    ("en V", "brutal"),                # inconnu -> defaut
+    (3, "brutal"),
+    (None, "brutal"),
+])
+def test_profil_choc_valide_ou_defaut(entree, attendu):
+    out = valider_reponse_ia({"actifs": {"S&P 500": -0.1}, "profil_choc": entree})
+    assert out["profil_choc"] == attendu
+    assert out["actifs"]["S&P 500"] == -0.1
+
+
+def test_profil_choc_absent_vaut_brutal():
+    assert valider_reponse_ia({"actifs": {"Or": 0.05}})["profil_choc"] == "brutal"
+
+
+def test_profil_choc_invalide_ne_casse_pas_la_reponse():
+    brut = {"actifs": {"S&P 500": {"bas": -0.3, "central": -0.2, "haut": -0.1}},
+            "profil_choc": {"forme": "brutal"}, "explication_courte": "x"}
+    out = valider_reponse_ia(brut)
+    assert out["profil_choc"] == "brutal"
+    assert out["fourchettes_ia"]["S&P 500"] == {"bas": -0.3, "central": -0.2, "haut": -0.1}
+
+
+def test_profil_choc_sans_effet_sur_une_erreur():
+    assert valider_reponse_ia({"erreur": "absurde", "profil_choc": "rebond"}) == {"erreur": "absurde"}

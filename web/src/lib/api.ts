@@ -60,7 +60,14 @@ export type Analyse = {
   fourchettes?: Record<string, FourchetteChoc>;
   chocs_sans_calibration: Record<string, number> | null;
   macro_sans_calibration: { inflation: number; taux_directeurs: number } | null;
+  /** Forme du choc dans le temps choisie par l'IA (prompt v10). Absente des anciens résultats. */
+  profil_choc?: ProfilChoc | null;
+  /** Régime de crise du moteur (choc central du S&P 500). Absent des anciens résultats. */
+  regime_crise?: RegimeCrise | null;
 };
+
+export type ProfilChoc = "brutal" | "progressif" | "rebond";
+export type RegimeCrise = { actif: boolean; intensite: number; multiplicateur_vol: number; seuil_baisse_sp500: number };
 
 export type ResultatScenario = {
   label: string; scenario: string; erreur: string | null;

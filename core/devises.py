@@ -82,3 +82,40 @@ def convertir_en_eur(
             continue
         converti[colonne] = prix[colonne].values / aligne.values
     return converti, non_convertis
+
+
+def rendements_taux_change(
+    taux: pd.DataFrame,
+    colonnes: Dict[str, str],
+    index: pd.Index,
+) -> Tuple[pd.DataFrame, Dict[str, float]]:
+    """
+    Rendements quotidiens des taux BCE, alignes sur les seances d'un historique.
+
+    Sert a la simulation : la livre et le yen y sont des taux techniques dont
+    l'agitation et les correlations sont mesurees sur ces vrais taux.
+
+    Args:
+        taux: taux BCE (voir telecharger_taux_bce).
+        colonnes: {code devise: nom de colonne voulu}, ex. {"GBP": "EUR_GBP"}.
+        index: dates des seances de l'historique a completer.
+
+    Returns:
+        (rendements indexes comme `index`, dernier taux connu par colonne).
+        Vides si les taux manquent.
+    """
+    rendements = pd.DataFrame(index=index)
+    derniers: Dict[str, float] = {}
+    if taux.empty or len(index) == 0 or not isinstance(index, pd.DatetimeIndex):
+        return rendements, derniers
+    dates = pd.DatetimeIndex(index).tz_localize(None).normalize()
+    for devise, colonne in colonnes.items():
+        if devise not in taux.columns:
+            continue
+        serie = taux[devise].dropna()
+        if serie.empty:
+            continue
+        derniers[colonne] = float(serie.iloc[-1])
+        variations = serie.pct_change().reindex(dates)
+        rendements[colonne] = variations.values
+    return rendements, derniers

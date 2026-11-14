@@ -21,6 +21,33 @@ const FIABILITES = {
 
 const points = (v: number) => pourcentSigne(v, 2).replace(" %", " pt");
 
+const FORMES_CHOC = {
+  brutal: "brutal (krach puis reprise partielle)",
+  progressif: "progressif (s'installe régulièrement)",
+  rebond: "rebond (choc puis retour quasi complet)",
+} as const;
+
+/** Forme du choc choisie par l'IA et regime de crise du moteur : une ligne discrete. */
+function FormeEtRegime({ a }: { a: ResultatScenario["analyse"] }) {
+  const forme = a.profil_choc && a.profil_choc in FORMES_CHOC ? FORMES_CHOC[a.profil_choc] : null;
+  const crise = a.regime_crise?.actif ? a.regime_crise : null;
+  if (!forme && !crise) return null;
+  return (
+    <p className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-aide text-muted">
+      {forme && (
+        <span>
+          Forme du choc : <span className="text-ink-2">{forme}</span>
+        </span>
+      )}
+      {crise && (
+        <Pastille ton="alerte">
+          Régime de crise activé · volatilité ×{crise.multiplicateur_vol.toLocaleString("fr-FR", { maximumFractionDigits: 1 })}
+        </Pastille>
+      )}
+    </p>
+  );
+}
+
 /** Ecart entre estimation calibree et libre : < 5 pts = l'histoire confirme, > 15 pts = scenario inedit. */
 function tonEcart(ecart: number): "neutre" | "alerte" | "perte" {
   const abs = Math.abs(ecart);
@@ -111,6 +138,7 @@ export function AnalyseIA({ s, calibration, noms, conjoncture }: { s: ResultatSc
         )}
       </div>
       <p className="text-titre leading-relaxed text-ink-2">{a.explication ?? "Analyse non disponible."}</p>
+      <FormeEtRegime a={a} />
       {conjoncture?.indicateurs.length ? (
         <div className="mt-5 border-t border-line pt-5">
           <Conjoncture conjoncture={conjoncture} compacte />
