@@ -267,7 +267,7 @@ export default function Page() {
               </>,
               <>
                 Le <G>régime de crise</G> reste un réglage simple : il ne dépend que du choc du S&amp;P 500, dure tout l&apos;horizon et majore la volatilité
-                de tous les actifs du même facteur (sauf le VIX). Hors crise, volatilités et corrélations restent constantes sur l&apos;horizon : pas de
+                de tous les actifs du même facteur, obligations, or et devises compris (seul le VIX est épargné). Hors crise, volatilités et corrélations restent constantes sur l&apos;horizon : pas de
                 volatilité qui s&apos;emballe puis se calme jour après jour (effet GARCH).
               </>,
               <>

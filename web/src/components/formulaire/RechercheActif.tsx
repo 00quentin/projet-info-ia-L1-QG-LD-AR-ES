@@ -163,7 +163,7 @@ export function RechercheActif({ dejaPresents, max, onAjout }: Props) {
             </li>
           ))}
           {resultats.length === 0 && info && (
-            <li role="presentation" className="px-3 py-3 text-aide text-muted">
+            <li role="presentation" aria-live="polite" className="px-3 py-3 text-aide text-muted">
               {info}
             </li>
           )}

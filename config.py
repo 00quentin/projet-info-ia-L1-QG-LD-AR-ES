@@ -552,7 +552,7 @@ RECHERCHE_TYPES = {"EQUITY": "action", "ETF": "ETF", "INDEX": "indice", "CRYPTOC
 # renvoie des ETF americains). Symbole verifie aupres de Yahoo au moment de l'ajout.
 RECHERCHE_ALIAS = {
     "totalenergies": ("TTE.PA", "TotalEnergies"), "lvmh": ("MC.PA", "LVMH"),
-    "l'oreal loreal oreal": ("OR.PA", "L'Oréal"), "airbus": ("AIR.PA", "Airbus"),
+    "l'oreal loreal oreal l oreal": ("OR.PA", "L'Oréal"), "airbus": ("AIR.PA", "Airbus"),
     "sanofi": ("SAN.PA", "Sanofi"), "bnp paribas": ("BNP.PA", "BNP Paribas"),
     "schneider electric": ("SU.PA", "Schneider Electric"), "air liquide": ("AI.PA", "Air Liquide"),
     "hermes": ("RMS.PA", "Hermès"), "kering": ("KER.PA", "Kering"), "axa": ("CS.PA", "AXA"),
