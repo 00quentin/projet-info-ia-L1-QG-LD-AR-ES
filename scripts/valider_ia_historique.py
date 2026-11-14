@@ -80,10 +80,10 @@ DESCRIPTIONS_NEUTRES = {
         "se bloque dans le monde entier."
     ),
     "Bulle internet (2000-2002)": (
-        "L'éclatement d'une bulle spéculative sur les valeurs technologiques : après des "
-        "années d'euphorie autour des jeunes entreprises d'une nouvelle technologie de "
-        "communication, leurs valorisations s'effondrent, beaucoup font faillite et "
-        "l'investissement des entreprises recule."
+        "Après des années d'euphorie autour des jeunes entreprises d'une nouvelle technologie "
+        "de communication, beaucoup d'entre elles n'ont toujours ni bénéfices ni modèle "
+        "rentable ; les investisseurs commencent à douter de leurs valorisations et les "
+        "financements se raréfient."
     ),
     "Krach pétrolier (2014-2016)": (
         "Un effondrement durable du prix du pétrole : la production américaine de pétrole "
@@ -93,9 +93,8 @@ DESCRIPTIONS_NEUTRES = {
     "Guerre Russie-Ukraine (2022)": (
         "Une grande puissance militaire, gros exportateur de gaz et de pétrole, envahit un "
         "pays voisin en Europe de l'Est. L'Occident répond par des sanctions économiques "
-        "massives et les prix de l'énergie flambent en Europe, alors que l'inflation est "
-        "déjà élevée et que la banque centrale américaine s'apprête à remonter fortement "
-        "ses taux."
+        "massives, alors que l'inflation est déjà élevée et que la banque centrale américaine "
+        "s'apprête à remonter fortement ses taux."
     ),
     "Brexit (2016)": (
         "Un grand pays européen, membre de l'union économique du continent mais doté de "
@@ -111,9 +110,8 @@ DESCRIPTIONS_NEUTRES = {
     ),
     "Dévaluation chinoise (2015-2016)": (
         "La deuxième économie mondiale abaisse brusquement et sans prévenir la valeur de sa "
-        "monnaie, alors que son activité ralentit. Ses marchés d'actions chutent, des "
-        "capitaux quittent le pays, les matières premières s'effondrent et les investisseurs "
-        "craignent un ralentissement de toute l'économie mondiale."
+        "monnaie, alors que son activité ralentit et que des capitaux commencent à quitter le "
+        "pays."
     ),
     "Faillite de SVB (2023)": (
         "Une banque américaine spécialisée dans le financement des jeunes entreprises "

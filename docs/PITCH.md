@@ -22,10 +22,10 @@ Sources : `README.md`, `docs/ARCHITECTURE.md`, `data/validation_ia.json`.
 - 1 000 trajectoires Monte-Carlo sur un horizon de 30 à 250 séances.
 - Métriques : volatilité, Sharpe, Max Drawdown, VaR 95 %.
 
-**Diapo 4 : Validation sur 9 crises**
-- Crises : COVID 2020, Lehman 2008, bulle internet, krach pétrolier 2014-2016, Russie-Ukraine 2022, Brexit, plus 3 crises hors échantillon (zone euro 2011, dévaluation chinoise 2015-2016, SVB 2023).
-- Résultat : le vrai mouvement tombe dans la fourchette de l'IA dans 85 % des cas (135 actifs sur 159).
-- Hors échantillon (3 crises jamais vues par la consigne) : 86 % (49 actifs sur 57), un seul tirage par crise.
+**Diapo 4 : Validation sur 73 événements**
+- 73 événements depuis 2000 : 9 grandes crises (COVID, Lehman, bulle internet…) et 64 chocs plus petits (banques centrales, élections, OPEP, géopolitique, cryptos…).
+- Fourchette : le vrai mouvement y tombe dans 88 % des cas (1 204 actifs sur 1 361).
+- Bon sens de variation : 91 % sur les grandes crises, 55 % sur les petits événements (proche du hasard : ce sont les plus difficiles à prévoir).
 - Avec l'ancienne consigne (prompt v8) : 53 % (chiffre cité dans `README.md`).
 
 **Diapo 5 : Architecture**
@@ -34,7 +34,7 @@ Sources : `README.md`, `docs/ARCHITECTURE.md`, `data/validation_ia.json`.
 - Sources : Yahoo Finance (cours), OpenAI (analyse).
 
 **Diapo 6 : Limites honnêtes**
-- Sur les six premières crises, le score (84 %) est un peu flatteur : la consigne de l'IA a été réécrite après un premier test sur elles. Les trois crises ajoutées ensuite donnent 86 % hors échantillon, sur un petit échantillon.
+- Six crises ont servi à écrire la consigne ; les 67 autres événements sont hors échantillon, mais l'IA a pu les lire pendant son entraînement. Sur les petits chocs, elle ne fait guère mieux que le hasard pour le sens.
 - L'IA estime des ordres de grandeur ; la réalité de marché peut fortement diverger.
 - Pas de conseil en investissement.
 
@@ -50,6 +50,6 @@ Sources : `README.md`, `docs/ARCHITECTURE.md`, `data/validation_ia.json`.
 | 0 à 8 s | Page d'accueil, titre et sous-titre | « Et si ça arrivait demain ? Décrivez un événement économique : Quant Terminal estime son impact sur votre portefeuille. » |
 | 8 à 14 s | Clic sur « Essayer avec un exemple », résultat qui s'affiche | « Le résultat s'affiche tout de suite, à partir des vrais cours Yahoo Finance. » |
 | 14 à 21 s | Métriques de risque (volatilité, Sharpe, VaR) | « Une IA bornée, calée sur des crises passées, et mille trajectoires Monte-Carlo mesurent le risque. » |
-| 21 à 30 s | Page de validation sur les neuf crises | « Sur neuf crises passées, le vrai mouvement tombe dans la fourchette 85 % du temps, dont 86 % sur trois crises que la consigne n'avait jamais vues : un petit échantillon. Outil pédagogique, pas un conseil en investissement. » |
+| 21 à 30 s | Page de validation sur 73 événements | « Testée sur 73 vrais événements, la fourchette de l'IA contient le vrai mouvement 88 % du temps. Elle lit bien les grandes crises, beaucoup moins les petits chocs. Outil pédagogique, pas un conseil en investissement. » |
 
 Durée totale : 30 s.

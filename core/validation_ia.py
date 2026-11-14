@@ -303,6 +303,11 @@ NOMS_PROPRES_INTERDITS = {
 }
 
 
+# Verbes qui disent ce que les marchés ont fait (l'IA doit le deviner, pas le lire).
+_ISSUE = re.compile(r"(chutent|chute brutalement|s'effondrent|s'effondre|flambent|flambe|plongent|plonge|"
+                    r"se redresse|se redressent|s'envolent|s'envole|degringolent|bondissent|grimpent en fleche)")
+
+
 def verifier_neutralite(description: str, nom_crise: str) -> Optional[str]:
     """Message d'erreur si la description trahit l'événement (année, mois, chiffre,
     nom propre connu ou mot distinctif tiré de son nom) ; None si elle est neutre."""
@@ -317,6 +322,9 @@ def verifier_neutralite(description: str, nom_crise: str) -> Optional[str]:
     mois_trouves = [m for m in MOIS if _sans_accents(m) in mots]
     if mois_trouves:
         return f"La description contient un nom de mois ({mois_trouves[0]})."
+    issue = _ISSUE.search(_sans_accents(description))
+    if issue:
+        return f"La description annonce l'issue de marché ({issue.group(0)})."
     propres = sorted(NOMS_PROPRES_INTERDITS & mots)
     if propres:
         return f"La description contient un nom propre reconnaissable ({', '.join(propres)})."
