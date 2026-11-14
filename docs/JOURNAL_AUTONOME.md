@@ -24,3 +24,7 @@ Périmètres disjoints : tâche 1 = `config.py`, `api/services.py`, `tests/test_
 
 1. **Corrections du cycle 1** (espace dans `nomCourtProfil`, nombre de tests du README).
 2. **Supports de pitch** : plan de diaporama + script vidéo 30 s dans `docs/PITCH.md` (nouveau), uniquement de la documentation, faits tirés du README et de `data/validation_ia.json`.
+
+## Cycle 2 — relecture
+- T1 corrections mineures (espace dans `nomCourtProfil`, nombre de tests retiré du README) : faites directement par l'orchestrateur (2 lignes, moins coûteux qu'un agent). ACCEPTÉE.
+- T2 `docs/PITCH.md` : chiffres vérifiés (1 000 trajectoires, horizon 30-250, VaR 95 % = percentile 5 % dans core/metrics.py, 6 crises dont « Krach 2008 (Lehman) », 78 % = 80/102, 53 % avant). ACCEPTÉE.
