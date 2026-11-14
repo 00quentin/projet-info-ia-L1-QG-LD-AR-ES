@@ -197,6 +197,45 @@ MOMENTUM_ACCELERATION = 0.5
 # CRISE_DEPASSEMENT plus loin que le choc final de l'IA (0.3 = 30 % plus profond).
 CRISE_FRACTION_CREUX = 0.2
 CRISE_DEPASSEMENT = 0.3
+# Forme du choc choisie par l'IA (champ "profil_choc", prompt v10). Les chocs de l'IA
+# restent la variation FINALE a l'horizon : la forme ne change que le chemin.
+# - "brutal"     : krach puis rebond partiel (profil CRISE_* ci-dessus, 1987, 2008, 2020).
+# - "progressif" : le choc s'installe a vitesse constante (inflation, resserrement 2022).
+# - "rebond"     : choc rapide puis retour quasi complet : le point extreme tombe a
+#   REBOND_FRACTION_CREUX de l'horizon et va REBOND_DEPASSEMENT plus loin que le choc
+#   final (1.5 = extremum 2,5 fois le choc final, ex. -25 % au plus bas pour -10 % a la fin).
+PROFILS_CHOC = ("brutal", "progressif", "rebond")
+PROFIL_CHOC_DEFAUT = "brutal"
+REBOND_FRACTION_CREUX = 0.15
+REBOND_DEPASSEMENT = 1.5
+# Regime de crise (modeles Probabiliste et Historique). En crise, la volatilite explose
+# et les actifs risques chutent ensemble. Repere : le choc du S&P 500 tire pour chaque
+# trajectoire. Rien ne change tant que la baisse reste sous REGIME_CRISE_SEUIL_SP500 ;
+# l'intensite monte ensuite lineairement jusqu'a 1 pour une baisse de REGIME_CRISE_PLEIN_SP500.
+REGIME_CRISE_ACTIF_REPERE = "S&P 500"
+REGIME_CRISE_SEUIL_SP500 = 0.10
+REGIME_CRISE_PLEIN_SP500 = 0.30
+# Volatilite en crise / volatilite normale. Vol realisee du S&P 500 : ~16 %/an en moyenne
+# longue, ~50 % sur les 6 mois les plus agites de 2008 (sept.-fevr.) et ~45 % en 2020
+# (fevr.-aout), soit un rapport proche de 3. On retient 2,5 : la vol de depart, mesuree
+# sur un an, contient deja des seances agitees. A intensite g, une part g des seances
+# est tiree dans le regime de crise : variance x (1 + g x (2,5^2 - 1)).
+REGIME_CRISE_MULT_VOL = 2.5
+# Le VIX mesure deja la peur : sa propre volatilite n'est pas majoree.
+REGIME_CRISE_ACTIFS_SANS_MAJORATION = ("VIX",)
+# Jours de stress de l'historique reel : seances ou la volatilite du S&P 500 sur
+# REGIME_CRISE_FENETRE_VOL seances (fenetre centree) est dans le quintile le plus haut.
+# Leurs correlations servent de base en crise ; le modele Historique y reechantillonne
+# ses blocs. Sous REGIME_CRISE_MIN_SEANCES jours de stress, on garde tout l'historique.
+REGIME_CRISE_FENETRE_VOL = 20
+REGIME_CRISE_QUANTILE_VOL = 0.8
+REGIME_CRISE_MIN_SEANCES = 40
+# Correlations entre actifs risques rapprochees de 1 en crise : c -> c + 0.5 x (1 - c).
+# Ordre de grandeur de Longin & Solnik (2001) : entre marches d'actions, ~0.5 en temps
+# normal et ~0.8 dans les fortes baisses. Les valeurs refuges (obligations, or) gardent
+# leurs correlations mesurees sur les jours de stress.
+REGIME_CRISE_MELANGE_CORRELATION = 0.5
+REGIME_CRISE_GROUPES_RISQUES = ("actions", "cycliques", "crypto")
 # Doute de l'IA (Monte-Carlo) : chaque trajectoire tire son choc dans la fourchette
 # bas / central / haut de l'IA. Part commune du tirage a tous les actifs (le scenario
 # s'avere plus ou moins grave pour tous a la fois) : 0 = independants, 1 = identiques.
@@ -274,6 +313,16 @@ DEVISE_ACTIF = {
     "Bitcoin": "USD", "Ethereum": "USD", "XRP": "USD", "Solana": "USD",
 }
 
+# Simulation : taux de change technique de chaque devise convertie, en unites de devise
+# pour 1 euro (convention BCE, comme le backtest). L'IA estime l'EUR/USD ; elle n'estime
+# ni la livre ni le yen : leur derive est nulle, mais leur agitation et leurs correlations
+# avec les autres actifs sont mesurees sur les taux BCE (valeurs de secours sinon).
+TAUX_CHANGE_SIMULATION = {"USD": "EUR_USD", "GBP": "EUR_GBP", "JPY": "EUR_JPY"}
+TAUX_CHANGE_SECOURS = {
+    "EUR_GBP": {"prix": 0.87, "volatilite": 0.0035},
+    "EUR_JPY": {"prix": 170.0, "volatilite": 0.0065},
+}
+
 # Actifs cotes 7j/7 : on les aligne sur les jours de bourse quand ils sont
 # melanges a des actifs classiques (sinon les week-ends ecrasent la volatilite).
 ACTIFS_COTES_7J = {"Bitcoin", "Ethereum", "XRP", "Solana"}
@@ -301,6 +350,7 @@ GROUPE_CORRELATION = {
     "Or": "metaux", "Argent": "metaux",
     "Petrole": "cycliques", "Cuivre": "cycliques",
     "Bitcoin": "crypto", "Ethereum": "crypto", "XRP": "crypto", "Solana": "crypto",
+    "EUR_GBP": "livre", "EUR_JPY": "yen",
 }
 GROUPE_CORRELATION_DEFAUT = "actions"  # actifs personnalises : majoritairement des actions
 
@@ -326,6 +376,14 @@ CORRELATION_INTER_GROUPES = {
     ("crypto", "dollar"): -0.10,
     ("vix", "euro"): -0.10,            ("vix", "dollar"): 0.10,
     ("euro", "dollar"): -0.95,
+    # EUR/GBP et EUR/JPY (unites de devise pour 1 euro). Le yen est une valeur refuge :
+    # en panique il monte, donc l'EUR/JPY baisse avec les actions.
+    ("livre", "euro"): 0.30,           ("livre", "dollar"): -0.25,
+    ("livre", "actions"): -0.10,       ("livre", "yen"): 0.30,
+    ("yen", "actions"): 0.35,          ("yen", "cycliques"): 0.20,
+    ("yen", "crypto"): 0.15,           ("yen", "vix"): -0.35,
+    ("yen", "obligations"): -0.20,     ("yen", "euro"): 0.35,
+    ("yen", "dollar"): -0.30,
 }
 
 

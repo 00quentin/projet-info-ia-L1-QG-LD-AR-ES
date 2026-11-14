@@ -139,7 +139,8 @@ def test_simulation_mode_dynamique_renvoie_structure_complete(monkeypatch, df_si
 
     assert err is None
     assert set(res.keys()) == {"scenario", "chocs_ia", "chocs_libre",
-                                "df", "mc_data", "perf", "perf_df", "converti_eur"}
+                                "df", "mc_data", "perf", "perf_df", "converti_eur",
+                                "profil_choc", "regime_crise"}
     assert res["scenario"] == "krach"
     assert res["chocs_ia"] is chocs_ia
     assert res["chocs_libre"] is None  # pas de calibration -> pas d'analyse libre
@@ -383,6 +384,85 @@ def test_msci_world_herite_aussi_de_la_fourchette_du_sp500(monkeypatch):
     assert recus["actifs"]["MSCI_World"] == pytest.approx(-0.17)
     assert recus["fourchettes"]["MSCI_World"] == pytest.approx(
         {"bas": -0.255, "central": -0.17, "haut": -0.085})
+
+
+def test_horizon_reel_transmis_a_l_ia(monkeypatch):
+    recus = []
+
+    def fausse_ia(scenario, **kw):
+        recus.append(kw.get("horizon"))
+        return {"actifs": {"S&P 500": -0.05}}
+    monkeypatch.setattr(runner, "analyser_evenement_macro", fausse_ia)
+    for calibration in (False, True):
+        runner.lancer_simulation_scenario(
+            scenario="krach", actifs_selectionnes=["S&P 500"], duree=180,
+            modele="Probabiliste (Réaliste)", monte_carlo=False, prix_reels=None,
+            vols_reelles=None, calibration_historique=calibration,
+        )
+    assert recus == [180, 180, 180]   # sans calibration, puis calibree + libre
+
+
+def test_regime_de_crise_et_forme_du_choc_exposes(monkeypatch):
+    chocs = {"actifs": {"S&P 500": -0.30}, "profil_choc": "rebond"}
+    monkeypatch.setattr(runner, "analyser_evenement_macro", lambda *a, **kw: chocs)
+    res, _ = runner.lancer_simulation_scenario(
+        scenario="krach", actifs_selectionnes=["S&P 500"], duree=30,
+        modele="Historique (Chocs violents)", monte_carlo=False, prix_reels=None,
+        vols_reelles=None, calibration_historique=False,
+    )
+    assert res["profil_choc"] == "rebond"
+    assert res["regime_crise"]["actif"] is True
+    assert res["regime_crise"]["multiplicateur_vol"] > 1
+    res, _ = runner.lancer_simulation_scenario(
+        scenario="krach", actifs_selectionnes=["S&P 500"], duree=30,
+        modele="Machine Learning (Tendance)", monte_carlo=False, prix_reels=None,
+        vols_reelles=None, calibration_historique=False,
+    )
+    assert res["regime_crise"]["actif"] is False   # pas de regime pour Tendance
+
+
+def test_scenario_calme_sans_regime_de_crise(monkeypatch):
+    monkeypatch.setattr(runner, "analyser_evenement_macro",
+                        lambda *a, **kw: {"actifs": {"S&P 500": -0.04}})
+    res, _ = runner.lancer_simulation_scenario(
+        scenario="calme", actifs_selectionnes=["S&P 500"], duree=30,
+        modele="Probabiliste (Réaliste)", monte_carlo=False, prix_reels=None,
+        vols_reelles=None, calibration_historique=False,
+    )
+    assert res["regime_crise"]["actif"] is False and res["profil_choc"] == "brutal"
+
+
+def test_livre_et_yen_convertis_en_simulation(monkeypatch):
+    """Gilt (livre) et JGB (yen) recoivent un taux de change technique, comme en backtest."""
+    recus = {}
+
+    def faux_mc(chocs_ia, **kw):
+        recus.update(kw)
+        return {"mediane": pd.DataFrame({"Gilt_10Y": [100.0, 101.0], "JGB_10Y": [100.0, 99.0]})}
+    monkeypatch.setattr(runner, "analyser_evenement_macro", lambda *a, **kw: {"actifs": {}})
+    monkeypatch.setattr(runner, "simuler_monte_carlo", faux_mc)
+    runner.lancer_simulation_scenario(
+        scenario="x", actifs_selectionnes=["Gilt_10Y", "JGB_10Y", "CAC 40"], duree=2,
+        modele="Probabiliste (Réaliste)", monte_carlo=True, prix_reels=None,
+        vols_reelles=None, calibration_historique=False, convertir_eur=True,
+    )
+    assert recus["devises_actifs"] == {"Gilt_10Y": "GBP", "JGB_10Y": "JPY"}
+    assert "CAC 40" not in recus["actifs_en_usd"]
+
+
+def test_taux_bce_mesures_pour_livre_et_yen(monkeypatch):
+    import market_data
+    dates = pd.bdate_range("2026-01-01", periods=200)
+    taux = pd.DataFrame({"GBP": 0.85 * (1 + 0.003 * pd.Series(range(200)).mod(3).values - 0.003),
+                         "JPY": 170.0, "USD": 1.1}, index=dates)
+    monkeypatch.setattr(market_data, "get_taux_bce", lambda: taux)
+    rendements = pd.DataFrame({"Gilt_10Y": 0.001}, index=dates)
+    hist, prix, vols = runner._mesurer_taux_change(["GBP", "JPY"], rendements, {"Gilt_10Y": 80.0}, None)
+    assert {"EUR_GBP", "EUR_JPY"} <= set(hist.columns)
+    assert prix["EUR_GBP"] == pytest.approx(taux["GBP"].iloc[-1]) and prix["Gilt_10Y"] == 80.0
+    assert vols["EUR_GBP"] > 0 and "EUR_JPY" not in vols     # yen constant : pas de vol mesuree
+    # Sans historique (prix de secours) : rien n'est telecharge
+    assert runner._mesurer_taux_change(["GBP"], None, None, None) == (None, None, None)
 
 
 def test_runner_reste_compatible_sans_fourchettes(monkeypatch):

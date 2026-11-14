@@ -9,12 +9,16 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import Dict, List, Optional, Tuple
 import pandas as pd
 
-from simulation import simuler_marche_dynamique, simuler_monte_carlo
+from simulation import (
+    diagnostic_regime_crise, forme_du_choc, simuler_marche_dynamique, simuler_monte_carlo,
+)
 from ia_bot import analyser_evenement_macro
 from config import (
     ACTIF_TAUX_EUR_USD, BENCHMARKS, DEVISE_ACTIF, NOM_AFFICHAGE, NB_SIMULATIONS_MONTE_CARLO,
+    TAUX_CHANGE_SIMULATION,
 )
 from core.custom_assets import PREFIXE_CUSTOM
+from core.devises import rendements_taux_change
 from logger import get_logger
 
 log = get_logger("runner")
@@ -31,6 +35,34 @@ def _libelle_actif(sim_key: str) -> str:
         sim_key,
         sim_key.replace("_", " ").replace("EUR USD", "EUR/USD")
     )
+
+
+def _mesurer_taux_change(devises: List[str], rendements: Optional[pd.DataFrame],
+                         prix_reels: Optional[Dict[str, float]],
+                         vols_reelles: Optional[Dict[str, float]]):
+    """Complete l'historique, les prix et les volatilites avec les vrais taux BCE de
+    la livre et du yen (memes taux que le backtest). Sans historique (prix de
+    secours) ou si la BCE ne repond pas, le moteur garde ses valeurs de secours."""
+    colonnes = {d: TAUX_CHANGE_SIMULATION[d] for d in devises}
+    if not colonnes or rendements is None or rendements.empty:
+        return rendements, prix_reels, vols_reelles
+    try:
+        import market_data  # import tardif : reseau, uniquement si livre ou yen
+        taux = market_data.get_taux_bce()
+    except Exception as e:  # noqa: BLE001
+        log.warning("Taux BCE indisponibles pour la simulation : %s", str(e)[:80])
+        return rendements, prix_reels, vols_reelles
+    variations, derniers = rendements_taux_change(taux, colonnes, rendements.index)
+    if variations.empty or not derniers:
+        return rendements, prix_reels, vols_reelles
+    rendements = rendements.join(variations[[c for c in variations.columns if c in derniers]])
+    prix_reels = {**(prix_reels or {}), **derniers}
+    vols_reelles = dict(vols_reelles or {})
+    for colonne in derniers:
+        ecart = variations[colonne].std()
+        if pd.notna(ecart) and ecart > 0:
+            vols_reelles[colonne] = float(ecart)
+    return rendements, prix_reels, vols_reelles
 
 
 def lancer_simulation_scenario(
@@ -75,12 +107,12 @@ def lancer_simulation_scenario(
             fut_calib = pool.submit(
                 analyser_evenement_macro, scenario,
                 calibration_historique=True, custom_tickers=custom_tickers,
-                conjoncture=conjoncture,
+                conjoncture=conjoncture, horizon=duree,
             )
             fut_libre = pool.submit(
                 analyser_evenement_macro, scenario,
                 calibration_historique=False, custom_tickers=custom_tickers,
-                conjoncture=conjoncture,
+                conjoncture=conjoncture, horizon=duree,
             )
             chocs = fut_calib.result()
             try:
@@ -97,6 +129,7 @@ def lancer_simulation_scenario(
             calibration_historique=False,
             custom_tickers=custom_tickers,
             conjoncture=conjoncture,
+            horizon=duree,
         )
 
     if isinstance(chocs, dict) and "erreur" in chocs and len(chocs) == 1:
@@ -129,7 +162,9 @@ def lancer_simulation_scenario(
 
     # Conversion en euros : l'EUR/USD est simule avec les autres actifs
     # (correle a eux) et sert a convertir chaque trajectoire en dollars.
+    # Livre et yen : taux techniques simules (sans choc IA), comme en backtest.
     actifs_en_usd = None
+    devises_actifs = None
     if convertir_eur:
         if ACTIF_TAUX_EUR_USD not in actifs_a_simuler:
             actifs_a_simuler.append(ACTIF_TAUX_EUR_USD)
@@ -137,6 +172,12 @@ def lancer_simulation_scenario(
         for sim_key, params in (actifs_extras or {}).items():
             devises[sim_key] = params.get("devise")
         actifs_en_usd = [a for a in actifs_a_simuler if devises.get(a) == "USD"]
+        devises_actifs = {a: devises[a] for a in actifs_a_simuler
+                          if devises.get(a) in TAUX_CHANGE_SIMULATION and devises[a] != "USD"}
+        if devises_actifs:
+            rendements_historiques, prix_reels, vols_reelles = _mesurer_taux_change(
+                sorted(set(devises_actifs.values())), rendements_historiques,
+                prix_reels, vols_reelles)
 
     mc_data = None
     if monte_carlo:
@@ -146,7 +187,7 @@ def lancer_simulation_scenario(
             prix_reels=prix_reels, vols_reelles=vols_reelles,
             actifs_extras=actifs_extras,
             rendements_historiques=rendements_historiques,
-            actifs_en_usd=actifs_en_usd,
+            actifs_en_usd=actifs_en_usd, devises_actifs=devises_actifs,
         )
         df = mc_data["mediane"]
     else:
@@ -156,7 +197,7 @@ def lancer_simulation_scenario(
             prix_reels=prix_reels, vols_reelles=vols_reelles,
             actifs_extras=actifs_extras,
             rendements_historiques=rendements_historiques,
-            actifs_en_usd=actifs_en_usd,
+            actifs_en_usd=actifs_en_usd, devises_actifs=devises_actifs,
         )
 
     # Calcul de perf defensif : si iloc[0] = 0 ou NaN, fallback 0% au lieu
@@ -174,6 +215,11 @@ def lancer_simulation_scenario(
     perf_df['Actif'] = perf_df['Actif'].apply(_libelle_actif)
     perf_df = perf_df.sort_values(by='Performance (%)', ascending=True)
 
+    # Le regime de crise ne concerne que les modeles Probabiliste et Historique
+    regime = diagnostic_regime_crise(chocs)
+    if "Probabiliste" not in modele and "Historique" not in modele:
+        regime["actif"] = False
+
     return {
         "scenario":   scenario,
         "chocs_ia":   chocs,
@@ -183,6 +229,8 @@ def lancer_simulation_scenario(
         "perf":       perf,
         "perf_df":    perf_df,
         "converti_eur": bool(convertir_eur),
+        "profil_choc":  forme_du_choc(chocs),
+        "regime_crise": regime,
     }, None
 
 

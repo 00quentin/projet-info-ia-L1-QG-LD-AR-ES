@@ -26,6 +26,8 @@ from config import (
     FOURCHETTE_DEMI_LARGEUR_MIN,
     FOURCHETTE_ELARGISSEMENT_AGGRAVATION,
     FOURCHETTE_ELARGISSEMENT_ATTENUATION,
+    PROFIL_CHOC_DEFAUT,
+    PROFILS_CHOC,
 )
 from logger import get_logger
 
@@ -218,6 +220,16 @@ class FiabiliteCalibration(BaseModel):
     raison: str = ""
 
 
+def normaliser_profil_choc(valeur) -> str:
+    """Forme du choc dans le temps : "brutal", "progressif" ou "rebond".
+    Absente ou inconnue -> "brutal" (le profil historique du moteur)."""
+    if isinstance(valeur, str):
+        v = valeur.strip().lower()
+        if v in PROFILS_CHOC:
+            return v
+    return PROFIL_CHOC_DEFAUT
+
+
 class ReponseAnalyseIA(BaseModel):
     """
     Réponse complète de l'IA pour un scénario macro.
@@ -232,6 +244,12 @@ class ReponseAnalyseIA(BaseModel):
     evenement_reference: Optional[str] = None
     references_historiques: List[ReferenceHistorique] = Field(default_factory=list)
     fiabilite_calibration: Optional[FiabiliteCalibration] = None
+    profil_choc: str = PROFIL_CHOC_DEFAUT
+
+    @field_validator("profil_choc", mode="before")
+    @classmethod
+    def _profil_connu(cls, v):
+        return normaliser_profil_choc(v)
 
     def to_legacy_dict(self) -> dict:
         """
@@ -270,6 +288,7 @@ class ReponseAnalyseIA(BaseModel):
                 self.fiabilite_calibration.model_dump()
                 if self.fiabilite_calibration else None
             ),
+            "profil_choc": self.profil_choc,
         }
 
 
@@ -426,6 +445,7 @@ def _valider_centraux(brut: dict) -> dict:
                 "evenement_reference": brut.get("evenement_reference") if isinstance(brut, dict) else None,
                 "references_historiques": brut.get("references_historiques", []) if isinstance(brut, dict) else [],
                 "fiabilite_calibration": brut.get("fiabilite_calibration") if isinstance(brut, dict) else None,
+                "profil_choc": normaliser_profil_choc(brut.get("profil_choc") if isinstance(brut, dict) else None),
             }
         except Exception:
             return {"erreur": f"Réponse IA invalide : {str(e)[:120]}"}

@@ -31,6 +31,21 @@ export const PARAMETRES = {
   modeleIaSecours: "GPT-5.4 mini", // IA_ANALYSE_SECOURS (gpt-5.4-mini)
 };
 
+/** Forme du choc et regime de crise (config.py, moteur v10). Objet a part : PARAMETRES reste
+ * le miroir exact de l'endpoint /api/parametres. */
+export const PARAMETRES_CRISE = {
+  // Forme "rebond" choisie par l'IA (prompt v10)
+  rebondCreuxPctHorizon: 15, // REBOND_FRACTION_CREUX = 0.15
+  rebondDepassementPct: 150, // REBOND_DEPASSEMENT = 1.5
+  // Regime de crise (modeles Classique et Crises reelles)
+  criseSeuilBaisseSp500Pct: 10, // REGIME_CRISE_SEUIL_SP500 = 0.10
+  crisePleineBaisseSp500Pct: 30, // REGIME_CRISE_PLEIN_SP500 = 0.30
+  criseMultiplicateurVol: 2.5, // REGIME_CRISE_MULT_VOL
+  criseRapprochementCorrelationPct: 50, // REGIME_CRISE_MELANGE_CORRELATION = 0.5
+  criseQuantileVolPct: 80, // REGIME_CRISE_QUANTILE_VOL = 0.8
+  criseFenetreVolSeances: 20, // REGIME_CRISE_FENETRE_VOL
+};
+
 /** Bornes hors actifs (schemas.py) : [min, max]. */
 export const BORNES_AUTRES = {
   inflationPoints: [-10, 30], // ChocsMacro.inflation : Field(ge=-10.0, le=30.0)
@@ -43,9 +58,14 @@ export function extremeDeCrise(chocFinal: number): number {
   return Math.expm1((1 + PARAMETRES.criseDepassementPct / 100) * Math.log1p(chocFinal));
 }
 
+/** Point extreme de la forme "rebond" pour un choc final donne (meme calcul que simulation.profil_choc, en log). */
+export function extremeDeRebond(chocFinal: number): number {
+  return Math.expm1((1 + PARAMETRES_CRISE.rebondDepassementPct / 100) * Math.log1p(chocFinal));
+}
+
 export const SOURCES = [
   { nom: "Yahoo Finance", usage: "Dernier cours de clôture, volatilités (1 an de séances), corrélations (2 ans), cours historiques du backtest", fraicheur: "Cours : 1 h · historiques : 24 h" },
-  { nom: "BCE", usage: "Taux de change de référence officiels, jour par jour depuis 1999 (conversion en euros du backtest)", fraicheur: "24 h (publication quotidienne)" },
+  { nom: "BCE", usage: "Taux de change de référence officiels, jour par jour depuis 1999 (conversion en euros du backtest ; agitation de la livre et du yen en simulation)", fraicheur: "24 h (publication quotidienne)" },
   { nom: "FRED (Fed de Saint-Louis)", usage: "Taux Fed et BCE, taux à 10 ans États-Unis et Allemagne, inflation États-Unis et zone euro ; taux sans risque du Sharpe", fraicheur: "6 h" },
   { nom: "OpenAI", usage: "Estimation du choc de chaque actif (bas, central, haut), analyste du chat, commentaire du rapport PDF", fraicheur: "À chaque demande" },
 ];
@@ -57,12 +77,12 @@ export const MODELES = [
     nom: "Classique",
     nomMoteur: "Probabiliste (Réaliste)",
     description:
-      "Rendements quotidiens gaussiens et corrélés : le mouvement brownien géométrique des manuels de finance. Le choc suit un profil de crise : rapide, il dépasse sa cible puis se résorbe en partie.",
+      "Rendements quotidiens gaussiens et corrélés : le mouvement brownien géométrique des manuels de finance. Le choc suit la forme choisie par l'IA (brutal, progressif ou rebond) ; en cas de forte baisse, le régime de crise majore volatilités et corrélations.",
   },
   {
     nom: "Crises réelles",
     nomMoteur: "Historique (Chocs violents)",
-    description: `Rejoue des blocs de ${P.blocBootstrapSeances} vraies séances passées, tous actifs ensemble : queues épaisses et co-mouvements réels. Sans ${P.minSeancesBootstrap} séances d'historique, une loi de Student à ${P.studentDegresLiberte} degrés de liberté prend le relais. Même profil de crise que le modèle Classique.`,
+    description: `Rejoue des blocs de ${P.blocBootstrapSeances} vraies séances passées, tous actifs ensemble : queues épaisses et co-mouvements réels. En régime de crise, une partie des blocs est tirée parmi les vrais jours de stress de l'historique. Sans ${P.minSeancesBootstrap} séances d'historique, une loi de Student à ${P.studentDegresLiberte} degrés de liberté prend le relais. Même forme de choc que le modèle Classique.`,
   },
   {
     nom: "Emballement",

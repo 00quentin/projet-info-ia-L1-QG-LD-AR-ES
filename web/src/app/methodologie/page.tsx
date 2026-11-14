@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { ArrowRight, Bot, Database, Dices, FlaskConical, ShieldCheck, TriangleAlert, type LucideIcon } from "lucide-react";
 import { Carte } from "@/components/ui/Carte";
 import { ContenuMethodologie } from "@/contenu/academie/methodologie";
-import { BORNES_AUTRES, BORNES_IA, MODELES, PARAMETRES, SOURCES, extremeDeCrise } from "@/components/methodologie/donnees";
+import { BORNES_AUTRES, BORNES_IA, MODELES, PARAMETRES, PARAMETRES_CRISE, SOURCES, extremeDeCrise, extremeDeRebond } from "@/components/methodologie/donnees";
 import { nomCourt } from "@/contenu/actifs";
 import { pourcentSigne } from "@/lib/format";
 
@@ -115,13 +115,27 @@ export default function Page() {
             {PARAMETRES.perteMaxQuotidiennePct} % en une seule séance.
           </p>
           <p>
-            <G>Profil de crise</G> (modèles Classique et Crises réelles) : une vraie crise ne descend pas en ligne droite. Comme en 1987, 2008 ou 2020,
-            l&apos;essentiel du choc arrive vite. Le point extrême tombe à {PARAMETRES.criseCreuxPctHorizon} % de l&apos;horizon et va{" "}
-            {PARAMETRES.criseDepassementPct} % plus loin que le choc final de l&apos;IA, puis le marché se reprend en partie. Exemple sur{" "}
-            {PARAMETRES.horizonDefaut} séances : un choc final de {pourcentSigne(-20, 0)} passe par environ {pourcentSigne(extremeDeCrise(-0.2) * 100, 0)}{" "}
-            vers la {Math.round((PARAMETRES.criseCreuxPctHorizon / 100) * PARAMETRES.horizonDefaut)}
-            <sup>e</sup> séance. La médiane finit toujours sur le choc de l&apos;IA : seul le chemin change. Le modèle Emballement, lui, garde un choc
-            qui accélère.
+            <G>Forme du choc</G> (modèles Classique et Crises réelles) : une crise ne descend pas forcément en ligne droite. L&apos;IA choisit l&apos;une
+            de trois formes. <G>Brutal</G> (krach, comme en 1987, 2008 ou 2020) : l&apos;essentiel du choc arrive vite, le point extrême tombe à{" "}
+            {PARAMETRES.criseCreuxPctHorizon} % de l&apos;horizon et va {PARAMETRES.criseDepassementPct} % plus loin que le choc final, puis le marché se
+            reprend en partie ; sur {PARAMETRES.horizonDefaut} séances, un choc final de {pourcentSigne(-20, 0)} passe par environ{" "}
+            {pourcentSigne(extremeDeCrise(-0.2) * 100, 0)} vers la {Math.round((PARAMETRES.criseCreuxPctHorizon / 100) * PARAMETRES.horizonDefaut)}
+            <sup>e</sup> séance. <G>Progressif</G> (inflation qui s&apos;installe, resserrement monétaire) : le choc avance au même rythme chaque jour.{" "}
+            <G>Rebond</G> (choc puis retour quasi complet) : le point extrême tombe à {PARAMETRES_CRISE.rebondCreuxPctHorizon} % de l&apos;horizon et va{" "}
+            {PARAMETRES_CRISE.rebondDepassementPct} % plus loin que le choc final (un choc final de {pourcentSigne(-10, 0)} passe par environ{" "}
+            {pourcentSigne(extremeDeRebond(-0.1) * 100, 0)}). Sans réponse lisible de l&apos;IA, la forme brutale s&apos;applique. La médiane finit toujours
+            sur le choc de l&apos;IA : seul le chemin change. Le modèle Emballement, lui, garde un choc qui accélère.
+          </p>
+          <p>
+            <G>Régime de crise</G> (modèles Classique et Crises réelles) : en crise, la volatilité explose et les actifs risqués chutent ensemble. Le
+            moteur s&apos;y adapte quand le choc du S&amp;P 500 tiré pour une trajectoire est une baisse de plus de {PARAMETRES_CRISE.criseSeuilBaisseSp500Pct} % ;
+            l&apos;intensité monte ensuite jusqu&apos;à une baisse de {PARAMETRES_CRISE.crisePleineBaisseSp500Pct} %. À pleine intensité, la volatilité est
+            multipliée par {String(PARAMETRES_CRISE.criseMultiplicateurVol).replace(".", ",")} (rapport observé entre la volatilité du S&amp;P 500 des pires mois
+            de 2008 ou 2020 et sa moyenne de long terme, un peu atténué). Les corrélations viennent des <G>jours de stress</G> réels de l&apos;historique
+            (les séances dont la volatilité du S&amp;P 500 sur {PARAMETRES_CRISE.criseFenetreVolSeances} séances est dans les {100 - PARAMETRES_CRISE.criseQuantileVolPct} % les
+            plus hautes) ; entre actifs risqués (actions, pétrole et cuivre, cryptos), l&apos;écart qui sépare leur corrélation de 1 est en plus réduit
+            de {PARAMETRES_CRISE.criseRapprochementCorrelationPct} % (de 0,5 à 0,75 par exemple), ordre de grandeur observé dans les fortes baisses. Le modèle Crises réelles rejoue alors une partie de ses blocs parmi ces vrais jours de stress.
+            Un scénario calme n&apos;est pas touché.
           </p>
           <p>Trois modèles d&apos;aléa sont proposés :</p>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
@@ -163,17 +177,20 @@ export default function Page() {
         <Rubrique id="euros" titre="Conversion en euros">
           <p>
             Le capital est en euros, mais beaucoup d&apos;actifs cotent en dollars. En <G>simulation</G>, l&apos;euro/dollar est simulé comme les autres
-            actifs (son choc vient de l&apos;IA, ses mouvements sont corrélés au reste) et chaque actif en dollars est divisé par ce taux, jour par jour. En{" "}
-            <G>backtest</G>, on utilise les taux de référence officiels de la BCE de chaque séance (disponibles depuis janvier 1999), y compris pour le yen
-            et la livre.
+            actifs (son choc vient de l&apos;IA, ses mouvements sont corrélés au reste) et chaque actif en dollars est divisé par ce taux, jour par jour. Les
+            actifs en <G>livre</G> (Gilt) et en <G>yen</G> (JGB) sont divisés de la même façon par un taux euro/livre ou euro/yen simulé : l&apos;IA
+            n&apos;estime pas ces devises, leur taux n&apos;a donc pas de tendance, mais il s&apos;agite et se corrèle aux autres actifs comme les vrais taux
+            BCE des deux dernières années. En <G>backtest</G>, on utilise les taux de référence officiels de la BCE de chaque séance (disponibles depuis
+            janvier 1999), pour le dollar, le yen et la livre.
           </p>
         </Rubrique>
 
         <Rubrique id="ia" icone={Bot} titre="Calibration de l'IA">
           <p>
             L&apos;analyse est confiée à un modèle d&apos;OpenAI ({PARAMETRES.modeleIa}, avec {PARAMETRES.modeleIaSecours} en secours). Il reçoit le
-            scénario, la conjoncture réelle du moment (taux et inflation FRED) et une méthode imposée : classer la sévérité, raisonner sur l&apos;horizon,
-            respecter les corrélations économiques connues, puis vérifier chaque chiffre avant de répondre. La consigne rappelle que les marchés anticipent
+            scénario, la conjoncture réelle du moment (taux et inflation FRED), l&apos;horizon choisi (de {PARAMETRES.horizonMin} à{" "}
+            {PARAMETRES.horizonMax} séances) et une méthode imposée : classer la sévérité, raisonner sur cet horizon, respecter les corrélations
+            économiques connues, choisir la forme du choc dans le temps, puis vérifier chaque chiffre avant de répondre. La consigne rappelle que les marchés anticipent
             une partie des nouvelles : en cas d&apos;hésitation, l&apos;amplitude la plus modeste l&apos;emporte.
           </p>
           <p>
@@ -237,21 +254,38 @@ export default function Page() {
             {[
               <>Le choc vient d&apos;une <G>IA</G> : c&apos;est une estimation raisonnée, pas une prévision. Deux lancements du même scénario peuvent différer.</>,
               <>
-                L&apos;IA raisonne sur environ {PARAMETRES.horizonDefaut} séances ; son choc est appliqué tel quel à l&apos;horizon choisi (de{" "}
-                {PARAMETRES.horizonMin} à {PARAMETRES.horizonMax} séances).
+                L&apos;IA reçoit l&apos;horizon choisi (de {PARAMETRES.horizonMin} à {PARAMETRES.horizonMax} séances), mais ses repères chiffrés (crises
+                passées, amplitudes typiques) sont donnés sur environ {PARAMETRES.horizonDefaut} séances : pour un horizon très court ou très long, elle
+                doit les extrapoler.
               </>,
               <>
-                Le <G>profil de crise</G> (chute rapide, dépassement, reprise partielle) est le même pour tous les scénarios : une crise lente, ou une
-                hausse progressive, n&apos;a pas exactement cette forme.
+                La <G>forme du choc</G> se résume à trois profils types (brutal, progressif, rebond) : une vraie crise enchaîne souvent plusieurs phases
+                (rechute, faux rebond) que ces profils ne décrivent pas.
               </>,
               <>
                 La <G>fourchette</G> de l&apos;IA est elle-même une estimation : elle ne contient pas toujours le vrai mouvement (voir la page Validation).
               </>,
-              <>Volatilités et corrélations sont supposées <G>constantes</G> sur l&apos;horizon, alors qu&apos;en crise elles montent (effet GARCH, corrélations qui tendent vers 1).</>,
+              <>
+                Le <G>régime de crise</G> reste un réglage simple : il ne dépend que du choc du S&amp;P 500, dure tout l&apos;horizon et majore la volatilité
+                de tous les actifs du même facteur (sauf le VIX). Hors crise, volatilités et corrélations restent constantes sur l&apos;horizon : pas de
+                volatilité qui s&apos;emballe puis se calme jour après jour (effet GARCH).
+              </>,
+              <>
+                Les jours de stress viennent des {PARAMETRES.anneesCorrelation} dernières années : si cette période n&apos;a pas connu de vraie crise, les
+                corrélations de crise s&apos;appuient surtout sur le rapprochement de 1 des actifs risqués, un ordre de grandeur tiré de la littérature.
+              </>,
               <>Le modèle Classique suppose des rendements gaussiens : les krachs extrêmes y sont plus rares que dans la réalité (le modèle Crises réelles corrige en partie).</>,
               <>Obligations et indices MSCI sont suivis via des <G>ETF</G> : c&apos;est le prix de ces fonds qui est modélisé.</>,
-              <>En simulation, seule la conversion dollar → euro est modélisée ; yen et livre ne sont convertis qu&apos;en backtest.</>,
-              <>Pas de frais, de fiscalité, de spreads ni de problème de liquidité. Les performances passées ne préjugent pas des performances futures.</>,
+              <>
+                Livre et yen sont convertis en simulation, mais sans tendance : l&apos;IA n&apos;estime pas ces devises, seul leur bruit est simulé. Un
+                actif personnalisé coté dans une autre devise (franc suisse, etc.) n&apos;est pas converti.
+              </>,
+              <>
+                Les cours Yahoo sont <G>ajustés</G> : pour les ETF (MSCI, obligations, terres rares, défense), les dividendes et coupons réinvestis et les
+                frais de gestion du fonds sont déjà dans les prix. Les indices S&amp;P 500, Nasdaq 100 et CAC 40 sont en revanche des indices de prix, hors
+                dividendes (de l&apos;ordre de 1 à 3 % par an). Restent ignorés : frais de courtage, fiscalité, écart entre prix d&apos;achat et de vente
+                (spread) et problèmes de liquidité. Les performances passées ne préjugent pas des performances futures.
+              </>,
             ].map((l, i) => (
               <li key={i} className="relative pl-5">
                 <span aria-hidden className="absolute left-0.5 top-[0.6em] size-1.5 rounded-full bg-muted" />

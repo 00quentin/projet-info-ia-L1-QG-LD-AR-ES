@@ -10,7 +10,11 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from config import CRISE_DEPASSEMENT, CRISE_FRACTION_CREUX
+import simulation
+from config import (
+    CRISE_DEPASSEMENT, CRISE_FRACTION_CREUX, REBOND_DEPASSEMENT, REBOND_FRACTION_CREUX,
+    REGIME_CRISE_MULT_VOL, TAUX_CHANGE_SECOURS,
+)
 from simulation import (
     construire_correlations, generer_chemins, profil_choc,
     simuler_marche_dynamique, simuler_monte_carlo, tirer_chocs,
@@ -214,16 +218,29 @@ def test_mediane_reste_proche_du_central_avec_fourchette(modele):
     assert perf["Or"] == pytest.approx(0.08, abs=0.02)
 
 
-def test_le_doute_de_l_ia_elargit_l_intervalle():
+def _largeur_finale(mc):
+    return (mc["haut"].iloc[-1] - mc["bas"].iloc[-1]) / mc["mediane"].iloc[0]
+
+
+def test_le_doute_de_l_ia_elargit_l_intervalle(monkeypatch):
+    # Regime de crise neutralise : on isole l'effet de la fourchette de l'IA
+    monkeypatch.setattr(simulation, "REGIME_CRISE_SEUIL_SP500", 0.99)
+    monkeypatch.setattr(simulation, "REGIME_CRISE_PLEIN_SP500", 1.0)
     sans = simuler_monte_carlo({"actifs": FOURCHETTES["actifs"]}, jours=100,
                                actifs=["S&P 500", "Or"], nb_simulations=3000, graine=14)
     avec = simuler_monte_carlo(FOURCHETTES, jours=100,
                                actifs=["S&P 500", "Or"], nb_simulations=3000, graine=14)
+    assert (_largeur_finale(avec) > _largeur_finale(sans)).all()
+    assert _largeur_finale(avec)["S&P 500"] > _largeur_finale(sans)["S&P 500"] * 1.1
 
-    def largeur(mc):
-        return (mc["haut"].iloc[-1] - mc["bas"].iloc[-1]) / mc["mediane"].iloc[0]
-    assert (largeur(avec) > largeur(sans)).all()
-    assert largeur(avec)["S&P 500"] > largeur(sans)["S&P 500"] * 1.1
+
+def test_le_doute_de_l_ia_elargit_aussi_l_intervalle_en_crise():
+    # En crise, le bruit de marche majore domine, mais le doute de l'IA s'y ajoute
+    sans = simuler_monte_carlo({"actifs": FOURCHETTES["actifs"]}, jours=100,
+                               actifs=["S&P 500", "Or"], nb_simulations=3000, graine=14)
+    avec = simuler_monte_carlo(FOURCHETTES, jours=100,
+                               actifs=["S&P 500", "Or"], nb_simulations=3000, graine=14)
+    assert (_largeur_finale(avec) > _largeur_finale(sans)).all()
 
 
 def test_sans_fourchette_monte_carlo_inchange():
@@ -258,3 +275,197 @@ def test_choc_entre_300_et_500_pourcent_reste_un_decimal():
     df = simuler_marche_dynamique({"actifs": {"VIX": 4.0}}, jours=60, actifs=["VIX"],
                                   vols_reelles={"VIX": 1e-9}, graine=18)
     assert df["VIX"].iloc[-1] / df["VIX"].iloc[0] - 1 == pytest.approx(4.0, rel=1e-3)
+
+
+# === Forme du choc choisie par l'IA (prompt v10) ============================
+
+
+@pytest.mark.parametrize("forme", ["brutal", "progressif", "rebond"])
+@pytest.mark.parametrize("pas", [1, 29, 99, 249])
+def test_toutes_les_formes_realisent_tout_le_choc(forme, pas):
+    profil = profil_choc("Probabiliste (Réaliste)", pas, forme)
+    assert len(profil) == pas
+    assert profil.sum() == pytest.approx(1.0, abs=1e-12)
+
+
+def test_forme_progressive_reguliere():
+    profil = profil_choc("Historique (Chocs violents)", 100, "progressif")
+    assert np.allclose(profil, 0.01)
+    assert np.cumsum(profil).max() == pytest.approx(1.0)   # pas de depassement
+
+
+def test_forme_rebond_creuse_puis_revient():
+    pas = 100
+    cumul = np.cumsum(profil_choc("Probabiliste (Réaliste)", pas, "rebond"))
+    creux = int(np.argmax(cumul))
+    assert creux + 1 == pytest.approx(REBOND_FRACTION_CREUX * pas, abs=1)
+    assert cumul.max() == pytest.approx(1 + REBOND_DEPASSEMENT, abs=0.01)
+    assert cumul.max() > 1 + CRISE_DEPASSEMENT                # plus creuse que "brutal"
+
+
+def test_forme_inconnue_ou_absente_garde_le_profil_brutal():
+    attendu = profil_choc("Probabiliste (Réaliste)", 99)
+    assert np.array_equal(profil_choc("Probabiliste (Réaliste)", 99, "brutal"), attendu)
+    assert simulation.forme_du_choc({"profil_choc": "chaotique"}) == "brutal"
+    assert simulation.forme_du_choc({}) == "brutal"
+    assert simulation.forme_du_choc(None) == "brutal"
+
+
+def test_modele_tendance_ignore_la_forme():
+    attendu = profil_choc("Machine Learning (Tendance)", 99)
+    assert np.array_equal(profil_choc("Machine Learning (Tendance)", 99, "rebond"), attendu)
+
+
+def test_trajectoire_mediane_suit_la_forme_progressive():
+    chocs = {"actifs": {"Or": 0.20}, "profil_choc": "progressif"}
+    mc = simuler_monte_carlo(chocs, jours=101, actifs=["Or"], nb_simulations=3000, graine=21)
+    perf = mc["mediane"]["Or"] / mc["mediane"]["Or"].iloc[0] - 1
+    assert perf.iloc[50] == pytest.approx(np.expm1(0.5 * np.log1p(0.20)), abs=0.015)
+    assert perf.max() == pytest.approx(0.20, abs=0.02)        # pas de depassement
+    assert perf.iloc[-1] == pytest.approx(0.20, abs=0.015)
+
+
+# === Regime de crise =========================================================
+
+
+def test_intensite_crise_seuil_puis_lineaire():
+    assert simulation.intensite_crise(-0.05) == 0.0
+    assert simulation.intensite_crise(0.30) == 0.0           # une hausse n'est pas une crise
+    assert simulation.intensite_crise(-0.20) == pytest.approx(0.5)
+    assert simulation.intensite_crise(-0.45) == 1.0
+    assert simulation.multiplicateur_volatilite(1.0) == pytest.approx(REGIME_CRISE_MULT_VOL)
+    assert simulation.multiplicateur_volatilite(0.0) == pytest.approx(1.0)
+
+
+def test_diagnostic_regime_crise():
+    calme = simulation.diagnostic_regime_crise({"actifs": {"S&P 500": -0.04}})
+    crise = simulation.diagnostic_regime_crise({"actifs": {"S&P 500": -30}})   # en %
+    assert calme["actif"] is False and calme["multiplicateur_vol"] == 1.0
+    assert crise["actif"] is True and crise["intensite"] == 1.0
+    assert crise["multiplicateur_vol"] == pytest.approx(REGIME_CRISE_MULT_VOL)
+
+
+@pytest.mark.parametrize("modele", MODELES[:2])
+def test_scenario_calme_strictement_inchange(modele, monkeypatch):
+    hist = _rendements_correles(n=400)
+    chocs = {"actifs": {"S&P 500": -0.05, "NASDAQ": 0.03}}
+    _, avec = generer_chemins(chocs, jours=60, modele=modele, actifs=["S&P 500", "NASDAQ"],
+                              nb_simulations=100, rendements_historiques=hist, graine=22)
+    monkeypatch.setattr(simulation, "REGIME_CRISE_SEUIL_SP500", 0.99)
+    monkeypatch.setattr(simulation, "REGIME_CRISE_PLEIN_SP500", 1.0)
+    _, sans = generer_chemins(chocs, jours=60, modele=modele, actifs=["S&P 500", "NASDAQ"],
+                              nb_simulations=100, rendements_historiques=hist, graine=22)
+    np.testing.assert_array_equal(avec, sans)
+
+
+@pytest.mark.parametrize("modele", MODELES[:2])
+def test_crise_majore_la_volatilite(modele):
+    vols = {"S&P 500": 0.01}
+
+    def vol(choc):
+        _, ch = generer_chemins({"actifs": {"S&P 500": choc}}, jours=250, modele=modele,
+                                actifs=["S&P 500"], nb_simulations=200, vols_reelles=vols,
+                                graine=23, rendements_historiques=_rendements_correles(n=400))
+        r = np.diff(np.log(ch[:, :, 0]), axis=1)
+        return (r - r.mean(axis=0)).std()
+    # -40 % : intensite 1
+    assert vol(-0.40) / vol(0.0) == pytest.approx(REGIME_CRISE_MULT_VOL, rel=0.12)
+
+
+def test_vix_non_majore_en_crise():
+    vols = {"S&P 500": 0.01, "VIX": 0.05}
+    _, ch = generer_chemins({"actifs": {"S&P 500": -0.40}}, jours=250, actifs=["S&P 500", "VIX"],
+                            nb_simulations=200, vols_reelles=vols, graine=24)
+    r = np.diff(np.log(ch), axis=1)
+    r = r - r.mean(axis=0)
+    assert r[:, :, 1].std() == pytest.approx(0.05, rel=0.05)
+    assert r[:, :, 0].std() == pytest.approx(0.01 * REGIME_CRISE_MULT_VOL, rel=0.05)
+
+
+def _historique_actions_et_obligations(n=500, graine=3):
+    """Actions correlees a 0.4, obligation peu correlee, 20 % de seances agitees."""
+    rng = np.random.default_rng(graine)
+    vol = np.where(np.arange(n) % 100 < 20, 0.03, 0.01)
+    commun = rng.standard_normal(n)
+    a = vol * commun
+    b = vol * (0.4 * commun + np.sqrt(1 - 0.4 ** 2) * rng.standard_normal(n))
+    o = 0.004 * rng.standard_normal(n)
+    return pd.DataFrame({"S&P 500": a, "NASDAQ": b, "Bund_10Y": o},
+                        index=pd.bdate_range("2024-01-01", periods=n))
+
+
+def test_jours_de_stress_un_cinquieme_des_seances():
+    hist = _historique_actions_et_obligations()
+    stress = simulation.jours_de_stress(hist)
+    assert stress.mean() == pytest.approx(0.2, abs=0.03)
+    assert simulation.jours_de_stress(hist[["NASDAQ"]]) is None    # pas de S&P 500
+
+
+def test_correlations_de_crise_rapprochent_les_actifs_risques_de_un():
+    hist = _historique_actions_et_obligations()
+    cles = ["S&P 500", "NASDAQ", "Bund_10Y", "Bitcoin", "VIX"]
+    normale = construire_correlations(cles, hist)
+    crise = simulation.correlations_de_crise(cles, hist)
+    assert crise[0, 1] > normale[0, 1] + 0.2               # actions entre elles
+    assert crise[0, 3] > normale[0, 3]                     # actions et crypto (secours)
+    assert np.allclose(np.diag(crise), 1.0)
+    assert np.linalg.eigvalsh(crise).min() > 0             # definie positive
+    np.linalg.cholesky(crise)
+
+
+@pytest.mark.parametrize("modele", MODELES[:2])
+def test_crise_fait_monter_la_correlation_simulee(modele):
+    hist = _historique_actions_et_obligations()
+
+    def correlation(choc):
+        _, ch = generer_chemins({"actifs": {"S&P 500": choc, "NASDAQ": choc}}, jours=250,
+                                modele=modele, actifs=["S&P 500", "NASDAQ"], nb_simulations=100,
+                                rendements_historiques=hist, graine=25)
+        r = np.diff(np.log(ch), axis=1)
+        r = (r - r.mean(axis=0)).reshape(-1, 2)
+        return np.corrcoef(r.T)[0, 1]
+    assert correlation(-0.40) > correlation(0.0) + 0.15
+
+
+# === Devises : livre et yen en simulation ===================================
+
+
+def test_actifs_en_livre_et_en_yen_convertis_en_euros():
+    vols = {"Gilt_10Y": 1e-9, "JGB_10Y": 1e-9, "EUR_GBP": 1e-9, "EUR_JPY": 1e-9}
+    cles, ch = generer_chemins({"actifs": {}}, jours=20, actifs=["Gilt_10Y", "JGB_10Y", "CAC 40"],
+                               nb_simulations=5, vols_reelles=vols, graine=26,
+                               prix_reels={"Gilt_10Y": 87.0, "JGB_10Y": 1700.0},
+                               devises_actifs={"Gilt_10Y": "GBP", "JGB_10Y": "JPY"})
+    assert set(cles) == {"CAC 40", "Gilt_10Y", "JGB_10Y"}   # taux techniques masques
+    gbp, jpy = TAUX_CHANGE_SECOURS["EUR_GBP"]["prix"], TAUX_CHANGE_SECOURS["EUR_JPY"]["prix"]
+    assert ch[0, 0, cles.index("Gilt_10Y")] == pytest.approx(87.0 / gbp)
+    assert ch[0, 0, cles.index("JGB_10Y")] == pytest.approx(1700.0 / jpy)
+
+
+def test_change_livre_ajoute_du_risque_sans_deplacer_la_mediane():
+    def simuler(devises):
+        return simuler_monte_carlo({"actifs": {"Gilt_10Y": 0.05}}, jours=100, actifs=["Gilt_10Y"],
+                                   nb_simulations=3000, graine=27, devises_actifs=devises)
+    local, euros = simuler(None), simuler({"Gilt_10Y": "GBP"})
+
+    def perf(mc, cle):
+        return mc[cle]["Gilt_10Y"].iloc[-1] / mc["mediane"]["Gilt_10Y"].iloc[0] - 1
+    assert perf(euros, "mediane") == pytest.approx(0.05, abs=0.01)   # pas de choc IA sur la livre
+    assert perf(euros, "haut") - perf(euros, "bas") > perf(local, "haut") - perf(local, "bas")
+    assert euros["colonnes"] == ["Gilt_10Y"]
+
+
+def test_taux_de_change_mesure_sur_l_historique():
+    rng = np.random.default_rng(4)
+    n = 300
+    commun = rng.standard_normal(n)
+    hist = pd.DataFrame({"JGB_10Y": 0.01 * commun,
+                         "EUR_JPY": 0.006 * (0.8 * commun + 0.6 * rng.standard_normal(n))})
+    _, ch = generer_chemins({"actifs": {}}, jours=250, actifs=["JGB_10Y"], nb_simulations=100,
+                            rendements_historiques=hist,
+                            vols_reelles={"JGB_10Y": 0.01, "EUR_JPY": 0.006},
+                            devises_actifs={"JGB_10Y": "JPY"}, graine=28)
+    # Prix en yen / EUR-JPY correle a +0.8 : la conversion amortit les mouvements
+    r = np.diff(np.log(ch[:, :, 0]), axis=1)
+    attendu = np.sqrt(0.01 ** 2 + 0.006 ** 2 - 2 * 0.8 * 0.01 * 0.006)
+    assert r.std() == pytest.approx(attendu, rel=0.05)

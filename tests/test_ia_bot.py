@@ -116,8 +116,9 @@ def test_build_prompt_demande_une_fourchette_par_actif():
 
 
 def test_prompt_version_invalide_l_ancien_cache():
-    """Le format de reponse a change : les analyses en cache (sans fourchette) sont perimees."""
-    assert ia_bot.PROMPT_VERSION.startswith("v9")
+    """Le format de reponse a change : les analyses en cache (sans horizon ni
+    profil_choc) sont perimees."""
+    assert ia_bot.PROMPT_VERSION.startswith("v10")
 
 
 def test_analyse_avec_fourchettes_validee(monkeypatch):
@@ -221,6 +222,71 @@ def test_analyse_se_replie_si_le_modele_principal_est_en_panne(monkeypatch):
     assert "erreur" not in res
     assert [a["model"] for a in client.appels] == [
         IA_ANALYSE["model"], IA_ANALYSE_SECOURS["model"]]
+
+
+def test_analyse_renvoie_profil_choc_valide(monkeypatch):
+    contenu = ('{"actifs": {"S&P 500": {"bas": -0.3, "central": -0.2, "haut": -0.1}},'
+               ' "profil_choc": "progressif", "explication_courte": "test"}')
+    monkeypatch.setattr(ia_bot, "_get_openai_client", lambda: _FauxClient(contenu=contenu))
+    res = ia_bot._appel_openai_macro("prompt", "inflation", False, None)
+    assert res["profil_choc"] == "progressif"
+    assert res["fourchettes_ia"]["S&P 500"] == {"bas": -0.3, "central": -0.2, "haut": -0.1}
+
+
+def test_analyse_sans_profil_choc_reste_brutale(monkeypatch):
+    monkeypatch.setattr(ia_bot, "_get_openai_client", lambda: _FauxClient())
+    res = ia_bot._appel_openai_macro("prompt", "krach", False, None)
+    assert res["profil_choc"] == "brutal"
+
+
+# --- Prompt v10 : horizon reel et forme du choc ----------------------------
+
+
+def test_prompt_demande_le_profil_choc():
+    p = ia_bot._build_prompt_macro("Test")
+    assert '"profil_choc": "brutal|progressif|rebond"' in p
+    for forme in ("brutal", "progressif", "rebond"):
+        assert f'- "{forme}"' in p
+
+
+def test_prompt_horizon_par_defaut_inchange():
+    p = ia_bot._build_prompt_macro("Test")
+    assert "L'horizon est de 100 jours de cotation (~5 mois)" in p
+    assert "ramène-les" not in p
+
+
+def test_prompt_horizon_reel():
+    p = ia_bot._build_prompt_macro("Test", horizon=250)
+    assert "L'horizon est de 250 jours de cotation (~12 mois)" in p
+    assert "plausible sur 250 jours" in p
+    assert "ramène-les à 250 jours" in p
+    assert "100 jours de cotation (~5 mois)" not in p
+
+
+def test_prompt_horizon_borne_et_illisible():
+    assert "de 30 jours de cotation" in ia_bot._build_prompt_macro("Test", horizon=5)
+    assert "de 250 jours de cotation" in ia_bot._build_prompt_macro("Test", horizon=900)
+    assert "de 100 jours de cotation" in ia_bot._build_prompt_macro("Test", horizon="abc")
+
+
+def test_consignes_de_fourchette_conservees():
+    p = ia_bot._build_prompt_macro("Test", horizon=60)
+    assert "environ le 10e centile" in p and "environ le 90e centile" in p
+    assert "8 fois sur 10" in p
+
+
+def test_horizon_dans_la_cle_de_cache(monkeypatch):
+    recus = []
+
+    def faux_cache(*args):
+        recus.append(args)
+        return {"actifs": {}}
+    monkeypatch.setattr(ia_bot, "_analyser_cache_impl", faux_cache)
+    ia_bot.analyser_evenement_macro("krach", horizon=60)
+    ia_bot.analyser_evenement_macro("krach", horizon=200)
+    ia_bot.analyser_evenement_macro("krach")
+    assert [a[-1] for a in recus] == [60, 200, 100]
+    assert all(a[3] == ia_bot.PROMPT_VERSION for a in recus)
 
 
 def test_analyse_renvoie_une_erreur_propre_si_tout_est_en_panne(monkeypatch):

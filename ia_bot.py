@@ -8,7 +8,8 @@ from openai import OpenAI, APIError, APIConnectionError, APITimeoutError, RateLi
 from dotenv import load_dotenv
 
 from config import (
-    IA_ANALYSE, IA_ANALYSE_SECOURS, IA_CHAT, IA_RAPPORT, IA_TIMEOUT_SECONDES,
+    HORIZON_DEFAUT, HORIZON_MAX, HORIZON_MIN, IA_ANALYSE, IA_ANALYSE_SECOURS, IA_CHAT,
+    IA_RAPPORT, IA_TIMEOUT_SECONDES, PROFILS_CHOC,
 )
 from core.cache import cache_ttl
 from schemas import BORNES_ACTIFS, valider_reponse_ia
@@ -39,7 +40,7 @@ def _get_openai_client() -> OpenAI:
 
 # Bump this version when the prompt structure changes, to invalidate
 # all old cached IA responses (they don't have the new fields).
-PROMPT_VERSION = "v9-fourchette-large-2026-11"
+PROMPT_VERSION = "v10-horizon-profil-2026-11"
 
 # Gabarit d'un actif dans le format JSON demande a l'IA (choc bas / central / haut).
 _FOURCHETTE_VIDE = '{"bas": 0.0, "central": 0.0, "haut": 0.0}'
@@ -77,21 +78,36 @@ def _sanitize_scenario(texte: str) -> str:
     return t
 
 
+# Seances de bourse par mois (pour dire l'horizon en mois a l'IA).
+_SEANCES_PAR_MOIS = 21
+
+
+def _horizon_valide(horizon) -> int:
+    """Horizon en seances, borne comme le formulaire (defaut si illisible)."""
+    try:
+        n = int(horizon)
+    except (TypeError, ValueError):
+        return HORIZON_DEFAUT
+    return max(HORIZON_MIN, min(HORIZON_MAX, n))
+
+
 def analyser_evenement_macro(evenement_utilisateur, calibration_historique=False,
-                              custom_tickers=None, conjoncture=""):
+                              custom_tickers=None, conjoncture="", horizon=None):
     """Point d'entree public. Cache via _analyser_cache_impl.
     La PROMPT_VERSION est dans la cle pour invalider l'ancien cache a chaque
     refonte du prompt.
 
     conjoncture : resume des taux et de l'inflation du moment (core.conjoncture.texte_pour_ia).
-    Il fait partie de la cle de cache : une nouvelle conjoncture = une nouvelle analyse."""
+    Il fait partie de la cle de cache : une nouvelle conjoncture = une nouvelle analyse.
+    horizon : duree simulee en seances ; l'IA estime le choc sur cette duree (cle de cache)."""
     # Sanitize avant tout (et avant la cle de cache : un input malveillant
     # equivalent au texte propre doit hitter le meme cache).
     evenement_clean = _sanitize_scenario(evenement_utilisateur)
     # custom_tickers est une liste de dicts (non hashable) -> on serialise
     custom_key = json.dumps(custom_tickers, sort_keys=True) if custom_tickers else ""
     return _analyser_cache_impl(
-        evenement_clean, calibration_historique, custom_key, PROMPT_VERSION, conjoncture or ""
+        evenement_clean, calibration_historique, custom_key, PROMPT_VERSION, conjoncture or "",
+        _horizon_valide(horizon),
     )
 
 
@@ -103,15 +119,17 @@ def _est_une_analyse_valide(resultat) -> bool:
 # resterait en echec pendant 24h meme une fois OpenAI retabli.
 @cache_ttl(86400, garder=_est_une_analyse_valide)
 def _analyser_cache_impl(evenement_utilisateur, calibration_historique,
-                          custom_tickers_key, prompt_version, conjoncture=""):
+                          custom_tickers_key, prompt_version, conjoncture="",
+                          horizon=HORIZON_DEFAUT):
     """Implementation cachee 24h. NE PAS appeler directement, passer par
     analyser_evenement_macro."""
     custom_tickers = json.loads(custom_tickers_key) if custom_tickers_key else None
-    return _analyser_impl(evenement_utilisateur, calibration_historique, custom_tickers, conjoncture)
+    return _analyser_impl(evenement_utilisateur, calibration_historique, custom_tickers,
+                          conjoncture, horizon)
 
 
 def _analyser_impl(evenement_utilisateur, calibration_historique=False,
-                    custom_tickers=None, conjoncture=""):
+                    custom_tickers=None, conjoncture="", horizon=HORIZON_DEFAUT):
     """
     Analyse un scenario macro et estime les chocs sur chaque actif.
     Orchestrateur leger : delegue a _build_prompt_macro + _appel_openai_macro.
@@ -124,7 +142,7 @@ def _analyser_impl(evenement_utilisateur, calibration_historique=False,
             integrera a sa reponse avec une cle = sim_key.
     """
     prompt = _build_prompt_macro(
-        evenement_utilisateur, calibration_historique, custom_tickers, conjoncture
+        evenement_utilisateur, calibration_historique, custom_tickers, conjoncture, horizon
     )
     return _appel_openai_macro(
         prompt, evenement_utilisateur, calibration_historique, custom_tickers
@@ -132,14 +150,23 @@ def _analyser_impl(evenement_utilisateur, calibration_historique=False,
 
 
 def _build_prompt_macro(evenement_utilisateur, calibration_historique=False,
-                          custom_tickers=None, conjoncture="") -> str:
+                          custom_tickers=None, conjoncture="", horizon=HORIZON_DEFAUT) -> str:
     """Construit le prompt envoye a OpenAI. Pure fonction (testable sans reseau).
 
     Trois blocs concatenes :
     - Section calibration historique (uniquement si calibration_historique=True)
     - Section actifs personnalises (uniquement si custom_tickers non vide)
     - Section meta : methodologie, format JSON, regles d'explication
+
+    horizon : duree simulee en seances (etape 2 du prompt).
     """
+    horizon = _horizon_valide(horizon)
+    mois = max(1, round(horizon / _SEANCES_PAR_MOIS))
+    # Les reperes chiffres du prompt sont donnes sur ~100 seances.
+    bloc_reperes_horizon = "" if horizon == HORIZON_DEFAUT else f"""
+    Les repères chiffrés de ce message (tableau historique, amplitudes typiques) sont
+    donnés pour environ {HORIZON_DEFAUT} jours de cotation : ramène-les à {horizon} jours."""
+    choix_profils = "|".join(PROFILS_CHOC)
     instruction_calibration = ""
     if calibration_historique:
         instruction_calibration = """
@@ -279,9 +306,9 @@ def _build_prompt_macro(evenement_utilisateur, calibration_historique=False,
     Si oui, regarde l'amplitude reelle observee plutot que ton intuition.
 
     ÉTAPE 2 - HORIZON :
-    L'horizon est de 100 jours de cotation (~5 mois). Les chocs doivent être
-    proportionnés à cette durée. Sur 5 mois, même la crise de 1929 n'a pas fait -89%
-    (cette baisse s'est étalée sur 3 ans).
+    L'horizon est de {horizon} jours de cotation (~{mois} mois). Les chocs doivent être
+    proportionnés à cette durée. Sur {mois} mois, même la crise de 1929 n'a pas fait -89%
+    (cette baisse s'est étalée sur 3 ans).{bloc_reperes_horizon}
 
     ÉTAPE 3 - APPLIQUER LES CORRÉLATIONS RÉELLES :
     - Hausse taux → obligations baissent, actions baissent, VIX monte, Dollar monte
@@ -299,7 +326,7 @@ def _build_prompt_macro(evenement_utilisateur, calibration_historique=False,
     ÉTAPE 4 - AUTO-VÉRIFICATION (CRUCIAL) :
     Avant de finaliser, vérifie chaque chiffre :
     a) Est-il cohérent avec un événement historique connu de sévérité comparable ?
-    b) Est-il plausible sur 100 jours (et pas sur 10 ans) ?
+    b) Est-il plausible sur {horizon} jours (et pas sur 10 ans) ?
     c) Respecte-t-il les corrélations économiques ?
     d) Ai-je évité les valeurs aberrantes (>+500% ou <-90%) ?
     e) Pour chaque actif, ai-je bien "bas" <= "central" <= "haut" ?
@@ -323,6 +350,16 @@ def _build_prompt_macro(evenement_utilisateur, calibration_historique=False,
     - La largeur traduit aussi ton doute : plus large si le scénario est inédit (fiabilité
       "faible"), un peu plus serrée si un précédent historique très proche existe.
     - Elle peut être asymétrique (un krach peut s'aggraver plus qu'il ne s'atténue).
+
+    *** FORME DU CHOC DANS LE TEMPS (champ "profil_choc", OBLIGATOIRE) ***
+    Tes chocs restent la variation TOTALE entre le début et la fin des {horizon} jours ;
+    "profil_choc" décrit seulement le chemin pour y arriver. Choisis UNE valeur :
+    - "brutal" : krach rapide (l'essentiel en quelques semaines), qui va plus loin que
+      le choc final puis se reprend en partie (1987, 2008, COVID 2020).
+    - "progressif" : le choc s'installe régulièrement tout au long de l'horizon
+      (inflation persistante, resserrement monétaire de 2022, récession lente).
+    - "rebond" : choc violent puis retour quasi complet avant la fin de l'horizon
+      (11-Septembre, Brexit 2016) : le choc final reste alors modeste.
 
     *** REPÈRES D'AMPLITUDE TYPIQUES ***
     Pour t'aider à calibrer (ces ranges couvrent 95% des scénarios sérieux) :
@@ -348,7 +385,8 @@ def _build_prompt_macro(evenement_utilisateur, calibration_historique=False,
             {{"evenement": "Nom (ex: 'Crise 2008')", "annee": 2008, "poids": 0.3, "raison": "..."}},
             {{"evenement": "Nom (ex: 'Hausse FED 2022')", "annee": 2022, "poids": 0.1, "raison": "..."}}
         ],
-        "fiabilite_calibration": {{"niveau": "elevee|moyenne|faible", "raison": "Pourquoi ce niveau de confiance (1 phrase)."}}
+        "fiabilite_calibration": {{"niveau": "elevee|moyenne|faible", "raison": "Pourquoi ce niveau de confiance (1 phrase)."}},
+        "profil_choc": "{choix_profils}"
     }}
 
     REGLES references_historiques (OBLIGATOIRE quand calibration_historique=True) :
@@ -366,6 +404,7 @@ def _build_prompt_macro(evenement_utilisateur, calibration_historique=False,
     [ ] Champ "references_historiques" : contient 1 a 3 evenements ponderes (sum=1.0)
     [ ] Champ "evenement_reference" : nom du 1er element, JAMAIS null
     [ ] Champ "fiabilite_calibration" : objet {{niveau, raison}} JAMAIS null
+    [ ] Champ "profil_choc" : une seule valeur parmi {choix_profils}
 
     RAPPELS FORMATS :
     - "inflation" et "taux_directeurs" en pourcentage avec 2 decimales NON-RONDES.
