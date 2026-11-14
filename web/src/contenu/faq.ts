@@ -103,10 +103,10 @@ export const FAQ: ThemeFaq[] = [
       },
       {
         id: "fourchette-ia",
-        question: "Que veut dire la fourchette de l’IA ? Et le score de 84 % ?",
+        question: "Que veut dire la fourchette de l’IA ? Et le score de 85 % ?",
         reponse: [
           "Pour chaque actif, l’IA ne donne pas un chiffre unique mais trois : un choc bas, un choc central et un choc haut. En mode Monte-Carlo, chaque trajectoire tire son propre choc dans cette fourchette : le doute de l’IA se retrouve ainsi dans l’éventail des résultats.",
-          "Testée sur 6 crises passées dont on connaît l’issue, la fourchette contient le vrai mouvement pour 86 actifs sur 102, soit 84 %. Ce score est un peu flatteur : la consigne de l’IA a été réécrite après un premier test sur ces mêmes crises, et une crise inédite pourrait faire moins bien.",
+          "Testée sur 9 crises passées dont on connaît l’issue, la fourchette contient le vrai mouvement pour 135 actifs sur 159, soit 85 %. Six de ces crises ont servi à écrire la consigne (84 %), ce qui rend ce score un peu flatteur ; les trois autres, vues pour la première fois, donnent 86 % (49 actifs sur 57), sur un petit échantillon. Une crise inédite pourrait faire moins bien.",
         ],
         liens: [{ href: "/validation", libelle: "L’IA à l’épreuve de l’histoire" }],
       },

@@ -73,7 +73,7 @@ flowchart LR
 | `schemas.py` | Validation Pydantic des réponses de l'IA, bornes par actif, élargissement des fourchettes (`elargir_fourchette`) |
 | `config.py` | Toutes les constantes (actifs, profils, horizon, 1 000 simulations, modèles d'IA) |
 | `pdf_generator.py` | Rapports PDF (ReportLab) |
-| `scripts/valider_ia_historique.py` | Confronte l'IA aux 6 crises passées ; résultats dans `data/validation_ia.json`, affichés sur `/validation` |
+| `scripts/valider_ia_historique.py` | Confronte l'IA aux 9 crises passées ; résultats dans `data/validation_ia.json`, affichés sur `/validation` |
 | `tests/` | Tests pytest du moteur, de `core/` et de l'API |
 | `render.yaml` | Déploiement de l'API sur Render |
 | `.github/workflows/` | Vérifications (`verifications.yml`), réveil de l'API (`reveil_api.yml`), réveil de Streamlit (`keep_alive.yml`) |

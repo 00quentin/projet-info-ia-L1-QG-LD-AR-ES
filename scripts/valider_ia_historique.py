@@ -90,6 +90,26 @@ DESCRIPTIONS_NEUTRES = {
         "sa propre monnaie, vote par référendum, à la surprise générale, pour quitter "
         "cette union."
     ),
+    "Crise de la dette en zone euro (2011)": (
+        "Plusieurs États d'un grand ensemble monétaire européen, très endettés, voient les "
+        "investisseurs douter de leur capacité à rembourser : leurs taux d'emprunt montent "
+        "fortement, les banques détentrices de ces titres sont jugées fragiles, et la note "
+        "de crédit de la première puissance économique mondiale est elle-même abaissée "
+        "dans le même temps."
+    ),
+    "Dévaluation chinoise (2015-2016)": (
+        "La deuxième économie mondiale abaisse brusquement et sans prévenir la valeur de sa "
+        "monnaie, alors que son activité ralentit. Ses marchés d'actions chutent, des "
+        "capitaux quittent le pays, les matières premières s'effondrent et les investisseurs "
+        "craignent un ralentissement de toute l'économie mondiale."
+    ),
+    "Faillite de SVB (2023)": (
+        "Une banque américaine spécialisée dans le financement des jeunes entreprises "
+        "technologiques, qui détenait beaucoup d'obligations dont la valeur a chuté avec la "
+        "hausse des taux, subit des retraits massifs de dépôts et s'effondre en quelques "
+        "jours. La panique gagne d'autres banques de taille moyenne, et une grande banque "
+        "européenne déjà fragile doit être rachetée en urgence."
+    ),
 }
 
 # Le prompt du simulateur raisonne sur 100 jours : seule cette consigne change,
