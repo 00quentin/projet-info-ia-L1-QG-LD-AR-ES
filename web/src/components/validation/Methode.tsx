@@ -27,10 +27,21 @@ const ETAPES = [
   },
 ];
 
+// Crises ajoutées après la rédaction de la consigne (v9) : test hors échantillon.
+const NOMS_HORS_ECHANTILLON = ["Crise de la dette en zone euro", "Dévaluation chinoise", "Faillite de SVB"];
+
 export function Methode({ v }: { v: ValidationIA }) {
   const p = v.protocole;
   const local = v.global_devise_locale;
   const ecretes = v.crises.flatMap((c) => c.actifs.filter((a) => a.ecrete).map((a) => `${a.nom_court}, ${c.nom.replace(/\s*\(.*\)$/, "").toLowerCase()}`));
+  const horsCrises = v.crises.filter((c) => NOMS_HORS_ECHANTILLON.some((n) => c.nom.startsWith(n)));
+  const horsEchantillon = horsCrises.length === NOMS_HORS_ECHANTILLON.length
+    ? (() => {
+        const nb = horsCrises.reduce((t, c) => t + (c.metriques.nb_dans_fourchette ?? 0), 0);
+        const total = horsCrises.reduce((t, c) => t + (c.metriques.nb_fourchettes ?? 0), 0);
+        return total > 0 ? { nb, total, part: nb / total } : null;
+      })()
+    : null;
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:items-start">
       <Carte className="p-5 sm:p-6">
@@ -75,9 +86,15 @@ export function Methode({ v }: { v: ValidationIA }) {
           <Point>
             <G>Consigne réécrite après un premier test.</G> Avec l’ancienne consigne, la fourchette de l’IA ne contenait le vrai mouvement qu’environ
             une fois sur deux. La consigne actuelle demande une fourchette du 10<sup>e</sup> au 90<sup>e</sup> centile et prévient l’IA qu’elle
-            sous-estime l’ampleur des crises, un constat tiré de ces mêmes crises : le score reste donc un peu flatteur, une crise inédite pourrait
-            faire moins bien. Aucun élargissement n’est ajouté après coup.
+            sous-estime l’ampleur des crises, un constat tiré des six premières crises : leur score est donc un peu flatteur. Aucun élargissement n’est ajouté après coup.
           </Point>
+          {horsEchantillon && (
+            <Point>
+              <G>Test hors échantillon.</G> Les trois dernières crises (zone euro, Chine, SVB) ont été ajoutées après l’écriture de la consigne : la
+              fourchette y contient le vrai mouvement pour {horsEchantillon.nb} actifs sur {horsEchantillon.total}, soit {nombre(horsEchantillon.part * 100, 0)} %.
+              C’est la mesure la plus honnête, mais sur seulement trois crises.
+            </Point>
+          )}
           <Point>
             <G>Un seul tirage par crise.</G> L’IA n’est pas déterministe : relancée, elle donnerait des chiffres un peu différents.
           </Point>
@@ -94,7 +111,7 @@ export function Methode({ v }: { v: ValidationIA }) {
             {ecretes.length > 0 ? ` (ici : ${ecretes.join(" ; ")})` : ""}.
           </Point>
           <Point>
-            <G>Le passé ne garantit pas l’avenir.</G> Bien estimer six crises connues ne dit pas comment l’IA jugera la prochaine.
+            <G>Le passé ne garantit pas l’avenir.</G> Bien estimer neuf crises connues ne dit pas comment l’IA jugera la prochaine.
           </Point>
         </ListeEncadre>
       </Encadre>

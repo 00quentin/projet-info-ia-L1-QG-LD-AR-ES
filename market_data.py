@@ -498,4 +498,16 @@ EVENEMENTS_HISTORIQUES = {
         "debut": "2016-06-23", "fin": "2016-12-31",
         "description": "Référendum UK, livre sterling -10% en une nuit."
     },
+    "Crise de la dette en zone euro (2011)": {
+        "debut": "2011-07-22", "fin": "2011-10-03",
+        "description": "Doutes sur les dettes publiques de l'Italie et de l'Espagne, dégradation de la note américaine, forte baisse des banques européennes."
+    },
+    "Dévaluation chinoise (2015-2016)": {
+        "debut": "2015-08-10", "fin": "2016-02-11",
+        "description": "La Chine dévalue le yuan par surprise, ses Bourses chutent et le pétrole s'effondre : peur d'un ralentissement mondial."
+    },
+    "Faillite de SVB (2023)": {
+        "debut": "2023-03-08", "fin": "2023-04-28",
+        "description": "Faillite de Silicon Valley Bank, contagion aux banques régionales américaines, rachat en urgence de Credit Suisse."
+    },
 }

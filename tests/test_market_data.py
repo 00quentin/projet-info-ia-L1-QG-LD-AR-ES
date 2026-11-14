@@ -261,3 +261,13 @@ def test_tous_les_actifs_ont_une_devise():
     from config import DEVISE_ACTIF
     for sim_key in market_data.TICKERS_YAHOO:
         assert sim_key in DEVISE_ACTIF
+
+
+def test_evenements_historiques_apres_1999_et_decrits_sans_nom():
+    """Conversion en euros par taux BCE (depuis 1999) et validation IA : une description neutre par crise."""
+    from core.validation_ia import verifier_neutralite
+    from scripts.valider_ia_historique import DESCRIPTIONS_NEUTRES
+    assert len(market_data.EVENEMENTS_HISTORIQUES) == 9
+    for nom, evt in market_data.EVENEMENTS_HISTORIQUES.items():
+        assert pd.to_datetime(evt["debut"]).year >= 2000, nom
+        assert verifier_neutralite(DESCRIPTIONS_NEUTRES[nom], nom) is None, nom
