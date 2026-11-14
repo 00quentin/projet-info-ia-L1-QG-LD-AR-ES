@@ -216,3 +216,12 @@ from api.comparaison import DemandeComparaison, comparer_portefeuilles  # noqa: 
 def comparer_deux_portefeuilles(demande: DemandeComparaison) -> dict:
     """Deux portefeuilles face au même scénario : une seule analyse de l IA, deux simulations."""
     return comparer_portefeuilles(demande)
+
+# === Recherche d actifs =====================================================
+from api.recherche import rechercher_actifs  # noqa: E402
+
+
+@app.get("/api/recherche-actifs", tags=["Données"], dependencies=[limite_donnees])
+def chercher_actifs(q: str = "") -> dict:
+    """Cherche une action, un ETF, un indice ou une crypto par son nom (Yahoo Finance, cache 1 h)."""
+    return rechercher_actifs(q)

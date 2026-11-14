@@ -265,3 +265,8 @@ export type ReponseComparaison = {
 
 export const comparerPortefeuilles = (demande: DemandeComparaison) =>
   appeler<ReponseComparaison>("/api/comparaison-portefeuilles", { method: "POST", body: JSON.stringify(demande) });
+
+export type ResultatRecherche = { symbole: string; nom: string; type: string; bourse: string | null; devise: string | null };
+export type ReponseRecherche = { resultats: ResultatRecherche[]; message: string | null };
+
+export const rechercherActifs = (q: string) => appeler<ReponseRecherche>(`/api/recherche-actifs?q=${encodeURIComponent(q)}`);

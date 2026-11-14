@@ -7,11 +7,12 @@ import { ErreurApi, lireActifPerso, lireMarchesPartages, type ActifPerso, type C
 import { pourcentSigne } from "@/lib/format";
 import { descriptionActif, libelleCategorie, nomCourt } from "@/contenu/actifs";
 import { champ } from "./styles";
+import { RechercheActif } from "./RechercheActif";
 import { AideInfo, Infobulle } from "@/components/ui/Infobulle";
 import { Prix, uniteCours } from "@/components/ui/Prix";
 import { DUREE, EASE_SORTIE, RESSORT } from "@/components/motion/transitions";
 
-const TICKERS_PERSO_MAX = 10;
+const TICKERS_PERSO_MAX = 20;
 const TOUTES = "Toutes";
 const CATEGORIE_PERSO = "Actifs personnalisés";
 
@@ -119,6 +120,13 @@ export function SelecteurActifs({ catalogue, actifs, actifsPerso, autoriserActif
     setSelection((s) => (toutes ? s.filter((x) => !cles.includes(x)) : Array.from(new Set([...s, ...cles]))));
   }
 
+  function ajouterPerso(a: ActifPerso) {
+    setPerso((p) => (p.some((x) => x.cle === a.cle) ? p : [...p, a]));
+    setSelection((s) => (s.includes(a.cle) ? s : [...s, a.cle]));
+    setRecherche("");
+    setCategorie(TOUTES);
+  }
+
   const avecProfil = nomProfil && actifsDuProfil.size > 0;
 
   return (
@@ -218,16 +226,10 @@ export function SelecteurActifs({ catalogue, actifs, actifsPerso, autoriserActif
             })}
           </div>
           {autoriserActifsPerso && (
-            <AjoutTicker
-              suggestion={visibles.length === 0 ? recherche : ""}
-              dejaPresents={perso}
-              onAjout={(a) => {
-                setPerso((p) => [...p, a]);
-                setSelection((s) => [...s, a.cle]);
-                setRecherche("");
-                setCategorie(TOUTES);
-              }}
-            />
+            <div className="mt-6 rounded-tuile border border-dashed border-line-strong p-3.5">
+              <RechercheActif dejaPresents={perso} max={TICKERS_PERSO_MAX} onAjout={ajouterPerso} />
+              <AjoutTicker suggestion={visibles.length === 0 ? recherche : ""} dejaPresents={perso} onAjout={ajouterPerso} />
+            </div>
           )}
         </div>
 
@@ -327,9 +329,9 @@ function AjoutTicker({ suggestion, dejaPresents, onAjout }: { suggestion: string
   }
 
   return (
-    <div className="mt-6 rounded-tuile border border-dashed border-line-strong p-3.5">
+    <div className="mt-5 border-t border-line pt-4">
       <div className="flex items-center gap-1.5">
-        <p className="text-sm font-medium">Une action, un ETF ou une crypto absent de la liste ?</p>
+        <p className="text-sm font-medium">Ou saisissez directement son symbole Yahoo Finance</p>
         <AideInfo
           libelle="Comment ajouter un actif"
           texte="Saisissez son ticker Yahoo Finance : TSLA, NVDA, AIR.PA, MC.PA, BTC-USD… Le prix et la volatilité sont calibrés sur un an de cours."
