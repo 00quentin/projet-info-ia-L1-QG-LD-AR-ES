@@ -11,3 +11,16 @@ Décisions du superviseur, cycle par cycle (voir `docs/AUTONOME.md`).
 3. **README orienté démo + schéma d'architecture.** Le README décrit encore l'app Streamlit (« 50 trajectoires » alors que le moteur en tire 1000) et ne présente pas le site Next.js ni l'API. C'est la première chose que lit un jury : support de pitch à faible risque, uniquement de la documentation.
 
 Périmètres disjoints : tâche 1 = `config.py`, `api/services.py`, `tests/test_api.py`, `web/src/lib/api.ts`, `web/src/components/formulaire/ChoixPortefeuille.tsx` ; tâche 2 = `tests/test_donnees_methodologie.py` (nouveau), `web/src/components/methodologie/donnees.ts` ; tâche 3 = `README.md`, `docs/ARCHITECTURE.md` (nouveau).
+
+## Cycle 1 — relecture
+
+*Vérifications : pytest 469 passés, `tsc --noEmit` et `npm run lint` sans erreur (build laissé à l'orchestrateur).*
+
+- **Tâche 1 (portefeuilles d'exemple) : À CORRIGER (mineur).** Fonctionnel, additif, testé (3 tests API), poids sommant à 1 et clés connues, repli si l'API est ancienne. Défaut cosmétique : `nomCourtProfil =(profil` (espace manquant) dans `ChoixPortefeuille.tsx`. Corrigé au cycle 2.
+- **Tâche 2 (test de synchro `donnees.ts`) : ACCEPTÉE.** Test lit `donnees.ts` et le compare à `config.py`/`schemas.py`/`market_data.py` ; seuls des commentaires changent dans `donnees.ts` (`MacroImpact` -> `ChocsMacro`, nom réel de la classe).
+- **Tâche 3 (README + ARCHITECTURE) : À CORRIGER (mineur).** Sondage de 5 affirmations exactes (23 actifs en 6 catégories, `gpt-6.1-terra`, horizon 30-250 / 100, 78 % = 80/102 dans `validation_ia.json`, URL Vercel). Une valeur périmée : « 415 tests » alors qu'il y en a 469 ; on retire le nombre pour qu'il ne dérive plus.
+
+## Cycle 2 — décisions
+
+1. **Corrections du cycle 1** (espace dans `nomCourtProfil`, nombre de tests du README).
+2. **Supports de pitch** : plan de diaporama + script vidéo 30 s dans `docs/PITCH.md` (nouveau), uniquement de la documentation, faits tirés du README et de `data/validation_ia.json`.

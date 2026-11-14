@@ -83,7 +83,7 @@ export function pourcentagesEntiers(poids: Record<string, number>): Record<strin
   return res;
 }
 
-export const nomCourtProfil =(profil: string) => profil.split(" (")[0];
+export const nomCourtProfil = (profil: string) => profil.split(" (")[0];
 
 export function portefeuilleInitial(catalogue: Catalogue): ValeurPortefeuille {
   const equilibre = catalogue.profils.find((p) => p.nom.startsWith("Équilibré")) ?? catalogue.profils[0];

@@ -77,7 +77,7 @@ L'adresse de l'API se règle avec la variable `NEXT_PUBLIC_API_URL` (par défaut
 ### Tests et vérifications
 
 ```bash
-pytest                        # 415 tests Python (moteur, core/, API)
+pytest                        # tests Python (moteur, core/, API)
 
 cd web
 npx tsc --noEmit              # types TypeScript
