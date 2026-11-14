@@ -5,6 +5,7 @@ import { MISE_A_JOUR, SITE_URL } from "@/contenu/legal";
 const PAGES: { chemin: string; priorite: number; frequence: "weekly" | "monthly" | "yearly"; miseAJour?: string }[] = [
   { chemin: "/", priorite: 1, frequence: "weekly" },
   { chemin: "/backtest", priorite: 0.8, frequence: "monthly" },
+  { chemin: "/comparer", priorite: 0.7, frequence: "monthly" },
   { chemin: "/academie", priorite: 0.8, frequence: "monthly" },
   { chemin: "/methodologie", priorite: 0.7, frequence: "monthly" },
   { chemin: "/validation", priorite: 0.7, frequence: "monthly" },

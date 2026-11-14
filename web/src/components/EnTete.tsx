@@ -12,6 +12,7 @@ import { RESSORT } from "@/components/motion/transitions";
 const PAGES = [
   { href: "/", libelle: "Simulateur" },
   { href: "/backtest", libelle: "Backtest" },
+  { href: "/comparer", libelle: "Comparer" },
   { href: "/historique", libelle: "Historique" },
   { href: "/academie", libelle: "Académie" },
   { href: "/validation", libelle: "Validation IA" },
