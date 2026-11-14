@@ -67,7 +67,7 @@ def render_onboarding():
     # ----- Splash de bienvenue (compact, sans répéter le titre du topbar) -----
     st.markdown("""
     <div class="qt-welcome-splash">
-        <div class="qt-welcome-tagline">Simulateur d&rsquo;investissement pédagogique &middot; L1 MIASHS 2026</div>
+        <div class="qt-welcome-tagline">Simulateur d&rsquo;investissement pédagogique </div>
         <div class="qt-welcome-desc">
             Testez l&rsquo;impact d&rsquo;événements économiques sur votre portefeuille —
             vrais prix de marché via Yahoo Finance, analyse par IA, métriques institutionnelles.

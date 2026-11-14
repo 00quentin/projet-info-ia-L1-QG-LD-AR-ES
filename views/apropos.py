@@ -22,17 +22,26 @@ def render_page_apropos():
 
     st.markdown("""
     <div class="qt-card-intro">
-        <div class="qt-tag">Université Paris Nanterre · Licence 1 · Semestre 2</div>
+        <div class="qt-tag">Simulateur pédagogique · Quentin Geldreich</div>
         <p style="font-size: 1.05em; margin-bottom: 0;">
-            Quant Terminal est un projet réalisé dans le cadre de notre cours d'<strong>informatique de L1, semestre 2</strong>, 
-            au sein de la licence <strong>MIASHS</strong> (Mathématiques et Informatique Appliquées aux Sciences Humaines et Sociales), 
-            que nous suivons en <strong>double licence avec Économie et Gestion</strong> à l'Université Paris Nanterre.
+            Quant Terminal est un <strong>simulateur pédagogique</strong> qui montre l'impact d'événements économiques sur un portefeuille, avec de vrais prix de marché et une analyse par IA. Il est créé et développé par <strong>Quentin Geldreich</strong>.
         </p>
     </div>
     """, unsafe_allow_html=True)
 
     # Équipe
-    st.markdown('<div class="qt-section-title">L\'équipe</div>', unsafe_allow_html=True)
+    st.markdown('<div class="qt-section-title">Histoire du projet</div>', unsafe_allow_html=True)
+    st.markdown("""
+    <div class="qt-card-intro">
+        <p style="margin-bottom: 8px;">
+            Quant Terminal est né en <strong>2025-2026</strong>, en première année de licence <strong>MIASHS</strong> à l'<strong>Université Paris Nanterre</strong>.
+            Il a été conçu par Quentin Geldreich, Lukha Doazan, Evan Saadi et Alex Ruimy.
+        </p>
+        <p style="margin-bottom: 0;">Il est aujourd'hui <strong>poursuivi et développé par Quentin Geldreich</strong>.</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("<div class='qt-section-title'>L'équipe d'origine</div>", unsafe_allow_html=True)
     cols = st.columns(4)
     for col, (nom, desc) in zip(cols, MEMBRES_EQUIPE):
         with col:
@@ -117,5 +126,5 @@ def render_page_apropos():
 
     st.markdown('<div style="text-align:center; color:var(--text-muted); margin-top:30px; padding:20px; '
                 'border-top: 1px solid var(--border); font-size:0.85em;">'
-                '© 2026 · Quant Terminal · Université Paris Nanterre · MIASHS'
+                '© 2026 · Quant Terminal · Quentin Geldreich'
                 '</div>', unsafe_allow_html=True)

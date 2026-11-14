@@ -7,7 +7,7 @@ const COLONNES: { titre: string; lignes: string[] }[] = [
   { titre: "Données & sources", lignes: ["Yahoo Finance (cours de clôture)", "BCE (taux de change officiels)", "OpenAI (analyse IA)", "23 actifs · 6 catégories + tickers libres"] },
   { titre: "Méthodologie", lignes: ["Volatilités et corrélations réelles", "Monte-Carlo (1 000 trajectoires)", "Métriques de risque institutionnelles", "Calibration sur crises historiques"] },
   { titre: "Équipe", lignes: ["Quentin Geldreich", "Lukha Doazan", "Evan Saadi", "Alex Ruimy"] },
-  { titre: "Mentions", lignes: ["Outil pédagogique", "Université Paris Nanterre", "Licence MIASHS · L1 S2", "Projet 2026"] },
+  { titre: "Mentions", lignes: ["Outil pédagogique", "Créé par Quentin Geldreich", "Projet 2026"] },
 ];
 
 const LIENS_LEGAUX = [
@@ -40,8 +40,7 @@ export function PiedDePage() {
         <div className="mt-8 flex gap-3 rounded-xl border border-warn/30 bg-warn-soft px-4 py-3 text-xs leading-relaxed text-ink-2">
           <TriangleAlert className="mt-0.5 size-4 shrink-0 text-warn" aria-hidden />
           <p>
-            <strong className="font-semibold text-ink">{AVERTISSEMENT_COURT}</strong> — Quant Terminal est un outil pédagogique développé dans un cadre
-            universitaire. Les simulations et analyses présentées sont des estimations produites par un modèle mathématique et une intelligence
+            <strong className="font-semibold text-ink">{AVERTISSEMENT_COURT}</strong> — Quant Terminal est un outil pédagogique créé par Quentin Geldreich. Les simulations et analyses présentées sont des estimations produites par un modèle mathématique et une intelligence
             artificielle : elles ne constituent ni un conseil en investissement, ni une recommandation d&apos;achat ou de vente. Les performances passées
             ne préjugent pas des performances futures. Les utilisateurs sont seuls responsables de leurs décisions d&apos;investissement.{" "}
             <Link href="/cgu#avertissement" className="font-medium text-ink underline decoration-warn/50 underline-offset-2 hover:decoration-warn">
@@ -50,7 +49,7 @@ export function PiedDePage() {
           </p>
         </div>
         <div className="mt-6 flex flex-col gap-3 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
-          <p>© 2026 Quant Terminal · Université Paris Nanterre</p>
+          <p>© 2026 Quant Terminal · Quentin Geldreich</p>
           <nav aria-label="Informations légales et aide">
             <ul className="flex flex-wrap gap-x-4 gap-y-2">
               {LIENS_LEGAUX.map((l) => (

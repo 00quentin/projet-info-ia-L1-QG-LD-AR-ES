@@ -22,7 +22,7 @@ export const RESPONSABLE_PUBLICATION = "Quentin Geldreich";
 
 export const UNIVERSITE = {
   nom: "Université Paris Nanterre",
-  formation: "Licence MIASHS (double licence Économie & Gestion), L1, semestre 2",
+  formation: "Licence MIASHS (double licence Économie & Gestion)",
   adresse: "200 avenue de la République, 92001 Nanterre Cedex, France",
 };
 

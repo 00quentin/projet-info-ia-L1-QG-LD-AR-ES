@@ -95,7 +95,7 @@ export default function Image() {
               {p}
             </div>
           ))}
-          <div style={{ marginLeft: "auto", fontSize: 20, color: C.muted }}>Projet étudiant · Université Paris Nanterre</div>
+          <div style={{ marginLeft: "auto", fontSize: 20, color: C.muted }}>Simulateur pédagogique · Quentin Geldreich</div>
         </div>
       </div>
     ),

@@ -143,7 +143,7 @@ Profils d'investisseur disponibles : *Prudent*, *Équilibré*, *Agressif*, *Pers
 
 ## Équipe
 
-Projet réalisé en L1 MIASHS à l'**Université Paris Nanterre** (2025-2026) :
+Projet né en 2025-2026 en première année de licence MIASHS à l'**Université Paris Nanterre**, aujourd'hui poursuivi et développé par Quentin Geldreich. Équipe d'origine :
 
 - **Quentin Geldreich**
 - **Lukha Doazan**

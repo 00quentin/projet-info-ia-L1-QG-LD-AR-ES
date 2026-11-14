@@ -6,7 +6,7 @@ import { G } from "@/components/academie/blocs";
 import { LienContact } from "@/components/legal/blocs";
 import { CopierTexte } from "@/components/legal/CopierTexte";
 import { Apparition, Cascade, ElementCascade } from "@/components/motion/Apparition";
-import { CONTACT_EMAIL, DEPOT_GITHUB, DEPOT_ISSUES, EQUIPE, NOM_SITE, UNIVERSITE } from "@/contenu/legal";
+import { CONTACT_EMAIL, DEPOT_GITHUB, DEPOT_ISSUES, EQUIPE, NOM_SITE } from "@/contenu/legal";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -53,7 +53,7 @@ export default function Page() {
         </p>
         <h1 className="mt-4 text-4xl font-semibold tracking-tight text-ink sm:text-5xl">Nous contacter</h1>
         <p className="mt-4 max-w-[37rem] text-[17px] leading-[1.7] text-ink-2 sm:text-lg">
-          Une question, une erreur repérée, une idée d’amélioration ? {NOM_SITE} est un projet étudiant : nous lisons tous les messages et répondons
+          Une question, une erreur repérée, une idée d’amélioration ? {NOM_SITE} est un projet indépendant : nous lisons tous les messages et répondons
           dès que possible, en général sous quelques jours.
         </p>
       </Apparition>
@@ -155,7 +155,7 @@ export default function Page() {
       <Apparition auDefilement className="mt-14">
         <h2 className="text-2xl font-semibold tracking-tight text-ink">L’équipe</h2>
         <p className="mt-3 max-w-[37rem] text-base leading-[1.75] text-ink-2">
-          <G>{EQUIPE.join(", ").replace(/, ([^,]*)$/, " et $1")}</G>, étudiants en licence MIASHS et Économie &amp; Gestion à l’{UNIVERSITE.nom}.
+          Quant Terminal est développé par <G>Quentin Geldreich</G>, avec l’équipe d’origine : <G>{EQUIPE.join(", ").replace(/, ([^,]*)$/, " et $1")}</G>.
           Le projet est présenté en détail sur la page <Link href="/a-propos" className="font-medium text-accent-ink underline decoration-accent/40 underline-offset-2 hover:decoration-accent">À propos</Link>.
         </p>
         <p className="mt-3 max-w-[37rem] text-sm leading-relaxed text-muted">

@@ -106,7 +106,7 @@ export function Guide() {
             <button ref={boutonFermer} type="button" onClick={fermer} aria-label="Fermer le guide" className="absolute right-4 top-4 grid size-8 place-items-center rounded-controle text-muted transition hover:bg-surface-2 hover:text-ink">
               <X className="size-4" aria-hidden />
             </button>
-            <p className="text-xs font-semibold uppercase tracking-wider text-accent-ink">Simulateur d&apos;investissement pédagogique · L1 MIASHS 2026</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-accent-ink">Simulateur d&apos;investissement pédagogique</p>
             <h2 id="titre-guide" className="mt-2 text-2xl font-semibold tracking-tight">Bienvenue sur Quant Terminal</h2>
             <p className="mt-2 text-titre leading-relaxed text-ink-2">
               Vous décrivez un événement (krach, guerre, hausse des taux, révolution IA…) et le terminal estime son impact sur votre portefeuille, à partir des <strong className="font-semibold text-ink">vrais prix de marché</strong> (Yahoo Finance), convertis en euros. Comptez <strong className="font-semibold text-ink">environ 2 minutes</strong> pour votre première simulation.

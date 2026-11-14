@@ -52,19 +52,18 @@ def render_footer():
                 <h5>Mentions</h5>
                 <ul>
                     <li>Outil pédagogique</li>
-                    <li>Université Paris Nanterre</li>
-                    <li>Licence MIASHS · L1 S2</li>
+                    <li>Créé par Quentin Geldreich</li>
                     <li>Projet 2026</li>
                 </ul>
             </div>
         </div>
         <div class="qt-footer-bottom">
             <div style="background: rgba(214,158,46,0.12); border: 1px solid rgba(214,158,46,0.3); border-radius: 8px; padding: 12px 16px; margin-bottom: 14px; text-align: left; font-size: 0.82em; line-height: 1.6;">
-                <strong style="color: #f59e0b;">⚠ Avertissement</strong> — Quant Terminal est un <strong>outil pédagogique</strong> développé dans un cadre universitaire (Université Paris Nanterre, MIASHS L1).
+                <strong style="color: #f59e0b;">⚠ Avertissement</strong> — Quant Terminal est un <strong>outil pédagogique</strong> créé par Quentin Geldreich.
                 Les simulations et analyses présentées <strong>ne constituent pas un conseil en investissement</strong>, ni une recommandation d'achat ou de vente d'un quelconque actif financier.
                 Les performances passées ne préjugent pas des performances futures. Les utilisateurs sont seuls responsables de leurs décisions d'investissement et sont invités à consulter un conseiller financier agréé avant toute opération.
             </div>
-            © 2026 Quant Terminal · Tous droits réservés · Université Paris Nanterre
+            © 2026 Quant Terminal · Tous droits réservés · Quentin Geldreich
         </div>
     </div>
     """, unsafe_allow_html=True)

@@ -42,17 +42,26 @@ export default function Page() {
   return (
     <div className="mx-auto max-w-5xl px-4 pb-20 pt-10 sm:px-6 sm:pt-14">
       <Apparition>
-        <p className="inline-flex rounded-full bg-accent-soft px-3 py-1 text-xs font-medium text-accent-ink">Université Paris Nanterre · Licence 1 · Semestre 2</p>
+        <p className="inline-flex rounded-full bg-accent-soft px-3 py-1 text-xs font-medium text-accent-ink">Simulateur pédagogique · Quentin Geldreich</p>
         <h1 className="mt-4 text-4xl font-semibold tracking-tight text-ink sm:text-5xl">À propos de Quant Terminal</h1>
         <p className="mt-5 max-w-[40rem] text-lg leading-relaxed text-ink-2">
-          Quant Terminal est un projet réalisé dans le cadre de notre cours d’<G>informatique de L1, semestre 2</G>, au sein de la licence <G>MIASHS</G>{" "}
-          (Mathématiques et Informatique Appliquées aux Sciences Humaines et Sociales), que nous suivons en <G>double licence avec Économie et Gestion</G>{" "}
-          à l’Université Paris Nanterre.
+          Quant Terminal est un <G>simulateur pédagogique</G> qui montre l’impact d’événements économiques sur un portefeuille, avec de vrais prix de marché
+          et une analyse par IA. Il est créé et développé par <G>Quentin Geldreich</G>.
         </p>
       </Apparition>
 
-      <Rubrique id="equipe" titre="L’équipe">
+      <Rubrique id="equipe" titre="L’équipe d’origine">
         <Equipe />
+      </Rubrique>
+
+      <Rubrique id="histoire" titre="Histoire du projet">
+        <p>
+          Quant Terminal est né en <G>2025-2026</G>, en première année de licence <G>MIASHS</G> à l’<G>Université Paris Nanterre</G>. Il a été conçu par
+          Quentin Geldreich, Lukha Doazan, Evan Saadi et Alex Ruimy.
+        </p>
+        <p>
+          Il est aujourd’hui <G>poursuivi et développé par Quentin Geldreich</G>.
+        </p>
       </Rubrique>
 
       <section className="mt-14 grid grid-cols-1 gap-4 lg:grid-cols-[3fr_2fr]">
@@ -137,7 +146,7 @@ export default function Page() {
         </Encadre>
       </Rubrique>
 
-      <footer className="mt-16 border-t border-line pt-6 text-center text-sm text-muted">© 2026 · Quant Terminal · Université Paris Nanterre · MIASHS</footer>
+      <footer className="mt-16 border-t border-line pt-6 text-center text-sm text-muted">© 2026 · Quant Terminal · Quentin Geldreich</footer>
     </div>
   );
 }

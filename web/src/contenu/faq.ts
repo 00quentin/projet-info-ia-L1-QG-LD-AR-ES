@@ -136,7 +136,7 @@ export const FAQ: ThemeFaq[] = [
         id: "conseil",
         question: "Est-ce un conseil en investissement ?",
         reponse: [
-          "Non. Quant Terminal est un outil pédagogique conçu par des étudiants. Ses résultats sont des estimations d’un modèle et d’une IA ; ils ne constituent ni un conseil en investissement ni une recommandation d’acheter ou de vendre. L’équipe n’est pas un prestataire agréé par l’AMF.",
+          "Non. Quant Terminal est un outil pédagogique créé par Quentin Geldreich. Ses résultats sont des estimations d’un modèle et d’une IA ; ils ne constituent ni un conseil en investissement ni une recommandation d’acheter ou de vendre. L’équipe n’est pas un prestataire agréé par l’AMF.",
           "Pour une vraie décision, adressez-vous à un professionnel habilité (conseiller en investissements financiers enregistré à l’ORIAS, banque, entreprise d’investissement).",
         ],
         liens: [{ href: "/cgu#avertissement", libelle: "L’avertissement complet" }],
@@ -177,7 +177,7 @@ export const FAQ: ThemeFaq[] = [
         id: "equipe",
         question: "Qui a créé Quant Terminal ? Comment signaler une erreur ?",
         reponse: [
-          "Quatre étudiants de la licence MIASHS de l’Université Paris Nanterre : Quentin Geldreich, Lukha Doazan, Evan Saadi et Alex Ruimy, dans le cadre de leur cours d’informatique de L1.",
+          "Quentin Geldreich, qui le développe aujourd’hui. Le projet est né en 2025-2026 en première année de licence MIASHS à l’Université Paris Nanterre, conçu avec Lukha Doazan, Evan Saadi et Alex Ruimy.",
           "Une erreur, une idée, une question ? Écrivez-nous ou ouvrez un ticket sur le dépôt GitHub du projet : tout est expliqué sur la page Contact.",
         ],
         liens: [

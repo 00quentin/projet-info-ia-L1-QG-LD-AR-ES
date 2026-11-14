@@ -260,7 +260,7 @@ export default function Page() {
             ))}
           </ul>
           <p className="rounded-tuile border border-line bg-surface-2 px-4 py-3 text-aide">
-            Quant Terminal est un outil pédagogique réalisé par des étudiants de L1. Ce n&apos;est pas un conseil en investissement.
+            Quant Terminal est un outil pédagogique créé par Quentin Geldreich. Ce n&apos;est pas un conseil en investissement.
           </p>
         </Rubrique>
 
