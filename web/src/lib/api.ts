@@ -5,12 +5,16 @@ export const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:800
 export type Actif = { cle: string; nom: string; devise: string | null; ticker: string | null; par_defaut: boolean };
 export type Categorie = { nom: string; actifs: Actif[] };
 export type Profil = { nom: string; poids: Record<string, number> | null };
+/** Portefeuille connu des debutants, applique en un clic (poids en fractions sommant a 1). */
+export type PortefeuilleExemple = { nom: string; description: string; poids: Record<string, number> };
 export type EvenementHistorique = { nom: string; debut: string; fin: string; description: string };
 export type Bornes = { min: number; max: number; defaut: number; pas: number };
 
 export type Catalogue = {
   categories: Categorie[];
   profils: Profil[];
+  /** Optionnel : une API plus ancienne ne le renvoie pas encore. */
+  portefeuilles_exemple?: PortefeuilleExemple[];
   scenarios_rapides: { titre: string; texte: string }[];
   scenarios_par_defaut: string[];
   labels_scenarios: string[];

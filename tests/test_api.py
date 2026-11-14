@@ -68,6 +68,26 @@ def test_catalogue_complet():
     assert data["horizon"]["min"] < data["horizon"]["max"]
 
 
+def test_catalogue_portefeuilles_exemple_presents():
+    exemples = client.get("/api/catalogue").json()["portefeuilles_exemple"]
+    assert len(exemples) >= 2
+    for ex in exemples:
+        assert ex["nom"] and ex["description"]
+
+
+def test_catalogue_portefeuilles_exemple_poids_somment_a_un():
+    for ex in client.get("/api/catalogue").json()["portefeuilles_exemple"]:
+        assert abs(sum(ex["poids"].values()) - 1.0) < 1e-9, ex["nom"]
+        assert all(p > 0 for p in ex["poids"].values())
+
+
+def test_catalogue_portefeuilles_exemple_cles_connues():
+    data = client.get("/api/catalogue").json()
+    cles = {a["cle"] for c in data["categories"] for a in c["actifs"]}
+    for ex in data["portefeuilles_exemple"]:
+        assert set(ex["poids"]) <= cles, ex["nom"]
+
+
 def test_marches_indique_source_et_date(monkeypatch):
     monkeypatch.setattr(services.market_data, "get_prix_avec_variation", lambda actifs: {
         a: {"prix": 10.0, "variation_pct": 1.0, "sparkline": [9.0, 10.0],

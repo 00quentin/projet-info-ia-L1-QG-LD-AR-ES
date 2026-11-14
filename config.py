@@ -114,6 +114,23 @@ PROFILS = {
     },
 }
 
+# Portefeuilles d'exemple proposés en un clic sur le site (ils remplissent le profil Personnalisé).
+PORTEFEUILLES_EXEMPLE = {
+    "60/40 classique": {
+        "description": "Le grand classique : 60 % d'actions pour la croissance, "
+                       "40 % d'obligations d'État pour amortir les chutes.",
+        "poids": {
+            "S&P 500": 0.30, "MSCI_World": 0.20, "CAC 40": 0.10,
+            "Bons_Tresor_US_10Y": 0.20, "Bund_10Y": 0.10, "OAT_10Y": 0.10,
+        },
+    },
+    "Tout actions monde": {
+        "description": "100 % actions mondiales : 90 % pays développés (MSCI World) "
+                       "et 10 % pays émergents. Plus de rendement espéré, plus de secousses.",
+        "poids": {"MSCI_World": 0.90, "Emerging_Markets": 0.10},
+    },
+}
+
 
 # ==========================================
 # COULEURS — palette unifiée (SOURCE DE VÉRITÉ Python)

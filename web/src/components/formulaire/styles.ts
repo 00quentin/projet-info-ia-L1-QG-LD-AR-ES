@@ -6,6 +6,8 @@ export const champ =
 /** Petite puce cliquable (scenarios rapides, montants) : seule la couleur change au survol. */
 export const puce =
   "rounded-full border border-line bg-surface px-3 py-1.5 text-aide font-medium text-ink-2 transition-colors hover:border-line-strong hover:text-ink aria-pressed:border-accent aria-pressed:bg-accent-soft aria-pressed:text-accent-ink";
+/** Petit intitule au-dessus des puces de portefeuilles d'exemple (12 px). */
+export const titreExemples = "mb-1.5 text-xs font-medium text-muted";
 /** Barre collante du bouton principal, calee sur la marge de la carte qui contient le formulaire. */
 export const barreLancement =
   "sticky bottom-0 z-10 -mx-(--marge-carte) -mb-(--marge-carte) flex flex-col gap-2 rounded-b-carte border-t border-line bg-surface/95 px-(--marge-carte) py-4 backdrop-blur";
