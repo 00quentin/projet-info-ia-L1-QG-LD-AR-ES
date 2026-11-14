@@ -25,7 +25,7 @@ from config import (
     CAPITAL_DEFAUT, CAPITAL_MAX, CAPITAL_MIN, CAPITAL_STEP, DEVISE_ACTIF,
     EVENEMENTS_PRESETS, HORIZON_DEFAUT, HORIZON_MAX, HORIZON_MIN, HORIZON_STEP,
     LABELS_SCENARIOS, MODELES_SIMULATION, NB_SIMULATIONS_MONTE_CARLO,
-    NOM_AFFICHAGE, PROFILS, PROFIL_PERSONNALISE,
+    NOM_AFFICHAGE, PORTEFEUILLES_EXEMPLE, PROFILS, PROFIL_PERSONNALISE,
     SCENARIO_A_DEFAUT, SCENARIO_B_DEFAUT, SCENARIO_C_DEFAUT,
 )
 from core.cache import cache_ttl
@@ -120,6 +120,10 @@ def catalogue() -> Dict[str, Any]:
         "profils": [
             {"nom": nom, "poids": poids} for nom, poids in PROFILS.items()
         ] + [{"nom": PROFIL_PERSONNALISE, "poids": None}],
+        "portefeuilles_exemple": [
+            {"nom": nom, "description": infos["description"], "poids": infos["poids"]}
+            for nom, infos in PORTEFEUILLES_EXEMPLE.items()
+        ],
         "scenarios_rapides": [
             {"titre": titre, "texte": texte} for titre, texte in EVENEMENTS_PRESETS.items()
         ],

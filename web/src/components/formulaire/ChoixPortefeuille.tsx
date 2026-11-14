@@ -7,7 +7,7 @@ import { Check, SlidersHorizontal, TriangleAlert, X } from "lucide-react";
 import { SelecteurActifs } from "./SelecteurActifs";
 import type { ActifPerso, Catalogue } from "@/lib/api";
 import { nomCourt } from "@/contenu/actifs";
-import { champ, puce } from "./styles";
+import { champ, puce, titreExemples } from "./styles";
 import { ChampMontant } from "@/components/ui/ChampMontant";
 import { AideInfo, Infobulle, useEstClient } from "@/components/ui/Infobulle";
 import { RESSORT } from "@/components/motion/transitions";
@@ -67,7 +67,23 @@ function repartitionParPoche(poids: Record<string, number>, poches: Map<string, 
   })).filter((x) => x.part > 0);
 }
 
-export const nomCourtProfil = (profil: string) => profil.split(" (")[0];
+/** Fractions (somme 1) -> pourcentages entiers sommant a 100 (methode des plus forts restes). */
+export function pourcentagesEntiers(poids: Record<string, number>): Record<string, number> {
+  const entrees = Object.entries(poids).filter(([, p]) => p > 0);
+  const total = entrees.reduce((s, [, p]) => s + p, 0);
+  if (!total) return {};
+  const bruts = entrees.map(([cle, p]) => ({ cle, brut: (p / total) * 100 }));
+  const res = Object.fromEntries(bruts.map(({ cle, brut }) => [cle, Math.floor(brut)]));
+  let reste = 100 - Object.values(res).reduce((s, p) => s + p, 0);
+  for (const { cle } of [...bruts].sort((a, b) => (b.brut % 1) - (a.brut % 1))) {
+    if (reste <= 0) break;
+    res[cle] += 1;
+    reste -= 1;
+  }
+  return res;
+}
+
+export const nomCourtProfil =(profil: string) => profil.split(" (")[0];
 
 export function portefeuilleInitial(catalogue: Catalogue): ValeurPortefeuille {
   const equilibre = catalogue.profils.find((p) => p.nom.startsWith("Équilibré")) ?? catalogue.profils[0];
@@ -133,6 +149,25 @@ export function ChoixPortefeuille({ catalogue, valeur: v, onChange, autoriserAct
     maj({ profil: nom, actifs, allocations });
   }
 
+  // Portefeuilles d'exemple : seulement ceux dont tous les actifs existent dans ce catalogue.
+  const clesConnues = new Set(catalogue.categories.flatMap((c) => c.actifs.map((a) => a.cle)));
+  const personnaliseDispo = catalogue.profils.some((p) => p.nom === PROFIL_PERSONNALISE);
+  const exemples = personnaliseDispo
+    ? (catalogue.portefeuilles_exemple ?? []).filter((e) => Object.keys(e.poids).length > 0 && Object.keys(e.poids).every((k) => clesConnues.has(k)))
+    : [];
+
+  function appliquerExemple(poids: Record<string, number>) {
+    const allocations = pourcentagesEntiers(poids);
+    // Exactement les actifs de l'exemple : les actifs personnalises ajoutes avant sont retires.
+    maj({ profil: PROFIL_PERSONNALISE, actifs: Object.keys(allocations), allocations, actifsPerso: [] });
+  }
+
+  const exempleActif = (poids: Record<string, number>) => {
+    if (v.profil !== PROFIL_PERSONNALISE) return false;
+    const cible = pourcentagesEntiers(poids);
+    return v.actifs.length === Object.keys(cible).length && v.actifs.every((a) => cible[a] === v.allocations[a]);
+  };
+
   const legende = POCHES.filter((p) => catalogue.profils.some((pr) => repartitionParPoche(pr.poids ?? {}, poches).some((x) => x.poche === p)));
 
   return (
@@ -189,6 +224,29 @@ export function ChoixPortefeuille({ catalogue, valeur: v, onChange, autoriserAct
               </li>
             ))}
           </ul>
+        )}
+        {exemples.length > 0 && (
+          <div className="mt-3">
+            <p className={titreExemples}>Ou partir d&apos;un portefeuille d&apos;exemple</p>
+            <div className="flex flex-wrap gap-1.5" role="group" aria-label="Portefeuilles d'exemple">
+              {exemples.map((e) => {
+                const parts = repartitionParPoche(e.poids, poches);
+                return (
+                  <Infobulle key={e.nom} texte={parts.length ? `${e.description} ${detailRepartition(parts)}.` : e.description}>
+                    <button
+                      type="button"
+                      aria-pressed={exempleActif(e.poids)}
+                      aria-label={`Appliquer le portefeuille d'exemple ${e.nom}`}
+                      onClick={() => appliquerExemple(e.poids)}
+                      className={puce}
+                    >
+                      {e.nom}
+                    </button>
+                  </Infobulle>
+                );
+              })}
+            </div>
+          </div>
         )}
       </div>
 
