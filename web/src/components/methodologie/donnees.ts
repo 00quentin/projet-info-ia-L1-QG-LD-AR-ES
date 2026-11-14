@@ -33,8 +33,8 @@ export const PARAMETRES = {
 
 /** Bornes hors actifs (schemas.py) : [min, max]. */
 export const BORNES_AUTRES = {
-  inflationPoints: [-10, 30], // MacroImpact.inflation : Field(ge=-10.0, le=30.0)
-  tauxDirecteursPoints: [-5, 10], // MacroImpact.taux_directeurs : Field(ge=-5.0, le=10.0)
+  inflationPoints: [-10, 30], // ChocsMacro.inflation : Field(ge=-10.0, le=30.0)
+  tauxDirecteursPoints: [-5, 10], // ChocsMacro.taux_directeurs : Field(ge=-5.0, le=10.0)
   actifPersoPct: [-80, 200], // _BORNE_GENERIQUE_CUSTOM = (-0.80, 2.00)
 } as const;
 
