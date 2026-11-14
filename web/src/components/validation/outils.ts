@@ -10,6 +10,12 @@ export const part = (v: number | null) => (v == null ? "—" : pourcent(v * 100,
 /** 0,93 */
 export const coefficient = (v: number | null) => (v == null ? "—" : nombre(v, 2));
 
+/** « crise financière » → « Crise financière » */
+export const libelleCategorie = (c: string) => c.charAt(0).toUpperCase() + c.slice(1);
+
+/** « Brexit (2016) » → « Brexit » : lisible dans une liste ou un graphique. */
+export const nomCourtEvenement = (nom: string) => nom.replace(/\s*\(.*\)$/, "");
+
 /** « 17/02/2020 → 14/04/2020 » */
 export function periode(debut: string, fin: string) {
   const fr = (iso: string) => iso.split("-").reverse().join("/");
@@ -19,7 +25,6 @@ export function periode(debut: string, fin: string) {
 /** Phrase de lecture honnête, écrite à partir des chiffres (elle reste vraie si on régénère le fichier). */
 export function lectureGlobale(v: ValidationIA): string[] {
   const g = v.global;
-  const b = v.biais_connaissance;
   const phrases: string[] = [];
   if (g.part_sens_correct != null)
     phrases.push(
@@ -39,9 +44,16 @@ export function lectureGlobale(v: ValidationIA): string[] {
           : ""
       }.`,
     );
-  if (b.nb_crises > 0)
+  const nbEvenements = v.crises.length;
+  const nbReconnus = v.crises.filter((c) => c.reconnue).length;
+  if (nbEvenements > 0 && nbReconnus > 0)
     phrases.push(
-      `Mais elle a reconnu ${b.nb_reconnues_sans_date} crise${b.nb_reconnues_sans_date > 1 ? "s" : ""} sur ${b.nb_crises} sans qu’on les nomme : c’est un test à l’aveugle partiel, qui mesure surtout sa connaissance des crises passées.`,
+      `Mais elle a reconnu ${nbReconnus} événement${nbReconnus > 1 ? "s" : ""} sur ${nbEvenements} sans qu’on les nomme : c’est un test à l’aveugle partiel, qui mesure surtout sa connaissance du passé.`,
+    );
+  const h = v.hors_echantillon;
+  if (h && h.part_sens_correct != null && h.nb_evenements)
+    phrases.push(
+      `Sur les ${h.nb_evenements} événements hors échantillon (jamais utilisés pour écrire sa consigne), elle trouve le bon sens ${part(h.part_sens_correct)} du temps, avec une erreur moyenne de ${points(h.erreur_moyenne_pts)}.`,
     );
   return phrases;
 }

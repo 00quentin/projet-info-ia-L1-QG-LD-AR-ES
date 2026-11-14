@@ -274,20 +274,55 @@ def _mots(texte: str) -> List[str]:
     return re.findall(r"[a-z0-9]+", _sans_accents(texte))
 
 
+# Mots courants d'un titre d'événement qui n'identifient rien à eux seuls : la
+# description peut les employer (« baisse », « attaque », « américaine »…).
+MOTS_NON_DISTINCTIFS = {
+    "baisse", "hausse", "taux", "point", "points", "premiere", "premieres", "faillite", "defaut",
+    "plan", "sauvetage", "accord", "reduction", "production", "election", "elections", "attaque",
+    "attentats", "invasion", "annonce", "retrait", "soutien", "majeur", "effondrement",
+    "eclatement", "fonds", "cotes", "approuves", "annexion", "soulevement", "petrole", "frappe",
+    "droits", "douane", "generalises", "punitifs", "americain", "americaine", "americains",
+    "chinois", "chinoise", "chinoises", "politique", "crise", "banque", "banques", "centrale",
+    "bancaire", "blocage", "budgetaire", "surprise", "urgence", "debut", "virage", "reprise",
+    "geants", "numerique", "resultats", "fabricant", "puces", "modele", "cout", "promoteur",
+    "immobilier", "constructeur", "automobile", "action", "frenesie", "boursiere", "autour",
+    "bourses", "krach", "rebond", "stable", "plateforme", "cryptomonnaie", "cryptomonnaies",
+    "installations", "petrolieres", "general", "escalade", "commerciale", "prix", "negatif",
+    "negatifs", "plancher", "repli", "seisme", "tsunami", "ouragan", "vaccin", "efficace",
+    "variant", "apparition", "dissolution", "assemblee", "nationale", "mini", "budget",
+    "presidentielle", "referendum", "denouement", "carry", "trade", "engagement", "coute",
+    "douze", "jours", "flambee", "annee", "fin", "pour", "dans", "avec", "sans", "sous", "chez",
+}
+
+# Noms propres que le simulateur reconnaîtrait tout de suite : jamais dans une description.
+NOMS_PROPRES_INTERDITS = {
+    "fed", "bce", "boj", "snb", "opep", "opec", "trump", "obama", "biden", "bush", "macron",
+    "poutine", "lehman", "covid", "coronavirus", "sras", "brexit", "nasdaq", "bitcoin", "ethereum",
+    "nvidia", "deepseek", "tesla", "apple", "google", "amazon", "microsoft", "gamestop",
+    "evergrande", "wuhan", "subprime", "subprimes", "wall", "street", "dow", "jones",
+}
+
+
 def verifier_neutralite(description: str, nom_crise: str) -> Optional[str]:
-    """Message d'erreur si la description trahit la crise (année, mois, nom propre
-    tiré de son nom) ; None si elle est neutre."""
+    """Message d'erreur si la description trahit l'événement (année, mois, chiffre,
+    nom propre connu ou mot distinctif tiré de son nom) ; None si elle est neutre."""
     if not description or not description.strip():
         return "Description vide."
     annee = _ANNEE.search(description)
     if annee:
         return f"La description contient une année ({annee.group(0)})."
+    if re.search(r"\d", description):
+        return "La description contient un chiffre."
     mots = set(_mots(description))
     mois_trouves = [m for m in MOIS if _sans_accents(m) in mots]
     if mois_trouves:
         return f"La description contient un nom de mois ({mois_trouves[0]})."
+    propres = sorted(NOMS_PROPRES_INTERDITS & mots)
+    if propres:
+        return f"La description contient un nom propre reconnaissable ({', '.join(propres)})."
     interdits = {m for m in _mots(nom_crise)
-                 if len(m) >= 4 and not m.isdigit() and m not in MOTS_GENERIQUES}
+                 if len(m) >= 4 and not m.isdigit() and m not in MOTS_GENERIQUES
+                 and m not in MOTS_NON_DISTINCTIFS}
     trouves = sorted(interdits & mots)
     if trouves:
         return f"La description reprend le nom de la crise ({', '.join(trouves)})."
