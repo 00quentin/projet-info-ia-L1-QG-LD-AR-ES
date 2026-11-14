@@ -51,3 +51,13 @@ Périmètres disjoints ; aucun appel IA, aucun déploiement, rien retiré.
 - P5 « GET /api/parametres » (sonnet) : `api/parametres.py`, `tests/test_api_parametres.py` ; l'endpoint et `donnees.ts` concordent (test). Aucun appel IA.
 - P7 « Préparer la coupure de Streamlit » (haiku) : `components/bandeau_migration.py`, une ligne dans `app.py`, `docs/COUPURE_STREAMLIT.md` ; rien supprimé. Aucun appel IA.
 - Fichiers partagés en ajout seul : `api/main.py` et `web/src/lib/api.ts` (fin de fichier, bloc par agent), `config.py` (fin de fichier, bloc par agent) ; l'orchestrateur résout les conflits d'ajout.
+
+## Chantier 2 — relecture et fusion (orchestrateur)
+- P1 actualité du jour : ACCEPTÉE. 1 appel IA/jour (cache), repli si flux en panne. Branché dans le formulaire (`majScenario(actif, …)`).
+- P2 comparer deux portefeuilles : ACCEPTÉE. Page `/comparer`, analyse IA partagée (cache), 422 si actifs perso différents. Lien « Comparer » + sitemap ajoutés.
+- P3 trois crises de plus : ACCEPTÉE. 9 crises, 85 % dans la fourchette (135/159) ; hors échantillon 86 % (49/57).
+- P4 explications par actif : ACCEPTÉE après test réel par l'orchestrateur (filtre assoupli par l'agent : 4 phrases correctes, sans conseil). Branché dans l'analyse IA avec le choc de l'IA (pas la performance simulée).
+- P5 `/api/parametres` : ACCEPTÉE (3 tests de concordance).
+- P7 coupure Streamlit préparée : ACCEPTÉE (bandeau + `docs/COUPURE_STREAMLIT.md`, rien supprimé).
+- Conflits d'ajout dans `api/main.py`, `config.py`, `web/src/lib/api.ts` : résolus en gardant les deux côtés.
+- Vérifications : 493 tests, tsc, lint, build (21 pages) ; audit Playwright + axe sur 15 pages × 2 tailles × 2 thèmes : 0 débordement, 0 erreur console, 0 violation.
