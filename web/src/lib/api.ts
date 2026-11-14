@@ -208,3 +208,9 @@ export async function telechargerRapportPdf(demande: DemandeRapport): Promise<Bl
   }
   return reponse.blob();
 }
+
+export type DemandeExplication = { scenario: string; chocs: Record<string, number> };
+export type ReponseExplication = { explications: Record<string, string>; modele: string };
+/** `chocs` : variation estimee par actif, en % (ex : -12.3). */
+export const expliquerActifs = (demande: DemandeExplication) =>
+  appeler<ReponseExplication>("/api/explication-actifs", { method: "POST", body: JSON.stringify(demande) });

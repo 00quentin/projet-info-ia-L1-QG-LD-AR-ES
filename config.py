@@ -450,3 +450,11 @@ MOTS_GENERIQUES = {"krach", "crise", "bulle", "guerre", "petrolier", "petroliere
 VALIDATION_DEVISES_EN_LOCAL = {"GBP", "JPY"}
 # Garde-fou de coût : nombre maximal d'appels IA par exécution.
 VALIDATION_MAX_APPELS = 14
+
+# --- Explication par actif (ia_explication.py) ---
+EXPLICATION_TTL_SECONDES = 86400
+EXPLICATION_PHRASE_MIN = 10
+EXPLICATION_PHRASE_MAX = 220
+EXPLICATION_CHOC_MIN_PCT = -100.0
+EXPLICATION_CHOC_MAX_PCT = 1000.0
+EXPLICATION_MAX_TOKENS = 1500

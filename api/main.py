@@ -179,3 +179,13 @@ def lire_validation_ia() -> dict:
     """L'IA à l'épreuve de l'histoire : estimations de l'IA face aux vraies crises passées
     (calculées une fois par scripts/valider_ia_historique.py, aucun appel IA ici)."""
     return resultats_validation()
+
+
+# === Explication par actif ==================================================
+from api.explication import DemandeExplication, expliquer  # noqa: E402
+
+
+@app.post("/api/explication-actifs", tags=["IA"], dependencies=[limite_ia])
+def expliquer_actifs(demande: DemandeExplication) -> dict:
+    """Une phrase par actif expliquant le sens du choc estimé pour ce scénario (IA, mise en cache)."""
+    return expliquer(demande)
