@@ -124,12 +124,12 @@ DESCRIPTIONS_NEUTRES = {
     ),
 }
 
-# Le prompt du simulateur raisonne sur 100 jours : seule cette consigne change,
-# pour que l'IA estime la variation sur toute la durée réelle de la crise.
+# Le prompt du simulateur borne l'horizon a 30-250 seances : cette consigne donne la
+# duree exacte de l'evenement (parfois plus courte ou plus longue).
 BLOC_HORIZON = """
 
     *** PARAMETRE PROPRE A CETTE ANALYSE (PRIORITAIRE SUR L'ETAPE 2) ***
-    L'horizon n'est pas de 100 jours : il couvre toute la periode decrite dans le scenario,
+    L'horizon exact couvre toute la periode decrite dans le scenario,
     soit {nb_seances} seances de bourse ({duree}). Pour chaque actif, donne la variation
     TOTALE entre le debut et la fin de cette periode, dans sa devise de cotation (en dollars
     pour les actifs americains, les matieres premieres et les cryptos). Adapte les reperes
@@ -190,7 +190,7 @@ def construire_prompt(scenario: str, nb_seances: int, duree: str) -> str:
     horizon adapté à la durée de la crise."""
     scenario_propre = ia_bot._sanitize_scenario(scenario)
     prompt = ia_bot._build_prompt_macro(scenario_propre, calibration_historique=False,
-                                        custom_tickers=None, conjoncture="")
+                                        custom_tickers=None, conjoncture="", horizon=nb_seances)
     return prompt + BLOC_HORIZON.format(nb_seances=nb_seances, duree=duree)
 
 
