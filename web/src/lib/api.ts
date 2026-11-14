@@ -221,3 +221,14 @@ export async function lireParametres(): Promise<ParametresMoteur> {
   if (!reponse.ok) throw new ErreurApi("Les paramètres du moteur sont indisponibles.", reponse.status);
   return reponse.json();
 }
+
+/** Scenario neutre condense depuis les gros titres du jour (GET /api/actualite). */
+export type ActualiteDuJour = {
+  disponible: boolean;
+  scenario: string | null;
+  themes: string[];
+  date: string;
+  sources: string[];
+  message: string | null;
+};
+export const lireActualite = () => appeler<ActualiteDuJour>("/api/actualite");

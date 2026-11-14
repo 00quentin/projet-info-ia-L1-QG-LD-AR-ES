@@ -189,3 +189,12 @@ from api.parametres import lire_parametres  # noqa: E402
 def lire_parametres_moteur() -> dict:
     """Constantes du moteur affichées sur la page Méthodologie (lues à la source)."""
     return lire_parametres()
+
+# === Actualité du jour ======================================================
+from api.actualite import lire_actualite  # noqa: E402
+
+
+@app.get("/api/actualite", tags=["IA"], dependencies=[limite_ia])
+def actualite_du_jour() -> dict:
+    """Scénario neutre condensé depuis les gros titres du jour (cache journalier, repli propre)."""
+    return lire_actualite()
