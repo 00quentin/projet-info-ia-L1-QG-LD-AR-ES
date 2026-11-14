@@ -208,3 +208,16 @@ export async function telechargerRapportPdf(demande: DemandeRapport): Promise<Bl
   }
   return reponse.blob();
 }
+
+export type ParametresMoteur = {
+  parametres: Record<string, number>;
+  bornes_autres: Record<string, [number, number]>;
+  bornes_ia: Record<string, [number, number]>;
+  modeles_ia: Record<string, string>;
+};
+
+export async function lireParametres(): Promise<ParametresMoteur> {
+  const reponse = await fetch(`${API_URL}/api/parametres`);
+  if (!reponse.ok) throw new ErreurApi("Les paramètres du moteur sont indisponibles.", reponse.status);
+  return reponse.json();
+}

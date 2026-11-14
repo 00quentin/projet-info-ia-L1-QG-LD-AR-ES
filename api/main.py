@@ -179,3 +179,13 @@ def lire_validation_ia() -> dict:
     """L'IA à l'épreuve de l'histoire : estimations de l'IA face aux vraies crises passées
     (calculées une fois par scripts/valider_ia_historique.py, aucun appel IA ici)."""
     return resultats_validation()
+
+
+# === Paramètres du moteur ===================================================
+from api.parametres import lire_parametres  # noqa: E402
+
+
+@app.get("/api/parametres", tags=["Données"], dependencies=[limite_donnees])
+def lire_parametres_moteur() -> dict:
+    """Constantes du moteur affichées sur la page Méthodologie (lues à la source)."""
+    return lire_parametres()
