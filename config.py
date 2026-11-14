@@ -206,7 +206,8 @@ INCERTITUDE_IA_CORRELATION = 0.8
 # (part de l'amplitude des bornes de l'actif, plafonnee). Avec le prompt v8, l'IA donnait
 # des fourchettes trop etroites (53 % de couverture) et le recalage 1.75 / 1.25 / 0.15
 # montait a 78 %. Le prompt v9 demande lui-meme des fourchettes 10e-90e centile : seul,
-# il couvre 84 % des vrais mouvements (scripts/valider_ia_historique.py), sans reglage
+# il couvre 84 % des vrais mouvements sur 6 crises, 85 % sur 9 dont 86 % sur 3 crises hors
+# echantillon (scripts/valider_ia_historique.py), sans reglage
 # choisi sur ces crises. Le recalage est donc neutre (1, 1, 0) mais reste disponible.
 FOURCHETTE_ELARGISSEMENT_AGGRAVATION = 1.0
 FOURCHETTE_ELARGISSEMENT_ATTENUATION = 1.0
