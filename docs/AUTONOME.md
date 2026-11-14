@@ -34,3 +34,15 @@ fidèlement ses décisions : il lance les agents, fusionne ce qui est accepté, 
 - Supports de pitch : README orienté démo, schéma d'architecture, plan de diaporama, script vidéo 30 s.
 - Finitions issues du benchmark (`docs/BENCHMARK.md`) et des « Prochaines étapes » du rapport n° 3.
 - Tests manquants sur les nouvelles fonctions (`elargir_fourchette`, script de validation).
+
+## Chantier 2 (14/11/2026, après-midi) — règles qui remplacent les garde-fous 1 et 3
+Quentin a demandé de traiter les pistes 1, 2, 3, 4, 5, 7 et 8 du bilan sans rien lui demander.
+- **Appels IA autorisés mais plafonnés** : validation de nouvelles crises ≤ 10 appels au total ; tests manuels
+  des nouvelles fonctions IA ≤ 5 appels par agent ; toute nouvelle fonction IA a un cache (pas d'appel à chaque visite)
+  et passe par une validation Pydantic (`schemas.py`) et la sanitisation anti-injection d'`ia_bot.py`.
+- **Déploiement** : seul l'orchestrateur, à la fin, une fois tout relu et vérifié (fusion dans `developpement`,
+  Render, Vercel). Les agents ne poussent jamais.
+- **Piste 7 (couper Streamlit)** : décision de l'orchestrateur, *pas de suppression* (non-régression, Streamlit Cloud
+  encore en ligne). On prépare la coupure : bandeau dans Streamlit vers le nouveau site, plan de coupure documenté.
+- **Fichiers partagés** (`api/main.py`, `web/src/lib/api.ts`) : chaque agent n'y fait que des **ajouts en fin de
+  section** ; le reste du code va dans de **nouveaux fichiers**. L'orchestrateur résout les conflits d'ajout.
