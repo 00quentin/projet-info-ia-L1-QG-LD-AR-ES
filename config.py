@@ -450,3 +450,6 @@ MOTS_GENERIQUES = {"krach", "crise", "bulle", "guerre", "petrolier", "petroliere
 VALIDATION_DEVISES_EN_LOCAL = {"GBP", "JPY"}
 # Garde-fou de coût : nombre maximal d'appels IA par exécution.
 VALIDATION_MAX_APPELS = 14
+
+# Nouveau site (Next.js, dossier web/) : cible du bandeau de migration affiche dans Streamlit.
+URL_NOUVEAU_SITE = "https://quant-terminal-qg-team.vercel.app"

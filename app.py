@@ -30,6 +30,7 @@ from handlers import handler_simulation, handler_backtest
 
 from components.styling import appliquer_styles
 from components.header import render_header_complet
+from components.bandeau_migration import render_bandeau_migration
 from components.sidebar import render_sidebar
 from components.footer import render_footer, render_toasts
 from components.chat_bubble import render_chat_bubble
@@ -63,6 +64,7 @@ def init_session_state():
         "backtest_data": None,
         "dark_mode": False,
         "show_onboarding": True,
+        "bandeau_migration_ferme": False,
     }
     for key, default in defaults.items():
         if key not in st.session_state:
@@ -118,6 +120,7 @@ appliquer_styles()
 # ==========================================
 
 render_header_complet()
+render_bandeau_migration()
 config = render_sidebar()
 
 # Auto-launch déclenché depuis l'empty state du Dashboard (clic sur preset).
