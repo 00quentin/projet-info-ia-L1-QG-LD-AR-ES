@@ -179,3 +179,13 @@ def lire_validation_ia() -> dict:
     """L'IA à l'épreuve de l'histoire : estimations de l'IA face aux vraies crises passées
     (calculées une fois par scripts/valider_ia_historique.py, aucun appel IA ici)."""
     return resultats_validation()
+
+
+# === Comparaison de deux portefeuilles ======================================
+from api.comparaison import DemandeComparaison, comparer_portefeuilles  # noqa: E402
+
+
+@app.post("/api/comparaison-portefeuilles", tags=["Simulation"], dependencies=[limite_ia])
+def comparer_deux_portefeuilles(demande: DemandeComparaison) -> dict:
+    """Deux portefeuilles face au même scénario : une seule analyse de l IA, deux simulations."""
+    return comparer_portefeuilles(demande)
